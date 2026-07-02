@@ -213,7 +213,7 @@
       const telefono = document.getElementById('telefono').value.trim();
       const telefonoEmergencia = document.getElementById('telefonoEmergencia').value.trim();
       if (telefono && (telefono.length < 8 || telefono.length > 15)) {
-        errorDiv.textContent = 'El teléfono debe incluir el código de país, solo números (ej: 56987546930).';
+        errorDiv.textContent = 'El teléfono debe incluir el código de país, solo números (ej: 56912345678).';
         errorDiv.style.display = 'block';
         return;
       }
