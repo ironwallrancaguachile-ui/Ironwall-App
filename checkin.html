@@ -122,8 +122,29 @@
     // Apps Script (la que termina en /exec). Es la misma que ya tienes.
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
+    // El servidor a veces tarda (primera carga del día, tráfico alto).
+    // Este fetch espera hasta 25 segundos antes de rendirse, y si falla
+    // por tiempo agotado o error de red, reintenta una vez automáticamente.
+    function fetchConReintento(url, opciones, intentos) {
+      intentos = intentos || 2;
+      const TIEMPO_ESPERA_MS = 25000;
+
+      const controlador = new AbortController();
+      const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+
+      return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+        .then(function (r) { clearTimeout(timeoutId); return r; })
+        .catch(function (err) {
+          clearTimeout(timeoutId);
+          if (intentos > 1) {
+            return fetchConReintento(url, opciones, intentos - 1);
+          }
+          throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+        });
+    }
+
     function llamarApi(accion, payload) {
-      return fetch(API_URL, {
+      return fetchConReintento(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: accion, payload: payload })
@@ -143,24 +164,68 @@
     let serviciosCache = [];
 
     function cargarCatalogo() {
+      // Muestra lo que había guardado de la última vez, al instante,
+      // mientras se actualiza en segundo plano por si cambió algo.
+      const cache = leerCache_('servicios_cache');
+      if (cache) serviciosCache = cache;
+
       llamarApi('listarServicios', {})
         .then(function (resp) {
-          if (resp.ok) serviciosCache = resp.data;
-        });
+          if (resp.ok) {
+            serviciosCache = resp.data;
+            guardarCache_('servicios_cache', resp.data);
+          }
+        })
+        .catch(function () { /* si falla, seguimos con lo que había en caché */ });
     }
 
     function cargarStaff() {
+      const select = document.getElementById('staff');
+
+      function pintarOpciones(nombres) {
+        // Guarda el valor ya elegido (si había alguno) para no perderlo
+        const valorPrevio = select.value;
+        select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+        nombres.forEach(function (nombre) {
+          const opt = document.createElement('option');
+          opt.value = nombre;
+          opt.textContent = nombre;
+          select.appendChild(opt);
+        });
+        if (valorPrevio && nombres.indexOf(valorPrevio) !== -1) {
+          select.value = valorPrevio;
+        }
+      }
+
+      const cache = leerCache_('staff_cache');
+      if (cache) pintarOpciones(cache);
+
       llamarApi('listarStaff', {})
         .then(function (resp) {
           if (!resp.ok || !resp.data) return;
-          const select = document.getElementById('staff');
-          resp.data.forEach(function (nombre) {
-            const opt = document.createElement('option');
-            opt.value = nombre;
-            opt.textContent = nombre;
-            select.appendChild(opt);
-          });
-        });
+          pintarOpciones(resp.data);
+          guardarCache_('staff_cache', resp.data);
+        })
+        .catch(function () { /* si falla, seguimos con lo que había en caché */ });
+    }
+
+    // Caché simple en el navegador del staff, válida por 12 horas.
+    function guardarCache_(clave, datos) {
+      try {
+        localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() }));
+      } catch (e) { /* si el navegador bloquea localStorage, no pasa nada grave */ }
+    }
+    function leerCache_(clave) {
+      try {
+        const crudo = localStorage.getItem(clave);
+        if (!crudo) return null;
+        const parsed = JSON.parse(crudo);
+        const DOCE_HORAS_MS = 12 * 60 * 60 * 1000;
+        if (Date.now() - parsed.guardado > DOCE_HORAS_MS) return null;
+        return parsed.datos;
+      } catch (e) {
+        return null;
+      }
     }
 
     function iniciarScanner() {
