@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check-in Ironwall</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; font-size: 13px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; }
+  input {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 6px;
+    background: #fff;
+  }
+  #reader { width: 100%; margin-top: 14px; border-radius: 8px; overflow: hidden; }
+  #manualBox { margin-top: 10px; display: flex; gap: 8px; }
+  #manualBox input { flex: 1; }
+  #manualBox button {
+    padding: 10px 14px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  #resultado { margin-top: 20px; display: none; }
+  .card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 10px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 15px; }
+  .card p { margin: 2px 0; font-size: 13px; color: #555; }
+  .card button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: #1e824c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .card button:disabled { opacity: 0.5; }
+  #sinPases {
+    background: #fdecea;
+    border: 1px solid #f5c6c0;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+  #mensajeOk {
+    background: #e8f6ee;
+    border: 1px solid #b7e4c7;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    margin-top: 12px;
+    display: none;
+  }
+  #nuevaLectura {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    background: #eee;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Check-in Ironwall</h1>
+  <p class="sub">Escanea el código del cliente o ingrésalo manualmente.</p>
+
+  <label>Validado por (tu nombre) *</label>
+  <select id="staff">
+    <option value="">-- Selecciona tu nombre --</option>
+  </select>
+
+  <div id="reader"></div>
+
+  <div id="manualBox">
+    <input type="text" id="idManual" placeholder="Ej: IWR0001">
+    <button onclick="buscarManual()">Buscar</button>
+  </div>
+
+  <div id="resultado"></div>
+  <div id="mensajeOk"></div>
+  <button id="nuevaLectura" style="display:none" onclick="reiniciar()">Escanear siguiente cliente</button>
+
+  <script>
+    // ⚠️ IMPORTANTE: reemplaza esto por la URL de tu implementación de
+    // Apps Script (la que termina en /exec). Es la misma que ya tienes.
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    function llamarApi(accion, payload) {
+      return fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }).then(function (r) {
+        return r.text().then(function (texto) {
+          try {
+            return JSON.parse(texto);
+          } catch (e) {
+            throw new Error('El servidor tardó en responder. Intenta de nuevo en unos segundos.');
+          }
+        });
+      });
+    }
+
+    let scanner = null;
+    let escaneando = true;
+    let serviciosCache = [];
+
+    function cargarCatalogo() {
+      llamarApi('listarServicios', {})
+        .then(function (resp) {
+          if (resp.ok) serviciosCache = resp.data;
+        });
+    }
+
+    function cargarStaff() {
+      llamarApi('listarStaff', {})
+        .then(function (resp) {
+          if (!resp.ok || !resp.data) return;
+          const select = document.getElementById('staff');
+          resp.data.forEach(function (nombre) {
+            const opt = document.createElement('option');
+            opt.value = nombre;
+            opt.textContent = nombre;
+            select.appendChild(opt);
+          });
+        });
+    }
+
+    function iniciarScanner() {
+      scanner = new Html5Qrcode('reader');
+      scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: 220 },
+        function (idDecodificado) {
+          if (!escaneando) return;
+          escaneando = false;
+          scanner.pause();
+          procesarCliente(idDecodificado.trim());
+        }
+      ).catch(function () {
+        document.getElementById('reader').innerHTML =
+          '<p style="font-size:13px;color:#c0392b">No se pudo abrir la cámara. Usa el campo manual de abajo.</p>';
+      });
+    }
+
+    function buscarManual() {
+      const id = document.getElementById('idManual').value.trim();
+      if (!id) return;
+      procesarCliente(id);
+    }
+
+    function procesarCliente(idCliente) {
+      const staff = document.getElementById('staff').value.trim();
+
+      if (!staff) {
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('resultado').innerHTML =
+          '<div id="sinPases">Escribe tu nombre en "Validado por" antes de escanear o buscar un cliente.</div>';
+        escaneando = true;
+        if (scanner) scanner.resume();
+        return;
+      }
+
+      document.getElementById('resultado').style.display = 'block';
+      document.getElementById('mensajeOk').style.display = 'none';
+      document.getElementById('resultado').innerHTML = '<p>Buscando cliente...</p>';
+
+      llamarApi('buscarCliente', { idCliente: idCliente })
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          const cliente = resp.data;
+          if (!cliente) {
+            document.getElementById('resultado').innerHTML =
+              '<div id="sinPases">Cliente no encontrado: ' + idCliente + '</div>';
+            return;
+          }
+          return llamarApi('listarPases', { idCliente: idCliente })
+            .then(function (r2) {
+              if (!r2.ok) throw new Error(r2.error);
+              renderPases(cliente, r2.data, staff);
+            });
+        })
+        .catch(mostrarError);
+    }
+
+    function renderPases(cliente, pases, staff) {
+      let html = '<h3 style="margin:0">' + cliente.nombre + ' ' + cliente.apellido + '</h3>';
+      html += '<p style="font-size:12px;color:#888">' + cliente.idCliente + '</p>';
+
+      if (!pases || pases.length === 0) {
+        html += '<div id="sinPases">Sin pases activos.</div>';
+      } else {
+        pases.forEach(function (p) {
+          html += '<div class="card">'
+            + '<h3>' + p.nombreServicio + '</h3>'
+            + '<p>Usos restantes: ' + p.usosRestantes + ' de ' + p.usosTotales + '</p>'
+            + (p.fechaVencimiento ? '<p>Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</p>' : '')
+            + '<button onclick="confirmar(\'' + cliente.idCliente + '\',\'' + p.idPase + '\',\'' + staff.replace(/'/g, '') + '\', this)">Confirmar ingreso</button>'
+            + '</div>';
+        });
+      }
+
+      html += '<div class="card" style="background:#f5f5f5">'
+        + '<h3>Cargar pase (ya cobrado en caja)</h3>'
+        + '<select id="selectServicio">' + opcionesServicios() + '</select>'
+        + '<button style="background:#1a1a1a" onclick="cargarPase(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\')">Cargar pase</button>'
+        + '</div>';
+
+      document.getElementById('resultado').innerHTML = html;
+      document.getElementById('nuevaLectura').style.display = (!pases || pases.length === 0) ? 'block' : 'none';
+    }
+
+    function opcionesServicios() {
+      if (!serviciosCache.length) return '<option value="">(catálogo no cargado, recarga la página)</option>';
+      return serviciosCache.map(function (s) {
+        return '<option value="' + s.codigo + '">' + s.nombre + ' - $' + s.precio + '</option>';
+      }).join('');
+    }
+
+    function cargarPase(idCliente, nombre, apellido, staff) {
+      const select = document.getElementById('selectServicio');
+      const codigo = select.value;
+      if (!codigo) return;
+
+      llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: codigo })
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          document.getElementById('mensajeOk').style.display = 'block';
+          document.getElementById('mensajeOk').textContent = 'Pase cargado correctamente.';
+          // Vuelve a cargar los pases del cliente para mostrar el nuevo
+          return llamarApi('listarPases', { idCliente: idCliente });
+        })
+        .then(function (r2) {
+          if (r2 && r2.ok) {
+            renderPases({ idCliente: idCliente, nombre: nombre, apellido: apellido }, r2.data, staff);
+          }
+        })
+        .catch(mostrarError);
+    }
+
+    function confirmar(idCliente, idPase, staff, boton) {
+      boton.disabled = true;
+      boton.textContent = 'Procesando...';
+
+      llamarApi('checkin', { idCliente: idCliente, idPase: idPase, validadoPor: staff })
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          document.getElementById('mensajeOk').style.display = 'block';
+          document.getElementById('mensajeOk').textContent =
+            'Ingreso registrado. Quedan ' + resp.data.usosRestantes + ' uso(s) en este pase.';
+          document.getElementById('nuevaLectura').style.display = 'block';
+        })
+        .catch(mostrarError);
+    }
+
+    function mostrarError(err) {
+      document.getElementById('resultado').innerHTML =
+        '<div id="sinPases">Error: ' + err.message + '</div>';
+      document.getElementById('nuevaLectura').style.display = 'block';
+    }
+
+    function reiniciar() {
+      document.getElementById('idManual').value = '';
+      document.getElementById('resultado').innerHTML = '';
+      document.getElementById('mensajeOk').style.display = 'none';
+      document.getElementById('nuevaLectura').style.display = 'none';
+      escaneando = true;
+      if (scanner) scanner.resume();
+    }
+
+    cargarCatalogo();
+    cargarStaff();
+    iniciarScanner();
+  </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regístrate en Ironwall</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 4px; }
+  input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  button {
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; }
+  #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
+  #resultado { display: none; text-align: center; }
+  #resultado h2 { font-size: 20px; }
+  #qrcode { margin: 20px auto; display: inline-block; }
+  #idClienteTexto { font-size: 22px; font-weight: 700; letter-spacing: 1px; margin: 10px 0; }
+  .aviso {
+    background: #fff3cd;
+    border: 1px solid #ffe08a;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    margin-top: 16px;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+  <div id="formulario">
+    <h1>Regístrate en Ironwall</h1>
+    <p class="sub">Completa tus datos y recibe tu código de acceso personal.</p>
+
+    <label>Nombre *</label>
+    <input type="text" id="nombre" required>
+
+    <label>Apellido *</label>
+    <input type="text" id="apellido" required>
+
+    <label>Teléfono</label>
+    <input type="tel" id="telefono" placeholder="+56 9 1234 5678">
+
+    <label>Email</label>
+    <input type="email" id="email">
+
+    <label>Dirección</label>
+    <input type="text" id="direccion">
+
+    <label>Comuna</label>
+    <input type="text" id="comuna">
+
+    <label>RUT *</label>
+    <input type="text" id="rut" placeholder="12.345.678-9" required>
+
+    <label>Teléfono de emergencia</label>
+    <input type="tel" id="telefonoEmergencia" placeholder="+56 9 1234 5678">
+
+    <label>Ocupación</label>
+    <input type="text" id="ocupacion">
+
+    <label>Fecha de nacimiento</label>
+    <input type="date" id="fechaNacimiento">
+
+    <button id="btnEnviar" onclick="enviar()">Registrarme</button>
+    <div id="error"></div>
+  </div>
+
+  <div id="resultado">
+    <h2>¡Listo, <span id="nombreSaludo"></span>!</h2>
+    <p>Este es tu código de acceso. Guárdalo — te lo pedirán cada vez que vengas.</p>
+    <div id="qrcode"></div>
+    <div id="idClienteTexto"></div>
+    <div class="aviso">
+      Consejo: toma una captura de pantalla de este código o guárdalo como imagen.
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ IMPORTANTE: reemplaza esto por la URL de tu implementación de
+    // Apps Script (la que termina en /exec). Es la misma que ya tienes.
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    // Valida el formato y dígito verificador de un RUT chileno.
+    function limpiarRut(rut) {
+      return String(rut || '').replace(/[^\dkK]/g, '').toUpperCase();
+    }
+    function validarRut(rutCompleto) {
+      const limpio = limpiarRut(rutCompleto);
+      if (limpio.length < 2) return false;
+      const cuerpo = limpio.slice(0, -1);
+      const dv = limpio.slice(-1);
+      let suma = 0;
+      let multiplo = 2;
+      for (let i = cuerpo.length - 1; i >= 0; i--) {
+        suma += multiplo * parseInt(cuerpo.charAt(i), 10);
+        multiplo = multiplo < 7 ? multiplo + 1 : 2;
+      }
+      const resto = 11 - (suma % 11);
+      const dvEsperado = resto === 11 ? '0' : (resto === 10 ? 'K' : String(resto));
+      return dv === dvEsperado;
+    }
+
+    function llamarApi(accion, payload) {
+      return fetch(API_URL, {
+        method: 'POST',
+        // text/plain evita que el navegador dispare una verificación
+        // previa (preflight) que Apps Script no maneja bien.
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }).then(function (r) { return r.json(); });
+    }
+
+    function enviar() {
+      const btn = document.getElementById('btnEnviar');
+      const errorDiv = document.getElementById('error');
+      errorDiv.style.display = 'none';
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const apellido = document.getElementById('apellido').value.trim();
+      const rut = document.getElementById('rut').value.trim();
+
+      if (!nombre || !apellido) {
+        errorDiv.textContent = 'Nombre y apellido son obligatorios.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!rut) {
+        errorDiv.textContent = 'El RUT es obligatorio.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!validarRut(rut)) {
+        errorDiv.textContent = 'El RUT no es válido. Revisa el formato (ej: 12345678-9).';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const datos = {
+        nombre: nombre,
+        apellido: apellido,
+        rut: rut,
+        telefono: document.getElementById('telefono').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        direccion: document.getElementById('direccion').value.trim(),
+        comuna: document.getElementById('comuna').value.trim(),
+        telefonoEmergencia: document.getElementById('telefonoEmergencia').value.trim(),
+        ocupacion: document.getElementById('ocupacion').value.trim(),
+        fechaNacimiento: document.getElementById('fechaNacimiento').value
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Registrando...';
+
+      llamarApi('registrar', datos)
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
+          mostrarResultado(resp.data.idCliente, nombre, resp.data.yaExistia);
+        })
+        .catch(function (err) {
+          btn.disabled = false;
+          btn.textContent = 'Registrarme';
+          errorDiv.textContent = 'Ocurrió un error: ' + err.message;
+          errorDiv.style.display = 'block';
+        });
+    }
+
+    function mostrarResultado(idCliente, nombre, yaExistia) {
+      document.getElementById('formulario').style.display = 'none';
+      document.getElementById('resultado').style.display = 'block';
+      document.getElementById('nombreSaludo').textContent = nombre;
+      document.getElementById('idClienteTexto').textContent = idCliente;
+
+      if (yaExistia) {
+        document.querySelector('#resultado h2').textContent = '¡Ya tenías una cuenta, ' + nombre + '!';
+        document.querySelector('#resultado p').textContent =
+          'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
+      }
+
+      new QRCode(document.getElementById('qrcode'), {
+        text: idCliente,
+        width: 200,
+        height: 200
+      });
+    }
+  </script>
+</body>
+</html>
