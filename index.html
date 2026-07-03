@@ -67,7 +67,7 @@
     <input type="text" id="apellido" required oninput="soloLetras(this)">
 
     <label>Teléfono</label>
-    <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
+    <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56987654321" oninput="soloNumeros(this)">
 
     <label>Email</label>
     <input type="email" id="email">
@@ -121,12 +121,12 @@
     }
 
     // El servidor a veces tarda (primera carga del día, tráfico alto).
-    // Este fetch espera hasta 25 segundos antes de rendirse, y si falla
-    // por tiempo agotado o error de red, reintenta una vez automáticamente
-    // antes de mostrarle un error a la persona.
+    // Este fetch espera hasta 15 segundos y, si falla, reintenta una vez
+    // más (máximo ~30 segundos en total) antes de mostrar un error claro
+    // — así nunca se queda "pegado" sin explicación.
     function fetchConReintento(url, opciones, intentos) {
       intentos = intentos || 2;
-      const TIEMPO_ESPERA_MS = 25000;
+      const TIEMPO_ESPERA_MS = 15000;
 
       const controlador = new AbortController();
       const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
@@ -213,12 +213,20 @@
       const telefono = document.getElementById('telefono').value.trim();
       const telefonoEmergencia = document.getElementById('telefonoEmergencia').value.trim();
       if (telefono && (telefono.length < 8 || telefono.length > 15)) {
-        errorDiv.textContent = 'El teléfono debe incluir el código de país, solo números (ej: 56912345678).';
+        errorDiv.textContent = 'El teléfono debe incluir el código de país, solo números (ej: 56987546930).';
         errorDiv.style.display = 'block';
         return;
       }
       if (telefonoEmergencia && (telefonoEmergencia.length < 8 || telefonoEmergencia.length > 15)) {
         errorDiv.textContent = 'El teléfono de emergencia debe incluir el código de país, solo números.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const email = document.getElementById('email').value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      if (email && !emailRegex.test(email)) {
+        errorDiv.textContent = 'El email no es válido. Revisa que tenga un dominio completo (ej: nombre@gmail.com).';
         errorDiv.style.display = 'block';
         return;
       }
@@ -239,12 +247,20 @@
       btn.disabled = true;
       btn.textContent = 'Registrando...';
 
+      // Si tras 5 segundos sigue esperando, se lo hacemos saber —
+      // así no parece que la página se colgó.
+      const avisoLento = setTimeout(function () {
+        btn.textContent = 'Esto puede tardar unos segundos más...';
+      }, 5000);
+
       llamarApi('registrar', datos)
         .then(function (resp) {
+          clearTimeout(avisoLento);
           if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
-          mostrarResultado(resp.data.idCliente, nombre, resp.data.yaExistia);
+          mostrarResultado(resp.data.idCliente, nombre, resp.data.yaExistia, resp.data.motivo);
         })
         .catch(function (err) {
+          clearTimeout(avisoLento);
           btn.disabled = false;
           btn.textContent = 'Registrarme';
           errorDiv.textContent = 'Ocurrió un error: ' + err.message;
@@ -252,7 +268,7 @@
         });
     }
 
-    function mostrarResultado(idCliente, nombre, yaExistia) {
+    function mostrarResultado(idCliente, nombre, yaExistia, motivo) {
       document.getElementById('formulario').style.display = 'none';
       document.getElementById('resultado').style.display = 'block';
       document.getElementById('nombreSaludo').textContent = nombre;
@@ -260,8 +276,13 @@
 
       if (yaExistia) {
         document.querySelector('#resultado h2').textContent = '¡Ya tenías una cuenta, ' + nombre + '!';
-        document.querySelector('#resultado p').textContent =
-          'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
+        if (motivo === 'datos_similares') {
+          document.querySelector('#resultado p').textContent =
+            'Encontramos un registro anterior con tu mismo nombre y datos de contacto — probablemente el RUT tenía un error de tipeo la vez pasada. Este sigue siendo tu código de acceso. Si necesitas corregir tu RUT, avísale al staff.';
+        } else {
+          document.querySelector('#resultado p').textContent =
+            'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
+        }
       }
 
       new QRCode(document.getElementById('qrcode'), {
