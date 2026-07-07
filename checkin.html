@@ -274,20 +274,16 @@
       document.getElementById('mensajeOk').style.display = 'none';
       document.getElementById('resultado').innerHTML = '<p>Buscando cliente...</p>';
 
-      llamarApi('buscarCliente', { idCliente: idCliente })
+      llamarApi('buscarClienteYPases', { idCliente: idCliente })
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
-          const cliente = resp.data;
+          const cliente = resp.data.cliente;
           if (!cliente) {
             document.getElementById('resultado').innerHTML =
               '<div id="sinPases">Cliente no encontrado: ' + idCliente + '</div>';
             return;
           }
-          return llamarApi('listarPases', { idCliente: idCliente })
-            .then(function (r2) {
-              if (!r2.ok) throw new Error(r2.error);
-              renderPases(cliente, r2.data, staff);
-            });
+          renderPases(cliente, resp.data.pases, staff);
         })
         .catch(mostrarError);
     }
