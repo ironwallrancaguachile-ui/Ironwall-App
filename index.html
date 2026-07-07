@@ -67,7 +67,7 @@
     <input type="text" id="apellido" required oninput="soloLetras(this)">
 
     <label>Teléfono</label>
-    <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56987546930" oninput="soloNumeros(this)">
+    <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
 
     <label>Email</label>
     <input type="email" id="email">
@@ -82,7 +82,7 @@
     <input type="text" id="rut" placeholder="12.345.678-9" required>
 
     <label>Teléfono de emergencia</label>
-    <input type="tel" id="telefonoEmergencia" inputmode="numeric" maxlength="15" placeholder="56987546930" oninput="soloNumeros(this)">
+    <input type="tel" id="telefonoEmergencia" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
 
     <label>Ocupación</label>
     <input type="text" id="ocupacion">
@@ -245,7 +245,7 @@
       const telefono = document.getElementById('telefono').value.trim();
       const telefonoEmergencia = document.getElementById('telefonoEmergencia').value.trim();
       if (telefono && (telefono.length < 8 || telefono.length > 15)) {
-        errorDiv.textContent = 'El teléfono debe incluir el código de país, solo números (ej: 56987546930).';
+        errorDiv.textContent = 'El teléfono debe incluir el código de país, solo números (ej: 56912345678).';
         errorDiv.style.display = 'block';
         return;
       }
