@@ -125,30 +125,37 @@
     // El servidor a veces tarda (primera carga del día, tráfico alto).
     // Este fetch espera hasta 25 segundos antes de rendirse, y si falla
     // por tiempo agotado o error de red, reintenta una vez automáticamente.
-    function fetchConReintento(url, opciones, intentos) {
-      intentos = intentos || 2;
-      const TIEMPO_ESPERA_MS = 25000;
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
 
-      const controlador = new AbortController();
-      const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
 
-      return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
-        .then(function (r) { clearTimeout(timeoutId); return r; })
-        .catch(function (err) {
-          clearTimeout(timeoutId);
-          if (intentos > 1) {
-            return fetchConReintento(url, opciones, intentos - 1);
-          }
-          throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
-        });
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) {
+              return intentar(intentosRestantes - 1);
+            }
+            if (soloUnIntento) {
+              throw new Error('No pudimos confirmar si la acción se completó. Antes de repetirla, revisa el estado del pase o del check-in para evitar duplicarlo.');
+            }
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+
+      return intentar(intentos);
     }
 
-    function llamarApi(accion, payload) {
+    function llamarApi(accion, payload, esEscritura) {
       return fetchConReintento(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: accion, payload: payload })
-      }).then(function (r) {
+      }, esEscritura).then(function (r) {
         return r.text().then(function (texto) {
           try {
             return JSON.parse(texto);
@@ -324,7 +331,7 @@
       const codigo = select.value;
       if (!codigo) return;
 
-      llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: codigo })
+      llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: codigo }, true)
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
           document.getElementById('mensajeOk').style.display = 'block';
@@ -344,7 +351,7 @@
       boton.disabled = true;
       boton.textContent = 'Procesando...';
 
-      llamarApi('checkin', { idCliente: idCliente, idPase: idPase, validadoPor: staff })
+      llamarApi('checkin', { idCliente: idCliente, idPase: idPase, validadoPor: staff }, true)
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
           boton.textContent = '✅ Ingreso confirmado';

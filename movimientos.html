@@ -112,27 +112,37 @@
       input.value = input.value.replace(/\D/g, '');
     }
 
-    function fetchConReintento(url, opciones, intentos) {
-      intentos = intentos || 2;
-      const TIEMPO_ESPERA_MS = 15000;
-      const controlador = new AbortController();
-      const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
 
-      return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
-        .then(function (r) { clearTimeout(timeoutId); return r; })
-        .catch(function (err) {
-          clearTimeout(timeoutId);
-          if (intentos > 1) return fetchConReintento(url, opciones, intentos - 1);
-          throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
-        });
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) {
+              return intentar(intentosRestantes - 1);
+            }
+            if (soloUnIntento) {
+              throw new Error('No pudimos confirmar si el movimiento se registró. Antes de repetirlo, revisa la hoja de Movimientos para evitar duplicarlo.');
+            }
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+
+      return intentar(intentos);
     }
 
-    function llamarApi(url, accion, payload) {
+    function llamarApi(url, accion, payload, esEscritura) {
       return fetchConReintento(url, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: accion, payload: payload })
-      }).then(function (r) {
+      }, esEscritura).then(function (r) {
         return r.text().then(function (texto) {
           try { return JSON.parse(texto); }
           catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
@@ -240,7 +250,7 @@
 
       const avisoLento = setTimeout(function () { btn.textContent = 'Esto puede tardar unos segundos más...'; }, 5000);
 
-      llamarApi(API_URL_FINANZAS, 'registrarMovimiento', datos)
+      llamarApi(API_URL_FINANZAS, 'registrarMovimiento', datos, true)
         .then(function (resp) {
           clearTimeout(avisoLento);
           if (!resp.ok) throw new Error(resp.error || 'Error desconocido');

@@ -130,25 +130,35 @@
     }
 
     // El servidor a veces tarda (primera carga del día, tráfico alto).
-    // Este fetch espera hasta 15 segundos y, si falla, reintenta una vez
-    // más (máximo ~30 segundos en total) antes de mostrar un error claro
-    // — así nunca se queda "pegado" sin explicación.
-    function fetchConReintento(url, opciones, intentos) {
-      intentos = intentos || 2;
-      const TIEMPO_ESPERA_MS = 15000;
+    // "soloUnIntento=true" se usa para acciones que ESCRIBEN datos
+    // (registrar, check-in, cargar pase): ahí NO conviene reintentar
+    // solo, porque cancelar la espera en el navegador no cancela lo que
+    // ya está corriendo en el servidor — un reintento automático podría
+    // duplicar el registro o descontar un pase dos veces. Para lecturas
+    // (buscar, listar) sí es seguro reintentar.
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
 
-      const controlador = new AbortController();
-      const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
 
-      return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
-        .then(function (r) { clearTimeout(timeoutId); return r; })
-        .catch(function (err) {
-          clearTimeout(timeoutId);
-          if (intentos > 1) {
-            return fetchConReintento(url, opciones, intentos - 1);
-          }
-          throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
-        });
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) {
+              return intentar(intentosRestantes - 1);
+            }
+            if (soloUnIntento) {
+              throw new Error('No pudimos confirmar si tu solicitud se completó. Antes de intentar de nuevo, revisa con el staff o en el sistema si ya quedó registrado, para evitar que se duplique.');
+            }
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+
+      return intentar(intentos);
     }
 
     // Valida el formato y dígito verificador de un RUT chileno.
@@ -171,12 +181,12 @@
       return dv === dvEsperado;
     }
 
-    function llamarApi(accion, payload) {
+    function llamarApi(accion, payload, esEscritura) {
       return fetchConReintento(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: accion, payload: payload })
-      }).then(function (r) {
+      }, esEscritura).then(function (r) {
         return r.text().then(function (texto) {
           try {
             return JSON.parse(texto);
@@ -299,7 +309,7 @@
         btn.textContent = 'Esto puede tardar unos segundos más...';
       }, 5000);
 
-      llamarApi('registrar', datos)
+      llamarApi('registrar', datos, true)
         .then(function (resp) {
           clearTimeout(avisoLento);
           if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
