@@ -90,35 +90,12 @@
     <label>Fecha de nacimiento</label>
     <input type="date" id="fechaNacimiento">
 
-    <div style="margin-top: 20px; padding: 14px; background: #f5f5f5; border-radius: 8px; font-size: 13px; max-height: 220px; overflow-y: auto; line-height: 1.5;">
-      <strong>Reglamento Interno</strong>
-      <ol style="margin: 8px 0 14px; padding-left: 20px;">
-        <li>La escalada es un deporte de alto riesgo. Siga las instrucciones del staff y este reglamento.</li>
-        <li>No sentarse en las colchonetas — son espacios para caídas.</li>
-        <li>No escalar descalzo.</li>
-        <li>No caminar ni trepar debajo de otros escaladores.</li>
-        <li>No correr dentro de las instalaciones.</li>
-        <li>Recoja su basura y pertenencias personales.</li>
-        <li>Menores de edad deben venir con un adulto responsable, y estar acompañados en todo momento.</li>
-        <li>Prohibido el consumo de alcohol o drogas antes o durante el uso de las instalaciones.</li>
-        <li>Si es principiante, use alturas bajas hasta ganar confianza y consulte al staff ante dudas.</li>
-        <li>Caliente adecuadamente antes de escalar.</li>
-        <li>Por ser instalación al aire libre, el clima (lluvia, viento, superficie mojada) puede implicar cierre o restricciones, a criterio del staff.</li>
-      </ol>
-
-      <strong>Deslinde de Responsabilidad</strong>
-      <p style="margin: 8px 0 4px;">Al registrarte, declaras que:</p>
-      <ol style="margin: 0 0 8px; padding-left: 20px;">
-        <li>Participas de forma voluntaria, asumiendo los riesgos de esta actividad, incluyendo caídas desde altura.</li>
-        <li>Seguirás las instrucciones del staff y el Reglamento Interno de arriba.</li>
-        <li>Estás en condiciones físicas adecuadas, e informarás al staff cualquier condición médica relevante.</li>
-        <li>Liberas a Ironwall Rancagua, sus dueños y personal, de responsabilidad por lesiones derivadas del uso normal de las instalaciones.</li>
-        <li>Si eres menor de edad, este consentimiento lo otorga tu padre, madre o adulto responsable.</li>
-      </ol>
+    <div style="margin-top: 20px; padding: 14px; background: #f5f5f5; border-radius: 8px; font-size: 13px; max-height: 220px; overflow-y: auto; line-height: 1.5;" id="reglamentoContenido">
+      Cargando reglamento...
     </div>
 
     <label style="display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; font-weight: 400;">
-      <input type="checkbox" id="aceptaReglamento" style="width: auto; margin-top: 3px;">
+      <input type="checkbox" id="aceptaReglamento" style="width: auto; margin-top: 3px;" disabled>
       <span>He leído y acepto el Reglamento Interno y el Deslinde de Responsabilidad. *</span>
     </label>
 
@@ -208,6 +185,36 @@
           }
         });
       });
+    }
+
+    function cargarReglamento() {
+      const contenedor = document.getElementById('reglamentoContenido');
+      llamarApi('obtenerReglamento', {})
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error || 'No se pudo cargar');
+          renderReglamento(resp.data);
+          document.getElementById('aceptaReglamento').disabled = false;
+        })
+        .catch(function () {
+          contenedor.innerHTML = '<span style="color:#c0392b">No se pudo cargar el reglamento. '
+            + '<a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
+        });
+    }
+
+    function renderReglamento(data) {
+      const contenedor = document.getElementById('reglamentoContenido');
+      let html = '<strong>Reglamento Interno</strong><ol style="margin: 8px 0 14px; padding-left: 20px;">';
+      (data.reglamento || []).forEach(function (linea) {
+        html += '<li>' + linea + '</li>';
+      });
+      html += '</ol><strong>Deslinde de Responsabilidad</strong>'
+        + '<p style="margin: 8px 0 4px;">Al registrarte, declaras que:</p>'
+        + '<ol style="margin: 0 0 8px; padding-left: 20px;">';
+      (data.deslinde || []).forEach(function (linea) {
+        html += '<li>' + linea + '</li>';
+      });
+      html += '</ol>';
+      contenedor.innerHTML = html;
     }
 
     function enviar() {
@@ -330,6 +337,8 @@
         height: 200
       });
     }
+
+    cargarReglamento();
   </script>
 </body>
 </html>

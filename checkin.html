@@ -347,12 +347,19 @@
       llamarApi('checkin', { idCliente: idCliente, idPase: idPase, validadoPor: staff })
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
-          document.getElementById('mensajeOk').style.display = 'block';
-          document.getElementById('mensajeOk').textContent =
-            'Ingreso registrado. Quedan ' + resp.data.usosRestantes + ' uso(s) en este pase.';
+          boton.textContent = '✅ Ingreso confirmado';
+          boton.style.background = '#1e824c';
+          const mensaje = document.getElementById('mensajeOk');
+          mensaje.style.display = 'block';
+          mensaje.textContent = '✅ Ingreso registrado correctamente. Quedan ' + resp.data.usosRestantes + ' uso(s) en este pase.';
+          mensaje.scrollIntoView({ behavior: 'smooth', block: 'center' });
           document.getElementById('nuevaLectura').style.display = 'block';
         })
-        .catch(mostrarError);
+        .catch(function (err) {
+          boton.disabled = false;
+          boton.textContent = 'Confirmar ingreso';
+          mostrarError(err);
+        });
     }
 
     function mostrarError(err) {
