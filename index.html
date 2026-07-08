@@ -161,24 +161,21 @@
       return intentar(intentos);
     }
 
-    // Valida el formato y dígito verificador de un RUT chileno.
+    // Valida que el RUT tenga una forma razonable (números, con o sin
+    // puntos/guión, terminando en dígito o K). Ya NO exige que el dígito
+    // verificador sea matemáticamente correcto — eso rechazaba a personas
+    // con RUT real (errores de tipeo en el DV, RUT provisorio de
+    // extranjeros, etc.). El cruce por nombre+contacto sigue protegiendo
+    // contra duplicados aunque el DV esté mal escrito.
     function limpiarRut(rut) {
       return String(rut || '').replace(/[^\dkK]/g, '').toUpperCase();
     }
     function validarRut(rutCompleto) {
       const limpio = limpiarRut(rutCompleto);
-      if (limpio.length < 2) return false;
-      const cuerpo = limpio.slice(0, -1);
-      const dv = limpio.slice(-1);
-      let suma = 0;
-      let multiplo = 2;
-      for (let i = cuerpo.length - 1; i >= 0; i--) {
-        suma += multiplo * parseInt(cuerpo.charAt(i), 10);
-        multiplo = multiplo < 7 ? multiplo + 1 : 2;
-      }
-      const resto = 11 - (suma % 11);
-      const dvEsperado = resto === 11 ? '0' : (resto === 10 ? 'K' : String(resto));
-      return dv === dvEsperado;
+      // Un RUT chileno real tiene entre 7 y 9 caracteres en total
+      // (cuerpo + dígito verificador). Fuera de ese rango, es casi
+      // seguro un error de tipeo grave (muy corto o muy largo).
+      return limpio.length >= 7 && limpio.length <= 9;
     }
 
     function llamarApi(accion, payload, esEscritura) {
@@ -247,7 +244,7 @@
         return;
       }
       if (!validarRut(rut)) {
-        errorDiv.textContent = 'El RUT no es válido. Revisa el formato (ej: 12345678-9).';
+        errorDiv.textContent = 'El RUT debe tener entre 7 y 9 caracteres (números, con o sin puntos/guión). Revisa que no falten ni sobren dígitos.';
         errorDiv.style.display = 'block';
         return;
       }
