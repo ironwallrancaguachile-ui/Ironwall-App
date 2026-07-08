@@ -308,7 +308,7 @@
       html += '<div class="card" style="background:#f5f5f5">'
         + '<h3>Cargar pase (ya cobrado en caja)</h3>'
         + '<select id="selectServicio">' + opcionesServicios() + '</select>'
-        + '<button style="background:#1a1a1a" onclick="cargarPase(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\')">Cargar pase</button>'
+        + '<button style="background:#1a1a1a" onclick="cargarPase(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">Cargar pase</button>'
         + '</div>';
 
       document.getElementById('resultado').innerHTML = html;
@@ -322,16 +322,19 @@
       }).join('');
     }
 
-    function cargarPase(idCliente, nombre, apellido, staff) {
+    function cargarPase(idCliente, nombre, apellido, staff, boton) {
       const select = document.getElementById('selectServicio');
       const codigo = select.value;
       if (!codigo) return;
+
+      boton.disabled = true;
+      boton.textContent = 'Cargando...';
 
       llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: codigo }, true)
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
           document.getElementById('mensajeOk').style.display = 'block';
-          document.getElementById('mensajeOk').textContent = 'Pase cargado correctamente.';
+          document.getElementById('mensajeOk').textContent = '✅ Pase cargado correctamente.';
           // Vuelve a cargar los pases del cliente para mostrar el nuevo
           return llamarApi('listarPases', { idCliente: idCliente });
         })
@@ -340,7 +343,11 @@
             renderPases({ idCliente: idCliente, nombre: nombre, apellido: apellido }, r2.data, staff);
           }
         })
-        .catch(mostrarError);
+        .catch(function (err) {
+          boton.disabled = false;
+          boton.textContent = 'Cargar pase';
+          mostrarError(err);
+        });
     }
 
     function confirmar(idCliente, idPase, staff, boton) {
