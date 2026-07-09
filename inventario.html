@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventario - Ironwall</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 4px; }
+  input, select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .tipo-botones { display: flex; gap: 8px; margin-top: 6px; }
+  .tipo-botones button {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tipo-botones button.activo-entrada { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
+  .tipo-botones button.activo-salida { border-color: #c0392b; background: #fdecea; color: #c0392b; }
+  .tipo-botones button.activo-ajuste { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
+  #stockInfo {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+    display: none;
+  }
+  #stockInfo.bajo { color: #c0392b; font-weight: 600; }
+  button.enviar {
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button.enviar:disabled { opacity: 0.5; }
+  #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
+  #ok { color: #1e824c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
+</style>
+</head>
+<body>
+
+  <h1>Inventario Ironwall</h1>
+  <p class="sub">Registrar entrada, salida o ajuste de stock.</p>
+
+  <label>Tipo de movimiento *</label>
+  <div class="tipo-botones">
+    <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Entrada</button>
+    <button type="button" id="btnSalida" onclick="elegirTipo('Salida')">Salida</button>
+    <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Ajuste</button>
+  </div>
+
+  <label>Producto *</label>
+  <select id="producto" onchange="mostrarStock()">
+    <option value="">-- Selecciona --</option>
+  </select>
+  <div id="stockInfo"></div>
+
+  <label id="labelCantidad">Cantidad *</label>
+  <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">
+
+  <label>Motivo *</label>
+  <select id="motivo">
+    <option value="">-- Primero elige el tipo --</option>
+  </select>
+
+  <label>Notas</label>
+  <input type="text" id="notas" placeholder="Opcional">
+
+  <label>Registrado por *</label>
+  <select id="responsable">
+    <option value="">-- Selecciona tu nombre --</option>
+  </select>
+
+  <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
+  <div id="error"></div>
+  <div id="ok"></div>
+
+  <script>
+    // ⚠️ Reemplaza por la URL de TU implementación del Apps Script de INVENTARIO.
+    const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycby3mP88uLYLKYVEpWyQn7rFy4P3VxGbBCs-t75TPHuQvxAu181bkCnH1GqGdXEGPkHQ/exec';
+
+    // ⚠️ URL del Apps Script del sistema de CLIENTES (se reutiliza solo
+    // para traer la lista de staff, sin duplicarla).
+    const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    const MOTIVOS_ENTRADA = ['Compra a proveedor', 'Devolución de cliente', 'Ajuste de inventario'];
+    const MOTIVOS_SALIDA = ['Venta', 'Merma o pérdida', 'Producto vencido', 'Ajuste de inventario'];
+
+    let tipoSeleccionado = '';
+    let productosCache = [];
+
+    function soloNumeros(input) {
+      input.value = input.value.replace(/\D/g, '');
+    }
+
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
+
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+            if (soloUnIntento) {
+              throw new Error('No pudimos confirmar si el movimiento se registró. Revisa el stock antes de repetirlo, para evitar duplicarlo.');
+            }
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+      return intentar(intentos);
+    }
+
+    function llamarApi(url, accion, payload, esEscritura) {
+      return fetchConReintento(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }, esEscritura).then(function (r) {
+        return r.text().then(function (texto) {
+          try { return JSON.parse(texto); }
+          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
+        });
+      });
+    }
+
+    function elegirTipo(tipo) {
+      tipoSeleccionado = tipo;
+      document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
+      document.getElementById('btnSalida').className = tipo === 'Salida' ? 'activo-salida' : '';
+      document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
+
+      const selectMotivo = document.getElementById('motivo');
+      const labelCantidad = document.getElementById('labelCantidad');
+      let opciones = [];
+      if (tipo === 'Entrada') { opciones = MOTIVOS_ENTRADA; labelCantidad.textContent = 'Cantidad que ingresa *'; }
+      if (tipo === 'Salida') { opciones = MOTIVOS_SALIDA; labelCantidad.textContent = 'Cantidad que sale *'; }
+      if (tipo === 'Ajuste') { opciones = ['Conteo físico / corrección']; labelCantidad.textContent = 'Stock real (reemplaza el actual) *'; }
+
+      selectMotivo.innerHTML = '<option value="">-- Selecciona --</option>' +
+        opciones.map(function (m) { return '<option value="' + m + '">' + m + '</option>'; }).join('');
+    }
+
+    function pintarProductos() {
+      const select = document.getElementById('producto');
+      select.innerHTML = '<option value="">-- Selecciona --</option>' +
+        productosCache.map(function (p) {
+          return '<option value="' + p.codigo + '">' + p.nombre + ' (stock: ' + p.stockActual + ')</option>';
+        }).join('');
+    }
+
+    function mostrarStock() {
+      const codigo = document.getElementById('producto').value;
+      const info = document.getElementById('stockInfo');
+      const producto = productosCache.find(function (p) { return p.codigo === codigo; });
+      if (!producto) { info.style.display = 'none'; return; }
+
+      info.style.display = 'block';
+      info.textContent = 'Stock actual: ' + producto.stockActual + (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
+      info.className = producto.stockActual <= producto.stockMinimo ? 'bajo' : '';
+    }
+
+    function cargarProductos() {
+      const cache = leerCache_('productos_inventario_cache');
+      if (cache) { productosCache = cache; pintarProductos(); }
+
+      llamarApi(API_URL_INVENTARIO, 'listarProductosActivos', {})
+        .then(function (resp) {
+          if (resp.ok) {
+            productosCache = resp.data;
+            guardarCache_('productos_inventario_cache', resp.data);
+            pintarProductos();
+          }
+        })
+        .catch(function () { /* seguimos con la caché si falla */ });
+    }
+
+    function cargarStaff() {
+      const select = document.getElementById('responsable');
+      function pintar(nombres) {
+        const valorPrevio = select.value;
+        select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>' +
+          nombres.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+        if (valorPrevio && nombres.indexOf(valorPrevio) !== -1) select.value = valorPrevio;
+      }
+      const cache = leerCache_('staff_inventario_cache');
+      if (cache) pintar(cache);
+
+      llamarApi(API_URL_CLIENTES, 'listarStaff', {})
+        .then(function (resp) {
+          if (resp.ok && resp.data) {
+            pintar(resp.data);
+            guardarCache_('staff_inventario_cache', resp.data);
+          }
+        })
+        .catch(function () { /* seguimos con la caché si falla */ });
+    }
+
+    function guardarCache_(clave, datos) {
+      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+      catch (e) { /* nada grave si falla */ }
+    }
+    function leerCache_(clave) {
+      try {
+        const crudo = localStorage.getItem(clave);
+        if (!crudo) return null;
+        const parsed = JSON.parse(crudo);
+        const DOCE_HORAS_MS = 12 * 60 * 60 * 1000;
+        if (Date.now() - parsed.guardado > DOCE_HORAS_MS) return null;
+        return parsed.datos;
+      } catch (e) { return null; }
+    }
+
+    function enviar() {
+      const btn = document.getElementById('btnEnviar');
+      const errorDiv = document.getElementById('error');
+      const okDiv = document.getElementById('ok');
+      errorDiv.style.display = 'none';
+      okDiv.style.display = 'none';
+
+      const codigoProducto = document.getElementById('producto').value;
+      const cantidad = document.getElementById('cantidad').value.trim();
+      const motivo = document.getElementById('motivo').value;
+      const responsable = document.getElementById('responsable').value;
+
+      if (!tipoSeleccionado) { mostrarError('Elige el tipo de movimiento.'); return; }
+      if (!codigoProducto) { mostrarError('Elige un producto.'); return; }
+      if (!cantidad || Number(cantidad) <= 0) { mostrarError('Ingresa una cantidad válida.'); return; }
+      if (!motivo) { mostrarError('Elige un motivo.'); return; }
+      if (!responsable) { mostrarError('Elige quién registra el movimiento.'); return; }
+
+      const datos = {
+        tipo: tipoSeleccionado,
+        codigoProducto: codigoProducto,
+        cantidad: Number(cantidad),
+        motivo: motivo,
+        responsable: responsable,
+        notas: document.getElementById('notas').value.trim()
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Registrando...';
+      const avisoLento = setTimeout(function () { btn.textContent = 'Esto puede tardar unos segundos más...'; }, 5000);
+
+      llamarApi(API_URL_INVENTARIO, 'registrarMovimientoInventario', datos, true)
+        .then(function (resp) {
+          clearTimeout(avisoLento);
+          if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
+          okDiv.textContent = '✅ Movimiento registrado. Nuevo stock: ' + resp.data.stockNuevo;
+          okDiv.style.display = 'block';
+          document.getElementById('cantidad').value = '';
+          document.getElementById('notas').value = '';
+          cargarProductos(); // refresca stocks mostrados
+        })
+        .catch(function (err) {
+          clearTimeout(avisoLento);
+          mostrarError(err.message);
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = 'Registrar movimiento';
+        });
+    }
+
+    function mostrarError(msg) {
+      const errorDiv = document.getElementById('error');
+      errorDiv.textContent = msg;
+      errorDiv.style.display = 'block';
+    }
+
+    cargarProductos();
+    cargarStaff();
+  </script>
+</body>
+</html>
