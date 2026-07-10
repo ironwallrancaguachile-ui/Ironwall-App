@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de Incidentes - Ironwall</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 4px; }
+  input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .gravedad-botones { display: flex; gap: 8px; margin-top: 6px; }
+  .gravedad-botones button {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .gravedad-botones button.activo-leve { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
+  .gravedad-botones button.activo-moderado { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
+  .gravedad-botones button.activo-grave { border-color: #c0392b; background: #fdecea; color: #c0392b; }
+  .si-no { display: flex; gap: 8px; margin-top: 6px; }
+  .si-no button {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .si-no button.activo { border-color: #1a1a1a; background: #f0f0f0; font-weight: 600; }
+  button.enviar {
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button.enviar:disabled { opacity: 0.5; }
+  #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
+  #ok { color: #1e824c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
+  #datosCliente { font-size: 13px; color: #666; margin-top: 4px; display: none; }
+</style>
+</head>
+<body>
+
+  <h1>Registro de incidentes</h1>
+  <p class="sub">Cualquier caída, lesión o situación fuera de lo normal — quedar registrado protege al cliente y al recinto.</p>
+
+  <label>ID del cliente afectado (si aplica)</label>
+  <input type="text" id="idCliente" placeholder="Ej: IWR7K9QX" oninput="buscarClienteAuto()">
+  <div id="datosCliente"></div>
+
+  <label>Nombre del/los afectado(s)</label>
+  <input type="text" id="nombreAfectado" placeholder="Se completa solo si encontramos el ID, o escríbelo">
+
+  <label>Gravedad *</label>
+  <div class="gravedad-botones">
+    <button type="button" id="btnLeve" onclick="elegirGravedad('Leve')">Leve</button>
+    <button type="button" id="btnModerado" onclick="elegirGravedad('Moderado')">Moderado</button>
+    <button type="button" id="btnGrave" onclick="elegirGravedad('Grave')">Grave</button>
+  </div>
+
+  <label>Ubicación exacta</label>
+  <input type="text" id="ubicacion" placeholder="Ej: sector alto, muro norte">
+
+  <label>Descripción *</label>
+  <textarea id="descripcion" placeholder="Qué pasó, cómo, en qué momento"></textarea>
+
+  <label>Testigos</label>
+  <input type="text" id="testigos" placeholder="Nombres de quienes estaban presentes">
+
+  <label>¿Se contactó a emergencias o familiar?</label>
+  <div class="si-no">
+    <button type="button" id="btnContactoSi" onclick="elegirContacto('Si')">Sí</button>
+    <button type="button" id="btnContactoNo" onclick="elegirContacto('No')">No</button>
+  </div>
+
+  <label>Acción preventiva o resolución</label>
+  <textarea id="accionPreventiva" placeholder="Qué se hará para que no vuelva a pasar"></textarea>
+
+  <label>Fecha para ejecutar la acción</label>
+  <input type="date" id="fechaEjecutar">
+
+  <label>Reportado por *</label>
+  <select id="reportadoPor">
+    <option value="">-- Selecciona tu nombre --</option>
+  </select>
+
+  <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar incidente</button>
+  <div id="error"></div>
+  <div id="ok"></div>
+
+  <script>
+    // ⚠️ URL de TU implementación del Apps Script de INCIDENTES (nuevo, separado).
+    const API_URL_INCIDENTES = 'https://script.google.com/macros/s/AKfycbzFsCtTBbmVm9fbG-subMfxddgWxWQi5rsbadTZHTIWATGQxW-xEtfLO-6QuwBK-XhRWA/exec';
+
+    // ⚠️ URL del Apps Script de CLIENTES (el de siempre) — se usa solo
+    // para buscar el cliente por ID y traer la lista de staff, sin
+    // duplicar esos datos en el Sheet de Incidentes.
+    const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    let gravedadSeleccionada = '';
+    let contactoSeleccionado = 'No';
+
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+            if (soloUnIntento) throw new Error('No pudimos confirmar si el incidente se registró. Revisa la hoja de Incidentes antes de repetirlo.');
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+      return intentar(intentos);
+    }
+
+    function llamarApi(url, accion, payload, esEscritura) {
+      return fetchConReintento(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }, esEscritura).then(function (r) {
+        return r.text().then(function (texto) {
+          try { return JSON.parse(texto); }
+          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
+        });
+      });
+    }
+
+    function elegirGravedad(g) {
+      gravedadSeleccionada = g;
+      document.getElementById('btnLeve').className = g === 'Leve' ? 'activo-leve' : '';
+      document.getElementById('btnModerado').className = g === 'Moderado' ? 'activo-moderado' : '';
+      document.getElementById('btnGrave').className = g === 'Grave' ? 'activo-grave' : '';
+    }
+
+    function elegirContacto(v) {
+      contactoSeleccionado = v;
+      document.getElementById('btnContactoSi').className = v === 'Si' ? 'activo' : '';
+      document.getElementById('btnContactoNo').className = v === 'No' ? 'activo' : '';
+    }
+    elegirContacto('No'); // valor por defecto
+
+    let timeoutBusqueda = null;
+    function buscarClienteAuto() {
+      clearTimeout(timeoutBusqueda);
+      const id = document.getElementById('idCliente').value.trim();
+      const info = document.getElementById('datosCliente');
+      if (!id) { info.style.display = 'none'; return; }
+
+      timeoutBusqueda = setTimeout(function () {
+        llamarApi(API_URL_CLIENTES, 'buscarCliente', { idCliente: id })
+          .then(function (resp) {
+            if (resp.ok && resp.data) {
+              info.style.display = 'block';
+              info.textContent = '✅ ' + resp.data.nombre + ' ' + resp.data.apellido;
+              document.getElementById('nombreAfectado').value = resp.data.nombre + ' ' + resp.data.apellido;
+            } else {
+              info.style.display = 'block';
+              info.textContent = 'Cliente no encontrado — puedes escribir el nombre manualmente igual.';
+            }
+          })
+          .catch(function () { info.style.display = 'none'; });
+      }, 600); // espera a que la persona termine de escribir
+    }
+
+    function cargarStaff() {
+      const select = document.getElementById('reportadoPor');
+      function pintar(nombres) {
+        select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>' +
+          nombres.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+      }
+      const cache = leerCache_('staff_incidentes_cache');
+      if (cache) pintar(cache);
+
+      llamarApi(API_URL_CLIENTES, 'listarStaff', {})
+        .then(function (resp) {
+          if (resp.ok && resp.data) {
+            pintar(resp.data);
+            guardarCache_('staff_incidentes_cache', resp.data);
+          }
+        })
+        .catch(function () { /* seguimos con la caché si falla */ });
+    }
+
+    function guardarCache_(clave, datos) {
+      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+      catch (e) { /* nada grave si falla */ }
+    }
+    function leerCache_(clave) {
+      try {
+        const crudo = localStorage.getItem(clave);
+        if (!crudo) return null;
+        const parsed = JSON.parse(crudo);
+        const DOCE_HORAS_MS = 12 * 60 * 60 * 1000;
+        if (Date.now() - parsed.guardado > DOCE_HORAS_MS) return null;
+        return parsed.datos;
+      } catch (e) { return null; }
+    }
+
+    function enviar() {
+      const btn = document.getElementById('btnEnviar');
+      const errorDiv = document.getElementById('error');
+      const okDiv = document.getElementById('ok');
+      errorDiv.style.display = 'none';
+      okDiv.style.display = 'none';
+
+      const descripcion = document.getElementById('descripcion').value.trim();
+      const reportadoPor = document.getElementById('reportadoPor').value;
+
+      if (!gravedadSeleccionada) { mostrarError('Elige la gravedad del incidente.'); return; }
+      if (!descripcion) { mostrarError('La descripción es obligatoria.'); return; }
+      if (!reportadoPor) { mostrarError('Elige quién reporta el incidente.'); return; }
+
+      const datos = {
+        idCliente: document.getElementById('idCliente').value.trim(),
+        nombreAfectado: document.getElementById('nombreAfectado').value.trim(),
+        gravedad: gravedadSeleccionada,
+        ubicacion: document.getElementById('ubicacion').value.trim(),
+        descripcion: descripcion,
+        testigos: document.getElementById('testigos').value.trim(),
+        contactoEmergencia: contactoSeleccionado,
+        reportadoPor: reportadoPor,
+        accionPreventiva: document.getElementById('accionPreventiva').value.trim(),
+        fechaEjecutar: document.getElementById('fechaEjecutar').value
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Registrando...';
+      const avisoLento = setTimeout(function () { btn.textContent = 'Esto puede tardar unos segundos más...'; }, 5000);
+
+      llamarApi(API_URL_INCIDENTES, 'registrarIncidente', datos, true)
+        .then(function (resp) {
+          clearTimeout(avisoLento);
+          if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
+          okDiv.textContent = '✅ Incidente registrado correctamente.';
+          okDiv.style.display = 'block';
+          limpiarFormulario();
+        })
+        .catch(function (err) {
+          clearTimeout(avisoLento);
+          mostrarError(err.message);
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = 'Registrar incidente';
+        });
+    }
+
+    function mostrarError(msg) {
+      const errorDiv = document.getElementById('error');
+      errorDiv.textContent = msg;
+      errorDiv.style.display = 'block';
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('idCliente').value = '';
+      document.getElementById('nombreAfectado').value = '';
+      document.getElementById('ubicacion').value = '';
+      document.getElementById('descripcion').value = '';
+      document.getElementById('testigos').value = '';
+      document.getElementById('accionPreventiva').value = '';
+      document.getElementById('fechaEjecutar').value = '';
+      document.getElementById('datosCliente').style.display = 'none';
+      elegirGravedad('');
+      elegirContacto('No');
+    }
+
+    cargarStaff();
+  </script>
+</body>
+</html>
