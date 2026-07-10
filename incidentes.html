@@ -104,12 +104,6 @@
     <button type="button" id="btnContactoNo" onclick="elegirContacto('No')">No</button>
   </div>
 
-  <label>Acción preventiva o resolución</label>
-  <textarea id="accionPreventiva" placeholder="Qué se hará para que no vuelva a pasar"></textarea>
-
-  <label>Fecha para ejecutar la acción</label>
-  <input type="date" id="fechaEjecutar">
-
   <label>Reportado por *</label>
   <select id="reportadoPor">
     <option value="">-- Selecciona tu nombre --</option>
@@ -256,8 +250,6 @@
         testigos: document.getElementById('testigos').value.trim(),
         contactoEmergencia: contactoSeleccionado,
         reportadoPor: reportadoPor,
-        accionPreventiva: document.getElementById('accionPreventiva').value.trim(),
-        fechaEjecutar: document.getElementById('fechaEjecutar').value
       };
 
       btn.disabled = true;
@@ -294,8 +286,6 @@
       document.getElementById('ubicacion').value = '';
       document.getElementById('descripcion').value = '';
       document.getElementById('testigos').value = '';
-      document.getElementById('accionPreventiva').value = '';
-      document.getElementById('fechaEjecutar').value = '';
       document.getElementById('datosCliente').style.display = 'none';
       elegirGravedad('');
       elegirContacto('No');
