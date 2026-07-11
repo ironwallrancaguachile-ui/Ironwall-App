@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha del cliente - Ironwall</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; font-size: 13px; }
+  .buscador { display: flex; gap: 8px; margin-top: 10px; }
+  .buscador input {
+    flex: 1;
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  .buscador button {
+    padding: 12px 16px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .seccion {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+  }
+  .seccion h2 { font-size: 15px; margin: 0 0 8px; }
+  .seccion p { margin: 3px 0; font-size: 14px; }
+  .item { border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px; font-size: 13px; }
+  .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  #notaTexto {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    min-height: 60px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  #notaResponsable {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+  #btnNota {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: #1e824c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  #mensaje { font-size: 13px; margin-top: 8px; display: none; }
+  #mensaje.error { color: #c0392b; }
+  #mensaje.ok { color: #1e824c; }
+  #sinDatos { font-size: 13px; color: #888; }
+</style>
+</head>
+<body>
+
+  <h1>Ficha del cliente</h1>
+  <p class="sub">Datos, pases, visitas y notas — todo en una pantalla.</p>
+
+  <div class="buscador">
+    <input type="text" id="idBuscar" placeholder="Ej: IWR7K9QX">
+    <button onclick="buscar()">Buscar</button>
+  </div>
+
+  <div id="mensaje"></div>
+  <div id="contenido"></div>
+
+  <script>
+    // ⚠️ URL del Apps Script de CLIENTES (el mismo de siempre).
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    let idClienteActual = '';
+    let staffCache = [];
+
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+            if (soloUnIntento) throw new Error('No pudimos confirmar si se guardó. Intenta de nuevo.');
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+      return intentar(intentos);
+    }
+
+    function llamarApi(accion, payload, esEscritura) {
+      return fetchConReintento(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }, esEscritura).then(function (r) {
+        return r.text().then(function (texto) {
+          try { return JSON.parse(texto); }
+          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
+        });
+      });
+    }
+
+    function cargarStaff() {
+      const cache = leerCache_('staff_ficha_cache');
+      if (cache) staffCache = cache;
+      llamarApi('listarStaff', {})
+        .then(function (resp) {
+          if (resp.ok && resp.data) {
+            staffCache = resp.data;
+            guardarCache_('staff_ficha_cache', resp.data);
+          }
+        })
+        .catch(function () { /* seguimos con la caché si falla */ });
+    }
+    function guardarCache_(clave, datos) {
+      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+      catch (e) { /* nada grave si falla */ }
+    }
+    function leerCache_(clave) {
+      try {
+        const crudo = localStorage.getItem(clave);
+        if (!crudo) return null;
+        const parsed = JSON.parse(crudo);
+        if (Date.now() - parsed.guardado > 12 * 60 * 60 * 1000) return null;
+        return parsed.datos;
+      } catch (e) { return null; }
+    }
+
+    function buscar() {
+      const id = document.getElementById('idBuscar').value.trim();
+      if (!id) return;
+      idClienteActual = id;
+
+      const mensaje = document.getElementById('mensaje');
+      const contenido = document.getElementById('contenido');
+      mensaje.style.display = 'none';
+      contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
+
+      llamarApi('obtenerFichaCompleta', { idCliente: id })
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          if (!resp.data.cliente) {
+            contenido.innerHTML = '<div id="sinDatos">Cliente no encontrado: ' + id + '</div>';
+            return;
+          }
+          renderFicha(resp.data);
+        })
+        .catch(function (err) {
+          mensaje.className = 'error';
+          mensaje.textContent = 'Error: ' + err.message;
+          mensaje.style.display = 'block';
+          contenido.innerHTML = '';
+        });
+    }
+
+    function renderFicha(data) {
+      const c = data.cliente;
+      let html = '';
+
+      html += '<div class="seccion"><h2>' + c.nombre + ' ' + c.apellido + '</h2>'
+        + '<p style="color:#888">' + c.idCliente + '</p></div>';
+
+      html += '<div class="seccion"><h2>Pases activos</h2>';
+      if (!data.pases || data.pases.length === 0) {
+        html += '<p style="color:#888">Sin pases activos.</p>';
+      } else {
+        data.pases.forEach(function (p) {
+          html += '<div class="item"><strong>' + p.nombreServicio + '</strong><br>'
+            + 'Usos restantes: ' + p.usosRestantes + ' de ' + p.usosTotales
+            + (p.fechaVencimiento ? '<br>Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() : '')
+            + '</div>';
+        });
+      }
+      html += '</div>';
+
+      html += '<div class="seccion"><h2>Últimas visitas</h2>';
+      if (!data.ultimasVisitas || data.ultimasVisitas.length === 0) {
+        html += '<p style="color:#888">Sin visitas registradas aún.</p>';
+      } else {
+        data.ultimasVisitas.forEach(function (v) {
+          html += '<div class="item">' + new Date(v).toLocaleString() + '</div>';
+        });
+      }
+      html += '</div>';
+
+      html += '<div class="seccion"><h2>Notas</h2>';
+      if (!data.notas || data.notas.length === 0) {
+        html += '<p style="color:#888">Sin notas aún.</p>';
+      } else {
+        data.notas.forEach(function (n) {
+          html += '<div class="item">' + n.nota + '<br>'
+            + '<span style="color:#888">' + n.registradoPor + ' — ' + new Date(n.fecha).toLocaleDateString() + '</span></div>';
+        });
+      }
+      html += '<textarea id="notaTexto" placeholder="Escribe una nota sobre este cliente..."></textarea>'
+        + '<select id="notaResponsable"><option value="">-- Tu nombre --</option>'
+        + staffCache.map(function (s) { return '<option value="' + s + '">' + s + '</option>'; }).join('')
+        + '</select>'
+        + '<button id="btnNota" onclick="agregarNota()">Agregar nota</button>'
+        + '</div>';
+
+      document.getElementById('contenido').innerHTML = html;
+    }
+
+    function agregarNota() {
+      const nota = document.getElementById('notaTexto').value.trim();
+      const responsable = document.getElementById('notaResponsable').value;
+      const boton = document.getElementById('btnNota');
+      const mensaje = document.getElementById('mensaje');
+
+      if (!nota) { return; }
+      if (!responsable) {
+        mensaje.className = 'error';
+        mensaje.textContent = 'Elige quién registra la nota.';
+        mensaje.style.display = 'block';
+        return;
+      }
+
+      boton.disabled = true;
+      boton.textContent = 'Guardando...';
+
+      llamarApi('agregarNota', { idCliente: idClienteActual, nota: nota, registradoPor: responsable }, true)
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          buscar(); // recarga la ficha completa para mostrar la nota nueva
+        })
+        .catch(function (err) {
+          mensaje.className = 'error';
+          mensaje.textContent = 'Error: ' + err.message;
+          mensaje.style.display = 'block';
+          boton.disabled = false;
+          boton.textContent = 'Agregar nota';
+        });
+    }
+
+    cargarStaff();
+  </script>
+</body>
+</html>
