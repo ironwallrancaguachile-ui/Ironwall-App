@@ -182,12 +182,53 @@
         });
     }
 
+    function renderResumen(data, cliente) {
+      const hoy = new Date();
+      let html = '<div class="seccion"><h2>Resumen</h2>';
+
+      // Cliente desde cuándo
+      if (cliente.fechaRegistro) {
+        const registro = new Date(cliente.fechaRegistro);
+        const diasComoCliente = Math.floor((hoy - registro) / (1000 * 60 * 60 * 24));
+        html += '<p>Cliente desde: ' + registro.toLocaleDateString() + ' (' + diasComoCliente + ' días)</p>';
+      }
+
+      // Total de visitas históricas
+      html += '<p>Total de visitas: <strong>' + (data.totalVisitas || 0) + '</strong></p>';
+
+      // Hace cuánto no viene, con alerta si es mucho tiempo
+      if (data.ultimasVisitas && data.ultimasVisitas.length > 0) {
+        const ultima = new Date(data.ultimasVisitas[0]);
+        const diasSinVenir = Math.floor((hoy - ultima) / (1000 * 60 * 60 * 24));
+        const alerta = diasSinVenir >= 30;
+        html += '<p' + (alerta ? ' style="color:#c0392b;font-weight:600"' : '') + '>'
+          + 'Última visita: hace ' + diasSinVenir + ' día(s)'
+          + (alerta ? ' ⚠️ mucho tiempo sin venir' : '')
+          + '</p>';
+      } else {
+        html += '<p style="color:#888">Aún no registra ninguna visita.</p>';
+      }
+
+      // Frecuencia aproximada: visitas por mes desde que es cliente
+      if (cliente.fechaRegistro && data.totalVisitas > 0) {
+        const registro = new Date(cliente.fechaRegistro);
+        const mesesComoCliente = Math.max(1, (hoy - registro) / (1000 * 60 * 60 * 24 * 30));
+        const frecuencia = (data.totalVisitas / mesesComoCliente).toFixed(1);
+        html += '<p>Frecuencia aproximada: ' + frecuencia + ' visitas/mes</p>';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
     function renderFicha(data) {
       const c = data.cliente;
       let html = '';
 
       html += '<div class="seccion"><h2>' + c.nombre + ' ' + c.apellido + '</h2>'
         + '<p style="color:#888">' + c.idCliente + '</p></div>';
+
+      html += renderResumen(data, c);
 
       html += '<div class="seccion"><h2>Pases activos</h2>';
       if (!data.pases || data.pases.length === 0) {
