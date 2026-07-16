@@ -99,6 +99,15 @@
       <span>He leído y acepto el Reglamento Interno y el Deslinde de Responsabilidad. *</span>
     </label>
 
+    <div style="margin-top: 20px; padding: 14px; background: #f5f5f5; border-radius: 8px; font-size: 13px; max-height: 220px; overflow-y: auto; line-height: 1.5;" id="datosContenido">
+      Cargando política de datos...
+    </div>
+
+    <label style="display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; font-weight: 400;">
+      <input type="checkbox" id="aceptaDatos" style="width: auto; margin-top: 3px;" disabled>
+      <span>He leído y acepto la Política de Tratamiento de Datos Personales. *</span>
+    </label>
+
     <button id="btnEnviar" onclick="enviar()">Registrarme</button>
     <div id="error"></div>
   </div>
@@ -213,17 +222,37 @@
     }
 
     function cargarReglamento() {
-      const contenedor = document.getElementById('reglamentoContenido');
+      const contenedorReglamento = document.getElementById('reglamentoContenido');
+      const contenedorDatos = document.getElementById('datosContenido');
       llamarApi('obtenerReglamento', {})
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error || 'No se pudo cargar');
           renderReglamento(resp.data);
+          renderPoliticaDatos(resp.data);
           document.getElementById('aceptaReglamento').disabled = false;
+          document.getElementById('aceptaDatos').disabled = false;
         })
         .catch(function () {
-          contenedor.innerHTML = '<span style="color:#c0392b">No se pudo cargar el reglamento. '
+          contenedorReglamento.innerHTML = '<span style="color:#c0392b">No se pudo cargar el reglamento. '
+            + '<a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
+          contenedorDatos.innerHTML = '<span style="color:#c0392b">No se pudo cargar la política de datos. '
             + '<a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
         });
+    }
+
+    function renderPoliticaDatos(data) {
+      const contenedor = document.getElementById('datosContenido');
+      let html = '<strong>Política de Tratamiento de Datos Personales</strong>'
+        + '<ol style="margin: 8px 0 8px; padding-left: 20px;">';
+      (data.datos || []).forEach(function (linea) {
+        html += '<li>' + linea + '</li>';
+      });
+      html += '</ol>';
+      if (data.emailContacto) {
+        html += '<p style="margin: 4px 0 0;">Para ejercer tus derechos de acceso, rectificación, '
+          + 'cancelación u oposición sobre tus datos, escríbenos a <strong>' + data.emailContacto + '</strong>.</p>';
+      }
+      contenedor.innerHTML = html;
     }
 
     function renderReglamento(data) {
@@ -301,6 +330,12 @@
         return;
       }
 
+      if (!document.getElementById('aceptaDatos').checked) {
+        errorDiv.textContent = 'Debes aceptar la Política de Tratamiento de Datos Personales para registrarte.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
       const datos = {
         nombre: nombre,
         apellido: apellido,
@@ -312,7 +347,8 @@
         telefonoEmergencia: document.getElementById('telefonoEmergencia').value.trim(),
         ocupacion: document.getElementById('ocupacion').value.trim(),
         fechaNacimiento: document.getElementById('fechaNacimiento').value,
-        aceptaReglamento: document.getElementById('aceptaReglamento').checked
+        aceptaReglamento: document.getElementById('aceptaReglamento').checked,
+        aceptaDatos: document.getElementById('aceptaDatos').checked
       };
 
       btn.disabled = true;
