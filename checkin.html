@@ -283,12 +283,12 @@
               '<div id="sinPases">Cliente no encontrado: ' + idCliente + '</div>';
             return;
           }
-          renderPases(cliente, resp.data.pases, staff);
+          renderPases(cliente, resp.data.pases, resp.data.checkinsHoy, staff);
         })
         .catch(mostrarError);
     }
 
-    function renderPases(cliente, pases, staff) {
+    function renderPases(cliente, pases, checkinsHoy, staff) {
       let html = '<h3 style="margin:0">' + cliente.nombre + ' ' + cliente.apellido + '</h3>';
       html += '<p style="font-size:12px;color:#888">' + cliente.idCliente + '</p>';
 
@@ -305,6 +305,20 @@
         });
       }
 
+      if (checkinsHoy && checkinsHoy.length > 0) {
+        html += '<div class="card" style="background:#fff8e6">'
+          + '<h3>Check-ins de hoy</h3>';
+        checkinsHoy.forEach(function (c) {
+          const hora = new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          html += '<p style="display:flex;justify-content:space-between;align-items:center;margin:6px 0">'
+            + '<span>' + hora + '</span>'
+            + '<button style="background:#c0392b;padding:6px 10px;font-size:12px" '
+            + 'onclick="anularCheckin(\'' + c.idCheckin + '\', \'' + cliente.idCliente + '\', \'' + staff.replace(/'/g, '') + '\', this)">Anular (fue un error)</button>'
+            + '</p>';
+        });
+        html += '</div>';
+      }
+
       html += '<div class="card" style="background:#f5f5f5">'
         + '<h3>Cargar pase (ya cobrado en caja)</h3>'
         + '<select id="selectServicio">' + opcionesServicios() + '</select>'
@@ -313,6 +327,28 @@
 
       document.getElementById('resultado').innerHTML = html;
       document.getElementById('nuevaLectura').style.display = (!pases || pases.length === 0) ? 'block' : 'none';
+    }
+
+    function anularCheckin(idCheckin, idCliente, staff, boton) {
+      boton.disabled = true;
+      boton.textContent = 'Anulando...';
+
+      llamarApi('anularCheckin', { idCheckin: idCheckin, staff: staff }, true)
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          // Recarga toda la ficha del cliente para reflejar el pase restaurado
+          return llamarApi('buscarClienteYPases', { idCliente: idCliente });
+        })
+        .then(function (resp2) {
+          if (resp2 && resp2.ok && resp2.data.cliente) {
+            renderPases(resp2.data.cliente, resp2.data.pases, resp2.data.checkinsHoy, staff);
+          }
+        })
+        .catch(function (err) {
+          boton.disabled = false;
+          boton.textContent = 'Anular (fue un error)';
+          mostrarError(err);
+        });
     }
 
     function opcionesServicios() {
@@ -335,12 +371,12 @@
           if (!resp.ok) throw new Error(resp.error);
           document.getElementById('mensajeOk').style.display = 'block';
           document.getElementById('mensajeOk').textContent = '✅ Pase cargado correctamente.';
-          // Vuelve a cargar los pases del cliente para mostrar el nuevo
-          return llamarApi('listarPases', { idCliente: idCliente });
+          // Vuelve a cargar los pases y check-ins del cliente para mostrar el nuevo
+          return llamarApi('buscarClienteYPases', { idCliente: idCliente });
         })
         .then(function (r2) {
-          if (r2 && r2.ok) {
-            renderPases({ idCliente: idCliente, nombre: nombre, apellido: apellido }, r2.data, staff);
+          if (r2 && r2.ok && r2.data.cliente) {
+            renderPases(r2.data.cliente, r2.data.pases, r2.data.checkinsHoy, staff);
           }
         })
         .catch(function (err) {
