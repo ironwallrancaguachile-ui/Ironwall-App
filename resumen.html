@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resumen del día - Ironwall</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
+  .kpi {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .kpi .label { font-size: 14px; color: #555; }
+  .kpi .valor { font-size: 22px; font-weight: 700; }
+  .kpi.ingreso .valor { color: #1e824c; }
+  .kpi.egreso .valor { color: #c0392b; }
+  #cargando { text-align: center; color: #888; margin-top: 30px; font-size: 13px; }
+  #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
+  #actualizado { text-align: center; color: #999; font-size: 12px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+  <h1>Resumen del día</h1>
+  <p class="sub" id="fechaHoy"></p>
+
+  <div id="cargando">Cargando...</div>
+  <div id="contenido" style="display:none">
+    <div class="kpi">
+      <span class="label">Visitas hoy</span>
+      <span class="valor" id="visitasHoy">-</span>
+    </div>
+    <div class="kpi">
+      <span class="label">Clientes distintos hoy</span>
+      <span class="valor" id="clientesDistintosHoy">-</span>
+    </div>
+    <div class="kpi">
+      <span class="label">Clientes nuevos hoy</span>
+      <span class="valor" id="clientesNuevosHoy">-</span>
+    </div>
+    <div class="kpi ingreso">
+      <span class="label">Ingresos hoy</span>
+      <span class="valor" id="ingresosHoy">-</span>
+    </div>
+    <div class="kpi egreso">
+      <span class="label">Egresos hoy</span>
+      <span class="valor" id="egresosHoy">-</span>
+    </div>
+  </div>
+  <div id="error"></div>
+  <div id="actualizado"></div>
+
+  <script>
+    // ⚠️ URLs de tus dos Apps Script (el de clientes y el de finanzas).
+    const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+    const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
+
+    function llamarApi(url, accion, payload) {
+      const controlador = new AbortController();
+      const timeoutId = setTimeout(function () { controlador.abort(); }, 15000);
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload || {} }),
+        signal: controlador.signal
+      }).then(function (r) {
+        clearTimeout(timeoutId);
+        return r.text();
+      }).then(function (texto) {
+        try { return JSON.parse(texto); }
+        catch (e) { throw new Error('El servidor tardó en responder.'); }
+      });
+    }
+
+    function formatearPesos(numero) {
+      return '$' + Math.round(numero).toLocaleString('es-CL');
+    }
+
+    function cargar() {
+      document.getElementById('fechaHoy').textContent = new Date().toLocaleDateString('es-CL', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      Promise.all([
+        llamarApi(API_URL_CLIENTES, 'obtenerResumenDiaClientes', {}),
+        llamarApi(API_URL_FINANZAS, 'obtenerResumenDiaFinanzas', {})
+      ]).then(function (resultados) {
+        const respClientes = resultados[0];
+        const respFinanzas = resultados[1];
+
+        document.getElementById('cargando').style.display = 'none';
+        document.getElementById('contenido').style.display = 'block';
+
+        if (respClientes.ok) {
+          document.getElementById('visitasHoy').textContent = respClientes.data.visitasHoy;
+          document.getElementById('clientesDistintosHoy').textContent = respClientes.data.clientesDistintosHoy;
+          document.getElementById('clientesNuevosHoy').textContent = respClientes.data.clientesNuevosHoy;
+        }
+        if (respFinanzas.ok) {
+          document.getElementById('ingresosHoy').textContent = formatearPesos(respFinanzas.data.ingresosHoy);
+          document.getElementById('egresosHoy').textContent = formatearPesos(respFinanzas.data.egresosHoy);
+        }
+
+        document.getElementById('actualizado').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CL');
+      }).catch(function (err) {
+        document.getElementById('cargando').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Error al cargar: ' + err.message;
+      });
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
