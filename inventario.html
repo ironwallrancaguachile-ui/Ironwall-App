@@ -85,9 +85,18 @@
   <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">
 
   <label>Motivo *</label>
-  <select id="motivo">
+  <select id="motivo" onchange="mostrarMedioPagoSiVenta()">
     <option value="">-- Primero elige el tipo --</option>
   </select>
+
+  <div id="bloqueMedioPago" style="display:none">
+    <label>Medio de pago (venta) *</label>
+    <select id="medioPagoVenta">
+      <option value="Mercado Pago">Mercado Pago</option>
+      <option value="Transferencia">Transferencia</option>
+      <option value="Efectivo">Efectivo</option>
+    </select>
+  </div>
 
   <label>Notas</label>
   <input type="text" id="notas" placeholder="Opcional">
@@ -108,6 +117,11 @@
     // ⚠️ URL del Apps Script del sistema de CLIENTES (se reutiliza solo
     // para traer la lista de staff, sin duplicarla).
     const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    // ⚠️ URL de tu Apps Script de FINANZAS. Se usa para registrar el
+    // ingreso automático cuando la salida es por "Venta" — así no hay
+    // que anotarlo dos veces (acá y en movimientos.html).
+    const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
 
     const MOTIVOS_ENTRADA = ['Compra a proveedor', 'Devolución de cliente', 'Ajuste de inventario'];
     const MOTIVOS_SALIDA = ['Venta', 'Merma o pérdida', 'Producto vencido', 'Ajuste de inventario'];
@@ -158,6 +172,7 @@
       tipoSeleccionado = tipo;
       document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
       document.getElementById('btnSalida').className = tipo === 'Salida' ? 'activo-salida' : '';
+      mostrarMedioPagoSiVenta();
       document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
 
       const selectMotivo = document.getElementById('motivo');
@@ -241,6 +256,12 @@
       } catch (e) { return null; }
     }
 
+    function mostrarMedioPagoSiVenta() {
+      const motivo = document.getElementById('motivo').value;
+      const esVenta = tipoSeleccionado === 'Salida' && motivo === 'Venta';
+      document.getElementById('bloqueMedioPago').style.display = esVenta ? 'block' : 'none';
+    }
+
     function enviar() {
       const btn = document.getElementById('btnEnviar');
       const errorDiv = document.getElementById('error');
@@ -259,6 +280,9 @@
       if (!motivo) { mostrarError('Elige un motivo.'); return; }
       if (!responsable) { mostrarError('Elige quién registra el movimiento.'); return; }
 
+      const esVenta = tipoSeleccionado === 'Salida' && motivo === 'Venta';
+      const medioPago = esVenta ? document.getElementById('medioPagoVenta').value : '';
+
       const datos = {
         tipo: tipoSeleccionado,
         codigoProducto: codigoProducto,
@@ -276,11 +300,20 @@
         .then(function (resp) {
           clearTimeout(avisoLento);
           if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
-          okDiv.textContent = '✅ Movimiento registrado. Nuevo stock: ' + resp.data.stockNuevo;
-          okDiv.style.display = 'block';
-          document.getElementById('cantidad').value = '';
-          document.getElementById('notas').value = '';
-          cargarProductos(); // refresca stocks mostrados
+
+          let mensaje = '✅ Movimiento registrado. Nuevo stock: ' + resp.data.stockNuevo;
+
+          if (esVenta && resp.data.precioVenta > 0 && resp.data.categoriaFinanzas) {
+            const montoTotal = resp.data.precioVenta * Number(cantidad);
+            return registrarIngresoAutomatico_(resp.data, montoTotal, medioPago, cantidad, responsable)
+              .then(function (okFinanzas) {
+                mensaje += okFinanzas
+                  ? ' Ingreso registrado en Finanzas.'
+                  : ' (No se pudo registrar el ingreso en Finanzas automático — regístralo manual en movimientos.html)';
+                mostrarExito_(mensaje);
+              });
+          }
+          mostrarExito_(mensaje);
         })
         .catch(function (err) {
           clearTimeout(avisoLento);
@@ -290,6 +323,45 @@
           btn.disabled = false;
           btn.textContent = 'Registrar movimiento';
         });
+    }
+
+    function mostrarExito_(mensaje) {
+      const okDiv = document.getElementById('ok');
+      okDiv.textContent = mensaje;
+      okDiv.style.display = 'block';
+      document.getElementById('cantidad').value = '';
+      document.getElementById('notas').value = '';
+      cargarProductos(); // refresca stocks mostrados
+    }
+
+    // Registra el ingreso correspondiente en Finanzas. Nunca lanza
+    // error hacia arriba — si falla, solo devuelve false, porque el
+    // movimiento de inventario YA se guardó bien.
+    function registrarIngresoAutomatico_(datosProducto, montoTotal, medioPago, cantidad, responsable) {
+      const datosMovimiento = {
+        tipo: 'Ingreso',
+        categoria: datosProducto.categoriaFinanzas,
+        medioPago: medioPago,
+        monto: montoTotal,
+        descripcion: datosProducto.nombreProducto + ' x' + cantidad,
+        comprobante: '',
+        responsable: responsable
+      };
+
+      return fetch(API_URL_FINANZAS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
+      }).then(function (r) { return r.text(); })
+        .then(function (texto) {
+          try {
+            const resp = JSON.parse(texto);
+            return !!resp.ok;
+          } catch (e) {
+            return false;
+          }
+        })
+        .catch(function () { return false; });
     }
 
     function mostrarError(msg) {

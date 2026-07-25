@@ -122,6 +122,11 @@
     // Apps Script (la que termina en /exec). Es la misma que ya tienes.
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
+    // ⚠️ URL de tu Apps Script de FINANZAS. Se usa para registrar
+    // automáticamente el ingreso cuando se carga un pase pagado en caja
+    // — así no hay que anotarlo dos veces (acá y en movimientos.html).
+    const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
+
     // El servidor a veces tarda (primera carga del día, tráfico alto).
     // Este fetch espera hasta 25 segundos antes de rendirse, y si falla
     // por tiempo agotado o error de red, reintenta una vez automáticamente.
@@ -322,6 +327,11 @@
       html += '<div class="card" style="background:#f5f5f5">'
         + '<h3>Cargar pase (ya cobrado en caja)</h3>'
         + '<select id="selectServicio">' + opcionesServicios() + '</select>'
+        + '<select id="selectMedioPago" style="margin-top:6px">'
+        + '<option value="Mercado Pago">Mercado Pago</option>'
+        + '<option value="Transferencia">Transferencia</option>'
+        + '<option value="Efectivo">Efectivo</option>'
+        + '</select>'
         + '<button style="background:#1a1a1a" onclick="cargarPase(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">Cargar pase</button>'
         + '</div>';
 
@@ -361,6 +371,7 @@
     function cargarPase(idCliente, nombre, apellido, staff, boton) {
       const select = document.getElementById('selectServicio');
       const codigo = select.value;
+      const medioPago = document.getElementById('selectMedioPago').value;
       if (!codigo) return;
 
       boton.disabled = true;
@@ -369,9 +380,26 @@
       llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: codigo }, true)
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
+
+          let mensaje = '✅ Pase cargado correctamente.';
+
+          // Si el servicio tiene precio y categoría financiera definida,
+          // registra el ingreso solo — así no hay que anotarlo de nuevo
+          // en movimientos.html.
+          if (resp.data.precio > 0 && resp.data.categoriaFinanzas) {
+            return registrarIngresoAutomatico_(resp.data, medioPago, idCliente, staff)
+              .then(function (okFinanzas) {
+                mensaje += okFinanzas
+                  ? ' Ingreso registrado en Finanzas.'
+                  : ' (No se pudo registrar el ingreso en Finanzas automático — regístralo manual en movimientos.html)';
+                return { resp: resp, mensaje: mensaje };
+              });
+          }
+          return { resp: resp, mensaje: mensaje };
+        })
+        .then(function (resultado) {
           document.getElementById('mensajeOk').style.display = 'block';
-          document.getElementById('mensajeOk').textContent = '✅ Pase cargado correctamente.';
-          // Vuelve a cargar los pases y check-ins del cliente para mostrar el nuevo
+          document.getElementById('mensajeOk').textContent = resultado.mensaje;
           return llamarApi('buscarClienteYPases', { idCliente: idCliente });
         })
         .then(function (r2) {
@@ -384,6 +412,37 @@
           boton.textContent = 'Cargar pase';
           mostrarError(err);
         });
+    }
+
+    // Llama al Apps Script de Finanzas para registrar el ingreso.
+    // Nunca lanza error hacia arriba — si falla, solo devuelve false,
+    // porque el pase YA se cargó bien y no queremos que este paso
+    // secundario bloquee ni confunda al staff.
+    function registrarIngresoAutomatico_(datosPase, medioPago, idCliente, staff) {
+      const datosMovimiento = {
+        tipo: 'Ingreso',
+        categoria: datosPase.categoriaFinanzas,
+        medioPago: medioPago,
+        monto: datosPase.precio,
+        descripcion: datosPase.nombreServicio + ' - ' + datosPase.nombreCliente + ' (' + idCliente + ')',
+        comprobante: '',
+        responsable: staff
+      };
+
+      return fetch(API_URL_FINANZAS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
+      }).then(function (r) { return r.text(); })
+        .then(function (texto) {
+          try {
+            const resp = JSON.parse(texto);
+            return !!resp.ok;
+          } catch (e) {
+            return false;
+          }
+        })
+        .catch(function () { return false; });
     }
 
     function confirmar(idCliente, idPase, staff, boton) {

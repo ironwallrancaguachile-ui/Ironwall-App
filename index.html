@@ -72,9 +72,6 @@
     <label>Email</label>
     <input type="email" id="email">
 
-    <label>Dirección</label>
-    <input type="text" id="direccion">
-
     <label>Comuna</label>
     <input type="text" id="comuna">
 
@@ -83,9 +80,6 @@
 
     <label>Teléfono de emergencia</label>
     <input type="tel" id="telefonoEmergencia" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
-
-    <label>Ocupación</label>
-    <input type="text" id="ocupacion">
 
     <label>Fecha de nacimiento</label>
     <input type="date" id="fechaNacimiento">
@@ -342,10 +336,8 @@
         rut: rut,
         telefono: document.getElementById('telefono').value.trim(),
         email: document.getElementById('email').value.trim(),
-        direccion: document.getElementById('direccion').value.trim(),
         comuna: document.getElementById('comuna').value.trim(),
         telefonoEmergencia: document.getElementById('telefonoEmergencia').value.trim(),
-        ocupacion: document.getElementById('ocupacion').value.trim(),
         fechaNacimiento: document.getElementById('fechaNacimiento').value,
         aceptaReglamento: document.getElementById('aceptaReglamento').checked,
         aceptaDatos: document.getElementById('aceptaDatos').checked
