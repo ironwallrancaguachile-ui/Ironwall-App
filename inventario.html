@@ -90,7 +90,7 @@
   </select>
 
   <div id="bloqueMedioPago" style="display:none">
-    <label>Medio de pago (venta) *</label>
+    <label id="labelMedioPago">Medio de pago *</label>
     <select id="medioPagoVenta">
       <option value="Mercado Pago">Mercado Pago</option>
       <option value="Transferencia">Transferencia</option>
@@ -112,7 +112,7 @@
 
   <script>
     // ⚠️ Reemplaza por la URL de TU implementación del Apps Script de INVENTARIO.
-    const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
+    const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec'';
 
     // ⚠️ URL del Apps Script del sistema de CLIENTES (se reutiliza solo
     // para traer la lista de staff, sin duplicarla).
@@ -259,7 +259,9 @@
     function mostrarMedioPagoSiVenta() {
       const motivo = document.getElementById('motivo').value;
       const esVenta = tipoSeleccionado === 'Salida' && motivo === 'Venta';
-      document.getElementById('bloqueMedioPago').style.display = esVenta ? 'block' : 'none';
+      const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
+      document.getElementById('bloqueMedioPago').style.display = (esVenta || esCompra) ? 'block' : 'none';
+      document.getElementById('labelMedioPago').textContent = esCompra ? 'Medio de pago (compra) *' : 'Medio de pago (venta) *';
     }
 
     function enviar() {
@@ -281,7 +283,8 @@
       if (!responsable) { mostrarError('Elige quién registra el movimiento.'); return; }
 
       const esVenta = tipoSeleccionado === 'Salida' && motivo === 'Venta';
-      const medioPago = esVenta ? document.getElementById('medioPagoVenta').value : '';
+      const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
+      const medioPago = (esVenta || esCompra) ? document.getElementById('medioPagoVenta').value : '';
 
       const datos = {
         tipo: tipoSeleccionado,
@@ -305,7 +308,7 @@
 
           if (esVenta && resp.data.precioVenta > 0 && resp.data.categoriaFinanzas) {
             const montoTotal = resp.data.precioVenta * Number(cantidad);
-            return registrarIngresoAutomatico_(resp.data, montoTotal, medioPago, cantidad, responsable)
+            return registrarMovimientoFinanzasAutomatico_('Ingreso', resp.data.categoriaFinanzas, montoTotal, medioPago, resp.data.nombreProducto, cantidad, responsable)
               .then(function (okFinanzas) {
                 mensaje += okFinanzas
                   ? ' Ingreso registrado en Finanzas.'
@@ -313,6 +316,18 @@
                 mostrarExito_(mensaje);
               });
           }
+
+          if (esCompra && resp.data.costoUnitario > 0 && resp.data.categoriaCompraFinanzas) {
+            const montoTotal = resp.data.costoUnitario * Number(cantidad);
+            return registrarMovimientoFinanzasAutomatico_('Egreso', resp.data.categoriaCompraFinanzas, montoTotal, medioPago, resp.data.nombreProducto, cantidad, responsable)
+              .then(function (okFinanzas) {
+                mensaje += okFinanzas
+                  ? ' Egreso registrado en Finanzas.'
+                  : ' (No se pudo registrar el egreso en Finanzas automático — regístralo manual en movimientos.html)';
+                mostrarExito_(mensaje);
+              });
+          }
+
           mostrarExito_(mensaje);
         })
         .catch(function (err) {
@@ -334,16 +349,16 @@
       cargarProductos(); // refresca stocks mostrados
     }
 
-    // Registra el ingreso correspondiente en Finanzas. Nunca lanza
-    // error hacia arriba — si falla, solo devuelve false, porque el
-    // movimiento de inventario YA se guardó bien.
-    function registrarIngresoAutomatico_(datosProducto, montoTotal, medioPago, cantidad, responsable) {
+    // Registra un ingreso o egreso en Finanzas. Nunca lanza error hacia
+    // arriba — si falla, solo devuelve false, porque el movimiento de
+    // inventario YA se guardó bien.
+    function registrarMovimientoFinanzasAutomatico_(tipo, categoria, montoTotal, medioPago, nombreProducto, cantidad, responsable) {
       const datosMovimiento = {
-        tipo: 'Ingreso',
-        categoria: datosProducto.categoriaFinanzas,
+        tipo: tipo,
+        categoria: categoria,
         medioPago: medioPago,
         monto: montoTotal,
-        descripcion: datosProducto.nombreProducto + ' x' + cantidad,
+        descripcion: nombreProducto + ' x' + cantidad,
         comprobante: '',
         responsable: responsable
       };
