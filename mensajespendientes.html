@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mensajes pendientes - Ironwall</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; font-size: 13px; }
+  .filtros { display: flex; gap: 8px; margin-top: 10px; }
+  .filtros button {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;
+  }
+  .filtros button.activo { border-color: #1a1a1a; background: #f0f0f0; font-weight: 600; }
+  .tarjeta {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .tarjeta h3 { margin: 0 0 4px; font-size: 15px; }
+  .tarjeta .meta { font-size: 12px; color: #888; margin-bottom: 8px; }
+  .tarjeta .canal {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+  }
+  .canal.whatsapp { background: #e8f6ee; color: #1e824c; }
+  .canal.email { background: #eeedfe; color: #3c3489; }
+  .tarjeta .asunto { font-weight: 600; font-size: 13px; margin-top: 6px; }
+  .tarjeta .mensaje {
+    background: #f7f7f7;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    margin-top: 6px;
+    white-space: pre-wrap;
+  }
+  .botones { display: flex; gap: 8px; margin-top: 10px; }
+  .botones button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-copiar { background: #eee; color: #222; }
+  .btn-enviado { background: #1e824c; color: #fff; }
+  #vacio { text-align: center; color: #888; margin-top: 40px; font-size: 14px; }
+  #cargando { text-align: center; color: #888; margin-top: 20px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+  <h1>Mensajes pendientes</h1>
+  <p class="sub">Cópialos y mándalos por WhatsApp o correo — marca "Enviado" cuando termines.</p>
+
+  <div class="filtros">
+    <button class="activo" id="btnTodos" onclick="filtrar('todos')">Todos</button>
+    <button id="btnWhatsapp" onclick="filtrar('WhatsApp')">WhatsApp</button>
+    <button id="btnEmail" onclick="filtrar('Email')">Email</button>
+  </div>
+
+  <div id="cargando">Cargando...</div>
+  <div id="lista"></div>
+  <div id="vacio" style="display:none">No hay mensajes pendientes 🎉</div>
+
+  <script>
+    // ⚠️ URL del Apps Script de CLIENTES (el mismo de siempre).
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    let mensajesCache = [];
+    let filtroActual = 'todos';
+
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+            if (soloUnIntento) throw new Error('No pudimos confirmar si se guardó. Revisa antes de repetir.');
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+      return intentar(intentos);
+    }
+
+    function llamarApi(accion, payload, esEscritura) {
+      return fetchConReintento(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }, esEscritura).then(function (r) {
+        return r.text().then(function (texto) {
+          try { return JSON.parse(texto); }
+          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
+        });
+      });
+    }
+
+    function cargar() {
+      document.getElementById('cargando').style.display = 'block';
+      llamarApi('listarMensajesPendientes', {})
+        .then(function (resp) {
+          document.getElementById('cargando').style.display = 'none';
+          if (!resp.ok) throw new Error(resp.error);
+          mensajesCache = resp.data;
+          render();
+        })
+        .catch(function (err) {
+          document.getElementById('cargando').textContent = 'Error: ' + err.message;
+        });
+    }
+
+    function filtrar(tipo) {
+      filtroActual = tipo;
+      document.getElementById('btnTodos').className = tipo === 'todos' ? 'activo' : '';
+      document.getElementById('btnWhatsapp').className = tipo === 'WhatsApp' ? 'activo' : '';
+      document.getElementById('btnEmail').className = tipo === 'Email' ? 'activo' : '';
+      render();
+    }
+
+    function render() {
+      const lista = document.getElementById('lista');
+      const vacio = document.getElementById('vacio');
+      const filtrados = filtroActual === 'todos'
+        ? mensajesCache
+        : mensajesCache.filter(function (m) { return m.canal === filtroActual; });
+
+      if (filtrados.length === 0) {
+        lista.innerHTML = '';
+        vacio.style.display = 'block';
+        return;
+      }
+      vacio.style.display = 'none';
+
+      lista.innerHTML = filtrados.map(function (m, idx) {
+        const claseCanal = m.canal === 'WhatsApp' ? 'whatsapp' : 'email';
+        return '<div class="tarjeta">'
+          + '<span class="canal ' + claseCanal + '">' + m.canal + '</span>'
+          + '<h3>' + m.nombre + '</h3>'
+          + '<div class="meta">' + m.contacto + ' — ' + m.tipo + '</div>'
+          + (m.asunto ? '<div class="asunto">Asunto: ' + m.asunto + '</div>' : '')
+          + '<div class="mensaje" id="msg-' + m.fila + '">' + m.mensaje + '</div>'
+          + '<div class="botones">'
+          + '<button class="btn-copiar" onclick="copiar(' + m.fila + ')">Copiar mensaje</button>'
+          + '<button class="btn-enviado" onclick="marcarEnviado(' + m.fila + ', this)">Ya lo envié</button>'
+          + '</div></div>';
+      }).join('');
+    }
+
+    function copiar(fila) {
+      const texto = document.getElementById('msg-' + fila).textContent;
+      navigator.clipboard.writeText(texto).catch(function () { /* si falla, el usuario puede seleccionar a mano */ });
+    }
+
+    function marcarEnviado(fila, boton) {
+      boton.disabled = true;
+      boton.textContent = 'Guardando...';
+      llamarApi('marcarMensajeEnviado', { fila: fila }, true)
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          mensajesCache = mensajesCache.filter(function (m) { return m.fila !== fila; });
+          render();
+        })
+        .catch(function (err) {
+          boton.disabled = false;
+          boton.textContent = 'Ya lo envié';
+          alert('Error: ' + err.message);
+        });
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
