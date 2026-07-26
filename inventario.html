@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Inventario - Ironwall</title>
+<title>Tienda - Ironwall</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -65,14 +65,14 @@
 </head>
 <body>
 
-  <h1>Inventario Ironwall</h1>
-  <p class="sub">Registrar entrada, salida o ajuste de stock.</p>
+  <h1>Tienda: Stock y Ventas</h1>
+  <p class="sub">Registra cuando vendes algo, cuando llega mercadería, o cuando corriges un conteo.</p>
 
-  <label>Tipo de movimiento *</label>
+  <label>¿Qué pasó? *</label>
   <div class="tipo-botones">
-    <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Entrada</button>
-    <button type="button" id="btnSalida" onclick="elegirTipo('Salida')">Salida</button>
-    <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Ajuste</button>
+    <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
+    <button type="button" id="btnSalida" onclick="elegirTipo('Salida')">Vendí un producto</button>
+    <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
   </div>
 
   <label>Producto *</label>
@@ -172,18 +172,36 @@
       tipoSeleccionado = tipo;
       document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
       document.getElementById('btnSalida').className = tipo === 'Salida' ? 'activo-salida' : '';
-      mostrarMedioPagoSiVenta();
       document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
 
       const selectMotivo = document.getElementById('motivo');
       const labelCantidad = document.getElementById('labelCantidad');
       let opciones = [];
-      if (tipo === 'Entrada') { opciones = MOTIVOS_ENTRADA; labelCantidad.textContent = 'Cantidad que ingresa *'; }
-      if (tipo === 'Salida') { opciones = MOTIVOS_SALIDA; labelCantidad.textContent = 'Cantidad que sale *'; }
-      if (tipo === 'Ajuste') { opciones = ['Conteo físico / corrección']; labelCantidad.textContent = 'Stock real (reemplaza el actual) *'; }
+      let motivoPorDefecto = '';
+
+      if (tipo === 'Entrada') {
+        opciones = MOTIVOS_ENTRADA;
+        labelCantidad.textContent = 'Cantidad que ingresa *';
+        motivoPorDefecto = 'Compra a proveedor'; // el caso más común, ya viene elegido
+      }
+      if (tipo === 'Salida') {
+        opciones = MOTIVOS_SALIDA;
+        labelCantidad.textContent = 'Cantidad que sale *';
+        motivoPorDefecto = 'Venta'; // el caso más común, ya viene elegido
+      }
+      if (tipo === 'Ajuste') {
+        opciones = ['Conteo físico / corrección'];
+        labelCantidad.textContent = 'Stock real (reemplaza el actual) *';
+        motivoPorDefecto = 'Conteo físico / corrección';
+      }
 
       selectMotivo.innerHTML = '<option value="">-- Selecciona --</option>' +
         opciones.map(function (m) { return '<option value="' + m + '">' + m + '</option>'; }).join('');
+      selectMotivo.value = motivoPorDefecto;
+
+      // Se llama al final, ya con el motivo real seleccionado —
+      // antes se llamaba demasiado pronto y quedaba desactualizado.
+      mostrarMedioPagoSiVenta();
     }
 
     function pintarProductos() {
