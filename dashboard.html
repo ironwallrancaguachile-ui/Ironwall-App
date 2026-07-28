@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard Gerencial | Ironwall ERP</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#f4f6f9;
+color:#222;
+padding:20px;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+}
+
+header h1{
+font-size:30px;
+}
+
+header p{
+color:#666;
+margin-top:5px;
+}
+
+#acciones{
+display:flex;
+gap:10px;
+}
+
+button{
+
+padding:12px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:15px;
+font-weight:bold;
+
+}
+
+.btnActualizar{
+background:#1976d2;
+color:white;
+}
+
+.btnMenu{
+background:#444;
+color:white;
+}
+
+.gridKPIs{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:18px;
+margin-bottom:30px;
+
+}
+
+.card{
+
+background:white;
+border-radius:12px;
+padding:20px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+}
+
+.card h3{
+
+font-size:14px;
+color:#777;
+margin-bottom:10px;
+
+}
+
+.valor{
+
+font-size:34px;
+font-weight:bold;
+
+}
+
+.verde{
+
+color:#2e7d32;
+
+}
+
+.azul{
+
+color:#1565c0;
+
+}
+
+.naranjo{
+
+color:#ef6c00;
+
+}
+
+.rojo{
+
+color:#d32f2f;
+
+}
+
+.gridGraficos{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(500px,1fr));
+gap:20px;
+
+}
+
+.grafico{
+
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+}
+
+.grafico h2{
+
+margin-bottom:20px;
+font-size:18px;
+
+}
+
+canvas{
+
+width:100%!important;
+height:320px!important;
+
+}
+
+footer{
+
+margin-top:30px;
+text-align:center;
+color:#777;
+
+}
+
+@media(max-width:700px){
+
+.gridGraficos{
+
+grid-template-columns:1fr;
+
+}
+
+header{
+
+flex-direction:column;
+align-items:flex-start;
+gap:15px;
+
+}
+
+#acciones{
+
+width:100%;
+
+}
+
+button{
+
+width:100%;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div>
+
+<h1>IRONWALL ERP</h1>
+
+<p>Dashboard Gerencial</p>
+
+</div>
+
+<div id="acciones">
+
+<button class="btnActualizar" onclick="cargarDashboard()">
+
+Actualizar
+
+</button>
+
+<button class="btnMenu" onclick="window.location='menu.html'">
+
+Menú
+
+</button>
+
+</div>
+
+</header>
+
+<section class="gridKPIs">
+
+<div class="card">
+
+<h3>Clientes Hoy</h3>
+
+<div class="valor azul" id="clientesHoy">
+
+--
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Clientes Mes</h3>
+
+<div class="valor azul" id="clientesMes">
+
+--
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Clientes Año</h3>
+
+<div class="valor azul" id="clientesAno">
+
+--
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Clientes Nuevos</h3>
+
+<div class="valor verde" id="clientesNuevos">
+
+--
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Ingresos Hoy</h3>
+
+<div class="valor verde" id="ingresosHoy">
+
+--
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Ingresos Mes</h3>
+
+<div class="valor verde" id="ingresosMes">
+
+--
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Ticket Promedio</h3>
+
+<div class="valor naranjo" id="ticketPromedio">
+
+--
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Incidentes</h3>
+
+<div class="valor rojo" id="incidentes">
+
+--
+
+</div>
+
+</div>
+
+</section>
+
+<section class="gridGraficos">
+
+<div class="grafico">
+
+<h2>Ventas Mensuales</h2>
+
+<canvas id="graficoVentas"></canvas>
+
+</div>
+
+<div class="grafico">
+
+<h2>Clientes Mensuales</h2>
+
+<canvas id="graficoClientes"></canvas>
+
+</div>
+
+<div class="grafico">
+
+<h2>Métodos de Pago</h2>
+
+<canvas id="graficoPago"></canvas>
+
+</div>
+
+<div class="grafico">
+
+<h2>Servicios Vendidos</h2>
+
+<canvas id="graficoServicios"></canvas>
+
+</div>
+
+</section>
+
+<footer>
+
+Última actualización
+
+<span id="horaActualizacion">
+
+--
+
+</span>
+
+</footer>
+
+<script>
+
+const API="https://script.google.com/macros/s/AKfycbzgTpnOQzlvROwFPSiptTHvki4aaJDel03SIXNHdYZmQP4wKzQzqz2N6uP5Xup6XnPtMQ/exec";
+
+let chartVentas;
+let chartClientes;
+let chartPago;
+let chartServicios;
+
+function llamarAPI(action){
+
+return fetch(API,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"text/plain;charset=utf-8"
+},
+
+body:JSON.stringify({
+
+action:action
+
+})
+
+})
+
+.then(r=>r.json());
+
+}
+
+function cargarDashboard(){
+
+Promise.all([
+
+llamarAPI("obtenerDashboardKPIs"),
+
+llamarAPI("obtenerVentasMensuales"),
+
+llamarAPI("obtenerClientesMensuales"),
+
+llamarAPI("obtenerMetodosPago"),
+
+llamarAPI("obtenerServiciosVendidos")
+
+])
+
+.then(([kpi,ventas,clientes,pago,servicios])=>{
+
+actualizarKPIs(kpi.data);
+
+dibujarVentas(ventas.data);
+
+dibujarClientes(clientes.data);
+
+dibujarPago(pago.data);
+
+dibujarServicios(servicios.data);
+
+document.getElementById("horaActualizacion").innerHTML=new Date().toLocaleString("es-CL");
+
+});
+
+}
+
+function actualizarKPIs(k){
+
+document.getElementById("clientesHoy").innerHTML=k.clientesHoy;
+
+document.getElementById("clientesMes").innerHTML=k.clientesMes;
+
+document.getElementById("clientesAno").innerHTML=k.clientesAno;
+
+document.getElementById("clientesNuevos").innerHTML=k.clientesNuevos;
+
+document.getElementById("ingresosHoy").innerHTML=k.ingresosHoy;
+
+document.getElementById("ingresosMes").innerHTML=k.ingresosMes;
+
+document.getElementById("ticketPromedio").innerHTML=k.ticketPromedio;
+
+document.getElementById("incidentes").innerHTML=k.incidentes;
+
+}
+function dibujarVentas(data){
+
+if(chartVentas) chartVentas.destroy();
+
+chartVentas=new Chart(
+
+document.getElementById("graficoVentas"),
+
+{
+
+type:"line",
+
+data:{
+
+labels:data.meses,
+
+datasets:[
+
+{
+
+label:"2024",
+
+data:data["2024"],
+
+borderWidth:3,
+
+tension:.3
+
+},
+
+{
+
+label:"2025",
+
+data:data["2025"],
+
+borderWidth:3,
+
+tension:.3
+
+},
+
+{
+
+label:"2026",
+
+data:data["2026"],
+
+borderWidth:3,
+
+tension:.3
+
+}
+
+]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false
+
+}
+
+}
+
+);
+
+}
+
+function dibujarClientes(data){
+
+if(chartClientes) chartClientes.destroy();
+
+chartClientes=new Chart(
+
+document.getElementById("graficoClientes"),
+
+{
+
+type:"line",
+
+data:{
+
+labels:data.meses,
+
+datasets:[
+
+{
+
+label:"2024",
+
+data:data["2024"],
+
+borderWidth:3,
+
+tension:.3
+
+},
+
+{
+
+label:"2025",
+
+data:data["2025"],
+
+borderWidth:3,
+
+tension:.3
+
+},
+
+{
+
+label:"2026",
+
+data:data["2026"],
+
+borderWidth:3,
+
+tension:.3
+
+}
+
+]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false
+
+}
+
+}
+
+);
+
+}
+
+function dibujarPago(data){
+
+if(chartPago) chartPago.destroy();
+
+chartPago=new Chart(
+
+document.getElementById("graficoPago"),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:data.labels,
+
+datasets:[{
+
+label:"Monto",
+
+data:data.valores,
+
+borderWidth:1
+
+}]
+
+},
+
+options:{
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{display:false}
+
+}
+
+}
+
+}
+
+);
+
+}
+
+function dibujarServicios(data){
+
+if(chartServicios) chartServicios.destroy();
+
+chartServicios=new Chart(
+
+document.getElementById("graficoServicios"),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:data.labels,
+
+datasets:[{
+
+label:"Ventas",
+
+data:data.valores,
+
+borderWidth:1
+
+}]
+
+},
+
+options:{
+
+indexAxis:"y",
+
+responsive:true,
+
+maintainAspectRatio:false,
+
+plugins:{
+
+legend:{display:false}
+
+}
+
+}
+
+}
+
+);
+
+}
+
+cargarDashboard();
+
+setInterval(cargarDashboard,60000);
+
+</script>
+
+</body>
+
+</html>
