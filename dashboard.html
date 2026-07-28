@@ -389,13 +389,46 @@ let chartClientes;
 let chartPago;
 let chartServicios;
 
+function llamarAPI(url, accion, payload = {}) {
 
+    const controlador = new AbortController();
+
+    const timeout = setTimeout(() => controlador.abort(), 15000);
+
+    return fetch(url, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+        },
+
+        body: JSON.stringify({
+            action: accion,
+            payload: payload
+        }),
+
+        signal: controlador.signal
+
+    })
+
+    .then(r => r.text())
+
+    .then(t => {
+
+        clearTimeout(timeout);
+
+        return JSON.parse(t);
+
+    });
+
+}
 
 function cargarDashboard(){
 
 Promise.all([
 
-    llamarAPI(API_CLIENTES,"obtenerDashboardKPIs"),
+    llamarAPI(API_CLIENTES,"obtenerResumenDiaClientes"),
 
     llamarAPI(API_FINANZAS,"obtenerVentasMensuales"),
 
