@@ -376,48 +376,36 @@ Menú
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbzgTpnOQzlvROwFPSiptTHvki4aaJDel03SIXNHdYZmQP4wKzQzqz2N6uP5Xup6XnPtMQ/exec";
+const API_CLIENTES = "https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec";
+
+const API_FINANZAS = "https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec";
+
+const API_INVENTARIO = "https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec";
+
+const API_INCIDENTES = "https://script.google.com/macros/s/AKfycbzFsCtTBbmVm9fbG-subMfxddgWxWQi5rsbadTZHTIWATGQxW-xEtfLO-6QuwBK-XhRWA/exec";
 
 let chartVentas;
 let chartClientes;
 let chartPago;
 let chartServicios;
 
-function llamarAPI(action){
 
-return fetch(API,{
-
-method:"POST",
-
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-
-body:JSON.stringify({
-
-action:action
-
-})
-
-})
-
-.then(r=>r.json());
-
-}
 
 function cargarDashboard(){
 
 Promise.all([
 
-llamarAPI("obtenerDashboardKPIs"),
+    llamarAPI(API_CLIENTES,"obtenerDashboardKPIs"),
 
-llamarAPI("obtenerVentasMensuales"),
+    llamarAPI(API_FINANZAS,"obtenerVentasMensuales"),
 
-llamarAPI("obtenerClientesMensuales"),
+    llamarAPI(API_CLIENTES,"obtenerClientesMensuales"),
 
-llamarAPI("obtenerMetodosPago"),
+    llamarAPI(API_FINANZAS,"obtenerMetodosPago"),
 
-llamarAPI("obtenerServiciosVendidos")
+    llamarAPI(API_FINANZAS,"obtenerServiciosVendidos"),
+
+    llamarAPI(API_INCIDENTES,"obtenerDashboardKPIs")
 
 ])
 
