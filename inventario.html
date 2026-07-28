@@ -208,7 +208,8 @@
       const select = document.getElementById('producto');
       select.innerHTML = '<option value="">-- Selecciona --</option>' +
         productosCache.map(function (p) {
-          return '<option value="' + p.codigo + '">' + p.nombre + ' (stock: ' + p.stockActual + ')</option>';
+          const proveedorTexto = p.proveedor ? ' — ' + p.proveedor : '';
+          return '<option value="' + p.codigo + '">' + p.nombre + proveedorTexto + ' (stock: ' + p.stockActual + ')</option>';
         }).join('');
     }
 
@@ -219,7 +220,8 @@
       if (!producto) { info.style.display = 'none'; return; }
 
       info.style.display = 'block';
-      info.textContent = 'Stock actual: ' + producto.stockActual + (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
+      const proveedorTexto = producto.proveedor ? 'Proveedor: ' + producto.proveedor + ' — ' : '';
+      info.textContent = proveedorTexto + 'Stock actual: ' + producto.stockActual + (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
       info.className = producto.stockActual <= producto.stockMinimo ? 'bajo' : '';
     }
 
