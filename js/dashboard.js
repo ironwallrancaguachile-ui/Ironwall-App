@@ -448,13 +448,51 @@ function crearGraficoPago(data){
 
             type:"pie",
 
-            data:data,
+            data:{
+
+                labels:data.labels,
+
+                datasets:[
+
+                    {
+
+                        data:data.datasets[0].data,
+
+                        backgroundColor:[
+
+                            "#1565C0",
+
+                            "#2E7D32",
+
+                            "#F57C00",
+
+                            "#6A1B9A",
+
+                            "#546E7A"
+
+                        ]
+
+                    }
+
+                ]
+
+            },
 
             options:{
 
                 responsive:true,
 
-                maintainAspectRatio:false
+                maintainAspectRatio:false,
+
+                plugins:{
+
+                    legend:{
+
+                        position:"top"
+
+                    }
+
+                }
 
             }
 
@@ -463,7 +501,6 @@ function crearGraficoPago(data){
     );
 
 }
-
 /******************************************************
  * Servicios
  ******************************************************/
@@ -480,7 +517,25 @@ function crearGraficoServicios(data){
 
             type:"bar",
 
-            data:data,
+            data:{
+
+                labels:data.labels,
+
+                datasets:[
+
+                    {
+
+                        label:"Ventas",
+
+                        data:data.datasets[0].data,
+
+                        backgroundColor:"#0057B8"
+
+                    }
+
+                ]
+
+            },
 
             options:{
 
@@ -488,7 +543,17 @@ function crearGraficoServicios(data){
 
                 responsive:true,
 
-                maintainAspectRatio:false
+                maintainAspectRatio:false,
+
+                plugins:{
+
+                    legend:{
+
+                        display:false
+
+                    }
+
+                }
 
             }
 
@@ -514,13 +579,51 @@ function crearGraficoIncidentes(data){
 
             type:"doughnut",
 
-            data:data,
+            data:{
+
+                labels:data.labels,
+
+                datasets:[
+
+                    {
+
+                        label:"Incidentes",
+
+                        data:data.datasets[0].data,
+
+                        backgroundColor:[
+
+                            "#D32F2F",
+
+                            "#F57C00",
+
+                            "#2E7D32",
+
+                            "#1565C0"
+
+                        ]
+
+                    }
+
+                ]
+
+            },
 
             options:{
 
                 responsive:true,
 
-                maintainAspectRatio:false
+                maintainAspectRatio:false,
+
+                plugins:{
+
+                    legend:{
+
+                        position:"top"
+
+                    }
+
+                }
 
             }
 
