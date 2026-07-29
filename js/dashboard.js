@@ -378,7 +378,35 @@ function crearGraficoFinanzas(data){
 
             type:"bar",
 
-            data:data,
+            data:{
+
+                label:data.labels,
+
+                datasets:[
+
+                    {
+
+                        label:"Ingresos",
+
+                        data:data.datasets[0].data,
+
+                        backgroundColor:"#2E7D32"
+                        
+                        },
+                        
+                        {
+                        
+                        label:"Egresos",
+                        
+                        data:data.datasets[1].data,
+                        
+                        backgroundColor:"#D32F2F"
+
+                    }
+
+                ]
+
+            },
 
             options:{
 
