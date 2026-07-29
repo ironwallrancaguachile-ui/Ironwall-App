@@ -380,7 +380,7 @@ function crearGraficoFinanzas(data){
 
             data:{
 
-                label:data.labels,
+                labels:data.labels,
 
                 datasets:[
 
