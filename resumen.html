@@ -118,6 +118,20 @@
       </div>
     </div>
 
+    <div class="seccion">
+      <h2>Bitácora de turno</h2>
+      <div id="notasAnteriores"></div>
+
+      <div style="margin-top: 10px;">
+        <textarea id="notaTurnoTexto" placeholder="¿Cómo estuvo el turno? Deja cualquier observación para el siguiente turno o el administrador..." style="width:100%; min-height:70px; padding:10px; font-size:14px; border:1px solid #ccc; border-radius:8px; font-family:inherit; resize:vertical;"></textarea>
+        <select id="notaTurnoStaff" style="width:100%; margin-top:8px; padding:10px; font-size:14px; border:1px solid #ccc; border-radius:8px;">
+          <option value="">-- Tu nombre --</option>
+        </select>
+        <button id="btnNotaTurno" onclick="guardarNotaTurno()" style="width:100%; margin-top:8px; padding:10px; background:#1a1a1a; color:#fff; border:none; border-radius:8px; font-weight:600;">Guardar nota de cierre</button>
+        <div id="mensajeNotaTurno" style="font-size:13px; margin-top:6px; display:none;"></div>
+      </div>
+    </div>
+
   </div>
   <div id="error"></div>
   <div id="actualizado"></div>
@@ -236,7 +250,104 @@
       });
     }
 
+    function guardarCache_(clave, datos) {
+      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+      catch (e) { /* nada grave si falla */ }
+    }
+    function leerCache_(clave) {
+      try {
+        const crudo = localStorage.getItem(clave);
+        if (!crudo) return null;
+        const parsed = JSON.parse(crudo);
+        if (Date.now() - parsed.guardado > 12 * 60 * 60 * 1000) return null;
+        return parsed.datos;
+      } catch (e) { return null; }
+    }
+
+    function cargarStaffTurno() {
+      const select = document.getElementById('notaTurnoStaff');
+      function pintar(nombres) {
+        select.innerHTML = '<option value="">-- Tu nombre --</option>' +
+          nombres.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+      }
+      const cache = leerCache_('staff_resumen_cache');
+      if (cache) pintar(cache);
+
+      llamarApi(API_URL_CLIENTES, 'listarStaff', {})
+        .then(function (resp) {
+          if (resp.ok && resp.data) {
+            pintar(resp.data);
+            guardarCache_('staff_resumen_cache', resp.data);
+          }
+        });
+    }
+
+    function cargarNotasAnteriores() {
+      llamarApi(API_URL_CLIENTES, 'listarNotasTurnoRecientes', {})
+        .then(function (resp) {
+          const contenedor = document.getElementById('notasAnteriores');
+          if (!resp.ok || !resp.data || resp.data.length === 0) {
+            contenedor.innerHTML = '<p style="font-size:13px;color:#888">Sin notas anteriores.</p>';
+            return;
+          }
+          contenedor.innerHTML = resp.data.map(function (n) {
+            return '<div class="desglose"><div><strong>' + n.staff + '</strong><span>' + new Date(n.fecha).toLocaleString('es-CL') + '</span></div>'
+              + '<div style="display:block;padding-top:2px;">' + n.nota + '</div></div>';
+          }).join('');
+        });
+    }
+
+    function guardarNotaTurno() {
+      const nota = document.getElementById('notaTurnoTexto').value.trim();
+      const staff = document.getElementById('notaTurnoStaff').value;
+      const btn = document.getElementById('btnNotaTurno');
+      const mensaje = document.getElementById('mensajeNotaTurno');
+      mensaje.style.display = 'none';
+
+      if (!nota) { return; }
+      if (!staff) {
+        mensaje.style.display = 'block';
+        mensaje.style.color = '#c0392b';
+        mensaje.textContent = 'Elige tu nombre antes de guardar.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      // Escritura: un solo intento, sin reintento automático (misma
+      // regla que en el resto del sistema para evitar duplicados).
+      const controlador = new AbortController();
+      const timeoutId = setTimeout(function () { controlador.abort(); }, 20000);
+      fetch(API_URL_CLIENTES, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'agregarNotaTurno', payload: { nota: nota, staff: staff } }),
+        signal: controlador.signal
+      }).then(function (r) { clearTimeout(timeoutId); return r.text(); })
+        .then(function (texto) {
+          const resp = JSON.parse(texto);
+          if (!resp.ok) throw new Error(resp.error);
+          document.getElementById('notaTurnoTexto').value = '';
+          mensaje.style.display = 'block';
+          mensaje.style.color = '#1e824c';
+          mensaje.textContent = '✅ Nota guardada.';
+          cargarNotasAnteriores();
+        })
+        .catch(function (err) {
+          mensaje.style.display = 'block';
+          mensaje.style.color = '#c0392b';
+          mensaje.textContent = 'Error: ' + (err.message || 'no se pudo guardar, intenta de nuevo');
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = 'Guardar nota de cierre';
+        });
+    }
+
     cargar();
+    cargarStaffTurno();
+    cargarNotasAnteriores();
   </script>
 </body>
 </html>
