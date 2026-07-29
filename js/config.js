@@ -15,7 +15,7 @@ const CONFIG = {
         "https://script.google.com/macros/s/AKfycbzFsCtTBbmVm9fbG-subMfxddgWxWQi5rsbadTZHTIWATGQxW-xEtfLO-6QuwBK-XhRWA/exec",
 
         DASHBOARD:
-        "PEGAR_AQUI_URL_DASHBOARD"
+        "https://script.google.com/macros/s/AKfycbzgTpnOQzlvROwFPSiptTHvki4aaJDel03SIXNHdYZmQP4wKzQzqz2N6uP5Xup6XnPtMQ/exec"
 
     }
 
