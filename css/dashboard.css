@@ -14,8 +14,12 @@ color:#222;
 
 .topbar{
 
-background:#37474F;
+background:linear-gradient(
+90deg,
+#263238,
+#455A64
 color:#fff;
+);
 
 padding:20px 30px;
 
