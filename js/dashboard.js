@@ -461,7 +461,7 @@ function crearGraficoPago(data) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
+                plugins: { // Aquí va la CONFIGURACIÓN de los plugins
                     legend: {
                         position: "top"
                     },
@@ -478,10 +478,12 @@ function crearGraficoPago(data) {
                         }
                     }
                 }
-            } 
-        } 
-    ); 
-} 
+            }, // <- Coma para separar las opciones de la lista de plugins activos
+            plugins: [ChartDataLabels] // <- REGISTRO del plugin a nivel de raíz del gráfico
+        }
+    );
+}
+
 
 
             
