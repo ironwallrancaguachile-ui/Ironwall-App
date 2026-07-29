@@ -320,7 +320,27 @@ function crearGraficoClientes(data){
 
             type:"line",
 
-            data:data,
+            datasets:[
+
+                    {
+
+                        label:"Clientes",
+
+                        data:data.datasets[0].data,
+
+                        borderColor:"#2E7D32",
+
+                        backgroundColor:"rgba(46,125,50,0.15)",
+
+                        borderWidth:3,
+
+                        tension:0.3,
+
+                        fill:true
+
+                    }
+
+            ]
 
             options:{
 
