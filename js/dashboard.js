@@ -436,107 +436,58 @@ function crearGraficoFinanzas(data){
  * Métodos Pago
  ******************************************************/
 
-function crearGraficoPago(data){
-
-    if(chartPago) chartPago.destroy();
+function crearGraficoPago(data) {
+    if (chartPago) chartPago.destroy();
 
     chartPago = new Chart(
-
         document.getElementById("graficoPago"),
-
         {
-
-            type:"pie",
-
-            data:{
-
-                labels:data.labels,
-
-                datasets:[
-
+            type: "pie",
+            data: {
+                labels: data.labels,
+                datasets: [
                     {
-
-                        data:data.datasets[0].data,
-
-                        backgroundColor:[
-
+                        data: data.datasets[0].data,
+                        backgroundColor: [
                             "#1565C0",
-
                             "#2E7D32",
-
                             "#F57C00",
-
                             "#6A1B9A",
-
                             "#546E7A"
-
                         ]
-
                     }
-
                 ]
-
             },
-
-            options:{
-
-                responsive:true,
-
-                maintainAspectRatio:false,
-
-                plugins:{
-
-                    legend:{
-
-                        position:"top"
-
-                    }
-
-                }
-
-                plugins:{
-
-                    legend:{
-                
-                        position:"top"
-                
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top"
                     },
-                
-                    datalabels:{
-                
-                        color:"#FFFFFF",
-                
-                        font:{
-                
-                            weight:"bold",
-                
-                            size:14
-                
+                    datalabels: {
+                        color: "#FFFFFF",
+                        font: {
+                            weight: "bold",
+                            size: 14
                         },
-                
-                        formatter:function(value,ctx){
-                
-                            let total = ctx.chart.data.datasets[0].data
-                                .reduce((a,b)=>a+b,0);
-                
-                            let porcentaje =
-                                ((value/total)*100).toFixed(1);
-                
-                            return porcentaje+"%";
-                
+                        formatter: function(value, ctx) {
+                            let total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            let porcentaje = ((value / total) * 100).toFixed(1);
+                            return porcentaje + "%";
                         }
-                
                     }
-            
                 }
+            } 
+        } 
+    ); 
+} 
 
-            }
 
-        }
+            
+        
+    
 
-    );
-
-}
 /******************************************************
  * Servicios
  ******************************************************/
