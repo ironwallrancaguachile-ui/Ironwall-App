@@ -482,14 +482,8 @@ function crearGraficoPago(data) {
             plugins: [ChartDataLabels] // <- REGISTRO del plugin a nivel de raíz del gráfico
         }
     );
-}
-
-
-
-            
+}       
         
-    
-
 /******************************************************
  * Servicios
  ******************************************************/
@@ -610,11 +604,25 @@ function crearGraficoIncidentes(data){
 
                         position:"top"
 
+                    },
+                    datalabels: {
+                        color: "#FFFFFF",
+                        font: {
+                            weight: "bold",
+                            size: 14
+                        },
+                        formatter: function(value, ctx) {
+                            let total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            let porcentaje = ((value / total) * 100).toFixed(1);
+                            return porcentaje + "%";
+                        }
                     }
 
                 }
 
-            }
+            },
+
+            plugins: [ChartDataLabels]
 
         }
 
