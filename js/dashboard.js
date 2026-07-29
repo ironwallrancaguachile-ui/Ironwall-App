@@ -262,7 +262,33 @@ function crearGraficoVentas(data){
 
             type:"line",
 
-            data:data,
+            data:{
+
+                labels:data.labels,
+
+                datasets:[
+
+                    {
+
+                        label:data.datasets[0].label,
+
+                        data:data.datasets[0].data,
+
+                        borderColor:"#1565C0",
+
+                        backgroundColor:"rgba(21,101,192,0.15)",
+
+                        borderWidth:3,
+
+                        tension:0.3,
+
+                        fill:true
+
+                    }
+
+                ]
+
+            },
 
             options:{
 
