@@ -391,15 +391,15 @@ function crearGraficoFinanzas(data){
                         data:data.datasets[0].data,
 
                         backgroundColor:"#2E7D32"
-                        
-                        },
-                        
-                        {
-                        
+
+                    },
+
+                    {
+
                         label:"Egresos",
-                        
+
                         data:data.datasets[1].data,
-                        
+
                         backgroundColor:"#D32F2F"
 
                     }
@@ -412,7 +412,17 @@ function crearGraficoFinanzas(data){
 
                 responsive:true,
 
-                maintainAspectRatio:false
+                maintainAspectRatio:false,
+
+                plugins:{
+
+                    legend:{
+
+                        position:"top"
+
+                    }
+
+                }
 
             }
 
