@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dashboard Gerencial | Ironwall ERP</title>
+<title>Dashboard | Ironwall ERP</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -19,30 +20,40 @@ font-family:Arial,Helvetica,sans-serif;
 }
 
 body{
-background:#f4f6f9;
-color:#222;
+
+background:#f3f5f7;
 padding:20px;
+color:#222;
+
 }
 
 header{
+
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:25px;
+margin-bottom:30px;
+
 }
 
 header h1{
+
 font-size:30px;
+
 }
 
 header p{
-color:#666;
-margin-top:5px;
+
+color:#777;
+margin-top:6px;
+
 }
 
 #acciones{
+
 display:flex;
 gap:10px;
+
 }
 
 button{
@@ -57,20 +68,24 @@ font-weight:bold;
 }
 
 .btnActualizar{
+
 background:#1976d2;
 color:white;
+
 }
 
 .btnMenu{
+
 background:#444;
 color:white;
+
 }
 
 .gridKPIs{
 
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:18px;
+gap:20px;
 margin-bottom:30px;
 
 }
@@ -78,8 +93,8 @@ margin-bottom:30px;
 .card{
 
 background:white;
+padding:22px;
 border-radius:12px;
-padding:20px;
 box-shadow:0 2px 8px rgba(0,0,0,.08);
 
 }
@@ -88,7 +103,7 @@ box-shadow:0 2px 8px rgba(0,0,0,.08);
 
 font-size:14px;
 color:#777;
-margin-bottom:10px;
+margin-bottom:12px;
 
 }
 
@@ -99,15 +114,15 @@ font-weight:bold;
 
 }
 
-.verde{
-
-color:#2e7d32;
-
-}
-
 .azul{
 
 color:#1565c0;
+
+}
+
+.verde{
+
+color:#2e7d32;
 
 }
 
@@ -142,39 +157,91 @@ box-shadow:0 2px 8px rgba(0,0,0,.08);
 
 .grafico h2{
 
-margin-bottom:20px;
 font-size:18px;
+margin-bottom:20px;
 
 }
 
 canvas{
 
 width:100%!important;
-height:320px!important;
+height:330px!important;
+
+}
+
+.gridResumen{
+
+margin-top:25px;
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+gap:20px;
+
+}
+
+.resumen{
+
+background:white;
+
+padding:20px;
+
+border-radius:12px;
+
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+}
+
+.resumen h2{
+
+font-size:18px;
+
+margin-bottom:15px;
+
+}
+
+.resumen table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+.resumen td{
+
+padding:8px;
+
+border-bottom:1px solid #eee;
 
 }
 
 footer{
 
 margin-top:30px;
+
 text-align:center;
+
 color:#777;
 
 }
 
 @media(max-width:700px){
 
-.gridGraficos{
-
-grid-template-columns:1fr;
-
-}
-
 header{
 
 flex-direction:column;
+
 align-items:flex-start;
+
 gap:15px;
+
+}
+
+.gridGraficos{
+
+grid-template-columns:1fr;
 
 }
 
@@ -232,11 +299,7 @@ Menú
 
 <h3>Clientes Hoy</h3>
 
-<div class="valor azul" id="clientesHoy">
-
---
-
-</div>
+<div id="clientesHoy" class="valor azul">--</div>
 
 </div>
 
@@ -244,11 +307,7 @@ Menú
 
 <h3>Clientes Mes</h3>
 
-<div class="valor azul" id="clientesMes">
-
---
-
-</div>
+<div id="clientesMes" class="valor azul">--</div>
 
 </div>
 
@@ -256,11 +315,7 @@ Menú
 
 <h3>Clientes Año</h3>
 
-<div class="valor azul" id="clientesAno">
-
---
-
-</div>
+<div id="clientesAno" class="valor azul">--</div>
 
 </div>
 
@@ -268,11 +323,7 @@ Menú
 
 <h3>Clientes Nuevos</h3>
 
-<div class="valor verde" id="clientesNuevos">
-
---
-
-</div>
+<div id="clientesNuevos" class="valor verde">--</div>
 
 </div>
 
@@ -280,11 +331,7 @@ Menú
 
 <h3>Ingresos Hoy</h3>
 
-<div class="valor verde" id="ingresosHoy">
-
---
-
-</div>
+<div id="ingresosHoy" class="valor verde">--</div>
 
 </div>
 
@@ -292,11 +339,7 @@ Menú
 
 <h3>Ingresos Mes</h3>
 
-<div class="valor verde" id="ingresosMes">
-
---
-
-</div>
+<div id="ingresosMes" class="valor verde">--</div>
 
 </div>
 
@@ -304,11 +347,7 @@ Menú
 
 <h3>Ticket Promedio</h3>
 
-<div class="valor naranjo" id="ticketPromedio">
-
---
-
-</div>
+<div id="ticketPromedio" class="valor naranjo">--</div>
 
 </div>
 
@@ -316,11 +355,7 @@ Menú
 
 <h3>Incidentes</h3>
 
-<div class="valor rojo" id="incidentes">
-
---
-
-</div>
+<div id="incidentes" class="valor rojo">--</div>
 
 </div>
 
@@ -362,11 +397,83 @@ Menú
 
 </section>
 
+<section class="gridResumen">
+
+<div class="resumen">
+
+<h2>Inventario</h2>
+
+<table>
+
+<tr>
+
+<td>Productos</td>
+
+<td id="totalProductos">--</td>
+
+</tr>
+
+<tr>
+
+<td>Bajo Stock</td>
+
+<td id="bajoStock">--</td>
+
+</tr>
+
+<tr>
+
+<td>Valor Inventario</td>
+
+<td id="valorInventario">--</td>
+
+</tr>
+
+</table>
+
+</div>
+
+<div class="resumen">
+
+<h2>Incidentes</h2>
+
+<table>
+
+<tr>
+
+<td>Abiertos</td>
+
+<td id="abiertos">--</td>
+
+</tr>
+
+<tr>
+
+<td>Cerrados</td>
+
+<td id="cerrados">--</td>
+
+</tr>
+
+<tr>
+
+<td>Total</td>
+
+<td id="totalIncidentes">--</td>
+
+</tr>
+
+</table>
+
+</div>
+
+</section>
+
 <footer>
 
 Última actualización
 
-<span id="horaActualizacion">
+<span id="ultimaActualizacion">
 
 --
 
@@ -374,356 +481,352 @@ Menú
 
 </footer>
 
+<!-- CONTINÚA EN LA SIGUIENTE RESPUESTA CON TODO EL JAVASCRIPT -->
+
 <script>
 
-const API_CLIENTES = "https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec";
-
-const API_FINANZAS = "https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec";
-
-const API_INVENTARIO = "https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec";
-
-const API_INCIDENTES = "https://script.google.com/macros/s/AKfycbzFsCtTBbmVm9fbG-subMfxddgWxWQi5rsbadTZHTIWATGQxW-xEtfLO-6QuwBK-XhRWA/exec";
+const API="https://script.google.com/macros/s/AKfycbzgTpnOQzlvROwFPSiptTHvki4aaJDel03SIXNHdYZmQP4wKzQzqz2N6uP5Xup6XnPtMQ/exec";
 
 let chartVentas;
 let chartClientes;
 let chartPago;
 let chartServicios;
 
-function llamarAPI(url, accion, payload = {}) {
+function llamarAPI(accion,payload={}){
 
-    const controlador = new AbortController();
+    return fetch(API,{
 
-    const timeout = setTimeout(() => controlador.abort(), 15000);
+        method:"POST",
 
-    return fetch(url, {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "text/plain;charset=utf-8"
+        headers:{
+            "Content-Type":"text/plain;charset=utf-8"
         },
 
-        body: JSON.stringify({
-            action: accion,
-            payload: payload
-        }),
-
-        signal: controlador.signal
+        body:JSON.stringify({
+            action:accion,
+            payload:payload
+        })
 
     })
 
-    .then(r => r.text())
+    .then(r=>r.text())
 
-    .then(t => {
+    .then(t=>JSON.parse(t));
 
-        clearTimeout(timeout);
+}
 
-        return JSON.parse(t);
+function pesos(n){
 
-    });
+    return "$"+Number(n).toLocaleString("es-CL");
 
 }
 
 function cargarDashboard(){
 
-Promise.all([
+    llamarAPI("obtenerDashboard")
 
-    llamarAPI(API_CLIENTES,"obtenerResumenDiaClientes"),
+    .then(res=>{
 
-    llamarAPI(API_FINANZAS,"obtenerVentasMensuales"),
+        if(!res.ok){
 
-    llamarAPI(API_CLIENTES,"obtenerClientesMensuales"),
+            alert(res.error);
 
-    llamarAPI(API_FINANZAS,"obtenerMetodosPago"),
+            return;
 
-    llamarAPI(API_FINANZAS,"obtenerServiciosVendidos"),
+        }
 
-    llamarAPI(API_INCIDENTES,"obtenerDashboardKPIs")
+        const d=res.data;
 
-])
+        actualizarKPIs(d.kpis);
 
-.then(([kpi,ventas,clientes,pago,servicios])=>{
+        dibujarVentas(d.ventasMensuales);
 
-actualizarKPIs(kpi.data);
+        dibujarClientes(d.clientesMensuales);
 
-dibujarVentas(ventas.data);
+        dibujarPago(d.metodosPago);
 
-dibujarClientes(clientes.data);
+        dibujarServicios(d.servicios);
 
-dibujarPago(pago.data);
+        actualizarInventario(d.inventario);
 
-dibujarServicios(servicios.data);
+        actualizarIncidentes(d.incidentes);
 
-document.getElementById("horaActualizacion").innerHTML=new Date().toLocaleString("es-CL");
+        document.getElementById("ultimaActualizacion").innerHTML=d.fecha;
 
-});
+    })
+
+    .catch(err=>{
+
+        console.error(err);
+
+        alert("Error cargando Dashboard");
+
+    });
 
 }
 
 function actualizarKPIs(k){
 
-document.getElementById("clientesHoy").innerHTML=k.clientesHoy;
+    document.getElementById("clientesHoy").innerHTML=k.clientesHoy;
 
-document.getElementById("clientesMes").innerHTML=k.clientesMes;
+    document.getElementById("clientesMes").innerHTML=k.clientesMes;
 
-document.getElementById("clientesAno").innerHTML=k.clientesAno;
+    document.getElementById("clientesAno").innerHTML=k.clientesAnio;
 
-document.getElementById("clientesNuevos").innerHTML=k.clientesNuevos;
+    document.getElementById("clientesNuevos").innerHTML=k.clientesNuevos;
 
-document.getElementById("ingresosHoy").innerHTML=k.ingresosHoy;
+    document.getElementById("ingresosHoy").innerHTML=pesos(k.ingresosHoy);
 
-document.getElementById("ingresosMes").innerHTML=k.ingresosMes;
+    document.getElementById("ingresosMes").innerHTML=pesos(k.ingresosMes);
 
-document.getElementById("ticketPromedio").innerHTML=k.ticketPromedio;
+    document.getElementById("ticketPromedio").innerHTML=pesos(k.ticketPromedio);
 
-document.getElementById("incidentes").innerHTML=k.incidentes;
+    document.getElementById("incidentes").innerHTML=k.incidentes;
 
 }
+
+function actualizarInventario(inv){
+
+    document.getElementById("totalProductos").innerHTML=inv.totalProductos;
+
+    document.getElementById("bajoStock").innerHTML=inv.bajoStock;
+
+    document.getElementById("valorInventario").innerHTML=pesos(inv.valorInventario);
+
+}
+
+function actualizarIncidentes(i){
+
+    document.getElementById("abiertos").innerHTML=i.abiertos;
+
+    document.getElementById("cerrados").innerHTML=i.cerrados;
+
+    document.getElementById("totalIncidentes").innerHTML=i.total;
+
+}
+
 function dibujarVentas(data){
 
-if(chartVentas) chartVentas.destroy();
+    if(chartVentas) chartVentas.destroy();
 
-chartVentas=new Chart(
+    const anios=Object.keys(data).filter(x=>x!="meses");
 
-document.getElementById("graficoVentas"),
+    chartVentas=new Chart(
 
-{
+        document.getElementById("graficoVentas"),
 
-type:"line",
+        {
 
-data:{
+            type:"line",
 
-labels:data.meses,
+            data:{
 
-datasets:[
+                labels:data.meses,
 
-{
+                datasets:anios.map(function(a){
 
-label:"2024",
+                    return{
 
-data:data["2024"],
+                        label:a,
 
-borderWidth:3,
+                        data:data[a],
 
-tension:.3
+                        borderWidth:3,
 
-},
+                        fill:false,
 
-{
+                        tension:.3
 
-label:"2025",
+                    }
 
-data:data["2025"],
+                })
 
-borderWidth:3,
+            },
 
-tension:.3
+            options:{
 
-},
+                responsive:true,
 
-{
+                maintainAspectRatio:false
 
-label:"2026",
+            }
 
-data:data["2026"],
+        }
 
-borderWidth:3,
-
-tension:.3
-
-}
-
-]
-
-},
-
-options:{
-
-responsive:true,
-
-maintainAspectRatio:false
-
-}
-
-}
-
-);
+    );
 
 }
 
 function dibujarClientes(data){
 
-if(chartClientes) chartClientes.destroy();
+    if(chartClientes) chartClientes.destroy();
 
-chartClientes=new Chart(
+    const anios=Object.keys(data).filter(x=>x!="meses");
 
-document.getElementById("graficoClientes"),
+    chartClientes=new Chart(
 
-{
+        document.getElementById("graficoClientes"),
 
-type:"line",
+        {
 
-data:{
+            type:"line",
 
-labels:data.meses,
+            data:{
 
-datasets:[
+                labels:data.meses,
 
-{
+                datasets:anios.map(function(a){
 
-label:"2024",
+                    return{
 
-data:data["2024"],
+                        label:a,
 
-borderWidth:3,
+                        data:data[a],
 
-tension:.3
+                        borderWidth:3,
 
-},
+                        fill:false,
 
-{
+                        tension:.3
 
-label:"2025",
+                    }
 
-data:data["2025"],
+                })
 
-borderWidth:3,
+            },
 
-tension:.3
+            options:{
 
-},
+                responsive:true,
 
-{
+                maintainAspectRatio:false
 
-label:"2026",
+            }
 
-data:data["2026"],
+        }
 
-borderWidth:3,
-
-tension:.3
-
-}
-
-]
-
-},
-
-options:{
-
-responsive:true,
-
-maintainAspectRatio:false
-
-}
-
-}
-
-);
+    );
 
 }
 
 function dibujarPago(data){
 
-if(chartPago) chartPago.destroy();
+    if(chartPago) chartPago.destroy();
 
-chartPago=new Chart(
+    chartPago = new Chart(
 
-document.getElementById("graficoPago"),
+        document.getElementById("graficoPago"),
 
-{
+        {
 
-type:"bar",
+            type:"bar",
 
-data:{
+            data:{
 
-labels:data.labels,
+                labels:data.labels,
 
-datasets:[{
+                datasets:[{
 
-label:"Monto",
+                    label:"Monto",
 
-data:data.valores,
+                    data:data.valores,
 
-borderWidth:1
+                    borderWidth:1
 
-}]
+                }]
 
-},
+            },
 
-options:{
+            options:{
 
-responsive:true,
+                responsive:true,
 
-maintainAspectRatio:false,
+                maintainAspectRatio:false,
 
-plugins:{
+                plugins:{
 
-legend:{display:false}
+                    legend:{
+                        display:false
+                    }
 
-}
+                }
 
-}
+            }
 
-}
+        }
 
-);
+    );
 
 }
 
 function dibujarServicios(data){
 
-if(chartServicios) chartServicios.destroy();
+    if(chartServicios) chartServicios.destroy();
 
-chartServicios=new Chart(
+    chartServicios = new Chart(
 
-document.getElementById("graficoServicios"),
+        document.getElementById("graficoServicios"),
 
-{
+        {
 
-type:"bar",
+            type:"bar",
 
-data:{
+            data:{
 
-labels:data.labels,
+                labels:data.labels,
 
-datasets:[{
+                datasets:[{
 
-label:"Ventas",
+                    label:"Cantidad",
 
-data:data.valores,
+                    data:data.valores,
 
-borderWidth:1
+                    borderWidth:1
 
-}]
+                }]
 
-},
+            },
 
-options:{
+            options:{
 
-indexAxis:"y",
+                indexAxis:"y",
 
-responsive:true,
+                responsive:true,
 
-maintainAspectRatio:false,
+                maintainAspectRatio:false,
 
-plugins:{
+                plugins:{
 
-legend:{display:false}
+                    legend:{
+                        display:false
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
 
 }
 
-}
 
-}
+/********************************************/
+/*********** INICIO DEL DASHBOARD ***********/
+/********************************************/
 
-);
+document.addEventListener("DOMContentLoaded",function(){
 
-}
+    cargarDashboard();
 
-cargarDashboard();
+    setInterval(function(){
 
-setInterval(cargarDashboard,60000);
+        cargarDashboard();
+
+    },60000);
+
+});
 
 </script>
 
