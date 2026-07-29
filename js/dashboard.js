@@ -593,11 +593,11 @@ function crearGraficoIncidentes(data){
 
                         backgroundColor:[
 
-                            "#D32F2F",
+                            "#2E7D32",
 
                             "#F57C00",
 
-                            "#2E7D32",
+                            "#D32F2F",
 
                             "#1565C0"
 
