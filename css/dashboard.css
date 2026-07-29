@@ -14,7 +14,10 @@ color:#222;
 
 .topbar{
 
-background:#333333
+  background:#2c3e50; /* <- ESTE ES EL COLOR QUE DEBES CAMBIAR */
+  
+  color:#fff; 
+
 
 padding:20px 30px;
 
