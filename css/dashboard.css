@@ -7,14 +7,14 @@ font-family:Arial,Helvetica,sans-serif;
 
 body{
 
-background:#212121;
+background:#F4F6F9;
 color:#222;
 
 }
 
 .topbar{
 
-  background:#333333; /* <- ESTE ES EL COLOR QUE DEBES CAMBIAR */
+  background:#212121; /* <- ESTE ES EL COLOR QUE DEBES CAMBIAR */
   
   color:#fff; 
 
