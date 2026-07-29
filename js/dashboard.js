@@ -320,7 +320,11 @@ function crearGraficoClientes(data){
 
             type:"line",
 
-            datasets:[
+            data:{
+
+                labels:data.labels,
+
+                datasets:[
 
                     {
 
@@ -340,7 +344,9 @@ function crearGraficoClientes(data){
 
                     }
 
-            ]
+                ]
+
+            },
 
             options:{
 
@@ -355,7 +361,6 @@ function crearGraficoClientes(data){
     );
 
 }
-
 /******************************************************
  * Finanzas
  ******************************************************/
