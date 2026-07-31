@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador QR - Ironwall</title>
-    <!-- Cargamos la librería original de tu formulario -->
+    <!-- Usamos la misma librería CDN de tu formulario principal -->
     <script src="https://cloudflare.com"></script>
     <style>
         body { margin: 0; padding: 40px 20px; background: #ffffff; text-align: center; font-family: Arial, sans-serif; }
@@ -18,41 +18,42 @@
 <body>
 
     <div class="contenedor">
+        <!-- Contenedor del código QR -->
         <div id="qrcode"></div>
         <h2 id="idClienteTexto">---</h2>
         <p>Aproxima este código al lector para ingresar</p>
     </div>
 
     <script>
-        // Captura el idCliente desde la URL de forma directa
-        const urlParams = new URLSearchParams(window.location.search);
-        const idCliente = urlParams.get('id');
+        // 🌟 LA CLAVE DE SOLUCIÓN: Esperamos que el navegador asimile por completo la librería de GitHub
+        document.addEventListener("DOMContentLoaded", function() {
+            // Captura el idCliente desde la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const idCliente = urlParams.get('id');
 
-        if (idCliente) {
-            const codigoLimpio = idCliente.trim();
-            
-            // Colocamos el texto del ID abajo inmediatamente
-            document.getElementById("idClienteTexto").textContent = codigoLimpio;
+            if (idCliente) {
+                const codigoLimpio = idCliente.trim();
+                
+                // Colocamos el texto del ID abajo
+                document.getElementById("idClienteTexto").textContent = codigoLimpio;
 
-            // 🌟 EL TRUCO DEFINITIVO: Esperamos 350 milisegundos exactos 
-            // para asegurar que la librería esté cargada al 100% en la memoria antes de llamarla
-            setTimeout(function() {
-                try {
-                    new QRCode(document.getElementById('qrcode'), {
-                        text: codigoLimpio,
-                        width: 200,
-                        height: 200
-                    });
-                } catch (error) {
-                    console.error("Error al inicializar QRCode:", error);
-                    // Respaldo de emergencia directo si la librería falla: inyecta el gráfico nativo de Google
-                    document.getElementById('qrcode').innerHTML = '<img src="https://googleapis.com' + encodeURIComponent(codigoLimpio) + '&choe=UTF-8">';
-                }
-            }, 350);
+                // Forzamos un micro-retraso para asegurar que la inicialización tenga la librería disponible en caché
+                setTimeout(function() {
+                    try {
+                        new QRCode(document.getElementById('qrcode'), {
+                            text: codigoLimpio,
+                            width: 200,
+                            height: 200
+                        });
+                    } catch (error) {
+                        console.error("Error al generar QR:", error);
+                    }
+                }, 100);
 
-        } else {
-            document.getElementById("idClienteTexto").textContent = "ID no válido";
-        }
+            } else {
+                document.getElementById("idClienteTexto").textContent = "ID no válido";
+            }
+        });
     </script>
 </body>
 </html>
