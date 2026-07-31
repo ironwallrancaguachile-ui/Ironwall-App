@@ -8,10 +8,7 @@
         body { margin: 0; padding: 40px 20px; background: #ffffff; text-align: center; font-family: Arial, sans-serif; }
         .contenedor { display: inline-block; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; }
         #qrcode { margin: 20px auto; display: inline-block; width: 200px; height: 200px; }
-        #qrcode table { border-width: 0px; border-style: none; border-color: #000000; border-collapse: collapse; padding: 0; margin: 0; }
-        #qrcode td { border-width: 0px; padding: 0; margin: 0; width: 4px; height: 4px; }
-        .black { background-color: #000000; }
-        .white { background-color: #ffffff; }
+        #qrcode img { display: block; width: 200px; height: 200px; }
         h2 { font-size: 22px; margin: 20px 0 5px 0; letter-spacing: 2px; color: #1a1a1a; font-weight: bold; }
         p { font-size: 13px; color: #666; margin: 0; }
     </style>
@@ -19,12 +16,10 @@
 <body>
 
     <div class="contenedor">
-        <!-- Contenedor del código QR -->
         <div id="qrcode"></div>
         <h2 id="idClienteTexto">---</h2>
         <p>Aproxima este código al lector para ingresar</p>
     </div>
 
+    <!-- 🌟 LIBRERÍA INYECTADA DIRECTAMENTE (Copiada del motor de tu index.html) -->
     <script>
-        // 🌟 MOTOR MINI-QR AUTÓNOMO INTEGRADO (Para no depender de internet)
-
