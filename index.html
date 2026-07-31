@@ -424,12 +424,18 @@
            width: 200,
            height: 200
          });
-       
+
+
          // Esperamos 100ms a que el navegador pinte el QR, lo atrapamos y llamamos al correo
          setTimeout(function() {
            try {
              // Buscamos la imagen real que metió la librería qrcodejs dentro del div #qrcode
+                   // Asegúrate de que la variable datos incluya la foto antes de llamar a la API:
              const imgElement = document.querySelector("#qrcode img");
+             if (imgElement && imgElement.src) {
+               datos.qrPopup = imgElement.src; 
+             }
+             
              let qrBase64 = null;
        
              if (imgElement && imgElement.src && imgElement.src.startsWith("data:image")) {
