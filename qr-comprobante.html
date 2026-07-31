@@ -25,26 +25,30 @@
     </div>
 
     <script>
-        // Captura el idCliente desde la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const idCliente = urlParams.get('id');
+        // Forzamos a que el código espere a que la página renderice por completo antes de actuar
+        window.onload = function() {
+            // Captura el idCliente desde la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const idCliente = urlParams.get('id');
 
-        if (idCliente) {
-            const codigoLimpio = idCliente.trim();
-            
-            // Mostramos también el texto del ID abajo del código QR
-            document.getElementById("textoCodigo").innerText = codigoLimpio;
+            if (idCliente) {
+                const codigoLimpio = idCliente.trim();
+                
+                // Mostramos el texto del ID abajo del código QR
+                document.getElementById("textoCodigo").innerText = codigoLimpio;
 
-            // Inicializamos la generación del QR una vez que el div ya está listo en el DOM
-            new QRCode(document.getElementById("qrcode"), {
-                text: codigoLimpio,
-                width: 220,
-                height: 220,
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        } else {
-            document.getElementById("textoCodigo").innerText = "ID no válido";
-        }
+                // Inicializamos la generación del QR de forma segura
+                new QRCode(document.getElementById("qrcode"), {
+                    text: codigoLimpio,
+                    width: 220,
+                    height: 220,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                document.getElementById("textoCodigo").innerText = "ID no válido";
+            }
+        };
     </script>
+
 </body>
 </html>
