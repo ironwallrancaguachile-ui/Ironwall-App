@@ -367,29 +367,80 @@
         });
     }
 
-    function mostrarResultado(idCliente, nombre, yaExistia, motivo) {
+    //function mostrarResultado(idCliente, nombre, yaExistia, motivo) {
+   //   document.getElementById('formulario').style.display = 'none';
+    //  document.getElementById('resultado').style.display = 'block';
+     // document.getElementById('nombreSaludo').textContent = nombre;
+    // document.getElementById('idClienteTexto').textContent = idCliente;
+
+     // if (yaExistia) {
+      //  document.querySelector('#resultado h2').textContent = '¡Ya tenías una cuenta, ' + nombre + '!';
+      //  if (motivo === 'datos_similares') {
+      //    document.querySelector('#resultado p').textContent =
+       //     'Encontramos un registro anterior con tu mismo nombre y datos de contacto — probablemente el RUT tenía un error de tipeo la vez pasada. Este sigue siendo tu código de acceso. Si necesitas corregir tu RUT, avísale al staff.';
+      //  } else {
+        //  document.querySelector('#resultado p').textContent =
+       //     'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
+     //   }
+     // }
+
+    //  new QRCode(document.getElementById('qrcode'), {
+     //  text: idCliente,
+     //   width: 200,
+     //   height: 200
+    //  });
+    //}
+
+   function mostrarResultado(idCliente, nombre, yaExistia, motivo) {
       document.getElementById('formulario').style.display = 'none';
       document.getElementById('resultado').style.display = 'block';
       document.getElementById('nombreSaludo').textContent = nombre;
       document.getElementById('idClienteTexto').textContent = idCliente;
-
+   
       if (yaExistia) {
-        document.querySelector('#resultado h2').textContent = '¡Ya tenías una cuenta, ' + nombre + '!';
-        if (motivo === 'datos_similares') {
-          document.querySelector('#resultado p').textContent =
-            'Encontramos un registro anterior con tu mismo nombre y datos de contacto — probablemente el RUT tenía un error de tipeo la vez pasada. Este sigue siendo tu código de acceso. Si necesitas corregir tu RUT, avísale al staff.';
-        } else {
-          document.querySelector('#resultado p').textContent =
-            'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
-        }
-      }
+       document.querySelector('#resultado h2').textContent = '¡Ya tenías una cuenta, ' + nombre + '!';
+       if (motivo === 'datos_similares') {
+         document.querySelector('#resultado p').textContent = 'Encontramos un registro anterior con tu mismo nombre y datos de contacto — probablemente el RUT tenía un error de tipeo la vez pasada. Este sigue siendo tu código de acceso. Si necesitas corregir tu RUT, avísale al staff.';
+       } else {
+         document.querySelector('#resultado p').textContent = 'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
+       }
+     }
 
-      new QRCode(document.getElementById('qrcode'), {
-        text: idCliente,
-        width: 200,
-        height: 200
-      });
-    }
+  // 1. Se genera el QR en tu popup exactamente como ya te funciona hoy
+   new QRCode(document.getElementById('qrcode'), {
+      text: idCliente,
+      width: 200,
+      height: 200
+    });
+
+  // 🌟 EL TRUCO: Esperamos 100ms a que el navegador pinte el QR, lo atrapamos y llamamos al correo
+    setTimeout(function() {
+      try {
+        // Buscamos la imagen real que metió la librería qrcodejs dentro del div #qrcode
+        const imgElement = document.querySelector("#qrcode img");
+        let qrBase64 = null;
+  
+        if (imgElement && imgElement.src && imgElement.src.startsWith("data:image")) {
+          qrBase64 = imgElement.src;
+        } else {
+          // Respaldo por si el navegador usó la etiqueta canvas en lugar de img
+          const canvasElement = document.querySelector("#qrcode canvas");
+          if (canvasElement) {
+            qrBase64 = canvasElement.toDataURL("image/png");
+          }
+        }
+  
+        // Si logramos atrapar la imagen en pantalla, se la enviamos de inmediato al backend
+        if (qrBase64) {
+          const emailUsuario = document.getElementById('email').value; // Asegúrate de que el id de tu input de correo sea 'email'
+          google.script.run.despacharCorreoConImagenPopup(idCliente, nombre, emailUsuario, qrBase64);
+        }
+      } catch (e) {
+        console.error("Error al atrapar el QR del popup:", e);
+      }
+    }, 100);
+  }
+
 
     cargarReglamento();
   </script>
