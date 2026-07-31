@@ -1,1 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador QR - Ironwall</title>
+    <!-- Cargamos la librería qrcode.js -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        body { margin: 0; padding: 0; background: #ffffff; text-align: center; font-family: Arial, sans-serif; }
+        #qrcode { display: inline-block; margin-top: 10px; }
+        #qrcode img { display: block; width: 220px; height: 220px; }
+    </style>
+</head>
+<body>
 
+    <div id="qrcode"></div>
+
+    <script>
+        // Captura el idCliente desde la URL (ej: qr-comprobante.html?id=IWRKUQWA)
+        const urlParams = new URLSearchParams(window.location.search);
+        const idCliente = urlParams.get('id');
+
+        if (idCliente) {
+            new QRCode(document.getElementById("qrcode"), {
+                text: idCliente.trim(),
+                width: 220,
+                height: 220,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    </script>
+</body>
+</html>
