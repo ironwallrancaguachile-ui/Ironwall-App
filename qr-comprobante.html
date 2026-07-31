@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador QR - Ironwall</title>
-    <!-- Usamos la misma librería CDN de tu formulario principal -->
-    <script src="https://cloudflare.com"></script>
     <style>
         body { margin: 0; padding: 40px 20px; background: #ffffff; text-align: center; font-family: Arial, sans-serif; }
         .contenedor { display: inline-block; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; }
         #qrcode { margin: 20px auto; display: inline-block; width: 200px; height: 200px; }
-        #qrcode img { display: block; width: 200px; height: 200px; }
+        #qrcode table { border-width: 0px; border-style: none; border-color: #000000; border-collapse: collapse; padding: 0; margin: 0; }
+        #qrcode td { border-width: 0px; padding: 0; margin: 0; width: 4px; height: 4px; }
+        .black { background-color: #000000; }
+        .white { background-color: #ffffff; }
         h2 { font-size: 22px; margin: 20px 0 5px 0; letter-spacing: 2px; color: #1a1a1a; font-weight: bold; }
         p { font-size: 13px; color: #666; margin: 0; }
     </style>
@@ -25,35 +26,5 @@
     </div>
 
     <script>
-        // 🌟 LA CLAVE DE SOLUCIÓN: Esperamos que el navegador asimile por completo la librería de GitHub
-        document.addEventListener("DOMContentLoaded", function() {
-            // Captura el idCliente desde la URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const idCliente = urlParams.get('id');
+        // 🌟 MOTOR MINI-QR AUTÓNOMO INTEGRADO (Para no depender de internet)
 
-            if (idCliente) {
-                const codigoLimpio = idCliente.trim();
-                
-                // Colocamos el texto del ID abajo
-                document.getElementById("idClienteTexto").textContent = codigoLimpio;
-
-                // Forzamos un micro-retraso para asegurar que la inicialización tenga la librería disponible en caché
-                setTimeout(function() {
-                    try {
-                        new QRCode(document.getElementById('qrcode'), {
-                            text: codigoLimpio,
-                            width: 200,
-                            height: 200
-                        });
-                    } catch (error) {
-                        console.error("Error al generar QR:", error);
-                    }
-                }, 100);
-
-            } else {
-                document.getElementById("idClienteTexto").textContent = "ID no válido";
-            }
-        });
-    </script>
-</body>
-</html>
