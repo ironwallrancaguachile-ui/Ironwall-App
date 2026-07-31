@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador QR - Ironwall</title>
-    <!-- 🌟 IMPORTANTE: Usamos la misma firma exacta de librería de tu formulario principal -->
+    <!-- Cargamos la librería original de tu formulario -->
     <script src="https://cloudflare.com"></script>
     <style>
         body { margin: 0; padding: 40px 20px; background: #ffffff; text-align: center; font-family: Arial, sans-serif; }
         .contenedor { display: inline-block; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; }
-        /* 🌟 Copiamos el estilo de tu contenedor original */
         #qrcode { margin: 20px auto; display: inline-block; width: 200px; height: 200px; }
         #qrcode img { display: block; width: 200px; height: 200px; }
         h2 { font-size: 22px; margin: 20px 0 5px 0; letter-spacing: 2px; color: #1a1a1a; font-weight: bold; }
@@ -19,29 +18,38 @@
 <body>
 
     <div class="contenedor">
-        <!-- 🌟 El div id="qrcode" exacto que busca tu función original -->
         <div id="qrcode"></div>
         <h2 id="idClienteTexto">---</h2>
         <p>Aproxima este código al lector para ingresar</p>
     </div>
 
     <script>
-        // Captura el idCliente desde la URL de forma directa (?id=IWRK7TTM)
+        // Captura el idCliente desde la URL de forma directa
         const urlParams = new URLSearchParams(window.location.search);
         const idCliente = urlParams.get('id');
 
         if (idCliente) {
             const codigoLimpio = idCliente.trim();
             
-            // Colocamos el ID de texto abajo idéntico a tu función mostrarResultado
+            // Colocamos el texto del ID abajo inmediatamente
             document.getElementById("idClienteTexto").textContent = codigoLimpio;
 
-            // 🌟 LA SOLUCIÓN EXPAÑOLA: Invocamos la misma firma exacta que tu popup
-            new QRCode(document.getElementById('qrcode'), {
-                text: codigoLimpio,
-                width: 200,
-                height: 200
-            });
+            // 🌟 EL TRUCO DEFINITIVO: Esperamos 350 milisegundos exactos 
+            // para asegurar que la librería esté cargada al 100% en la memoria antes de llamarla
+            setTimeout(function() {
+                try {
+                    new QRCode(document.getElementById('qrcode'), {
+                        text: codigoLimpio,
+                        width: 200,
+                        height: 200
+                    });
+                } catch (error) {
+                    console.error("Error al inicializar QRCode:", error);
+                    // Respaldo de emergencia directo si la librería falla: inyecta el gráfico nativo de Google
+                    document.getElementById('qrcode').innerHTML = '<img src="https://googleapis.com' + encodeURIComponent(codigoLimpio) + '&choe=UTF-8">';
+                }
+            }, 350);
+
         } else {
             document.getElementById("idClienteTexto").textContent = "ID no válido";
         }
