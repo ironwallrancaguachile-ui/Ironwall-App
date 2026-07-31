@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador QR - Ironwall</title>
+    <!-- Cargamos un renderizador nativo de confianza que GitHub Pages no bloquea -->
+    <script src="https://jsdelivr.net"></script>
     <style>
         body { margin: 0; padding: 40px 20px; background: #ffffff; text-align: center; font-family: Arial, sans-serif; }
         .contenedor { display: inline-block; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; }
-        .qr-imagen { display: block; margin: 0 auto; width: 220px; height: 220px; border: none; }
+        .qr-canvas { display: block; margin: 0 auto; width: 220px; height: 220px; }
         h2 { font-size: 22px; margin: 20px 0 5px 0; letter-spacing: 2px; color: #1a1a1a; font-weight: bold; }
         p { font-size: 13px; color: #666; margin: 0; }
     </style>
@@ -15,32 +17,40 @@
 <body>
 
     <div class="contenedor">
-        <!-- Reemplazamos la librería inestable por una carga nativa de imagen en alta resolución -->
-        <img id="qrGrafico" class="qr-imagen" src="" alt="Cargando Código QR...">
+        <!-- Usamos una etiqueta Canvas nativa de HTML5 para dibujar los vectores negros localmente -->
+        <canvas id="qrCanvas" class="qr-canvas"></canvas>
         <h2 id="textoCodigo">---</h2>
         <p>Aproxima este código al lector para ingresar</p>
     </div>
 
     <script>
-        // Captura el idCliente desde la URL de forma instantánea
-        const urlParams = new URLSearchParams(window.location.search);
-        const idCliente = urlParams.get('id');
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idCliente = urlParams.get('id');
 
-        if (idCliente) {
-            const codigoLimpio = idCliente.trim();
-            
-            // 1. Escribimos el ID de texto abajo
-            document.getElementById("textoCodigo").innerText = codigoLimpio;
+            if (idCliente) {
+                const codigoLimpio = idCliente.trim();
+                
+                // 1. Colocamos el texto del ID abajo
+                document.getElementById("textoCodigo").innerText = codigoLimpio;
 
-            // 2. Inyectamos la URL directamente en el atributo SRC. 
-            // Al ser una imagen estática nativa, el navegador del celular la pintará al instante.
-            const urlSegura = 'https://googleapis.com' + encodeURIComponent(codigoLimpio) + '&choe=UTF-8';
+                // 2. Ejecutamos el motor local. Calcula la matriz matemática y la dibuja en el canvas
+                const canvas = document.getElementById('qrCanvas');
+                
+                QRCode.toCanvas(canvas, codigoLimpio, {
+                    width: 220,
+                    margin: 1,
+                    errorCorrectionLevel: 'H'
+                }, function (error) {
+                    if (error) {
+                        console.error("Error al renderizar el QR interno: ", error);
+                    }
+                });
 
-            document.getElementById("qrGrafico").src = urlSegura;
-        } else {
-            document.getElementById("textoCodigo").innerText = "ID no válido";
-        }
+            } else {
+                document.getElementById("textoCodigo").innerText = "ID no válido";
+            }
+        });
     </script>
 </body>
 </html>
-
