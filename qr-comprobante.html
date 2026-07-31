@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador QR - Ironwall</title>
-    <!-- Cargamos la librería qrcode.js -->
-    <script src="https://cloudflare.com"></script>
     <style>
         body { margin: 0; padding: 40px 20px; background: #ffffff; text-align: center; font-family: Arial, sans-serif; }
         .contenedor { display: inline-block; background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; }
-        #qrcode { display: block; margin: 0 auto; width: 220px; height: 220px; background: #ffffff; }
-        #qrcode img { display: block; width: 220px; height: 220px; }
+        .qr-imagen { display: block; margin: 0 auto; width: 220px; height: 220px; border: none; }
         h2 { font-size: 22px; margin: 20px 0 5px 0; letter-spacing: 2px; color: #1a1a1a; font-weight: bold; }
         p { font-size: 13px; color: #666; margin: 0; }
     </style>
@@ -18,40 +15,31 @@
 <body>
 
     <div class="contenedor">
-        <!-- Contenedor del código QR -->
-        <div id="qrcode"></div>
+        <!-- Reemplazamos la librería inestable por una carga nativa de imagen en alta resolución -->
+        <img id="qrGrafico" class="qr-imagen" src="" alt="Cargando Código QR...">
         <h2 id="textoCodigo">---</h2>
         <p>Aproxima este código al lector para ingresar</p>
     </div>
 
     <script>
-        // Esperamos a que la ventana cargue los elementos
-        window.addEventListener('load', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const idCliente = urlParams.get('id');
+        // Captura el idCliente desde la URL de forma instantánea
+        const urlParams = new URLSearchParams(window.location.search);
+        const idCliente = urlParams.get('id');
 
-            if (idCliente) {
-                const codigoLimpio = idCliente.trim();
-                
-                // Colocamos el ID de texto abajo
-                document.getElementById("textoCodigo").innerText = codigoLimpio;
+        if (idCliente) {
+            const codigoLimpio = idCliente.trim();
+            
+            // 1. Escribimos el ID de texto abajo
+            document.getElementById("textoCodigo").innerText = codigoLimpio;
 
-                // Forzamos la inicialización nativa pasando el nodo HTML directo
-                const elementoQr = document.getElementById("qrcode");
-                elementoQr.innerHTML = ""; // Limpiamos residuos antes de pintar
-                
-                new QRCode(elementoQr, {
-                    text: codigoLimpio,
-                    width: 220,
-                    height: 220,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            } else {
-                document.getElementById("textoCodigo").innerText = "ID no válido";
-            }
-        });
+            // 2. Inyectamos la URL directamente en el atributo SRC. 
+            // Al ser una imagen estática nativa, el navegador del celular la pintará al instante.
+            const urlSegura = 'https://qrserver.com' + encodeURIComponent(codigoLimpio);
+            document.getElementById("qrGrafico").src = urlSegura;
+        } else {
+            document.getElementById("textoCodigo").innerText = "ID no válido";
+        }
     </script>
 </body>
 </html>
+
