@@ -34,7 +34,8 @@
 
             // 2. Inyectamos la URL directamente en el atributo SRC. 
             // Al ser una imagen estática nativa, el navegador del celular la pintará al instante.
-            const urlSegura = 'https://qrserver.com' + encodeURIComponent(codigoLimpio);
+            const urlSegura = 'https://googleapis.com' + encodeURIComponent(codigoLimpio) + '&choe=UTF-8';
+
             document.getElementById("qrGrafico").src = urlSegura;
         } else {
             document.getElementById("textoCodigo").innerText = "ID no válido";
