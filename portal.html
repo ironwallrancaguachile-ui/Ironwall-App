@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
@@ -9,6 +10,31 @@
 
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
+
+<script>
+  const CLAVE_GERENCIA = "Ironwall2026!";
+  function verificarAcceso() {
+
+    if (sessionStorage.getItem("dashboard_autorizado") === "SI") {
+      return;
+    }
+  
+    const clave = prompt("Ingrese la contraseña de Gerencia:");
+  
+    if (clave === CLAVE_GERENCIA) {
+  
+      sessionStorage.setItem("dashboard_autorizado","SI");
+  
+    } else {
+  
+      alert("Acceso denegado.");
+  
+      window.location.href="index.html";
+  
+    }
+  
+  }
+</script>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
@@ -162,88 +188,49 @@ Sistema de Gestión
 <div class="grid">
 
 <a class="card" href="index.html">
-
 <div class="icon">👤</div>
-
 <div class="titulo">
-
 Registro Clientes
-
 </div>
-
 <div class="desc">
-
 Nuevo cliente
-
 </div>
-
 </a>
 
 <a class="card" href="checkin.html">
-
 <div class="icon">  🎟    💳 </div>
-
 <div class="titulo">
-
 Check-In 
-
 </div>
-  
 <div class="titulo">
-
 Cargar Pase
-
 </div>
-
 <div class="desc">
-
 Ingreso clientes & Agregar membresías
-
 </div>
-
 </a>
 
 <a class="card" href="ficha360.html">
-
 <div class="icon">📄</div>
-
 <div class="titulo">
-
 Ficha Cliente
-
 </div>
-
 <div class="desc">
-
 Historial,
-
 Pases &
-
 Notas
-
 </div>
-
 </a>
 
 <a class="card" href="inventario.html">
-
 <div class="icon">🛒</div>
-
 <div class="titulo">
-
 Tienda: Stock y Ventas
-
 </div>
-
 <div class="desc">
-
 Registra cuando vendes algo, cuando llega mercadería, o cuando corriges un conteo
-
 </div>
-
 </a>
-
-///
 
 <a class="card" href="movimientos.html">
 <div class="icon">💵</div>
@@ -275,7 +262,7 @@ Gestión del Turno
 </div>
 </a>
 
-<a class="card" href="mensajes.html">
+<a class="card" href="mensajespendientes.html">
 <div class="icon">📬</div>
 <div class="titulo">
 Mensajes pendientes
@@ -294,7 +281,6 @@ Dashboard
 Solo gerencia
 </div>
 </a>
-///
 
 </div>
 
@@ -304,6 +290,16 @@ Ironwall Rancagua © 2026
 
 </footer>
 
+<script>
+  window.onload=function(){
+
+    verificarAcceso();
+
+    cargarDashboard();
+
+}
+</script>
+  
 </body>
 
 </html>
