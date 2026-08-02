@@ -13,6 +13,25 @@ content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+<script>
+  const CLAVE_GERENCIA = "Ironwall2026!";
+  function verificarAcceso() {
+  
+    const clave = prompt("Ingrese la contraseña de Gerencia:");
+  
+    if (clave === CLAVE_GERENCIA) {
+  
+    } else {
+  
+      alert("Acceso denegado.");
+  
+      window.location.href="index.html";
+  
+    }
+  
+  }
+</script>
+   
 <style>
 
 *{
@@ -265,30 +284,7 @@ Solo gerencia
 Ironwall Rancagua © 2026
 
 </footer>
-   <script>
-  const CLAVE_GERENCIA = "Ironwall2026!";
-  function verificarAcceso() {
 
-    if (sessionStorage.getItem("dashboard_autorizado") === "SI") {
-      return;
-    }
-  
-    const clave = prompt("Ingrese la contraseña de Gerencia:");
-  
-    if (clave === CLAVE_GERENCIA) {
-  
-      sessionStorage.setItem("dashboard_autorizado","SI");
-  
-    } else {
-  
-      alert("Acceso denegado.");
-  
-      window.location.href="index.html";
-  
-    }
-  
-  }
-</script>
 </body>
 
 </html>
