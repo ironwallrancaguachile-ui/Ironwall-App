@@ -8,8 +8,9 @@
 <title>Ironwall | Sistema</title>
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&display=swap" rel="stylesheet">  
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Extra+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
+
 <script>
 const CLAVE_GERENCIA = "Ironwall2026!";
 function verificarAcceso() {
@@ -24,6 +25,19 @@ function verificarAcceso() {
 </script>
    
 <style>
+
+@font-face{
+font-family:'Archivo Extra Condensed';
+src:url("fonts/ArchivoExtraCondensed-Regular.ttf");
+font-weight:400;
+}
+
+@font-face{
+font-family:'Archivo Extra Condensed';
+src:url("fonts/ArchivoExtraCondensed-Bold.ttf");
+font-weight:700;
+}
+  
 *{
 margin:0;
 padding:0;
@@ -67,10 +81,10 @@ align-items:center;
 gap:35px;
 }
 
-.tituloMarca h1{
+.logoTexto{
+font-family:Boris, sans-serif;
 font-size:46px;
-font-weight:700;
-letter-spacing:2px;
+letter-spacing:1px;
 }
 
 .tituloMarca h2{
@@ -169,8 +183,8 @@ letter-spacing:.5px;
 <header>
     <div class="marca">
     <img src="img/logosn.png">   
-    <div class="tituloMarca">  
-    <h1>IRONWALL</h1>    
+    <div class="tituloMarca">      
+    <h1 class="logoTexto">IRONWALL</h1>
     <h2>Rancagua</h2>   
     <div class="sub">
     Sistema de Gestión
