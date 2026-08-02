@@ -48,15 +48,23 @@ font-family:Inter,sans-serif;
 
 body{
 
-background:#f5f7fa;
-
-padding:25px;
+background:
+linear-gradient(
+180deg,
+#eef2f7 0%,
+#f8f9fb 100%);
 
 }
 
 header{
 
-text-align:center;
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+gap:25px;
 
 margin-bottom:25px;
 
@@ -88,11 +96,11 @@ margin-top:8px;
 
 display:grid;
 
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+grid-template-columns:repeat(5,1fr);
 
-gap:25px;
+gap:20px;
 
-max-width:1200px;
+max-width:1500px;
 
 margin:auto;
 
@@ -104,7 +112,7 @@ background:white;
 
 border-radius:18px;
 
-padding:30px;
+padding:22px;
 
 text-decoration:none;
 
@@ -172,15 +180,17 @@ font-size:13px;
 
 <header>
 
-<img src="img/logosn.png">
+    <img src="img/logo.png">
 
-<h1>IRONWALL Rancagua</h1>
+    <div>
 
-<div class="sub">
+        <h1>IRONWALL Rancagua</h1>
 
-Sistema de Gestión
+        <div class="sub">
+            Sistema de Gestión
+        </div>
 
-</div>
+    </div>
 
 </header>
 
