@@ -61,6 +61,12 @@ margin-right:10px;
 transform:translateY(-5px);
 }
 
+.headerPrincipal{
+display:flex;
+align-items:center;
+gap:35px;
+}
+
 .tituloMarca h1{
 font-size:38px;
 margin:0;
@@ -93,7 +99,7 @@ color:#666;
 line-height:1.8;
 padding-left:30px;
 border-left:2px solid #e5e5e5;
-
+margin-left:auto;
 min-width:260px;
 font-variant-numeric: tabular-nums;
 }
@@ -179,7 +185,10 @@ letter-spacing:.5px;
     <div class="infoSistema">
     <div id="fechaActual"></div>
     <div id="horaActual"></div>
-    <div id="turnoActual"></div>
+      <div class="turnoSistema">
+      Turno actual:
+      <strong><span id="turnoActual"></span></strong>
+      </div>
     </div>
 </header>
 
