@@ -5,171 +5,151 @@
 <head>
 
 <meta charset="UTF-8">
-
 <title>Ironwall | Sistema</title>
-
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <script>
-
 const CLAVE_GERENCIA = "Ironwall2026!";
-
 function verificarAcceso() {
-
   const clave = prompt("Ingrese la contraseña de Gerencia:");
-
   if (clave === null) return;
-
   if (clave === CLAVE_GERENCIA) {
-
     window.location.href = "dashboard.html";
-
   } else {
-
     alert("Contraseña incorrecta.");
-
   }
-
 }
-
 </script>
    
 <style>
-
 *{
 margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:Inter,sans-serif;
 }
-
+  
 body{
-
 background:
 linear-gradient(
 180deg,
 #eef2f7 0%,
 #f8f9fb 100%);
-
+}
+  
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+max-width:1500px;
+margin:0 auto 35px auto;
+padding:10px 20px;
 }
 
-header{
-
+.marca{
 display:flex;
-
 align-items:center;
-
-justify-content:center;
-
 gap:25px;
-
-margin-bottom:25px;
-
 }
 
 header img{
-
-width:200px;
-
-margin-bottom:20px;
-
+width:150px;
+height:auto;
 }
 
-h1{
+.tituloMarca h1{
+font-size:38px;
+margin:0;
+letter-spacing:1px;
+}
 
-font-size:34px;
-
+.tituloMarca h2{
+font-size:24px;
+font-weight:400;
+margin:0;
+color:#555;
 }
 
 .sub{
-
-color:#666;
-
 margin-top:8px;
+color:#666;
+font-size:16px;
+}
 
+.sub2{
+margin-top:6px;
+color:#888;
+font-size:13px;
+}
+
+.infoSistema{
+text-align:right;
+font-size:14px;
+color:#666;
+line-height:1.8;
+}
+
+header img{
+width:200px;
+margin-bottom:20px;
+}
+
+h1{
+font-size:34px;
+}
+
+.sub{
+color:#666;
+margin-top:8px;
 }
 
 .grid{
-
 display:grid;
-
 grid-template-columns:repeat(5,1fr);
-
 gap:20px;
-
 max-width:1500px;
-
 margin:auto;
-
 }
 
 .card{
-
 background:white;
-
 border-radius:18px;
-
 padding:22px;
-
 text-decoration:none;
-
 color:#222;
-
 box-shadow:0 5px 20px rgba(0,0,0,.08);
-
 transition:.25s;
-
 }
 
 .card:hover{
-
 transform:translateY(-5px);
-
 box-shadow:0 15px 35px rgba(0,0,0,.15);
-
 }
 
 .icon{
-
 font-size:42px;
-
 margin-bottom:18px;
-
 }
 
 .titulo{
-
 font-size:22px;
-
 font-weight:700;
-
 margin-bottom:8px;
-
 }
 
 .desc{
-
 font-size:15px;
-
 color:#666;
-
 line-height:1.5;
-
 }
 
 footer{
-
 margin-top:50px;
-
 text-align:center;
-
 color:#888;
-
 font-size:13px;
-
 }
 
 </style>
@@ -179,41 +159,27 @@ font-size:13px;
 <body>
 
 <header>
-
     <div class="marca">
-    
-    <img src="img/logosn.png">
-    
-    <div class="tituloMarca">
-    
-    <h1>IRONWALL</h1>
-    
-    <h2>Rancagua</h2>
-    
+    <img src="img/logosn.png">   
+    <div class="tituloMarca">  
+    <h1>IRONWALL</h1>    
+    <h2>Rancagua</h2>   
     <div class="sub">
     Sistema de Gestión
-    </div>
-    
+    </div>    
     <div class="sub2">
     Administración interna • Clientes • Operaciones
     </div>
-    
     </div>
-    
     </div>   
    
     <div class="infoSistema">
-    
     <div id="fechaActual"></div>
-    
     <div id="horaActual"></div>
-    
     <div>
     Turno: <strong id="turnoActual"></strong>
     </div>
-    
     </div>
-
 </header>
 
 <div class="grid">
@@ -321,6 +287,33 @@ Solo gerencia
 Ironwall Rancagua © 2026
 
 </footer>
+  
+<script>
+function actualizarSistema(){
+const ahora = new Date();
+const opcionesFecha = {
+weekday:'long',
+year:'numeric',
+month:'long',
+day:'numeric'
+};
+document.getElementById("fechaActual").textContent =
+ahora.toLocaleDateString('es-CL', opcionesFecha);
+document.getElementById("horaActual").textContent =
+ahora.toLocaleTimeString('es-CL');
+let hora = ahora.getHours();
+let turno="Mañana";
+if(hora>=14 && hora<22){
+turno="Tarde";
+}
+if(hora>=22 || hora<6){
+turno="Noche";
+}
+document.getElementById("turnoActual").textContent=turno;
+}
+actualizarSistema();
+setInterval(actualizarSistema,1000);
+</script>
 
 </body>
 
