@@ -11,31 +11,6 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
-<script>
-  const CLAVE_GERENCIA = "Ironwall2026!";
-  function verificarAcceso() {
-
-    if (sessionStorage.getItem("dashboard_autorizado") === "SI") {
-      return;
-    }
-  
-    const clave = prompt("Ingrese la contraseña de Gerencia:");
-  
-    if (clave === CLAVE_GERENCIA) {
-  
-      sessionStorage.setItem("dashboard_autorizado","SI");
-  
-    } else {
-  
-      alert("Acceso denegado.");
-  
-      window.location.href="index.html";
-  
-    }
-  
-  }
-</script>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -272,7 +247,7 @@ Cópialos y mándalos por WhatsApp o correo
 </div>
 </a>
 
-<a class="card" href="dashboard.html">
+<a class="card" href="dashboard.html" onclick="abrirDashboard(); return false;">  
 <div class="icon">📊</div>
 <div class="titulo">
 Dashboard
@@ -280,6 +255,30 @@ Dashboard
 <div class="desc">
 Solo gerencia
 </div>
+  <script>
+  const CLAVE_GERENCIA = "Ironwall2026!";
+  function verificarAcceso() {
+
+    if (sessionStorage.getItem("dashboard_autorizado") === "SI") {
+      return;
+    }
+  
+    const clave = prompt("Ingrese la contraseña de Gerencia:");
+  
+    if (clave === CLAVE_GERENCIA) {
+  
+      sessionStorage.setItem("dashboard_autorizado","SI");
+  
+    } else {
+  
+      alert("Acceso denegado.");
+  
+      window.location.href="index.html";
+  
+    }
+  
+  }
+</script>
 </a>
 
 </div>
@@ -289,17 +288,7 @@ Solo gerencia
 Ironwall Rancagua © 2026
 
 </footer>
-
-<script>
-  window.onload=function(){
-
-    verificarAcceso();
-
-    cargarDashboard();
-
-}
-</script>
-  
+ 
 </body>
 
 </html>
