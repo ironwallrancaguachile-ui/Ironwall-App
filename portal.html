@@ -11,14 +11,34 @@ content="width=device-width, initial-scale=1.0">
 
 <script>
 
-function verificarAcceso() {
+function verificarAcceso(){
   const clave = prompt("Ingrese la contraseña de Gerencia:");
-  if (clave === null) return;
-  if (clave === CLAVE_GERENCIA) {
-    window.location.href = "dashboard.html";
-  } else {
-    alert("Contraseña incorrecta.");
-  }
+  if(!clave) return;
+  fetch("https://script.google.com/macros/s/AKfycbzgTpnOQzlvROwFPSiptTHvki4aaJDel03SIXNHdYZmQP4wKzQzqz2N6uP5Xup6XnPtMQ/exec",{
+    method:"POST",
+    headers:{
+      "Content-Type":"text/plain;charset=utf-8"
+    },
+    body:JSON.stringify({
+      action:"validarGerencia",
+      clave:clave
+    })
+  })
+  .then(r=>r.json())
+  .then(resp=>{
+    if(resp.ok){
+      sessionStorage.setItem(
+      "dashboard_autorizado",
+      "SI"
+      );
+      window.location.href="dashboard.html";
+    }else{
+      alert("Contraseña incorrecta.");
+    }
+  })
+  .catch(()=>{
+    alert("Error validando acceso.");
+  });
 }
   
 </script>
