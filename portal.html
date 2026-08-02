@@ -19,19 +19,19 @@ const CLAVE_GERENCIA = "Ironwall2026!";
 
 function verificarAcceso() {
 
-    const clave = prompt("Ingrese la contraseña de Gerencia:");
+  const clave = prompt("Ingrese la contraseña de Gerencia:");
 
-    if (clave === null) return;   // Si presiona Cancelar
+  if (clave === null) return;
 
-    if (clave === CLAVE_GERENCIA) {
+  if (clave === CLAVE_GERENCIA) {
 
-        window.location.href = "dashboard.html";
+    window.location.href = "dashboard.html";
 
-    } else {
+  } else {
 
-        alert("Acceso denegado.");
+    alert("Contraseña incorrecta.");
 
-    }
+  }
 
 }
 
@@ -271,7 +271,7 @@ Cópialos y mándalos por WhatsApp o correo
 </div>
 </a>
 
-<a class="card" href="dashboard.html" onclick="abrirDashboard(); return false;">  
+<a class="card" href="dashboard.html" onclick="verificarAcceso(); return false;">  
 <div class="icon">📊</div>
 <div class="titulo">
 Dashboard
