@@ -14,22 +14,27 @@ content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <script>
-  const CLAVE_GERENCIA = "Ironwall2026!";
-  function verificarAcceso() {
-  
+
+const CLAVE_GERENCIA = "Ironwall2026!";
+
+function verificarAcceso() {
+
     const clave = prompt("Ingrese la contraseña de Gerencia:");
-  
+
+    if (clave === null) return;   // Si presiona Cancelar
+
     if (clave === CLAVE_GERENCIA) {
-  
+
+        window.location.href = "dashboard.html";
+
     } else {
-  
-      alert("Acceso denegado.");
-  
-      window.location.href="index.html";
-  
+
+        alert("Acceso denegado.");
+
     }
-  
-  }
+
+}
+
 </script>
    
 <style>
