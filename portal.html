@@ -51,12 +51,14 @@ padding:10px 20px;
 .marca{
 display:flex;
 align-items:center;
-gap:25px;
+gap:14px;
 }
 
 header img{
-width:200px;
+width:210px;
 height:auto;
+margin-right:10px;
+transform:translateY(-5px);
 }
 
 .tituloMarca h1{
@@ -89,6 +91,11 @@ text-align:right;
 font-size:14px;
 color:#666;
 line-height:1.8;
+padding-left:30px;
+border-left:2px solid #e5e5e5;
+
+min-width:260px;
+font-variant-numeric: tabular-nums;
 }
 
 header img{
@@ -177,9 +184,7 @@ letter-spacing:.5px;
     <div class="infoSistema">
     <div id="fechaActual"></div>
     <div id="horaActual"></div>
-    <div>
-    Turno: <strong id="turnoActual"></strong>
-    </div>
+    <div id="turnoActual"></div>
     </div>
 </header>
 
@@ -297,10 +302,12 @@ year:'numeric',
 month:'long',
 day:'numeric'
 };
-document.getElementById("fechaActual").textContent =
-ahora.toLocaleDateString('es-CL', opcionesFecha);
-document.getElementById("horaActual").textContent =
-ahora.toLocaleTimeString('es-CL');
+document.getElementById("fechaActual").innerHTML =
+"📅 " + ahora.toLocaleDateString('es-CL', opcionesFecha);
+  
+document.getElementById("horaActual").innerHTML =
+"🕒 " + ahora.toLocaleTimeString('es-CL');
+  
 let hora = ahora.getHours();
 let turno="Mañana";
 if(hora>=14 && hora<22){
@@ -309,7 +316,10 @@ turno="Tarde";
 if(hora>=22 || hora<6){
 turno="Noche";
 }
-document.getElementById("turnoActual").textContent=turno;
+
+document.getElementById("turnoActual").innerHTML =
+"👤 <strong>" + turno + "</strong>";
+  
 }
 actualizarSistema();
 setInterval(actualizarSistema,1000);
