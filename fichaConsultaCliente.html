@@ -108,7 +108,7 @@
 
   <div class="buscador">
     <input type="text" id="idBuscar" placeholder="Código cliente o RUT">
-    
+   
     <button onclick="buscar()">Buscar</button>
   </div>
 
@@ -176,8 +176,8 @@
       const contenido = document.getElementById('contenido');
       mensaje.style.display = 'none';
       contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
-
-      llamarApi('obtenerFichaCompleta', { busqueda: id })
+       llamarApi('obtenerFichaCompleta', { idCliente: id })
+     
      
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
