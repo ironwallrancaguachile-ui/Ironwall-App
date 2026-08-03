@@ -285,8 +285,12 @@ letter-spacing:.5px;
     
     /* Tarjetas */
     .grid{
-    grid-template-columns:1fr;
-    gap:15px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:20px;
+    max-width:1500px;
+    margin:0 auto;
+    padding:0 25px;
     }
     .card{
     padding:20px;
