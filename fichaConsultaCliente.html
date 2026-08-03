@@ -1,1 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha del cliente - Ironwall</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    background: #fafafa;
+    color: #222;
+  }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; font-size: 13px; }
+  .buscador { display: flex; gap: 8px; margin-top: 10px; }
+  .buscador input {
+    flex: 1;
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  .buscador button {
+    padding: 12px 16px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .seccion {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+  }
+  .seccion h2 { font-size: 15px; margin: 0 0 8px; }
+  .seccion p { margin: 3px 0; font-size: 14px; }
+  .item { border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px; font-size: 13px; }
+  .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  #notaTexto {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    min-height: 60px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  #notaResponsable {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+  #btnNota {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: #1e824c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  #mensaje { font-size: 13px; margin-top: 8px; display: none; }
+  #mensaje.error { color: #c0392b; }
+  #mensaje.ok { color: #1e824c; }
+  #sinDatos { font-size: 13px; color: #888; }
 
+  .btnHome{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#ffffff;
+  color:#222;
+  text-decoration:none;
+  padding:10px 18px;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:600;
+  box-shadow:0 3px 12px rgba(0,0,0,.12);
+  transition:.2s;
+  }
+  
+  .btnHome:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(0,0,0,.15);
+  }
+</style>
+</head>
+<body>
+  <a href="portalcliente.html" class="btnHome">
+  🏠 Home
+  </a>
+ 
+  <h1>Ficha del cliente</h1>
+  <p class="sub">Datos, pases y visitas.</p>
+
+  <div class="buscador">
+    <input type="text" id="idBuscar" placeholder="Ej: IWR7K9QX">
+    <button onclick="buscar()">Buscar</button>
+  </div>
+
+  <div id="mensaje"></div>
+  <div id="contenido"></div>
+
+  <script>
+    // ⚠️ URL del Apps Script de CLIENTES (el mismo de siempre).
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    let idClienteActual = '';
+    let staffCache = [];
+
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(function (r) { clearTimeout(timeoutId); return r; })
+          .catch(function (err) {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+            if (soloUnIntento) throw new Error('No pudimos confirmar si se guardó. Intenta de nuevo.');
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
+      }
+      return intentar(intentos);
+    }
+
+    function llamarApi(accion, payload, esEscritura) {
+      return fetchConReintento(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }, esEscritura).then(function (r) {
+        return r.text().then(function (texto) {
+          try { return JSON.parse(texto); }
+          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
+        });
+      });
+    }
+
+    function guardarCache_(clave, datos) {
+      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+      catch (e) { /* nada grave si falla */ }
+    }
+    function leerCache_(clave) {
+      try {
+        const crudo = localStorage.getItem(clave);
+        if (!crudo) return null;
+        const parsed = JSON.parse(crudo);
+        if (Date.now() - parsed.guardado > 12 * 60 * 60 * 1000) return null;
+        return parsed.datos;
+      } catch (e) { return null; }
+    }
+
+    function buscar() {
+      const id = document.getElementById('idBuscar').value.trim();
+      if (!id) return;
+      idClienteActual = id;
+
+      const mensaje = document.getElementById('mensaje');
+      const contenido = document.getElementById('contenido');
+      mensaje.style.display = 'none';
+      contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
+
+      llamarApi('obtenerFichaCompleta', { idCliente: id })
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error);
+          if (!resp.data.cliente) {
+            contenido.innerHTML = '<div id="sinDatos">Cliente no encontrado: ' + id + '</div>';
+            return;
+          }
+          renderFicha(resp.data);
+        })
+        .catch(function (err) {
+          mensaje.className = 'error';
+          mensaje.textContent = 'Error: ' + err.message;
+          mensaje.style.display = 'block';
+          contenido.innerHTML = '';
+        });
+    }
+
+    function renderResumen(data, cliente) {
+      const hoy = new Date();
+      let html = '<div class="seccion"><h2>Resumen</h2>';
+
+      // Cliente desde cuándo
+      if (cliente.fechaRegistro) {
+        const registro = new Date(cliente.fechaRegistro);
+        const diasComoCliente = Math.floor((hoy - registro) / (1000 * 60 * 60 * 24));
+        html += '<p>Cliente desde: ' + registro.toLocaleDateString() + ' (' + diasComoCliente + ' días)</p>';
+      }
+
+      // Total de visitas históricas
+      html += '<p>Total de visitas: <strong>' + (data.totalVisitas || 0) + '</strong></p>';
+
+      // Hace cuánto no viene, con alerta si es mucho tiempo
+      if (data.ultimasVisitas && data.ultimasVisitas.length > 0) {
+        const ultima = new Date(data.ultimasVisitas[0]);
+        const diasSinVenir = Math.floor((hoy - ultima) / (1000 * 60 * 60 * 24));
+        const alerta = diasSinVenir >= 30;
+        html += '<p' + (alerta ? ' style="color:#c0392b;font-weight:600"' : '') + '>'
+          + 'Última visita: hace ' + diasSinVenir + ' día(s)'
+          + (alerta ? ' ⚠️ hace mucho tiempo que no vienes, ven a escalar de nuevo con nosotros!' : '')
+          + '</p>';
+      } else {
+        html += '<p style="color:#888">Aún no registra ninguna visita.</p>';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    function renderFicha(data) {
+      const c = data.cliente;
+      let html = '';
+
+      html += '<div class="seccion"><h2>' + c.nombre + ' ' + c.apellido + '</h2>'
+        + '<p style="color:#888">' + c.idCliente + '</p></div>';
+
+      html += renderResumen(data, c);
+
+      html += '<div class="seccion"><h2>Pases activos</h2>';
+      if (!data.pases || data.pases.length === 0) {
+        html += '<p style="color:#888">Sin pases activos.</p>';
+      } else {
+        data.pases.forEach(function (p) {
+          html += '<div class="item"><strong>' + p.nombreServicio + '</strong><br>'
+            + 'Usos restantes: ' + p.usosRestantes + ' de ' + p.usosTotales
+            + (p.fechaVencimiento ? '<br>Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() : '')
+            + '</div>';
+        });
+      }
+      html += '</div>';
+
+      html += '<div class="seccion"><h2>Últimas visitas</h2>';
+      if (!data.ultimasVisitas || data.ultimasVisitas.length === 0) {
+        html += '<p style="color:#888">Sin visitas registradas aún.</p>';
+      } else {
+        data.ultimasVisitas.forEach(function (v) {
+          html += '<div class="item">' + new Date(v).toLocaleString() + '</div>';
+        });
+      }
+      html += '</div>';
+
+      document.getElementById('contenido').innerHTML = html;
+    }
+    }
+  </script>
+</body>
+</html>
