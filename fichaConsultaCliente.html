@@ -239,33 +239,17 @@
         </div>
         `;
       
-      
-        // RESUMEN VISITAS
-        html += `
-        <div class="seccion">
-          <h2>Resumen de visitas</h2>
-          <p>Total de visitas: <strong>${data.totalVisitas || 0}</strong></p>
-        </div>
-        `;
-      
-      
         // PASES
         html += `
         <div class="seccion">
         <h2>Pases activos</h2>
         `;
-      
-      
         if (!data.pases || data.pases.length === 0) {
-      
           html += `<p style="color:#888">
           No tienes pases activos.
           </p>`;
-      
-        } else {
-      
-          data.pases.forEach(function(p){
-      
+            } else {   
+          data.pases.forEach(function(p){ 
             html += `
             <div class="item">
               <strong>${p.nombreServicio}</strong><br>
@@ -276,50 +260,40 @@
                 : ''}
             </div>
             `;
-      
-          });
-      
-        }
-      
+          }); 
+        }      
         html += '</div>';
-      
-      
+             
+        // RESUMEN VISITAS
+        html += `
+        <div class="seccion">
+          <h2>Resumen de visitas</h2>
+          <p>Total de visitas: <strong>${data.totalVisitas || 0}</strong></p>
+        </div>
+        `;
+
         // ULTIMAS VISITAS
         html += `
         <div class="seccion">
         <h2>Últimas visitas</h2>
         `;
-      
-      
-        if (!data.ultimasVisitas || data.ultimasVisitas.length===0){
-      
+      if (!data.ultimasVisitas || data.ultimasVisitas.length===0){
           html += `
           <p style="color:#888">
           Todavía no tienes visitas registradas.
           </p>
           `;
-      
-        } else {
-      
-          data.ultimasVisitas.forEach(function(v){
-      
+         } else {
+          data.ultimasVisitas.forEach(function(v){ 
             html += `
             <div class="item">
             ${new Date(v).toLocaleString()}
             </div>
-            `;
-      
-          });
-      
-        }
-      
-      
-        html += '</div>';
-      
-      
-  document.getElementById('contenido').innerHTML = html;
-
-
+            `;  
+          });  
+        }            
+        html += '</div>';     
+        document.getElementById('contenido').innerHTML = html;
     }
   </script>
 </body>
