@@ -226,100 +226,100 @@
       return html;
     }
 
-function renderFicha(data) {
-
-  const c = data.cliente;
-  let html = '';
-
-  // DATOS CLIENTE
-  html += `
-  <div class="seccion">
-    <h2>${c.nombre} ${c.apellido}</h2>
-    <p style="color:#888">Código: ${c.idCliente}</p>
-  </div>
-  `;
-
-
-  // RESUMEN VISITAS
-  html += `
-  <div class="seccion">
-    <h2>Resumen de visitas</h2>
-    <p>Total de visitas: <strong>${data.totalVisitas || 0}</strong></p>
-  </div>
-  `;
-
-
-  // PASES
-  html += `
-  <div class="seccion">
-  <h2>Pases activos</h2>
-  `;
-
-
-  if (!data.pases || data.pases.length === 0) {
-
-    html += `<p style="color:#888">
-    No tienes pases activos.
-    </p>`;
-
-  } else {
-
-    data.pases.forEach(function(p){
-
-      html += `
-      <div class="item">
-        <strong>${p.nombreServicio}</strong><br>
-        Usos restantes:
-        ${p.usosRestantes} de ${p.usosTotales}
-        ${p.fechaVencimiento 
-          ? '<br>Vence: '+new Date(p.fechaVencimiento).toLocaleDateString()
-          : ''}
-      </div>
-      `;
-
-    });
-
-  }
-
-  html += '</div>';
-
-
-  // ULTIMAS VISITAS
-  html += `
-  <div class="seccion">
-  <h2>Últimas visitas</h2>
-  `;
-
-
-  if (!data.ultimasVisitas || data.ultimasVisitas.length===0){
-
-    html += `
-    <p style="color:#888">
-    Todavía no tienes visitas registradas.
-    </p>
-    `;
-
-  } else {
-
-    data.ultimasVisitas.forEach(function(v){
-
-      html += `
-      <div class="item">
-      ${new Date(v).toLocaleString()}
-      </div>
-      `;
-
-    });
-
-  }
-
-
-  html += '</div>';
-
-
+      function renderFicha(data) {
+      
+        const c = data.cliente;
+        let html = '';
+      
+        // DATOS CLIENTE
+        html += `
+        <div class="seccion">
+          <h2>${c.nombre} ${c.apellido}</h2>
+          <p style="color:#888">Código: ${c.idCliente}</p>
+        </div>
+        `;
+      
+      
+        // RESUMEN VISITAS
+        html += `
+        <div class="seccion">
+          <h2>Resumen de visitas</h2>
+          <p>Total de visitas: <strong>${data.totalVisitas || 0}</strong></p>
+        </div>
+        `;
+      
+      
+        // PASES
+        html += `
+        <div class="seccion">
+        <h2>Pases activos</h2>
+        `;
+      
+      
+        if (!data.pases || data.pases.length === 0) {
+      
+          html += `<p style="color:#888">
+          No tienes pases activos.
+          </p>`;
+      
+        } else {
+      
+          data.pases.forEach(function(p){
+      
+            html += `
+            <div class="item">
+              <strong>${p.nombreServicio}</strong><br>
+              Usos restantes:
+              ${p.usosRestantes} de ${p.usosTotales}
+              ${p.fechaVencimiento 
+                ? '<br>Vence: '+new Date(p.fechaVencimiento).toLocaleDateString()
+                : ''}
+            </div>
+            `;
+      
+          });
+      
+        }
+      
+        html += '</div>';
+      
+      
+        // ULTIMAS VISITAS
+        html += `
+        <div class="seccion">
+        <h2>Últimas visitas</h2>
+        `;
+      
+      
+        if (!data.ultimasVisitas || data.ultimasVisitas.length===0){
+      
+          html += `
+          <p style="color:#888">
+          Todavía no tienes visitas registradas.
+          </p>
+          `;
+      
+        } else {
+      
+          data.ultimasVisitas.forEach(function(v){
+      
+            html += `
+            <div class="item">
+            ${new Date(v).toLocaleString()}
+            </div>
+            `;
+      
+          });
+      
+        }
+      
+      
+        html += '</div>';
+      
+      
   document.getElementById('contenido').innerHTML = html;
 
-}
+
     }
   </script>
 </body>
