@@ -1,29 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Portal Cliente</title>
+
+<style>
+
+body{
+  font-family:-apple-system, Arial, sans-serif;
+  max-width:480px;
+  margin:0 auto;
+  padding:20px 16px;
+  background:#fafafa;
+  color:#222;
+}
+
+h1{
+  font-size:22px;
+  margin-bottom:5px;
+}
+
+.sub{
+  color:#666;
+  font-size:14px;
+}
+
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+  margin-top:25px;
+}
+
+
+.card{
+  display:block;
+  background:#fff;
+  border:1px solid #e5e5e5;
+  border-radius:18px;
+  padding:22px;
+  text-decoration:none;
+  color:#222;
+  box-shadow:0 5px 15px rgba(0,0,0,.08);
+  transition:.2s;
+}
+
+
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 20px rgba(0,0,0,.12);
+}
+
+
+.icon{
+  font-size:42px;
+  margin-bottom:12px;
+}
+
+
+.titulo{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+
+.desc{
+  font-size:14px;
+  color:#666;
+  line-height:1.4;
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>Portal Cliente</h1>
+
+<p class="sub">
+Gestiona tu registro y consulta tus pases.
+</p>
+
+
+<div class="grid">
+
+
 <a class="card" href="index.html">
 
-<div class="icon">👤</div>
+  <div class="icon">
+    👤
+  </div>
 
-<div class="titulo">
-Registro Clientes
-</div>
+  <div class="titulo">
+    Registrarme
+  </div>
 
-<div class="desc">
-Nuevo cliente
-</div>
+  <div class="desc">
+    Crear mi ficha como nuevo cliente
+  </div>
+
+</a>
+
+
+
+<a class="card" href="cfichaConsultaCliente.html">
+
+  <div class="icon">
+    🎟️
+  </div>
+
+  <div class="titulo">
+    Mis pases y visitas
+  </div>
+
+  <div class="desc">
+    Consulta tus pases activos e historial
+  </div>
 
 </a>
 
-<a class="card" href="consulta_cliente.html">
 
-<div class="icon">
-🎟️
 </div>
 
-<div class="titulo">
-Consulta Cliente
-</div>
 
-<div class="desc">
-Pases activos e historial de visitas
-</div>
-
-</a>
+</body>
+</html>
