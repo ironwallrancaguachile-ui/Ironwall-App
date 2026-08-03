@@ -107,7 +107,8 @@
   <p class="sub">Datos, pases y visitas.</p>
 
   <div class="buscador">
-    <input type="text" id="idBuscar" placeholder="Ej: IWR7K9QX">
+    <input type="text" id="idBuscar" placeholder="Código cliente o RUT">
+    
     <button onclick="buscar()">Buscar</button>
   </div>
 
@@ -176,7 +177,8 @@
       mensaje.style.display = 'none';
       contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
 
-      llamarApi('obtenerFichaCompleta', { idCliente: id })
+      llamarApi('obtenerFichaCompleta', { busqueda: id })
+     
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
           if (!resp.data.cliente) {
@@ -224,40 +226,100 @@
       return html;
     }
 
-    function renderFicha(data) {
-      const c = data.cliente;
-      let html = '';
+function renderFicha(data) {
 
-      html += '<div class="seccion"><h2>' + c.nombre + ' ' + c.apellido + '</h2>'
-        + '<p style="color:#888">' + c.idCliente + '</p></div>';
+  const c = data.cliente;
+  let html = '';
 
-      html += renderResumen(data, c);
+  // DATOS CLIENTE
+  html += `
+  <div class="seccion">
+    <h2>${c.nombre} ${c.apellido}</h2>
+    <p style="color:#888">Código: ${c.idCliente}</p>
+  </div>
+  `;
 
-      html += '<div class="seccion"><h2>Pases activos</h2>';
-      if (!data.pases || data.pases.length === 0) {
-        html += '<p style="color:#888">Sin pases activos.</p>';
-      } else {
-        data.pases.forEach(function (p) {
-          html += '<div class="item"><strong>' + p.nombreServicio + '</strong><br>'
-            + 'Usos restantes: ' + p.usosRestantes + ' de ' + p.usosTotales
-            + (p.fechaVencimiento ? '<br>Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() : '')
-            + '</div>';
-        });
-      }
-      html += '</div>';
 
-      html += '<div class="seccion"><h2>Últimas visitas</h2>';
-      if (!data.ultimasVisitas || data.ultimasVisitas.length === 0) {
-        html += '<p style="color:#888">Sin visitas registradas aún.</p>';
-      } else {
-        data.ultimasVisitas.forEach(function (v) {
-          html += '<div class="item">' + new Date(v).toLocaleString() + '</div>';
-        });
-      }
-      html += '</div>';
+  // RESUMEN VISITAS
+  html += `
+  <div class="seccion">
+    <h2>Resumen de visitas</h2>
+    <p>Total de visitas: <strong>${data.totalVisitas || 0}</strong></p>
+  </div>
+  `;
 
-      document.getElementById('contenido').innerHTML = html;
-    }
+
+  // PASES
+  html += `
+  <div class="seccion">
+  <h2>Pases activos</h2>
+  `;
+
+
+  if (!data.pases || data.pases.length === 0) {
+
+    html += `<p style="color:#888">
+    No tienes pases activos.
+    </p>`;
+
+  } else {
+
+    data.pases.forEach(function(p){
+
+      html += `
+      <div class="item">
+        <strong>${p.nombreServicio}</strong><br>
+        Usos restantes:
+        ${p.usosRestantes} de ${p.usosTotales}
+        ${p.fechaVencimiento 
+          ? '<br>Vence: '+new Date(p.fechaVencimiento).toLocaleDateString()
+          : ''}
+      </div>
+      `;
+
+    });
+
+  }
+
+  html += '</div>';
+
+
+  // ULTIMAS VISITAS
+  html += `
+  <div class="seccion">
+  <h2>Últimas visitas</h2>
+  `;
+
+
+  if (!data.ultimasVisitas || data.ultimasVisitas.length===0){
+
+    html += `
+    <p style="color:#888">
+    Todavía no tienes visitas registradas.
+    </p>
+    `;
+
+  } else {
+
+    data.ultimasVisitas.forEach(function(v){
+
+      html += `
+      <div class="item">
+      ${new Date(v).toLocaleString()}
+      </div>
+      `;
+
+    });
+
+  }
+
+
+  html += '</div>';
+
+
+  document.getElementById('contenido').innerHTML = html;
+
+}
     }
   </script>
 </body>
