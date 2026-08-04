@@ -1,0 +1,21 @@
+<select id="categoria">
+
+<option value="">Seleccione...</option>
+
+<option>💡 Idea de mejora</option>
+
+<option>🧗 Experiencia de escalada</option>
+
+<option>🏋 Equipamiento</option>
+
+<option>🧹 Limpieza</option>
+
+<option>😊 Atención del personal</option>
+
+<option>⚠ Problema encontrado</option>
+
+<option>❤️ Felicitaciones</option>
+
+<option>📦 Otro</option>
+
+</select>
