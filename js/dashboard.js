@@ -12,6 +12,7 @@ let chartPago = null;
 let chartServicios = null;
 let chartIncidentes = null;
 let chartFrecuencia = null;
+let periodoFrecuencia = "180";
 
 /******************************************************
  * Llamada al Apps Script
@@ -62,7 +63,12 @@ function actualizarFecha(){
 
 async function cargarDashboard(){
     actualizarFecha();
-    const res = await llamarAPI("obtenerDashboard");
+    const res = await llamarAPI(
+        "obtenerDashboard",
+        {
+            periodoFrecuencia: periodoFrecuencia
+        }
+    );
     if(!res.ok){
         alert(res.error);
         return;
@@ -105,8 +111,6 @@ function actualizarKPIs(k){
         k.incidentes;
     document.getElementById("valorInventario").innerHTML =
         pesos(k.valorInventario);
-    document.getElementById("graficoFrecuencia").innerHTML =
-        k.frecuencia;
 }
 
 /******************************************************
