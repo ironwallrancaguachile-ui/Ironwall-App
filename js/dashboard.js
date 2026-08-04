@@ -492,6 +492,15 @@ document
 /******************************************************
  * Inicio
  ******************************************************/
+document
+.getElementById("filtroFrecuencia")
+.addEventListener("change",function(){
+
+    periodoFrecuencia = this.value;
+
+    cargarDashboard();
+
+});
 
 window.onload=function(){
 
