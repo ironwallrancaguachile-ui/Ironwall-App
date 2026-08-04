@@ -11,7 +11,7 @@ let chartFinanzas = null;
 let chartPago = null;
 let chartServicios = null;
 let chartIncidentes = null;
-let chartFrecuencia - null;
+let chartFrecuencia = null;
 
 /******************************************************
  * Llamada al Apps Script
