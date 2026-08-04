@@ -62,23 +62,41 @@ function actualizarFecha(){
  ******************************************************/
 
 async function cargarDashboard(){
+
     actualizarFecha();
+
+    const periodoFrecuencia = document
+        .getElementById("periodoFrecuencia")
+        .value;
+
+
     const res = await llamarAPI(
         "obtenerDashboard",
         {
             periodoFrecuencia: periodoFrecuencia
         }
     );
+
+
     if(!res.ok){
         alert(res.error);
         return;
     }
+
+
     const d = res.data;
+
+
     actualizarKPIs(d.kpis);
+
     actualizarTablas(d);
+
     actualizarGraficos(d);
-    document.getElementById("ultimaActualizacion").innerHTML=
+
+
+    document.getElementById("ultimaActualizacion").innerHTML =
         new Date().toLocaleTimeString("es-CL");
+
 }
 
 /******************************************************
