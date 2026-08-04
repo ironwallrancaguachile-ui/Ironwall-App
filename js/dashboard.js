@@ -415,37 +415,42 @@ function crearGraficoIncidentes(data){
 }
 
 /******************************************************
-* Grafico frecuencia de clientes
+* Grafico frecuencia clientes
 ******************************************************/
 
-function cargarGraficoFrecuencia(){
- llamarApi(
- "frecuenciaClientes",
- {}
- )
- .then(function(resp){
- const datos=resp.data;
- new Chart(
- document.getElementById("graficoFrecuencia"),
- {
- type:"bar",
- data:{
- labels:Object.keys(datos),
- datasets:[{
- label:"Clientes",
- data:Object.values(datos)
- }]
- },
- options:{
- responsive:true,
- plugins:{
- legend:{
- display:false
- }
- }
- }
- });
- });
+function crearGraficoFrecuencia(data){
+
+    if(chartFrecuencia) chartFrecuencia.destroy();
+
+    chartFrecuencia = new Chart(
+        document.getElementById("graficoFrecuencia"),
+        {
+            type:"bar",
+
+            data:{
+                labels:data.labels,
+
+                datasets:[
+                    {
+                        label:"Clientes",
+                        data:data.datasets[0].data,
+                        backgroundColor:"#1565C0"
+                    }
+                ]
+            },
+
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+
+                plugins:{
+                    legend:{
+                        display:false
+                    }
+                }
+            }
+        }
+    );
 }
 
 /******************************************************
