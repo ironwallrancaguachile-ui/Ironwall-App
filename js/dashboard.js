@@ -479,29 +479,18 @@ function crearGraficoFrecuencia(data){
 document
 
 .getElementById("btnActualizar")
-
 .addEventListener(
-
     "click",
-
     cargarDashboard
-
 );
 
 document
-
 .getElementById("btnMenu")
-
 .addEventListener(
-
     "click",
-
     ()=>{
-
         location.href="menu.html";
-
     }
-
 );
 
 /******************************************************
@@ -510,8 +499,6 @@ document
 document
 .getElementById("filtroFrecuencia")
 .addEventListener("change",function(){
-
-    periodoFrecuencia = this.value;
 
     cargarDashboard();
 
