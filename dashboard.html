@@ -260,15 +260,28 @@ Clientes Mensuales
 </div>
 
 <div class="grafico">
-
 <h2>
-Frecuencia de Clientes
+Frecuencia Clientes
 </h2>
-
+<select id="filtroFrecuencia">
+<option value="30">
+Últimos 30 días
+</option>
+<option value="90">
+Últimos 90 días
+</option>
+<option value="180" selected>
+Últimos 180 días
+</option>
+<option value="365">
+Último año
+</option>
+<option value="historico">
+Histórico completo
+</option>
+</select>
 <canvas id="graficoFrecuencia"></canvas>
-
 </div>
-
    
 <div class="grafico">
 
