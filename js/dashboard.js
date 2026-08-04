@@ -11,7 +11,7 @@ let chartFinanzas = null;
 let chartPago = null;
 let chartServicios = null;
 let chartIncidentes = null;
-let chartFrecuencia - null:
+let chartFrecuencia - null;
 
 /******************************************************
  * Llamada al Apps Script
@@ -417,55 +417,7 @@ function crearGraficoIncidentes(data){
 /******************************************************
 * Grafico frecuencia de clientes
 ******************************************************/
-function obtenerFrecuenciaClientesMes() {
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const hojaCheckins = ss.getSheetByName("Checkins");
-  const datos = hojaCheckins.getDataRange().getValues();
-  const hoy = new Date();
-  const mesActual = hoy.getMonth();
-  const anioActual = hoy.getFullYear();
-
-  let visitasCliente = {};
-
-  for(let i=1;i<datos.length;i++){
-    const fecha = new Date(datos[i][3]);
-    const idCliente = datos[i][1];
-    if(
-      fecha.getMonth() === mesActual &&
-      fecha.getFullYear() === anioActual
-    ){
-      if(!visitasCliente[idCliente]){
-        visitasCliente[idCliente]=0;
-      }
-      visitasCliente[idCliente]++;
-    }
-  }
-  let resultado = {
-    "1 visita":0,
-    "2-3 visitas":0,
-    "4-5 visitas":0,
-    "6+ visitas":0
-  };
-  Object.values(visitasCliente).forEach(function(total){
-    if(total===1){
-      resultado["1 visita"]++;
-    }
-    else if(total<=3){
-      resultado["2-3 visitas"]++;
-    }
-    else if(total<=5){
-      resultado["4-5 visitas"]++;
-    }
-    else{
-      resultado["6+ visitas"]++;
-    }
-  });
-  return resultado;
-}
-/*****
-Crear Grafico
-*****/
 function cargarGraficoFrecuencia(){
  llamarApi(
  "frecuenciaClientes",
