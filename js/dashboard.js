@@ -50,7 +50,9 @@ async function llamarAPI(action,payload={}){
 
 function pesos(valor){
 
-    return "$"+Number(valor).toLocaleString("es-CL");
+    return "$"+Number(valor).toLocaleString("es-CL",{
+      maximumFractionDigits: 0
+    });
 
 }
 
