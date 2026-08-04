@@ -11,37 +11,28 @@ let chartFinanzas = null;
 let chartPago = null;
 let chartServicios = null;
 let chartIncidentes = null;
+let chartFrecuencia - null:
 
 /******************************************************
  * Llamada al Apps Script
  ******************************************************/
 
 async function llamarAPI(action,payload={}){
-
     const respuesta = await fetch(API,{
 
         method:"POST",
-
         headers:{
-
             "Content-Type":"text/plain;charset=utf-8"
-
         },
-
         body:JSON.stringify({
-
             action:action,
-
             payload:payload
-
         })
 
     });
 
     const texto = await respuesta.text();
-
     return JSON.parse(texto);
-
 }
 
 /******************************************************
@@ -61,11 +52,8 @@ function pesos(valor){
  ******************************************************/
 
 function actualizarFecha(){
-
     document.getElementById("fechaActual").innerHTML=
-
         new Date().toLocaleString("es-CL");
-
 }
 
 /******************************************************
@@ -73,31 +61,18 @@ function actualizarFecha(){
  ******************************************************/
 
 async function cargarDashboard(){
-
     actualizarFecha();
-
     const res = await llamarAPI("obtenerDashboard");
-
     if(!res.ok){
-
         alert(res.error);
-
         return;
-
     }
-
     const d = res.data;
-
     actualizarKPIs(d.kpis);
-
     actualizarTablas(d);
-
     actualizarGraficos(d);
-
     document.getElementById("ultimaActualizacion").innerHTML=
-
         new Date().toLocaleTimeString("es-CL");
-
 }
 
 /******************************************************
@@ -108,40 +83,30 @@ function actualizarKPIs(k){
 
     document.getElementById("clientesHoy").innerHTML =
         k.clientesHoy;
-
     document.getElementById("checkinsHoy").innerHTML =
         k.checkinsHoy;
-
     document.getElementById("clientesMes").innerHTML =
         k.clientesMes;
-
     document.getElementById("clientesAnio").innerHTML =
         k.clientesAnio;
-
     document.getElementById("clientesNuevos").innerHTML =
         k.clientesNuevos;
-
     document.getElementById("ingresosHoy").innerHTML =
         pesos(k.ingresosHoy);
-
     document.getElementById("egresosHoy").innerHTML =
         pesos(k.egresosHoy);
-
     document.getElementById("resultadoHoy").innerHTML =
         pesos(k.resultadoHoy);
-
     document.getElementById("ticketPromedio").innerHTML =
         pesos(k.ticketPromedio);
-
     document.getElementById("bajoStock").innerHTML =
         k.bajoStock;
-
     document.getElementById("incidentes").innerHTML =
         k.incidentes;
-
     document.getElementById("valorInventario").innerHTML =
         pesos(k.valorInventario);
-
+    document.getElementById("graficoFrecuencia").innerHTML =
+        k.frecuencia;
 }
 
 /******************************************************
@@ -149,31 +114,18 @@ function actualizarKPIs(k){
  ******************************************************/
 
 function actualizarTablaStock(lista){
-
     const tbody = document.querySelector("#tablaStock tbody");
-
     tbody.innerHTML="";
-
     lista.forEach(function(p){
-
         tbody.innerHTML += `
-
         <tr>
-
             <td>${p.codigo}</td>
-
             <td>${p.nombre}</td>
-
             <td>${p.stock}</td>
-
             <td>${p.minimo}</td>
-
         </tr>
-
         `;
-
     });
-
 }
 
 /******************************************************
@@ -181,31 +133,18 @@ function actualizarTablaStock(lista){
  ******************************************************/
 
 function actualizarTablaIncidentes(lista){
-
     const tbody=document.querySelector("#tablaIncidentes tbody");
-
     tbody.innerHTML="";
-
     lista.forEach(function(i){
-
         tbody.innerHTML += `
-
         <tr>
-
             <td>${i.fecha}</td>
-
             <td>${i.cliente}</td>
-
             <td>${i.gravedad}</td>
-
             <td>${i.estado}</td>
-
         </tr>
-
         `;
-
     });
-
 }
 
 /******************************************************
@@ -213,19 +152,12 @@ function actualizarTablaIncidentes(lista){
  ******************************************************/
 
 function actualizarTablas(data){
-
     actualizarTablaStock(
-
         data.stockCritico
-
     );
-
     actualizarTablaIncidentes(
-
         data.ultimosIncidentes
-
     );
-
 }
 
 /******************************************************
@@ -233,19 +165,13 @@ function actualizarTablas(data){
  ******************************************************/
 
 function actualizarGraficos(data){
-
     crearGraficoVentas(data.ventas);
-
     crearGraficoClientes(data.clientes);
-
     crearGraficoFinanzas(data.finanzas);
-
     crearGraficoPago(data.metodosPago);
-
     crearGraficoServicios(data.servicios);
-
     crearGraficoIncidentes(data.incidentesGrafico);
-
+    crearGraficoFrecuencia(data.frecuencia);
 }
 
 /******************************************************
@@ -253,57 +179,32 @@ function actualizarGraficos(data){
  ******************************************************/
 
 function crearGraficoVentas(data){
-
     if(chartVentas) chartVentas.destroy();
-
     chartVentas = new Chart(
-
         document.getElementById("graficoVentas"),
-
         {
-
             type:"line",
-
             data:{
-
                 labels:data.labels,
-
                 datasets:[
-
                     {
 
                         label:data.datasets[0].label,
-
                         data:data.datasets[0].data,
-
                         borderColor:"#1565C0",
-
                         backgroundColor:"rgba(21,101,192,0.15)",
-
                         borderWidth:3,
-
                         tension:0.3,
-
                         fill:true
-
                     }
-
                 ]
-
             },
-
             options:{
-
                 responsive:true,
-
                 maintainAspectRatio:false
-
             }
-
         }
-
     );
-
 }
 
 /******************************************************
@@ -311,57 +212,31 @@ function crearGraficoVentas(data){
  ******************************************************/
 
 function crearGraficoClientes(data){
-
     if(chartClientes) chartClientes.destroy();
-
     chartClientes = new Chart(
-
         document.getElementById("graficoClientes"),
-
         {
-
             type:"line",
-
             data:{
-
                 labels:data.labels,
-
                 datasets:[
-
                     {
-
                         label:"Clientes",
-
                         data:data.datasets[0].data,
-
                         borderColor:"#2E7D32",
-
                         backgroundColor:"rgba(46,125,50,0.15)",
-
                         borderWidth:3,
-
                         tension:0.3,
-
                         fill:true
-
                     }
-
                 ]
-
             },
-
             options:{
-
                 responsive:true,
-
                 maintainAspectRatio:false
-
             }
-
         }
-
     );
-
 }
 
 /******************************************************
@@ -369,69 +244,37 @@ function crearGraficoClientes(data){
  ******************************************************/
 
 function crearGraficoFinanzas(data){
-
     if(chartFinanzas) chartFinanzas.destroy();
-
     chartFinanzas = new Chart(
-
         document.getElementById("graficoFinanzas"),
-
         {
-
-            type:"bar",
-
+          type:"bar",
             data:{
-
                 labels:data.labels,
-
                 datasets:[
-
                     {
-
                         label:"Ingresos",
-
                         data:data.datasets[0].data,
-
                         backgroundColor:"#2E7D32"
-
                     },
-
                     {
-
                         label:"Egresos",
-
                         data:data.datasets[1].data,
-
                         backgroundColor:"#D32F2F"
-
                     }
-
                 ]
-
             },
-
             options:{
-
                 responsive:true,
-
                 maintainAspectRatio:false,
-
                 plugins:{
-
                     legend:{
-
                         position:"top"
-
                     }
-
                 }
-
             }
-
         }
-
     );
-
 }
 
 /******************************************************
@@ -491,61 +334,33 @@ function crearGraficoPago(data) {
  ******************************************************/
 
 function crearGraficoServicios(data){
-
     if(chartServicios) chartServicios.destroy();
-
     chartServicios = new Chart(
-
         document.getElementById("graficoServicios"),
-
         {
-
             type:"bar",
-
             data:{
-
                 labels:data.labels,
-
                 datasets:[
-
                     {
-
                         label:"Ventas",
-
                         data:data.datasets[0].data,
-
                         backgroundColor:"#0057B8"
-
                     }
-
                 ]
-
             },
-
             options:{
-
                 indexAxis:"y",
-
                 responsive:true,
-
                 maintainAspectRatio:false,
-
                 plugins:{
-
                     legend:{
-
                         display:false
-
                     }
-
                 }
-
             }
-
         }
-
     );
-
 }
 
 /******************************************************
@@ -553,59 +368,32 @@ function crearGraficoServicios(data){
  ******************************************************/
 
 function crearGraficoIncidentes(data){
-
     if(chartIncidentes) chartIncidentes.destroy();
-
     chartIncidentes = new Chart(
-
         document.getElementById("graficoIncidentes"),
-
         {
-
             type:"doughnut",
-
             data:{
-
                 labels:data.labels,
-
                 datasets:[
-
                     {
-
                         label:"Incidentes",
-
                         data:data.datasets[0].data,
-
                         backgroundColor:[
-
                             "#2E7D32",
-
                             "#F57C00",
-
                             "#D32F2F",
-
                             "#1565C0"
-
                         ]
-
                     }
-
                 ]
-
             },
-
             options:{
-
                 responsive:true,
-
                 maintainAspectRatio:false,
-
                 plugins:{
-
                     legend:{
-
                         position:"top"
-
                     },
                     datalabels: {
                         color: "#FFFFFF",
@@ -619,17 +407,93 @@ function crearGraficoIncidentes(data){
                             return porcentaje + "%";
                         }
                     }
-
                 }
-
             },
-
             plugins: [ChartDataLabels]
-
         }
-
     );
+}
 
+/******************************************************
+* Grafico frecuencia de clientes
+******************************************************/
+function obtenerFrecuenciaClientesMes() {
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const hojaCheckins = ss.getSheetByName("Checkins");
+  const datos = hojaCheckins.getDataRange().getValues();
+  const hoy = new Date();
+  const mesActual = hoy.getMonth();
+  const anioActual = hoy.getFullYear();
+
+  let visitasCliente = {};
+
+  for(let i=1;i<datos.length;i++){
+    const fecha = new Date(datos[i][3]);
+    const idCliente = datos[i][1];
+    if(
+      fecha.getMonth() === mesActual &&
+      fecha.getFullYear() === anioActual
+    ){
+      if(!visitasCliente[idCliente]){
+        visitasCliente[idCliente]=0;
+      }
+      visitasCliente[idCliente]++;
+    }
+  }
+  let resultado = {
+    "1 visita":0,
+    "2-3 visitas":0,
+    "4-5 visitas":0,
+    "6+ visitas":0
+  };
+  Object.values(visitasCliente).forEach(function(total){
+    if(total===1){
+      resultado["1 visita"]++;
+    }
+    else if(total<=3){
+      resultado["2-3 visitas"]++;
+    }
+    else if(total<=5){
+      resultado["4-5 visitas"]++;
+    }
+    else{
+      resultado["6+ visitas"]++;
+    }
+  });
+  return resultado;
+}
+/*****
+Crear Grafico
+*****/
+function cargarGraficoFrecuencia(){
+ llamarApi(
+ "frecuenciaClientes",
+ {}
+ )
+ .then(function(resp){
+ const datos=resp.data;
+ new Chart(
+ document.getElementById("graficoFrecuencia"),
+ {
+ type:"bar",
+ data:{
+ labels:Object.keys(datos),
+ datasets:[{
+ label:"Clientes",
+ data:Object.values(datos)
+ }]
+ },
+ options:{
+ responsive:true,
+ plugins:{
+ legend:{
+ display:false
+ }
+ }
+ }
+ });
+ });
 }
 
 /******************************************************
