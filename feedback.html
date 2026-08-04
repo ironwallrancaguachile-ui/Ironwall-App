@@ -1,21 +1,31 @@
 <select id="categoria">
-
 <option value="">Seleccione...</option>
-
 <option>💡 Idea de mejora</option>
-
 <option>🧗 Experiencia de escalada</option>
-
 <option>🏋 Equipamiento</option>
-
 <option>🧹 Limpieza</option>
-
 <option>😊 Atención del personal</option>
-
 <option>⚠ Problema encontrado</option>
-
 <option>❤️ Felicitaciones</option>
-
 <option>📦 Otro</option>
-
 </select>
+
+<select id="prioridad">
+<option>Normal</option>
+<option>Importante</option>
+<option>Urgente</option>
+</select>
+
+<textarea
+id="comentario"
+placeholder="Cuéntanos con el mayor detalle posible...">
+</textarea>
+
+<input
+type="text"
+id="nombre"
+placeholder="Nombre (opcional)">
+
+<button onclick="enviarFeedback()">
+Enviar comentario
+</button>
