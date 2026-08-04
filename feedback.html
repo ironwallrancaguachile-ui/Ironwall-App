@@ -1,31 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Ideas para mejorar Ironwall</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+
+font-family:-apple-system,Arial,sans-serif;
+max-width:600px;
+margin:auto;
+padding:20px;
+background:#f8f8f8;
+
+}
+
+.btnHome{
+
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:10px 18px;
+background:#fff;
+text-decoration:none;
+color:#222;
+border-radius:12px;
+box-shadow:0 3px 12px rgba(0,0,0,.12);
+font-weight:600;
+
+}
+
+.logo{
+
+display:block;
+margin:25px auto 10px;
+width:120px;
+
+}
+
+h1{
+
+text-align:center;
+margin-bottom:5px;
+
+}
+
+.sub{
+
+text-align:center;
+color:#666;
+margin-bottom:25px;
+
+}
+
+.card{
+
+background:#fff;
+border-radius:16px;
+padding:22px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+
+}
+
+label{
+
+display:block;
+margin-top:15px;
+margin-bottom:6px;
+font-weight:600;
+
+}
+
+select,
+textarea,
+input{
+
+width:100%;
+padding:12px;
+border:1px solid #ccc;
+border-radius:10px;
+font-size:15px;
+
+}
+
+textarea{
+
+min-height:140px;
+resize:vertical;
+
+}
+
+button{
+
+margin-top:25px;
+width:100%;
+padding:14px;
+background:#1565C0;
+color:white;
+border:none;
+border-radius:10px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#0d47a1;
+
+}
+
+#mensaje{
+
+margin-top:18px;
+text-align:center;
+font-weight:bold;
+
+}
+
+.ok{
+
+color:#1e824c;
+
+}
+
+.error{
+
+color:#c0392b;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<a href="portalpersonas.html" class="btnHome">
+
+🏠 Home
+
+</a>
+
+<img src="assets/logo.png" class="logo">
+
+<h1>
+
+💡 Ideas para mejorar Ironwall
+
+</h1>
+
+<p class="sub">
+
+Tu opinión nos ayuda a seguir creciendo.
+
+</p>
+
+<div class="card">
+
+<label>
+
+Categoría
+
+</label>
+
 <select id="categoria">
-<option value="">Seleccione...</option>
-<option>💡 Idea de mejora</option>
-<option>🧗 Experiencia de escalada</option>
-<option>🏋 Equipamiento</option>
-<option>🧹 Limpieza</option>
-<option>😊 Atención del personal</option>
-<option>⚠ Problema encontrado</option>
-<option>❤️ Felicitaciones</option>
-<option>📦 Otro</option>
+
+<option value="">
+
+Seleccione...
+
+</option>
+
+<option>
+
+💡 Idea de mejora
+
+</option>
+
+<option>
+
+🧗 Experiencia de escalada
+
+</option>
+
+<option>
+
+🏋 Equipamiento
+
+</option>
+
+<option>
+
+🧹 Limpieza
+
+</option>
+
+<option>
+
+😊 Atención del personal
+
+</option>
+
+<option>
+
+⚠ Problema encontrado
+
+</option>
+
+<option>
+
+❤️ Felicitaciones
+
+</option>
+
+<option>
+
+📦 Otro
+
+</option>
+
 </select>
 
+<label>
+
+Prioridad
+
+</label>
+
 <select id="prioridad">
-<option>Normal</option>
-<option>Importante</option>
-<option>Urgente</option>
+
+<option>
+
+Normal
+
+</option>
+
+<option>
+
+Importante
+
+</option>
+
+<option>
+
+Urgente
+
+</option>
+
 </select>
+
+<label>
+
+Comentario
+
+</label>
 
 <textarea
 id="comentario"
-placeholder="Cuéntanos con el mayor detalle posible...">
-</textarea>
+placeholder="Cuéntanos con el mayor detalle posible..."></textarea>
+
+<label>
+
+Nombre (opcional)
+
+</label>
 
 <input
 type="text"
 id="nombre"
-placeholder="Nombre (opcional)">
+placeholder="Nombre">
 
-<button onclick="enviarFeedback()">
+<button
+type="button"
+onclick="enviarFeedback()">
+
 Enviar comentario
+
 </button>
+
+<div id="mensaje"></div>
+
+</div>
+
+<script>
+
+const API_URL="TU_URL_DEL_APPS_SCRIPT";
+
+function llamarAPI(action,payload={}){
+
+return fetch(API_URL,{
+
+method:"POST",
+
+headers:{
+"Content-Type":"text/plain;charset=utf-8"
+},
+
+body:JSON.stringify({
+
+action:action,
+
+payload:payload
+
+})
+
+})
+
+.then(r=>r.json());
+
+}
+
+function enviarFeedback(){
+
+const categoria=document.getElementById("categoria").value;
+const prioridad=document.getElementById("prioridad").value;
+const comentario=document.getElementById("comentario").value.trim();
+const nombre=document.getElementById("nombre").value.trim();
+
+const mensaje=document.getElementById("mensaje");
+
+mensaje.innerHTML="";
+mensaje.className="";
+
+if(categoria==""){
+
+mensaje.className="error";
+mensaje.innerHTML="Selecciona una categoría.";
+
+return;
+
+}
+
+if(comentario==""){
+
+mensaje.className="error";
+mensaje.innerHTML="Debes escribir un comentario.";
+
+return;
+
+}
+
+llamarAPI("guardarFeedback",{
+
+categoria:categoria,
+
+prioridad:prioridad,
+
+nombre:nombre,
+
+comentario:comentario
+
+})
+
+.then(function(res){
+
+if(res.ok){
+
+mensaje.className="ok";
+
+mensaje.innerHTML="✅ Muchas gracias. Tu comentario fue enviado.";
+
+document.getElementById("categoria").value="";
+document.getElementById("prioridad").value="Normal";
+document.getElementById("comentario").value="";
+document.getElementById("nombre").value="";
+
+}else{
+
+mensaje.className="error";
+
+mensaje.innerHTML=res.error;
+
+}
+
+})
+
+.catch(function(){
+
+mensaje.className="error";
+
+mensaje.innerHTML="No fue posible enviar el comentario.";
+
+});
+
+}
+
+</script>
+
+</body>
+
+</html>
