@@ -66,7 +66,7 @@ async function cargarDashboard(){
     actualizarFecha();
 
     const periodoFrecuencia = document
-        .getElementById("periodoFrecuencia")
+        .getElementById("filtroFrecuencia")
         .value;
 
 
@@ -86,11 +86,8 @@ async function cargarDashboard(){
 
     const d = res.data;
 
-
     actualizarKPIs(d.kpis);
-
     actualizarTablas(d);
-
     actualizarGraficos(d);
 
 
