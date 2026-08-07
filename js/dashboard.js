@@ -12,6 +12,7 @@ let chartPago = null;
 let chartServicios = null;
 let chartIncidentes = null;
 let chartFrecuencia = null;
+let periodoFrecuencia = "180";
 
 /******************************************************
  * Llamada al Apps Script
