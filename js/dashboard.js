@@ -61,30 +61,25 @@ function actualizarFecha(){
  ******************************************************/
 
 async function cargarDashboard(){
-
     actualizarFecha();
-
     const res = await llamarAPI(
         "obtenerDashboard",
-        {}
+        {
+            periodoFrecuencia:
+                document.getElementById("filtroFrecuencia").value
+        }
     );
 
     if(!res.ok){
         alert(res.error);
         return;
     }
-
-
     const d = res.data;
-
     actualizarKPIs(d.kpis);
     actualizarTablas(d);
     actualizarGraficos(d);
-
-
     document.getElementById("ultimaActualizacion").innerHTML =
         new Date().toLocaleTimeString("es-CL");
-
 }
 
 /******************************************************
@@ -487,12 +482,14 @@ document
 /******************************************************
  * Inicio
  ******************************************************/
-window.onload=function(){
+window.onload = function(){
     document
         .getElementById("filtroFrecuencia")
-        .addEventListener("change",actualizarGraficoFrecuencia);
-
+        .addEventListener("change", function(){
+            actualizarGraficoFrecuencia();
+        });
     cargarDashboard();
+
 };
 
 /******************************************************
