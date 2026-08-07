@@ -492,15 +492,13 @@ document
 /******************************************************
  * Inicio
  ******************************************************/
-document
-.getElementById("filtroFrecuencia")
-.addEventListener("change",actualizarGraficoFrecuencia);
-
 window.onload=function(){
+    document
+        .getElementById("filtroFrecuencia")
+        .addEventListener("change",actualizarGraficoFrecuencia);
 
     cargarDashboard();
-
-}
+};
 
 /******************************************************
  * Auto Refresh
