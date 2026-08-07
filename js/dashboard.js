@@ -424,9 +424,7 @@ function crearGraficoIncidentes(data){
 ******************************************************/
 
 function crearGraficoFrecuencia(data){
-
     if(chartFrecuencia) chartFrecuencia.destroy();
-
     chartFrecuencia = new Chart(
         document.getElementById("graficoFrecuencia"),
         {
@@ -482,12 +480,14 @@ document
 /******************************************************
  * Inicio
  ******************************************************/
+
 window.onload = function(){
     document
         .getElementById("filtroFrecuencia")
-        .addEventListener("change", function(){
-            cargarDashboard();
-        });
+        .addEventListener(
+            "change",
+            actualizarGraficoFrecuencia
+        );
     cargarDashboard();
 };
 
@@ -504,24 +504,23 @@ setInterval(
 );
 
 /******************************************************
- * Auctualizar grafico frecuencia
+ * Actualizar SOLO frecuencia de clientes
  ******************************************************/
-async function actualizarGraficoFrecuencia(){
 
-    const periodo = document.getElementById("filtroFrecuencia").value;
+async function actualizarGraficoFrecuencia(){
+    const periodo = document
+        .getElementById("filtroFrecuencia")
+        .value;
 
     const res = await llamarAPI(
-        "obtenerDashboard",
+        "obtenerFrecuenciaClientes",
         {
-            periodoFrecuencia: periodo
+            periodo: periodo
         }
     );
-
     if(!res.ok){
         alert(res.error);
         return;
     }
-
-    crearGraficoFrecuencia(res.data.frecuencia);
-
+    crearGraficoFrecuencia(res.data);
 }
