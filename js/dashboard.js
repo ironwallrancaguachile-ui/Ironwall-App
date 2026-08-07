@@ -521,3 +521,26 @@ setInterval(
     60000
 
 );
+
+/******************************************************
+ * Auctualizar grafico frecuencia
+ ******************************************************/
+async function actualizarGraficoFrecuencia(){
+
+    const periodo = document.getElementById("filtroFrecuencia").value;
+
+    const res = await llamarAPI(
+        "obtenerDashboard",
+        {
+            periodoFrecuencia: periodo
+        }
+    );
+
+    if(!res.ok){
+        alert(res.error);
+        return;
+    }
+
+    crearGraficoFrecuencia(res.data.frecuencia);
+
+}
