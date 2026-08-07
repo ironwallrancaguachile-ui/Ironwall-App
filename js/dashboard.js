@@ -498,11 +498,7 @@ document
  ******************************************************/
 document
 .getElementById("filtroFrecuencia")
-.addEventListener("change",function(){
-
-    cargarDashboard();
-
-});
+.addEventListener("change",actualizarGraficoFrecuencia);
 
 window.onload=function(){
 
