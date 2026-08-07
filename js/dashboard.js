@@ -69,14 +69,10 @@ async function cargarDashboard(){
         .getElementById("filtroFrecuencia")
         .value;
 
-
     const res = await llamarAPI(
         "obtenerDashboard",
-        {
-            periodoFrecuencia: periodoFrecuencia
-        }
+        {}
     );
-
 
     if(!res.ok){
         alert(res.error);
