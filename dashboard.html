@@ -52,7 +52,7 @@
 </header>
 
 <main>
-   <section class="kpis">
+<section class="kpis">
    <div class="card">
    <h3>Clientes Hoy</h3>
    <div class="valor" id="clientesHoy">0</div>
@@ -101,7 +101,7 @@
    <div class="card">
    <h3>Clientes recurrentes</h3>
    <div id="clientesRecurrentes">0%</div>
-   <small>Según período seleccionado</small>
+   <small id="periodoRecurrentes">Últimos 90 días</small>
    </div> 
       
    <div class="card">
@@ -117,72 +117,65 @@
    <div class="card">
    <h3>Valor Inventario</h3>
    <div class="valor azul" id="valorInventario">$0</div>
-</div>
-   
+</div> 
 </section>
+   
 <section class="graficos">
-<div class="grafico">
-<h2>
-Ventas Mensuales
-</h2>
-<canvas
-id="graficoVentas">
-</canvas>
-</div>
-<div class="grafico">
-<h2>
-Clientes Mensuales
-</h2>
-<canvas id="graficoClientes"></canvas>
-</div>
-<div class="grafico">
-<h2>
-Frecuencia de Visitas por Cliente
-</h2>
-   
-<select id="filtroFrecuencia" onchange="actualizarGraficoFrecuencia()">
-    <option value="30">Últimos 30 días</option>
-    <option value="90">Últimos 90 días</option>
-    <option value="180" selected>Últimos 180 días</option>
-    <option value="365">Último año</option>
-    <option value="historico">Histórico completo</option>
-</select>
-   
-<canvas id="graficoFrecuencia"></canvas>
-</div>
-<div class="grafico">
-<h2>
-Ingresos vs Egresos
-</h2>
-<canvas
-id="graficoFinanzas">
-</canvas>
-</div>
-<div class="grafico">
-<h2>
-Métodos de Pago
-</h2>
-<canvas
-id="graficoPago">
-</canvas>
-</div>
-<div class="grafico">
-<h2>
-Servicios Vendidos
-</h2>
-<canvas
-id="graficoServicios">
-</canvas>
-</div>
-<div class="grafico">
-<h2>
-Incidentes por Gravedad
-</h2>
-<canvas
-id="graficoIncidentes">
-</canvas>
-</div>
+   <div class="grafico">
+   <h2>Ventas Mensuales</h2>
+   <canvas id="graficoVentas"></canvas>
+   </div>
+   <div class="grafico">
+   <h2>Clientes Mensuales</h2>
+   <canvas id="graficoClientes"></canvas>
+   </div>
+   <div class="grafico">
+   <h2>Frecuencia de Visitas por Cliente</h2>
+      
+   <select id="filtroFrecuencia" onchange="actualizarGraficoFrecuencia()">
+       <option value="30">Últimos 30 días</option>
+       <option value="90" selected>Últimos 90 días</option>
+       <option value="180" >Últimos 180 días</option>
+       <option value="365">Último año</option>
+       <option value="historico">Histórico completo</option>
+   </select>
+      
+   <canvas id="graficoFrecuencia"></canvas>
+   </div>
+   <div class="grafico">
+   <h2>
+   Ingresos vs Egresos
+   </h2>
+   <canvas
+   id="graficoFinanzas">
+   </canvas>
+   </div>
+   <div class="grafico">
+   <h2>
+   Métodos de Pago
+   </h2>
+   <canvas
+   id="graficoPago">
+   </canvas>
+   </div>
+   <div class="grafico">
+   <h2>
+   Servicios Vendidos
+   </h2>
+   <canvas
+   id="graficoServicios">
+   </canvas>
+   </div>
+   <div class="grafico">
+   <h2>
+   Incidentes por Gravedad
+   </h2>
+   <canvas
+   id="graficoIncidentes">
+   </canvas>
+   </div>
 </section>
+   
 <section class="paneles">
 <div class="panel">
 <h2>
