@@ -470,7 +470,7 @@ function crearGraficoFrecuencia(data){
     document.getElementById(
         "periodoRecurrentes"
     ).innerHTML =
-        textoPeriodo;
+        "2+ visitas · " + textoPeriodo;
 
     // Crear gráfico
     chartFrecuencia = new Chart(
