@@ -424,20 +424,15 @@ function crearGraficoIncidentes(data){
  ******************************************************/
 
 function crearGraficoFrecuencia(data){
-
     if(chartFrecuencia)
         chartFrecuencia.destroy();
-
-
     const valores = data.datasets[0].data;
-
 
     // Clientes por categoría
     const unVisita = Number(valores[0]) || 0;
     const dosTres = Number(valores[1]) || 0;
     const cuatroCinco = Number(valores[2]) || 0;
     const seisMas = Number(valores[3]) || 0;
-
 
     // Total de clientes
     const totalClientes =
@@ -446,41 +441,44 @@ function crearGraficoFrecuencia(data){
         cuatroCinco +
         seisMas;
 
-
     // Clientes recurrentes = 2 o más visitas
     const recurrentes =
         dosTres +
         cuatroCinco +
         seisMas;
 
-
     // Calcular porcentaje
     let porcentaje = 0;
-
     if(totalClientes > 0){
-
         porcentaje =
             (recurrentes / totalClientes) * 100;
-
     }
-
 
     // Actualizar KPI
     document.getElementById(
         "clientesRecurrentes"
     ).innerHTML =
         porcentaje.toFixed(1) + "%";
-
+    
+    // Actualizar período mostrado
+    const selector =
+        document.getElementById("filtroFrecuencia");
+    
+    const textoPeriodo =
+        selector.options[selector.selectedIndex].text;
+    
+    document.getElementById(
+        "periodoRecurrentes"
+    ).innerHTML =
+        textoPeriodo;
 
     // Crear gráfico
     chartFrecuencia = new Chart(
         document.getElementById("graficoFrecuencia"),
         {
             type:"bar",
-
             data:{
                 labels:data.labels,
-
                 datasets:[
                     {
                         label:"Clientes",
@@ -489,25 +487,18 @@ function crearGraficoFrecuencia(data){
                     }
                 ]
             },
-
             options:{
-
                 indexAxis:"y",
-
                 responsive:true,
-
                 maintainAspectRatio:false,
-
                 plugins:{
                     legend:{
                         display:false
                     }
                 },
-
                 scales:{
                     x:{
                         beginAtZero:true,
-
                         ticks:{
                             precision:0
                         }
@@ -516,7 +507,6 @@ function crearGraficoFrecuencia(data){
             }
         }
     );
-
 }
 
 /******************************************************
