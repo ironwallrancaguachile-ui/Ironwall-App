@@ -420,42 +420,71 @@ function crearGraficoIncidentes(data){
 }
 
 /******************************************************
-* Grafico frecuencia clientes
-******************************************************/
-
+ * Gráfico frecuencia clientes
+ ******************************************************/
 function crearGraficoFrecuencia(data){
-    if(chartFrecuencia) chartFrecuencia.destroy();
+    if(chartFrecuencia)
+        chartFrecuencia.destroy();
+    const valores = data.datasets[0].data;
+
+    // Clientes por categoría
+    const unVisita = Number(valores[0]) || 0;
+    const dosTres = Number(valores[1]) || 0;
+    const cuatroCinco = Number(valores[2]) || 0;
+    const seisMas = Number(valores[3]) || 0;
+    
+    // Total de clientes
+    const totalClientes =
+        unVisita +
+        dosTres +
+        cuatroCinco +
+        seisMas;
+
+    // Clientes recurrentes = 2 o más visitas
+    const recurrentes =
+        dosTres +
+        cuatroCinco +
+        seisMas;
+    let porcentaje = 0;
+    if(totalClientes > 0){
+        porcentaje =
+            (recurrentes / totalClientes) * 100;
+    }
+
+    // Actualizar KPI
+    document.getElementById(
+        "clientesRecurrentes"
+    ).innerHTML =
+        porcentaje.toFixed(1) + "%";
+
+    // Crear gráfico
     chartFrecuencia = new Chart(
         document.getElementById("graficoFrecuencia"),
         {
             type:"bar",
-
             data:{
                 labels:data.labels,
-
                 datasets:[
                     {
                         label:"Clientes",
-                        data:data.datasets[0].data,
+                        data:valores,
                         backgroundColor:"#1565C0"
                     }
                 ]
             },
-
             options:{
                 indexAxis:"y",
                 responsive:true,
                 maintainAspectRatio:false,
-
                 plugins:{
                     legend:{
                         display:false
                     }
                 },
                 scales:{
-
                     x:{
                         beginAtZero:true,
+
                         ticks:{
                             precision:0
                         }
