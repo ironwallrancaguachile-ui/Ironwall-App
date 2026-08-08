@@ -451,6 +451,15 @@ function crearGraficoFrecuencia(data){
                     legend:{
                         display:false
                     }
+                },
+                scales:{
+
+                    x:{
+                        beginAtZero:true,
+                        ticks:{
+                            precision:0
+                        }
+                    }
                 }
             }
         }
