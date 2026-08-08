@@ -450,7 +450,18 @@ function crearGraficoFrecuencia(data){
         porcentaje =
             (recurrentes / totalClientes) * 100;
     }
-
+    document.getElementById(
+        "clientesRecurrentes"
+    ).innerHTML =
+        porcentaje.toFixed(1) + "%";
+    
+    console.log("Total clientes:", totalClientes);
+    console.log("Recurrentes:", recurrentes);
+    console.log(
+        "KPI recurrentes:",
+        porcentaje.toFixed(1) + "%"
+    );
+    
     // Actualizar KPI
     document.getElementById(
         "clientesRecurrentes"
