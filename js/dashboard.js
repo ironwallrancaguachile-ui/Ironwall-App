@@ -88,8 +88,6 @@ async function cargarDashboard(){
 
 function actualizarKPIs(k){
 
-function actualizarKPIs(k){
-
     document.getElementById("ventasMes").innerHTML =
         pesos(k.ingresosMes);
 
