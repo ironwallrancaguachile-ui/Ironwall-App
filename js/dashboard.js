@@ -206,8 +206,8 @@ function actualizarGraficos(data){
     crearGraficoClientes(data.clientes);
     crearGraficoFinanzas(data.finanzas);
     crearGraficoPago(data.metodosPago);
-    /***crearGraficoServicios(data.servicios);***/
-    crearGraficoIncidentes(data.incidentesGrafico);
+    /***crearGraficoServicios(data.servicios);
+    crearGraficoIncidentes(data.incidentesGrafico);***/
     crearGraficoFrecuencia(data.frecuencia);
 }
 
