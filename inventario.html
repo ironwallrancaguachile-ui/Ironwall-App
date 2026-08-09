@@ -297,8 +297,8 @@
       const motivo = document.getElementById('motivo').value;
       
       const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
-      document.getElementById('bloqueMedioPago').style.display = (esVenta || esCompra) ? 'block' : 'none';
-      document.getElementById('labelMedioPago').textContent = esCompra ? 'Medio de pago (compra) *' : 'Medio de pago (venta) *';
+      document.getElementById('bloqueMedioPago').style.display = (esCompra) ? 'block' : 'none';
+      document.getElementById('labelMedioPago').textContent = esCompra ? 'Medio de pago (compra)';
     }
 
     function enviar() {
