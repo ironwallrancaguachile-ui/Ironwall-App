@@ -907,8 +907,7 @@ function eliminarDelCarrito(index){
 
 
 /******************************************************
- * CONFIRMAR
- * Test 1
+ * CONFIRMAR VENTA
  ******************************************************/
 
 async function confirmarVenta(){
@@ -965,6 +964,10 @@ async function confirmarVenta(){
     try{
 
 
+        /************************************************
+         * 1. PREPARAR ITEMS PARA INVENTARIO
+         ************************************************/
+
         const items =
             carrito.map(function(item){
 
@@ -980,6 +983,10 @@ async function confirmarVenta(){
 
             });
 
+
+        /************************************************
+         * 2. REGISTRAR TODA LA VENTA EN INVENTARIO
+         ************************************************/
 
         const res =
             await llamarApi(
@@ -1011,49 +1018,127 @@ async function confirmarVenta(){
 
 
         console.log(
-            "VENTA REGISTRADA",
+            "VENTA INVENTARIO REGISTRADA",
             res.data
         );
 
 
-        mostrarOk(
+        /************************************************
+         * 3. CALCULAR TOTAL DEL CARRITO
+         ************************************************/
+
+        const totalVenta =
+            carrito.reduce(
+                function(total,item){
+
+                    return total +
+                        (
+                            Number(
+                                item.precioVenta
+                            ) *
+                            Number(
+                                item.cantidad
+                            )
+                        );
+
+                },
+                0
+            );
+
+
+        /************************************************
+         * 4. CREAR DETALLE CONSOLIDADO
+         ************************************************/
+
+        const detalleVenta =
+            carrito
+                .map(function(item){
+
+                    return (
+                        item.nombre +
+                        " x" +
+                        item.cantidad
+                    );
+
+                })
+                .join(" | ");
+
+
+        /************************************************
+         * 5. REGISTRAR UNA SOLA VEZ EN FINANZAS
+         ************************************************/
+
+        const okFinanzas =
+            await registrarMovimientoFinanzasAutomatico_(
+                totalVenta,
+                "Venta #" +
+                res.data.ventaId +
+                " | " +
+                detalleVenta,
+                medioPago,
+                responsable
+            );
+
+
+        /************************************************
+         * 6. MENSAJE FINAL
+         ************************************************/
+
+        let mensajeFinal =
             "Venta registrada correctamente. " +
             "ID: " +
             res.data.ventaId +
             " — Total: $" +
-            formatearNumero(
-                res.data.totalVenta
-            )
+            formatearNumero(totalVenta);
+
+
+        if(okFinanzas){
+
+            mensajeFinal +=
+                " — Finanzas registrado correctamente.";
+
+        }
+        else{
+
+            mensajeFinal +=
+                " — ⚠️ No se pudo registrar Finanzas.";
+
+        }
+
+
+        mostrarOk(
+            mensajeFinal
         );
 
 
-        /***********************************************
-         * Limpiar carrito después de confirmar
-         ***********************************************/
+        /************************************************
+         * 7. LIMPIAR CARRITO
+         ************************************************/
 
         carrito = [];
-
 
         renderCarrito();
 
 
-        /***********************************************
-         * Recargar productos para actualizar stock
-         ***********************************************/
+        /************************************************
+         * 8. ACTUALIZAR PRODUCTOS / STOCK
+         ************************************************/
 
         await cargarProductos();
 
 
-    }catch(err){
+    }
+    catch(err){
 
         console.error(err);
 
         mostrarError(
-            "No se pudo registrar la venta."
+            "No se pudo completar la venta: " +
+            err.message
         );
 
-
-    }finally{
+    }
+    finally{
 
         boton.disabled = false;
 
