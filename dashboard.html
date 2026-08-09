@@ -132,14 +132,33 @@
    id="graficoPago">
    </canvas>
    </div>
+   
    <div class="grafico">
-   <h2>
-   Servicios Vendidos
-   </h2>
-   <canvas
-   id="graficoServicios">
-   </canvas>
+       <h2>Top 10 Productos</h2>
+          <select id="filtroProductos"
+           onchange="actualizarRankingProductos()">
+           <option value="30">
+               Últimos 30 días
+           </option>
+              <option value="90" selected>
+               Últimos 90 días
+           </option>
+           <option value="180">
+               Últimos 180 días
+           </option>
+           <option value="365">
+               Último año
+           </option>
+           <option value="historico">
+               Histórico completo
+           </option>
+         </select>
+       <h3>Unidades vendidas</h3>
+       <canvas id="graficoTopUnidades"></canvas>
+       <h3>Venta total</h3>
+       <canvas id="graficoTopVentas"></canvas>  
    </div>
+   
    <div class="grafico">
    <h2>
    Incidentes por Gravedad
