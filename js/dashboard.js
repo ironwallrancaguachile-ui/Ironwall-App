@@ -111,13 +111,13 @@ function actualizarKPIs(k){
      * CLIENTES RECURRENTES
      ******************************************************/
 
-    const porcentaje =
+   /**** const porcentaje =
         Number(k.clientesRecurrentes) || 0;
 
     document.getElementById(
         "clientesRecurrentes"
     ).innerHTML =
-        porcentaje.toFixed(1) + "%";
+        porcentaje.toFixed(1) + "%";***/
 
 
     /******************************************************
