@@ -424,11 +424,12 @@ button{
 const API_URL_INVENTARIO =
     'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
 
-
 const API_URL_CLIENTES =
     'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
-
+const API_URL_FINANZAS =
+'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
+    
 /******************************************************
  * VARIABLES
  ******************************************************/
@@ -1151,7 +1152,79 @@ async function cargarStaff(){
 
 }
 
+/******************************************************
+Cargar en finanzas
+*******************************************************/
+function registrarMovimientoFinanzasAutomatico_(
+    montoTotal,
+    detalleVenta,
+    medioPago,
+    responsable
+){
 
+    const datosMovimiento = {
+
+        tipo: 'Ingreso',
+
+        categoria: 'Tienda',
+
+        medioPago: medioPago,
+
+        monto: montoTotal,
+
+        descripcion: detalleVenta,
+
+        comprobante: '',
+
+        responsable: responsable
+
+    };
+
+
+    return fetch(
+        API_URL_FINANZAS,
+        {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type':
+                    'text/plain;charset=utf-8'
+            },
+
+            body: JSON.stringify({
+
+                action:
+                    'registrarMovimiento',
+
+                payload:
+                    datosMovimiento
+
+            })
+
+        }
+    )
+    .then(function(r){
+
+        return r.text();
+
+    })
+    .then(function(texto){
+
+        const resp =
+            JSON.parse(texto);
+
+        return !!resp.ok;
+
+    })
+    .catch(function(){
+
+        return false;
+
+    });
+
+}
+    
 /******************************************************
  * UTILIDADES
  ******************************************************/
