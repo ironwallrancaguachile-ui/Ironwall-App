@@ -206,7 +206,7 @@ function actualizarGraficos(data){
     crearGraficoClientes(data.clientes);
     crearGraficoFinanzas(data.finanzas);
     crearGraficoPago(data.metodosPago);
-    crearGraficoServicios(data.servicios);
+    /***crearGraficoServicios(data.servicios);***/
     crearGraficoIncidentes(data.incidentesGrafico);
     crearGraficoFrecuencia(data.frecuencia);
 }
@@ -553,14 +553,14 @@ document
     cargarDashboard
 );
 
-document
+/**document
 .getElementById("btnMenu")
 .addEventListener(
     "click",
     ()=>{
         location.href="menu.html";
     }
-);
+);**/
 
 /******************************************************
  * Inicio
