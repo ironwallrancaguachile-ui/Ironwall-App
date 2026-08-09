@@ -133,16 +133,17 @@
    </canvas>
    </div>
    
+   <!-- TOP 10 UNIDADES -->
    <div class="grafico">
-       <h2>Top 10 Productos</h2>
-          <select id="filtroProductos"
-           onchange="actualizarRankingProductos()">
+       <h2>🏆 Top 10 — Unidades vendidas</h2>   
+       <select id="filtroProductos"
+               onchange="actualizarRankingProductos()">
            <option value="30">
                Últimos 30 días
            </option>
-              <option value="90" selected>
+           <option value="90" selected>
                Últimos 90 días
-           </option>
+           </option> 
            <option value="180">
                Últimos 180 días
            </option>
@@ -152,22 +153,18 @@
            <option value="historico">
                Histórico completo
            </option>
-         </select>
-       <h3>Unidades vendidas</h3>
-       <canvas id="graficoTopUnidades"></canvas>
-       <h3>Venta total</h3>
-       <canvas id="graficoTopVentas"></canvas>  
+       </select>  
+       <canvas id="graficoTopUnidades"></canvas> 
    </div>
    
+   <!-- TOP 10 VENTAS -->
    <div class="grafico">
-   <h2>
-   Incidentes por Gravedad
-   </h2>
-   <canvas
-   id="graficoIncidentes">
-   </canvas>
+       <h2>💰 Top 10 — Venta total</h2> 
+       <div class="periodoRanking">
+           Según período seleccionado
+       </div> 
+       <canvas id="graficoTopVentas"></canvas> 
    </div>
-</section>
    
 <section class="paneles">
 <div class="panel">
