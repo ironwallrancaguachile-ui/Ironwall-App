@@ -75,6 +75,9 @@ async function cargarDashboard(){
         return;
     }
     const d = res.data;
+    console.log("DASHBOARD COMPLETO:", d);
+    console.log("FRECUENCIA RECIBIDA:", d.frecuencia);
+    
     actualizarKPIs(d.kpis);
     actualizarTablas(d);
     actualizarGraficos(d);
