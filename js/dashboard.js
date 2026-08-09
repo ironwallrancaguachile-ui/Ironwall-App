@@ -88,30 +88,61 @@ async function cargarDashboard(){
 
 function actualizarKPIs(k){
 
-    document.getElementById("clientesHoy").innerHTML =
-        k.clientesHoy;
-    document.getElementById("checkinsHoy").innerHTML =
-        k.checkinsHoy;
+function actualizarKPIs(k){
+
+    document.getElementById("ventasMes").innerHTML =
+        pesos(k.ingresosMes);
+
     document.getElementById("clientesMes").innerHTML =
         k.clientesMes;
-    document.getElementById("clientesAnio").innerHTML =
-        k.clientesAnio;
-    document.getElementById("clientesNuevos").innerHTML =
-        k.clientesNuevos;
-    document.getElementById("ingresosHoy").innerHTML =
-        pesos(k.ingresosHoy);
-    document.getElementById("egresosHoy").innerHTML =
-        pesos(k.egresosHoy);
-    document.getElementById("resultadoHoy").innerHTML =
-        pesos(k.resultadoHoy);
+
     document.getElementById("ticketPromedio").innerHTML =
         pesos(k.ticketPromedio);
+
     document.getElementById("bajoStock").innerHTML =
         k.bajoStock;
+
     document.getElementById("incidentes").innerHTML =
         k.incidentes;
+
     document.getElementById("valorInventario").innerHTML =
         pesos(k.valorInventario);
+
+
+    /******************************************************
+     * CLIENTES RECURRENTES
+     ******************************************************/
+
+    const porcentaje =
+        Number(k.clientesRecurrentes) || 0;
+
+    document.getElementById(
+        "clientesRecurrentes"
+    ).innerHTML =
+        porcentaje.toFixed(1) + "%";
+
+
+    /******************************************************
+     * PERÍODO DEL KPI
+     ******************************************************/
+
+    const selector =
+        document.getElementById("filtroFrecuencia");
+
+    if(selector){
+
+        const textoPeriodo =
+            selector.options[
+                selector.selectedIndex
+            ].text;
+
+        document.getElementById(
+            "periodoRecurrentes"
+        ).innerHTML =
+            "2+ visitas · " + textoPeriodo;
+
+    }
+
 }
 
 /******************************************************
