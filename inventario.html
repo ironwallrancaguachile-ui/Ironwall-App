@@ -37,7 +37,6 @@
     cursor: pointer;
   }
   .tipo-botones button.activo-entrada { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
-  
   .tipo-botones button.activo-ajuste { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
   #stockInfo {
     font-size: 13px;
@@ -63,23 +62,22 @@
   #ok { color: #1e824c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
 
   .btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:#ffffff;
-  color:#222;
-  text-decoration:none;
-  padding:10px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
-  transition:.2s;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#ffffff;
+    color:#222;
+    text-decoration:none;
+    padding:10px 18px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:600;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+    transition:.2s;
   }
-  
   .btnHome:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
   }
 </style>
 </head>
@@ -94,7 +92,6 @@
   <label>¿Qué pasó? *</label>
   <div class="tipo-botones">
     <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
-    
     <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
   </div>
 
@@ -108,12 +105,12 @@
   <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">
 
   <label>Motivo *</label>
-  <select id="motivo" onchange="mostrarMedioPagoSiVenta()">
+  <select id="motivo" onchange="mostrarMedioPagoSiCompra()">
     <option value="">-- Primero elige el tipo --</option>
   </select>
 
   <div id="bloqueMedioPago" style="display:none">
-    <label id="labelMedioPago">Medio de pago *</label>
+    <label id="labelMedioPago">Medio de pago (compra) *</label>
     <select id="medioPagoVenta">
       <option value="Mercado Pago">Mercado Pago</option>
       <option value="Transferencia">Transferencia</option>
@@ -134,16 +131,8 @@
   <div id="ok"></div>
 
   <script>
-    // ⚠️ Reemplaza por la URL de TU implementación del Apps Script de INVENTARIO.
     const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
-
-    // ⚠️ URL del Apps Script del sistema de CLIENTES (se reutiliza solo
-    // para traer la lista de staff, sin duplicarla).
     const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
-
-    // ⚠️ URL de tu Apps Script de FINANZAS. Se usa para registrar el
-    // ingreso automático cuando la salida es por "Venta" — así no hay
-    // que anotarlo dos veces (acá y en movimientos.html).
     const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
 
     const MOTIVOS_ENTRADA = ['Compra a proveedor', 'Devolución de cliente', 'Ajuste de inventario'];
@@ -193,7 +182,6 @@
     function elegirTipo(tipo) {
       tipoSeleccionado = tipo;
       document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
-      
       document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
 
       const selectMotivo = document.getElementById('motivo');
@@ -204,7 +192,7 @@
       if (tipo === 'Entrada') {
         opciones = MOTIVOS_ENTRADA;
         labelCantidad.textContent = 'Cantidad que ingresa *';
-        motivoPorDefecto = 'Compra a proveedor'; // el caso más común, ya viene elegido
+        motivoPorDefecto = 'Compra a proveedor';
       }
       if (tipo === 'Ajuste') {
         opciones = ['Conteo físico / corrección'];
@@ -216,9 +204,7 @@
         opciones.map(function (m) { return '<option value="' + m + '">' + m + '</option>'; }).join('');
       selectMotivo.value = motivoPorDefecto;
 
-      // Se llama al final, ya con el motivo real seleccionado —
-      // antes se llamaba demasiado pronto y quedaba desactualizado.
-      mostrarMedioPagoSiVenta();
+      mostrarMedioPagoSiCompra();
     }
 
     function pintarProductos() {
@@ -254,7 +240,7 @@
             pintarProductos();
           }
         })
-        .catch(function () { /* seguimos con la caché si falla */ });
+        .catch(function () {});
     }
 
     function cargarStaff() {
@@ -275,13 +261,14 @@
             guardarCache_('staff_inventario_cache', resp.data);
           }
         })
-        .catch(function () { /* seguimos con la caché si falla */ });
+        .catch(function () {});
     }
 
     function guardarCache_(clave, datos) {
       try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
-      catch (e) { /* nada grave si falla */ }
+      catch (e) {}
     }
+    
     function leerCache_(clave) {
       try {
         const crudo = localStorage.getItem(clave);
@@ -293,12 +280,10 @@
       } catch (e) { return null; }
     }
 
-    function mostrarMedioPagoSiVenta() {
+    function mostrarMedioPagoSiCompra() {
       const motivo = document.getElementById('motivo').value;
-      
       const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
-      document.getElementById('bloqueMedioPago').style.display = (esCompra) ? 'block' : 'none';
-      document.getElementById('labelMedioPago').textContent = esCompra ? 'Medio de pago (compra)';
+      document.getElementById('bloqueMedioPago').style.display = esCompra ? 'block' : 'none';
     }
 
     function enviar() {
@@ -320,7 +305,7 @@
       if (!responsable) { mostrarError('Elige quién registra el movimiento.'); return; }
 
       const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
-      const medioPago = (esVenta || esCompra) ? document.getElementById('medioPagoVenta').value : '';
+      const medioPago = esCompra ? document.getElementById('medioPagoVenta').value : '';
 
       const datos = {
         tipo: tipoSeleccionado,
@@ -371,12 +356,9 @@
       okDiv.style.display = 'block';
       document.getElementById('cantidad').value = '';
       document.getElementById('notas').value = '';
-      cargarProductos(); // refresca stocks mostrados
+      cargarProductos();
     }
 
-    // Registra un ingreso o egreso en Finanzas. Nunca lanza error hacia
-    // arriba — si falla, solo devuelve false, porque el movimiento de
-    // inventario YA se guardó bien.
     function registrarMovimientoFinanzasAutomatico_(tipo, categoria, montoTotal, medioPago, nombreProducto, cantidad, responsable) {
       const datosMovimiento = {
         tipo: tipo,
