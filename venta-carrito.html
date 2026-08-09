@@ -907,12 +907,10 @@ function eliminarDelCarrito(index){
 
 /******************************************************
  * CONFIRMAR
- *
- * POR AHORA SOLO PRUEBA LOCAL.
- * TODAVÍA NO ESCRIBE EN EL SERVIDOR.
+ * Test 1
  ******************************************************/
 
-function confirmarVenta(){
+async function confirmarVenta(){
 
     ocultarMensajes();
 
@@ -951,26 +949,117 @@ function confirmarVenta(){
     }
 
 
-    console.log(
-        "VENTA DE PRUEBA",
-        {
+    const boton =
+        document.getElementById(
+            "btnConfirmar"
+        );
 
-            carrito:
-                carrito,
 
-            medioPago:
-                medioPago,
+    boton.disabled = true;
 
-            responsable:
-                responsable
+    boton.textContent =
+        "Registrando venta...";
+
+
+    try{
+
+
+        const items =
+            carrito.map(function(item){
+
+                return {
+
+                    codigo:
+                        item.codigo,
+
+                    cantidad:
+                        item.cantidad
+
+                };
+
+            });
+
+
+        const res =
+            await llamarApi(
+                "registrarVentaCarrito",
+                {
+
+                    medioPago:
+                        medioPago,
+
+                    responsable:
+                        responsable,
+
+                    items:
+                        items
+
+                }
+            );
+
+
+        if(!res.ok){
+
+            mostrarError(
+                res.error
+            );
+
+            return;
 
         }
-    );
 
 
-    mostrarOk(
-        "Carrito listo. En el siguiente paso conectaremos la confirmación con el servidor."
-    );
+        console.log(
+            "VENTA REGISTRADA",
+            res.data
+        );
+
+
+        mostrarOk(
+            "Venta registrada correctamente. " +
+            "ID: " +
+            res.data.ventaId +
+            " — Total: $" +
+            formatearNumero(
+                res.data.totalVenta
+            )
+        );
+
+
+        /***********************************************
+         * Limpiar carrito después de confirmar
+         ***********************************************/
+
+        carrito = [];
+
+
+        renderCarrito();
+
+
+        /***********************************************
+         * Recargar productos para actualizar stock
+         ***********************************************/
+
+        await cargarProductos();
+
+
+    }catch(err){
+
+        console.error(err);
+
+        mostrarError(
+            "No se pudo registrar la venta."
+        );
+
+
+    }finally{
+
+        boton.disabled = false;
+
+        boton.textContent =
+            "Confirmar venta";
+
+    }
 
 }
 
