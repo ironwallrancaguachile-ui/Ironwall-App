@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tienda - Ironwall</title>
+<title>Inventario - Ironwall</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -37,7 +37,7 @@
     cursor: pointer;
   }
   .tipo-botones button.activo-entrada { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
-  .tipo-botones button.activo-salida { border-color: #c0392b; background: #fdecea; color: #c0392b; }
+  
   .tipo-botones button.activo-ajuste { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
   #stockInfo {
     font-size: 13px;
@@ -88,13 +88,13 @@
   🏠 Home
   </a>
  
-  <h1>Tienda: Stock y Ventas</h1>
-  <p class="sub">Registra cuando vendes algo, cuando llega mercadería, o cuando corriges un conteo.</p>
+  <h1>Inventario: Stock y Ajustes</h1>
+  <p class="sub">Registra cuando llega mercadería, o cuando corriges un conteo.</p>
 
   <label>¿Qué pasó? *</label>
   <div class="tipo-botones">
     <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
-    <button type="button" id="btnSalida" onclick="elegirTipo('Salida')">Vendí un producto</button>
+    
     <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
   </div>
 
@@ -147,8 +147,7 @@
     const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
 
     const MOTIVOS_ENTRADA = ['Compra a proveedor', 'Devolución de cliente', 'Ajuste de inventario'];
-    const MOTIVOS_SALIDA = ['Venta', 'Merma o pérdida', 'Producto vencido', 'Ajuste de inventario'];
-
+  
     let tipoSeleccionado = '';
     let productosCache = [];
 
@@ -194,7 +193,7 @@
     function elegirTipo(tipo) {
       tipoSeleccionado = tipo;
       document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
-      document.getElementById('btnSalida').className = tipo === 'Salida' ? 'activo-salida' : '';
+      
       document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
 
       const selectMotivo = document.getElementById('motivo');
@@ -206,11 +205,6 @@
         opciones = MOTIVOS_ENTRADA;
         labelCantidad.textContent = 'Cantidad que ingresa *';
         motivoPorDefecto = 'Compra a proveedor'; // el caso más común, ya viene elegido
-      }
-      if (tipo === 'Salida') {
-        opciones = MOTIVOS_SALIDA;
-        labelCantidad.textContent = 'Cantidad que sale *';
-        motivoPorDefecto = 'Venta'; // el caso más común, ya viene elegido
       }
       if (tipo === 'Ajuste') {
         opciones = ['Conteo físico / corrección'];
@@ -301,7 +295,7 @@
 
     function mostrarMedioPagoSiVenta() {
       const motivo = document.getElementById('motivo').value;
-      const esVenta = tipoSeleccionado === 'Salida' && motivo === 'Venta';
+      
       const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
       document.getElementById('bloqueMedioPago').style.display = (esVenta || esCompra) ? 'block' : 'none';
       document.getElementById('labelMedioPago').textContent = esCompra ? 'Medio de pago (compra) *' : 'Medio de pago (venta) *';
@@ -325,7 +319,6 @@
       if (!motivo) { mostrarError('Elige un motivo.'); return; }
       if (!responsable) { mostrarError('Elige quién registra el movimiento.'); return; }
 
-      const esVenta = tipoSeleccionado === 'Salida' && motivo === 'Venta';
       const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
       const medioPago = (esVenta || esCompra) ? document.getElementById('medioPagoVenta').value : '';
 
@@ -348,17 +341,6 @@
           if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
 
           let mensaje = '✅ Movimiento registrado. Nuevo stock: ' + resp.data.stockNuevo;
-
-          if (esVenta && resp.data.precioVenta > 0 && resp.data.categoriaFinanzas) {
-            const montoTotal = resp.data.precioVenta * Number(cantidad);
-            return registrarMovimientoFinanzasAutomatico_('Ingreso', resp.data.categoriaFinanzas, montoTotal, medioPago, resp.data.nombreProducto, cantidad, responsable)
-              .then(function (okFinanzas) {
-                mensaje += okFinanzas
-                  ? ' Ingreso registrado en Finanzas.'
-                  : ' (No se pudo registrar el ingreso en Finanzas automático — regístralo manual en movimientos.html)';
-                mostrarExito_(mensaje);
-              });
-          }
 
           if (esCompra && resp.data.costoUnitario > 0 && resp.data.categoriaCompraFinanzas) {
             const montoTotal = resp.data.costoUnitario * Number(cantidad);
