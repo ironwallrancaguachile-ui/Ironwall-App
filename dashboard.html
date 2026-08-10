@@ -44,12 +44,6 @@
             color: #666;
             font-size: 14px;
         }
-
-        /* Ajuste de contenedores para evitar que las etiquetas corten */
-        .grafico {
-            position: relative;
-            min-height: 380px; /* Entrega mayor margen vertical para los nombres */
-        }
     </style>
 </head>
 
@@ -105,14 +99,18 @@
         <section class="graficos">
             <div class="grafico">
                 <h2>Ventas — Últimos 6 meses</h2>
-                
-                    <canvas id="graficoVentas"></canvas>  
-                
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoVentas"></canvas>
+                </div>
             </div>
+
             <div class="grafico">
                 <h2>Clientes — Últimos 6 meses</h2>
-                <canvas id="graficoClientes"></canvas>
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoClientes"></canvas>
+                </div>
             </div>
+
             <div class="grafico">
                 <h2>Frecuencia de Visitas por Cliente</h2>
                 <select id="filtroFrecuencia" onchange="actualizarGraficoFrecuencia()">
@@ -122,15 +120,23 @@
                     <option value="365">Último año</option>
                     <option value="historico">Histórico completo</option>
                 </select>
-                <canvas id="graficoFrecuencia"></canvas>
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoFrecuencia"></canvas>
+                </div>
             </div>
+
             <div class="grafico">
                 <h2>Ingresos vs Egresos</h2>
-                <canvas id="graficoFinanzas"></canvas>
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoFinanzas"></canvas>
+                </div>
             </div>
+
             <div class="grafico">
                 <h2>Métodos de Pago</h2>
-                <canvas id="graficoPago"></canvas>
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoPago"></canvas>
+                </div>
             </div>
 
             <!-- TOP 10 UNIDADES -->
@@ -143,16 +149,20 @@
                     <option value="365">Último año</option>
                     <option value="historico">Histórico completo</option>
                 </select>
-                <canvas id="graficoTopUnidades"></canvas>
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoTopUnidades"></canvas>
+                </div>
             </div>
 
             <!-- TOP 10 VENTAS -->
             <div class="grafico">
                 <h2>💰 Top 10 — Venta total</h2>
                 <div class="periodoRanking">Según período seleccionado</div>
-                <canvas id="graficoTopVentas"></canvas>
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoTopVentas"></canvas>
+                </div>
             </div>
-        </section> <!-- CIERRE CORRECTO DE GRÁFICOS -->
+        </section>
 
         <!-- SECCIÓN PANELES -->
         <section class="paneles">
