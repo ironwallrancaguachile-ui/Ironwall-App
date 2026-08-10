@@ -155,6 +155,10 @@ function actualizarGraficos(data) {
     crearGraficoFrecuencia(data.frecuencia);
 }
 
+/******************************************************
+ * Ventas
+ ******************************************************/
+
 function crearGraficoVentas(data) {
     if (chartVentas) chartVentas.destroy();
     chartVentas = new Chart(
@@ -175,11 +179,20 @@ function crearGraficoVentas(data) {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        display: false // <- Desactiva los números fijos sobre la línea
+                    }
+                }
             }
         }
     );
 }
+
+/******************************************************
+ * Clientes
+ ******************************************************/
 
 function crearGraficoClientes(data) {
     if (chartClientes) chartClientes.destroy();
@@ -201,30 +214,48 @@ function crearGraficoClientes(data) {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        display: false // <- Desactiva los números fijos sobre la línea
+                    }
+                }
             }
         }
     );
 }
 
+/******************************************************
+ * Finanzas
+ ******************************************************/
+
 function crearGraficoFinanzas(data) {
     if (chartFinanzas) chartFinanzas.destroy();
+
     chartFinanzas = new Chart(
         document.getElementById("graficoFinanzas"),
         {
-            type: "bar",
+            type: "line",
             data: {
                 labels: data.labels,
                 datasets: [
                     {
                         label: "Ingresos",
                         data: data.datasets[0].data,
-                        backgroundColor: "#2E7D32"
+                        borderColor: "#2E7D32",
+                        backgroundColor: "rgba(46, 125, 50, 0.1)",
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true
                     },
                     {
                         label: "Egresos",
                         data: data.datasets[1].data,
-                        backgroundColor: "#D32F2F"
+                        borderColor: "#D32F2F",
+                        backgroundColor: "rgba(211, 47, 47, 0.1)",
+                        borderWidth: 3,
+                        tension: 0.3,
+                        fill: true
                     }
                 ]
             },
@@ -234,6 +265,18 @@ function crearGraficoFinanzas(data) {
                 plugins: {
                     legend: {
                         position: "top"
+                    },
+                    datalabels: {
+                        display: false // Se mantiene apagado aquí para no saturar las líneas
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return pesos(value);
+                            }
+                        }
                     }
                 }
             }
@@ -241,6 +284,9 @@ function crearGraficoFinanzas(data) {
     );
 }
 
+/******************************************************
+ * Metodos de pago
+ ******************************************************/
 function crearGraficoPago(data) {
     if (chartPago) chartPago.destroy();
 
@@ -285,6 +331,10 @@ function crearGraficoPago(data) {
         }
     );
 }
+
+/******************************************************
+ * Frecuencia
+ ******************************************************/
 
 function crearGraficoFrecuencia(data) {
     if (chartFrecuencia) chartFrecuencia.destroy();
