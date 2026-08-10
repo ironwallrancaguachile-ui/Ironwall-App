@@ -183,6 +183,9 @@ function crearGraficoVentas(data) {
                 plugins: {
                     datalabels: {
                         display: false // <- Desactiva los números fijos sobre la línea
+                    },
+                    legend: {
+                      display: false /* Oculta la leyenda superior en Ventas y Clientes */
                     }
                 }
             }
@@ -218,7 +221,12 @@ function crearGraficoClientes(data) {
                 plugins: {
                     datalabels: {
                         display: false // <- Desactiva los números fijos sobre la línea
+                    },
+                    legend: {
+                      display: false /* Oculta la leyenda superior en Ventas y Clientes */
                     }
+                }
+            }
                 }
             }
         }
@@ -312,13 +320,13 @@ function crearGraficoPago(data) {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: "top"
+                        position: "right"
                     },
                     datalabels: {
                         color: "#FFFFFF",
                         font: {
                             weight: "bold",
-                            size: 14
+                            size: 9   /* Reduce la letra del porcentaje (ej. de 12px a 9px u 8.5px) */
                         },
                         formatter: function (value, ctx) {
                             let total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
