@@ -87,11 +87,11 @@ main {
 }
 
 .card h3 {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
-  line-height: 1.2; /* Mejora la separación entre líneas de texto */
+  line-height: 1.15; /* Mejora la separación entre líneas de texto */
   white-space: normal; /* Permite saltos de línea sin amontonar el texto */
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 
