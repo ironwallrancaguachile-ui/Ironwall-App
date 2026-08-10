@@ -80,36 +80,46 @@ main {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
   transition: .2s;
-  min-height: 76px; /* Altura mínima para dar espacio a títulos de 3 líneas */
+  min-height: 85px; /* Altura mínima uniforme para todas las tarjetas */
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Mantiene el valor abajo sin importar el largo del título */
+  justify-content: flex-start; /* Alinea todo desde arriba */
+  position: relative; /* Permite anclar elementos si es necesario */
 }
 
+/* 1. TÍTULO CON ALTURA FIJA: Reserva espacio para hasta 3 líneas en TODAS las tarjetas */
 .card h3 {
   font-size: 11px;
   color: #666;
-  line-height: 1.2; /* Mejora la separación entre líneas de texto */
-  white-space: normal; /* Permite saltos de línea sin amontonar el texto */
+  line-height: 1.2;
+  white-space: normal;
   margin-bottom: 4px;
+  height: 38px; /* Forzar espacio uniforme de título en todas las tarjetas */
+  display: flex;
+  align-items: flex-start;
 }
 
-/* Ajuste preciso para la etiqueta de subtexto del KPI de recurrentes */
-#periodoRecurrentes {
-  font-size: 9.5px;      /* Reduce la letra para que "2+ visitas · Últimos 90 días" entre en 1 sola línea */
-  line-height: 1.1;       /* Ajusta el espaciado vertical */
-  letter-spacing: -0.2px; /* Comprime ligeramente la separación entre letras */
-  display: block;
-  color: #777;
-  white-space: nowrap;    /* Fuerza a que se mantenga en una sola línea sin romper a una cuarta */
-}
-.card:hover {
-  transform: translateY(-2px);
-}
-
+/* 2. VALOR ALINEADO: Todos los números arrancan en la misma altura horizontal */
 .valor {
   font-size: 22px;
   font-weight: bold;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* 3. SUBTEXTO CORTITO: No empuja el número, se ubica debajo */
+#periodoRecurrentes,
+.card small {
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: -0.2px;
+  color: #777;
+  white-space: nowrap;
+  margin-top: 3px;
+}
+
+.card:hover {
+  transform: translateY(-2px);
 }
 
 .verde { color: #2e7d32; }
