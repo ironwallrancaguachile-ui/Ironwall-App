@@ -94,7 +94,15 @@ main {
   margin-bottom: 4px;
 }
 
-
+/* Ajuste preciso para la etiqueta de subtexto del KPI de recurrentes */
+#periodoRecurrentes {
+  font-size: 9.5px;      /* Reduce la letra para que "2+ visitas · Últimos 90 días" entre en 1 sola línea */
+  line-height: 1.1;       /* Ajusta el espaciado vertical */
+  letter-spacing: -0.2px; /* Comprime ligeramente la separación entre letras */
+  display: block;
+  color: #777;
+  white-space: nowrap;    /* Fuerza a que se mantenga en una sola línea sin romper a una cuarta */
+}
 .card:hover {
   transform: translateY(-2px);
 }
