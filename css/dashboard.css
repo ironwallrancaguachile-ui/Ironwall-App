@@ -120,6 +120,7 @@ main {
   color: #777;
   white-space: nowrap;
   margin-top: 2px;
+  text-align: center; /* <--- Solo el número centrado */
 }
 
 .verde { color: #2e7d32; }
