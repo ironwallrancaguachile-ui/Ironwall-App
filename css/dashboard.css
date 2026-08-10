@@ -94,10 +94,10 @@ main {
 .card h3 {
   font-size: 11px;
   color: #666;
-  line-height: 1.2;
+  line-height: 1.15;
   white-space: normal;
-  margin-bottom: 2px;
-  height: 38px; /* Títulos alineados horizontalmente */
+  margin-bottom: 0px;  /* Elimina margen inferior */
+  height: 28px; /* Títulos alineados horizontalmente */
   display: flex;
   align-items: flex-start;
 }
@@ -106,7 +106,7 @@ main {
   font-size: 22px;
   font-weight: bold;
   line-height: 1;
-  margin-top: 1px;
+  margin-top: 0px; /* Pega la cifra al título */
 }
 
 #periodoRecurrentes,
