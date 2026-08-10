@@ -78,6 +78,7 @@ async function cargarDashboard(){
     actualizarKPIs(d.kpis);
     actualizarTablas(d);
     actualizarGraficos(d);
+    actualizarRankingProductos();
     document.getElementById("ultimaActualizacion").innerHTML =
         new Date().toLocaleTimeString("es-CL");
 }
