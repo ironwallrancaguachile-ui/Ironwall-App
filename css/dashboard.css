@@ -93,7 +93,7 @@ main {
   color: #666;
   line-height: 1.2;
   white-space: normal;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   height: 38px; /* Forzar espacio uniforme de título en todas las tarjetas */
   display: flex;
   align-items: flex-start;
