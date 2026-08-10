@@ -324,6 +324,7 @@ function crearGraficoPago(data) {
                             font: {
                                 size: 10 // <--- Reduce el tamaño de la letra de la leyenda (ej. 10px u 9.5px)
                             }
+                        }
                     },
                     datalabels: {
                         color: "#FFFFFF",
