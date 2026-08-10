@@ -80,23 +80,23 @@ main {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
   transition: .2s;
-  height: 68px; /* Altura fija para que no se alarguen hacia abajo */
+  min-height: 76px; /* Altura mínima para dar espacio a títulos de 3 líneas */
   display: flex;
   flex-direction: column;
-  justify-content: center;
-}
-
-.card:hover {
-  transform: translateY(-2px);
+  justify-content: space-between; /* Mantiene el valor abajo sin importar el largo del título */
 }
 
 .card h3 {
   font-size: 11px;
   color: #666;
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2; /* Mejora la separación entre líneas de texto */
+  white-space: normal; /* Permite saltos de línea sin amontonar el texto */
+  margin-bottom: 6px;
+}
+
+
+.card:hover {
+  transform: translateY(-2px);
 }
 
 .valor {
