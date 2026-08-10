@@ -159,7 +159,16 @@ main {
   border-radius: 4px;
   border: 1px solid #ccc;
 }
+.grafico-canvas-wrap {
+  position: relative;
+  height: 140px;   /* la altura real que quieres, sin trucos de max-height */
+  width: 100%;
+}
 
+.grafico-canvas-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 .periodoRanking {
   font-size: 11px;
   color: #777;
