@@ -74,10 +74,7 @@ async function cargarDashboard(){
         alert(res.error);
         return;
     }
-    const d = res.data;
-    console.log("DASHBOARD COMPLETO:", d);
-    console.log("FRECUENCIA RECIBIDA:", d.frecuencia);
-    
+    const d = res.data;   
     actualizarKPIs(d.kpis);
     actualizarTablas(d);
     actualizarGraficos(d);
@@ -580,13 +577,13 @@ window.onload = function(){
  * Auto Refresh
  ******************************************************/
 
-setInterval(
+/**setInterval(
 
     cargarDashboard,
 
     60000
 
-);
+);**/
 
 /******************************************************
  * Actualizar SOLO frecuencia de clientes
