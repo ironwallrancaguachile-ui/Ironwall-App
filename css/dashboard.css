@@ -185,6 +185,13 @@ canvas,
   max-height: 140px !important; /* Limita el alto del gráfico para dejarlo compacto */
 }
 
+/* Espaciador invisible para igualar la altura de las cabeceras */
+.grafico-spacer {
+  height: 24px; /* Ocupa exactamente el mismo alto que ocupa un <select> */
+  margin-bottom: 6px;
+  visibility: hidden; /* Se mantiene transparente e invisible, pero ocupa espacio físico */
+}
+
 /* PANELES Y TABLAS */
 .paneles {
   display: grid;
