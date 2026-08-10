@@ -636,7 +636,10 @@ async function actualizarRankingProductos(){
         return;
 
     }
-
+        console.log(
+            "RANKING PRODUCTOS RECIBIDO:",
+            res.data
+        );
     crearGraficoTopUnidades(
         res.data.unidades
     );
