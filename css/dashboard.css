@@ -1,288 +1,76 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-  background: #F4F6F9;
-  color: #222;
-}
-
-/* TOPBAR */
-.topbar {
-  background: #212121;
-  color: #fff;
-  padding: 12px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, .15);
-}
-
-.topbar h1 {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.topbar span {
-  display: inline-block;
-  margin-top: 2px;
-  color: #bdbdbd;
-  font-size: 13px;
-}
-
-.acciones {
-  display: flex;
-  gap: 10px;
-}
-
-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: .25s;
-}
-
-button:hover {
-  transform: translateY(-2px);
-}
-
-#btnActualizar {
-  background: #1976d2;
-  color: white;
-}
-
-#btnMenu {
-  background: #424242;
-  color: white;
-}
-
+/* 1. AMPLIAR EL ANCHO ÚTIL DEL CONTENEDOR PRINCIPAL */
 main {
-  padding: 15px 25px;
+  padding: 10px 15px; /* Reducimos padding lateral para ganar área visual */
+  max-width: 100%;
 }
 
-/* KPIS COMPACTOS */
+/* 2. KPIS MÁS COMPACTOS Y AJUSTADOS AL CONTENIDO */
 .kpis {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
-  margin-bottom: 15px;
+  /* Auto-fit con un mínimo de 140px permite que entren más KPIs por fila */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .card {
   background: white;
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
+  padding: 8px 10px; /* Menos espacio interno para achicar la tarjeta */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .05);
   transition: .2s;
-}
-
-.card:hover {
-  transform: translateY(-2px);
+  text-align: center; /* Centrar el texto optimiza espacios anchos */
 }
 
 .card h3 {
-  font-size: 12px;
-  color: #777;
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.valor {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.verde { color: #2e7d32; }
-.rojo { color: #c62828; }
-.azul { color: #1565c0; }
-
-/* GRÁFICOS COMPACTOS (3 COLUMNAS) */
-.graficos {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 15px;
-}
-
-.grafico {
-  background: white;
-  padding: 12px 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 220px;
-}
-
-.grafico h2 {
-  font-size: 13px;
+  font-size: 11px;
+  color: #666;
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.grafico select {
-  padding: 3px 6px;
-  font-size: 11px;
-  margin-bottom: 6px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+.valor {
+  font-size: 17px; /* Tamaño de letra compacto para no inflar la tarjeta */
+  font-weight: bold;
 }
 
-.periodoRanking {
-  font-size: 11px;
-  color: #777;
-  margin-bottom: 6px;
-}
-
-canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* PANELES Y TABLAS */
-.paneles {
+/* 3. FORZAR 3 COLUMNAS EN LAPTOPS */
+.graficos {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 15px;
+  /* minmax de 280px garantiza 3 columnas desde pantallas de 1280px (Laptops) */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.panel {
+.grafico {
   background: white;
-  border-radius: 10px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
-  overflow: auto;
-  max-height: 250px;
-}
-
-.panel h2 {
-  font-size: 15px;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-thead {
-  background: #eeeeee;
-}
-
-th {
-  padding: 8px;
-  text-align: left;
-  font-weight: bold;
-  border-bottom: 2px solid #dcdcdc;
-}
-
-td {
-  padding: 8px;
-  border-bottom: 1px solid #eeeeee;
-}
-
-tbody tr:hover {
-  background: #fafafa;
-}
-
-/* FOOTER INDEPENDIENTE */
-footer {
-  background: #212121;
-  color: white;
-  padding: 12px 25px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .05);
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  width: 100%;
+  height: 200px; /* Reducimos ligeramente de 220px a 200px */
 }
 
-#ultimaActualizacion {
-  font-weight: bold;
-  margin-left: 8px;
+/* 4. MEDIA QUERIES REAJUSTADAS PARA PANTALLAS DE LAPTOP */
+@media (min-width: 1024px) {
+  .kpis {
+    grid-template-columns: repeat(7, 1fr); /* Fuerza los 7 KPIs en 1 sola fila en laptops */
+  }
+  .graficos {
+    grid-template-columns: repeat(3, 1fr); /* Fuerza 3 columnas fijas en laptops */
+  }
 }
 
-/* ESTADOS */
-.loading {
-  opacity: .5;
-  pointer-events: none;
-}
-
-.error {
-  background: #ffebee;
-  color: #b71c1c;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-}
-
-.ok {
-  background: #e8f5e9;
-  color: #1b5e20;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 15px;
-}
-
-/* RESPONSIVE */
-@media (max-width: 1400px) {
+@media (max-width: 1023px) and (min-width: 768px) {
   .kpis {
     grid-template-columns: repeat(4, 1fr);
   }
   .graficos {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
-  .kpis {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .graficos {
-    grid-template-columns: 1fr;
-  }
-  .paneles {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .topbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .acciones {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  button {
-    width: 100%;
-  }
-  main {
-    padding: 10px;
-  }
-  .kpis {
-    grid-template-columns: 1fr;
-  }
-  footer {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
   }
 }
