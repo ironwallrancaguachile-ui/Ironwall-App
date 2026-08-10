@@ -133,7 +133,7 @@ main {
   gap: 12px;
   margin-bottom: 15px;
 }
-/* GRÁFICOS (3 COLUMNAS FIJAS EN LAPTOP / PANTALLA ANCHA) */
+/* 1. La tarjeta ahora se adapta al contenido en lugar de forzar 240px */
 .grafico {
   background: white;
   padding: 12px 15px;
@@ -141,8 +141,8 @@ main {
   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Cambia a flex-start para que el título se quede arriba fijo */
-  height: 240px;
+  justify-content: flex-start;
+  height: auto; /* Permite que el contenedor se encoja al tamaño del gráfico */
 }
 
 .grafico h2 {
