@@ -1,218 +1,197 @@
 <!DOCTYPE html>
-
 <html lang="es">
-   
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IRONWALL | Dashboard</title>
-<link rel="icon" href="assets/logo.png">
-<link rel="stylesheet" href="css/dashboard.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-<script src="js/config.js"></script>
-</head>
 
-<style>
-   .btnHome{
-   display:inline-flex;
-   align-items:center;
-   gap:8px;
-   background:#ffffff;
-   color:#222;
-   text-decoration:none;
-   padding:10px 18px;
-   border-radius:12px;
-   font-size:15px;
-   font-weight:600;
-   box-shadow:0 3px 12px rgba(0,0,0,.12);
-   transition:.2s;
-   }
-   .btnHome:hover{
-   transform:translateY(-2px);
-   box-shadow:0 8px 18px rgba(0,0,0,.15);
-   }
-</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRONWALL | Dashboard</title>
+    <link rel="icon" href="assets/logo.png">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="js/config.js"></script>
+    <style>
+        .btnHome {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            color: #222;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .12);
+            transition: .2s;
+        }
+
+        .btnHome:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .15);
+        }
+
+        /* Estilo para asegurar que el footer ocupe el ancho completo */
+        footer {
+            grid-column: 1 / -1;
+            width: 100%;
+            margin-top: 30px;
+            padding: 20px 0;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Ajuste de contenedores para evitar que las etiquetas corten */
+        .grafico {
+            position: relative;
+            min-height: 380px; /* Entrega mayor margen vertical para los nombres */
+        }
+    </style>
+</head>
 
 <body>
 
- <a href="portal.html" class="btnHome">
- 🏠 Home
- </a>  
-<header class="topbar">
-    <div>
-        <h1>Dashboard IRONWALL</h1>
-        <span id="fechaActual"></span>
-    </div>
-    <div class="acciones">
-        <button id="btnActualizar">
-            Actualizar
-        </button>
-    </div>
-</header>
+    <a href="portal.html" class="btnHome">🏠 Home</a>
 
-<main>
-<section class="kpis">
+    <header class="topbar">
+        <div>
+            <h1>Dashboard IRONWALL</h1>
+            <span id="fechaActual"></span>
+        </div>
+        <div class="acciones">
+            <button id="btnActualizar">Actualizar</button>
+        </div>
+    </header>
 
-    <div class="card">
-        <h3>Ventas Mes</h3>
-        <div class="valor verde" id="ventasMes">$0</div>
-    </div>
+    <main>
+        <!-- SECCIÓN KPIS -->
+        <section class="kpis">
+            <div class="card">
+                <h3>Ventas Mes</h3>
+                <div class="valor verde" id="ventasMes">$0</div>
+            </div>
+            <div class="card">
+                <h3>Clientes Mes</h3>
+                <div class="valor" id="clientesMes">0</div>
+            </div>
+            <div class="card">
+                <h3>Clientes Recurrentes</h3>
+                <div class="valor" id="clientesRecurrentes">0%</div>
+                <small id="periodoRecurrentes">2+ visitas · Últimos 90 días</small>
+            </div>
+            <div class="card">
+                <h3>Ticket Promedio</h3>
+                <div class="valor azul" id="ticketPromedio">$0</div>
+            </div>
+            <div class="card">
+                <h3>Productos Bajo Stock</h3>
+                <div class="valor rojo" id="bajoStock">0</div>
+            </div>
+            <div class="card">
+                <h3>Incidentes Abiertos</h3>
+                <div class="valor rojo" id="incidentes">0</div>
+            </div>
+            <div class="card">
+                <h3>Valor Inventario</h3>
+                <div class="valor azul" id="valorInventario">$0</div>
+            </div>
+        </section>
 
-    <div class="card">
-        <h3>Clientes Mes</h3>
-        <div class="valor" id="clientesMes">0</div>
-    </div>
+        <!-- SECCIÓN GRÁFICOS -->
+        <section class="graficos">
+            <div class="grafico">
+                <h2>Ventas — Últimos 6 meses</h2>
+                <canvas id="graficoVentas"></canvas>
+            </div>
+            <div class="grafico">
+                <h2>Clientes — Últimos 6 meses</h2>
+                <canvas id="graficoClientes"></canvas>
+            </div>
+            <div class="grafico">
+                <h2>Frecuencia de Visitas por Cliente</h2>
+                <select id="filtroFrecuencia" onchange="actualizarGraficoFrecuencia()">
+                    <option value="30">Últimos 30 días</option>
+                    <option value="90" selected>Últimos 90 días</option>
+                    <option value="180">Últimos 180 días</option>
+                    <option value="365">Último año</option>
+                    <option value="historico">Histórico completo</option>
+                </select>
+                <canvas id="graficoFrecuencia"></canvas>
+            </div>
+            <div class="grafico">
+                <h2>Ingresos vs Egresos</h2>
+                <canvas id="graficoFinanzas"></canvas>
+            </div>
+            <div class="grafico">
+                <h2>Métodos de Pago</h2>
+                <canvas id="graficoPago"></canvas>
+            </div>
 
-    <div class="card">
-        <h3>Clientes Recurrentes</h3>
-        <div class="valor" id="clientesRecurrentes">0%</div>
-        <small id="periodoRecurrentes">
-            2+ visitas · Últimos 90 días
-        </small>
-    </div>
+            <!-- TOP 10 UNIDADES -->
+            <div class="grafico">
+                <h2>🏆 Top 10 — Unidades vendidas</h2>
+                <select id="filtroProductos" onchange="actualizarRankingProductos()">
+                    <option value="30">Últimos 30 días</option>
+                    <option value="90" selected>Últimos 90 días</option>
+                    <option value="180">Últimos 180 días</option>
+                    <option value="365">Último año</option>
+                    <option value="historico">Histórico completo</option>
+                </select>
+                <canvas id="graficoTopUnidades"></canvas>
+            </div>
 
-    <div class="card">
-        <h3>Ticket Promedio</h3>
-        <div class="valor azul" id="ticketPromedio">$0</div>
-    </div>
+            <!-- TOP 10 VENTAS -->
+            <div class="grafico">
+                <h2>💰 Top 10 — Venta total</h2>
+                <div class="periodoRanking">Según período seleccionado</div>
+                <canvas id="graficoTopVentas"></canvas>
+            </div>
+        </section> <!-- CIERRE CORRECTO DE GRÁFICOS -->
 
-    <div class="card">
-        <h3>Productos Bajo Stock</h3>
-        <div class="valor rojo" id="bajoStock">0</div>
-    </div>
+        <!-- SECCIÓN PANELES -->
+        <section class="paneles">
+            <div class="panel">
+                <h2>Productos Bajo Stock</h2>
+                <table id="tablaStock">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Stock</th>
+                            <th>Mínimo</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="panel">
+                <h2>Últimos Incidentes</h2>
+                <table id="tablaIncidentes">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Gravedad</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
 
-    <div class="card">
-        <h3>Incidentes Abiertos</h3>
-        <div class="valor rojo" id="incidentes">0</div>
-    </div>
+        <!-- FOOTER INDEPENDIENTE -->
+        <footer>
+            <div>Dashboard Ironwall</div>
+            <div>Última actualización <span id="ultimaActualizacion">--</span></div>
+        </footer>
+    </main>
 
-    <div class="card">
-        <h3>Valor Inventario</h3>
-        <div class="valor azul" id="valorInventario">$0</div>
-    </div>
-
-</section>
-   
-<section class="graficos">
-   <div class="grafico">
-   <h2>Ventas — Últimos 6 meses</h2>
-   <canvas id="graficoVentas"></canvas>
-   </div>
-   <div class="grafico">
-   <h2>Clientes — Últimos 6 meses</h2>
-   <canvas id="graficoClientes"></canvas>
-   </div>
-   <div class="grafico">
-   <h2>Frecuencia de Visitas por Cliente</h2>
-      
-   <select id="filtroFrecuencia" onchange="actualizarGraficoFrecuencia()">
-       <option value="30">Últimos 30 días</option>
-       <option value="90" selected>Últimos 90 días</option>
-       <option value="180" >Últimos 180 días</option>
-       <option value="365">Último año</option>
-       <option value="historico">Histórico completo</option>
-   </select>
-      
-   <canvas id="graficoFrecuencia"></canvas>
-   </div>
-   <div class="grafico">
-   <h2>
-   Ingresos vs Egresos
-   </h2>
-   <canvas
-   id="graficoFinanzas">
-   </canvas>
-   </div>
-   <div class="grafico">
-   <h2>
-   Métodos de Pago
-   </h2>
-   <canvas
-   id="graficoPago">
-   </canvas>
-   </div>
-   
-   <!-- TOP 10 UNIDADES -->
-   <div class="grafico">
-       <h2>🏆 Top 10 — Unidades vendidas</h2>   
-       <select id="filtroProductos"
-               onchange="actualizarRankingProductos()">
-           <option value="30">
-               Últimos 30 días
-           </option>
-           <option value="90" selected>
-               Últimos 90 días
-           </option> 
-           <option value="180">
-               Últimos 180 días
-           </option>
-           <option value="365">
-               Último año
-           </option>
-           <option value="historico">
-               Histórico completo
-           </option>
-       </select>  
-       <canvas id="graficoTopUnidades"></canvas> 
-   </div>
-   
-   <!-- TOP 10 VENTAS -->
-   <div class="grafico">
-       <h2>💰 Top 10 — Venta total</h2> 
-       <div class="periodoRanking">
-           Según período seleccionado
-       </div> 
-       <canvas id="graficoTopVentas"></canvas> 
-   </div>
-   
-<section class="paneles">
-<div class="panel">
-<h2>
-Productos Bajo Stock
-</h2>
-<table id="tablaStock">
-<thead>
-<tr>
-<th>Código</th>
-<th>Producto</th>
-<th>Stock</th>
-<th>Mínimo</th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
-</div>
-<div class="panel">
-<h2>
-Últimos Incidentes
-</h2>
-<table id="tablaIncidentes">
-<thead>
-<tr>
-<th>Fecha</th>
-<th>Cliente</th>
-<th>Gravedad</th>
-<th>Estado</th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
-</div>
-</section>
-<footer>
-<div>
-Dashboard Ironwall
-</div>
-<div>
-Última actualización
-<span id="ultimaActualizacion">
---
-</span>
-</div>
-</footer>
-<script src="js/dashboard.js"></script>
+    <script src="js/dashboard.js"></script>
 </body>
+
 </html>
