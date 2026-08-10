@@ -97,7 +97,7 @@ main {
   line-height: 1.2;
   white-space: normal;
   margin-bottom: 2px;
-  height: 38px; /* Espacio uniforme reservado para títulos de hasta 3 líneas */
+  height: 38px; /* Títulos alineados horizontalmente */
   display: flex;
   align-items: flex-start;
 }
@@ -111,12 +111,11 @@ main {
 
 #periodoRecurrentes,
 .card small {
-  font-size: 9.5px;
+  font-size: 9.5px; /* Mantenido en 9.5px exactamente */
   line-height: 1;
   letter-spacing: -0.2px;
   color: #777;
   white-space: nowrap;
-  display: block;
   margin-top: 2px;
 }
 
@@ -124,7 +123,7 @@ main {
 .rojo { color: #c62828; }
 .azul { color: #1565c0; }
 
-/* GRÁFICOS COMPACTOS (3 COLUMNAS FIJAS Y ALTURA CONTROLADA) */
+/* GRÁFICOS COMPACTOS CON CONTENEDOR AJUSTADO */
 .graficos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -140,8 +139,7 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  height: 180px; /* Altura compacta sin espacio sobrante abajo */
-  overflow: hidden;
+  height: fit-content; /* El cuadro blanco se encoge exacto al tamaño del gráfico */
 }
 
 .grafico h2 {
@@ -151,7 +149,7 @@ main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 0; /* Evita que el canvas colapse o tape el título */
+  flex-shrink: 0;
 }
 
 .grafico select {
@@ -160,21 +158,19 @@ main {
   margin-bottom: 6px;
   border-radius: 4px;
   border: 1px solid #ccc;
-  flex-shrink: 0;
 }
 
 .periodoRanking {
   font-size: 11px;
   color: #777;
   margin-bottom: 6px;
-  flex-shrink: 0;
 }
 
-.grafico canvas,
-canvas {
+/* Garantiza que el gráfico se mantenga compacto (sin crecer) */
+canvas,
+.grafico canvas {
   width: 100% !important;
-  height: 100% !important;
-  flex-grow: 1;
+  max-height: 140px !important; /* Limita el alto del gráfico para dejarlo compacto */
 }
 
 /* PANELES Y TABLAS */
