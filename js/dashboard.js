@@ -226,7 +226,7 @@ function crearGraficoClientes(data) {
 }
 
 /******************************************************
- * Finanzas
+ * Finanzas — Ingresos vs Egresos (Últimos 6 meses)
  ******************************************************/
 
 function crearGraficoFinanzas(data) {
@@ -237,13 +237,13 @@ function crearGraficoFinanzas(data) {
         {
             type: "line",
             data: {
-                labels: data.labels,
+                labels: data.labels, // Arreglo con los 6 meses (ej: ["Mar", "Abr", "May", "Jun", "Jul", "Ago"])
                 datasets: [
                     {
                         label: "Ingresos",
                         data: data.datasets[0].data,
                         borderColor: "#2E7D32",
-                        backgroundColor: "rgba(46, 125, 50, 0.1)",
+                        backgroundColor: "rgba(46, 125, 50, 0.12)",
                         borderWidth: 3,
                         tension: 0.3,
                         fill: true
@@ -252,7 +252,7 @@ function crearGraficoFinanzas(data) {
                         label: "Egresos",
                         data: data.datasets[1].data,
                         borderColor: "#D32F2F",
-                        backgroundColor: "rgba(211, 47, 47, 0.1)",
+                        backgroundColor: "rgba(211, 47, 47, 0.12)",
                         borderWidth: 3,
                         tension: 0.3,
                         fill: true
@@ -267,14 +267,14 @@ function crearGraficoFinanzas(data) {
                         position: "top"
                     },
                     datalabels: {
-                        display: false // Se mantiene apagado aquí para no saturar las líneas
+                        display: false // Mantiene la gráfica limpia sin números superpuestos
                     }
                 },
                 scales: {
                     y: {
                         ticks: {
                             callback: function(value) {
-                                return pesos(value);
+                                return pesos(value); // Formato en pesos ($100.000)
                             }
                         }
                     }
