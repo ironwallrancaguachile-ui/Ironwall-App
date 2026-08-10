@@ -377,7 +377,7 @@ function crearGraficoFrecuencia(data) {
                     borderRadius: 4
                 }]
             },
-            options: {
+            /***options: {
                 indexAxis: "y",
                 responsive: true,
                 maintainAspectRatio: false,
@@ -385,7 +385,20 @@ function crearGraficoFrecuencia(data) {
                     padding: {
                         right: 45 // Margen para asegurar que las etiquetas no se corten
                     }
-                },
+                },***/
+                options: {
+                    indexAxis: "y",
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    barPercentage: 0.7,      // Controla el grosor individual de cada barra
+                    categoryPercentage: 0.8, // Espaciado entre barras para evitar deformación
+                    layout: {
+                        padding: {
+                            right: 55 // Margen para las etiquetas numéricas
+                        }
+                    },
+                    // ...resto de opciones (plugins, scales, etc.)
+                
                 plugins: {
                     legend: { display: false },
                     datalabels: {
@@ -468,11 +481,24 @@ function crearGraficoTopUnidades(data) {
                 indexAxis: "y",
                 responsive: true,
                 maintainAspectRatio: false,
+                barPercentage: 0.7,      // Controla el grosor individual de cada barra
+                categoryPercentage: 0.8, // Espaciado entre barras para evitar deformación
+                layout: {
+                    padding: {
+                        right: 55 // Margen para las etiquetas numéricas
+                    }
+                },
+                // ...resto de opciones (plugins, scales, etc.)
+            
+            /***options: {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: false,
                 layout: {
                     padding: {
                         right: 45 // Margen para la etiqueta numérica exterior
                     }
-                },
+                },***/
                 plugins: {
                     legend: { display: false },
                     datalabels: {
@@ -528,11 +554,24 @@ function crearGraficoTopVentas(data) {
                 indexAxis: "y",
                 responsive: true,
                 maintainAspectRatio: false,
+                barPercentage: 0.7,      // Controla el grosor individual de cada barra
+                categoryPercentage: 0.8, // Espaciado entre barras para evitar deformación
+                layout: {
+                    padding: {
+                        right: 55 // Margen para las etiquetas numéricas
+                    }
+                },
+                // ...resto de opciones (plugins, scales, etc.)
+            
+            /**options: {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: false,
                 layout: {
                     padding: {
                         right: 75 // Espacio suficiente para no cortar precios de varios dígitos
                     }
-                },
+                },*****/
                 plugins: {
                     legend: { display: false },
                     datalabels: {
