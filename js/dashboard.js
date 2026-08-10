@@ -12,6 +12,8 @@ let chartPago = null;
 let chartServicios = null;
 /**let chartIncidentes = null;**/
 let chartFrecuencia = null;
+let chartTopUnidades;
+let chartTopVentas;
 
 /******************************************************
  * Llamada al Apps Script
@@ -644,3 +646,105 @@ async function actualizarRankingProductos(){
     );
 
 }
+
+/*************************************
+* Gradfico Top Unidades
+************************************/
+function crearGraficoTopUnidades(data){
+
+    if(chartTopUnidades)
+        chartTopUnidades.destroy();
+
+    chartTopUnidades = new Chart(
+        document.getElementById("graficoTopUnidades"),
+        {
+            type:"bar",
+
+            data:{
+                labels:data.labels,
+
+                datasets:[
+                    {
+                        label:"Unidades vendidas",
+                        data:data.datasets[0].data,
+                        backgroundColor:"#1565C0"
+                    }
+                ]
+            },
+
+            options:{
+                indexAxis:"y",
+                responsive:true,
+                maintainAspectRatio:false,
+
+                plugins:{
+                    legend:{
+                        display:false
+                    }
+                },
+
+                scales:{
+                    x:{
+                        beginAtZero:true,
+                        ticks:{
+                            precision:0
+                        }
+                    }
+                }
+            }
+        }
+    );
+}
+
+/**************************************************
+* Grafico Top Ventas
+*************************************************/
+function crearGraficoTopVentas(data){
+
+    if(chartTopVentas)
+        chartTopVentas.destroy();
+
+    chartTopVentas = new Chart(
+        document.getElementById("graficoTopVentas"),
+        {
+            type:"bar",
+
+            data:{
+                labels:data.labels,
+
+                datasets:[
+                    {
+                        label:"Venta total",
+                        data:data.datasets[0].data,
+                        backgroundColor:"#2E7D32"
+                    }
+                ]
+            },
+
+            options:{
+                indexAxis:"y",
+                responsive:true,
+                maintainAspectRatio:false,
+
+                plugins:{
+                    legend:{
+                        display:false
+                    }
+                },
+
+                scales:{
+                    x:{
+                        beginAtZero:true,
+
+                        ticks:{
+                            callback:function(value){
+                                return pesos(value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    );
+}
+
