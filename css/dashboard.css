@@ -84,6 +84,8 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: center; /* <--- Centra los elementos hijos horizontalmente */
+  text-align: center;   /* <--- Centra el texto */
   position: relative;
 }
 
