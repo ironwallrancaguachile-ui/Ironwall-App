@@ -319,12 +319,17 @@ function crearGraficoPago(data) {
                 plugins: {
                     legend: {
                         position: "right"
+                        labels: {
+                            boxWidth: 12, // Achica el cuadro de color de la leyenda
+                            font: {
+                                size: 10 // <--- Reduce el tamaño de la letra de la leyenda (ej. 10px u 9.5px)
+                            }
                     },
                     datalabels: {
                         color: "#FFFFFF",
                         font: {
                             weight: "bold",
-                            size: 9   /* Reduce la letra del porcentaje (ej. de 12px a 9px u 8.5px) */
+                            size: 10   /* Reduce la letra del porcentaje (ej. de 12px a 9px u 8.5px) */
                         },
                         formatter: function (value, ctx) {
                             let total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
