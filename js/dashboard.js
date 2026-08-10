@@ -288,8 +288,10 @@ function crearGraficoPago(data) {
 
 function crearGraficoFrecuencia(data) {
     if (chartFrecuencia) chartFrecuencia.destroy();
+    
     const valores = data.datasets[0].data;
 
+    // Métricas para el KPI de recurrentes
     const unVisita = Number(valores[0]) || 0;
     const dosTres = Number(valores[1]) || 0;
     const cuatroCinco = Number(valores[2]) || 0;
@@ -306,9 +308,12 @@ function crearGraficoFrecuencia(data) {
     document.getElementById("clientesRecurrentes").innerHTML = porcentaje.toFixed(1) + "%";
 
     const selector = document.getElementById("filtroFrecuencia");
-    const textoPeriodo = selector.options[selector.selectedIndex].text;
-    document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
+    if (selector) {
+        const textoPeriodo = selector.options[selector.selectedIndex].text;
+        document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
+    }
 
+    // Creación del gráfico
     chartFrecuencia = new Chart(
         document.getElementById("graficoFrecuencia"),
         {
@@ -318,20 +323,43 @@ function crearGraficoFrecuencia(data) {
                 datasets: [{
                     label: "Clientes",
                     data: valores,
-                    backgroundColor: "#1565C0"
+                    backgroundColor: "#F57C00", // Color anaranjado
+                    borderRadius: 4
                 }]
             },
             options: {
                 indexAxis: "y",
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        right: 45 // Margen para asegurar que las etiquetas no se corten
+                    }
+                },
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: "end",
+                        align: "end",
+                        color: "#E65100",
+                        font: {
+                            weight: "bold",
+                            size: 11
+                        },
+                        formatter: function (value) {
+                            return value.toLocaleString("es-CL");
+                        }
+                    }
                 },
                 scales: {
                     x: {
-                        beginAtZero: true,
-                        ticks: { precision: 0 }
+                        display: false // Se oculta el eje horizontal saturado
+                    },
+                    y: {
+                        ticks: {
+                            font: { size: 11 },
+                            autoSkip: false
+                        }
                     }
                 }
             }
