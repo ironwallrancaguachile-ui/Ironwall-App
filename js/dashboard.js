@@ -318,7 +318,7 @@ function crearGraficoPago(data) {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: "right"
+                        position: "right",
                         labels: {
                             boxWidth: 12, // Achica el cuadro de color de la leyenda
                             font: {
