@@ -237,7 +237,7 @@ function crearGraficoFinanzas(data) {
         {
             type: "line",
             data: {
-                labels: data.labels, // Arreglo con los 6 meses (ej: ["Mar", "Abr", "May", "Jun", "Jul", "Ago"])
+                labels: data.labels, // ["Mar", "Abr", "May", "Jun", "Jul", "Ago"]
                 datasets: [
                     {
                         label: "Ingresos",
@@ -267,14 +267,14 @@ function crearGraficoFinanzas(data) {
                         position: "top"
                     },
                     datalabels: {
-                        display: false // Mantiene la gráfica limpia sin números superpuestos
+                        display: false // Oculta los números fijos sobre las líneas
                     }
                 },
                 scales: {
                     y: {
                         ticks: {
                             callback: function(value) {
-                                return pesos(value); // Formato en pesos ($100.000)
+                                return pesos(value); // Muestra precios formateados ($100.000)
                             }
                         }
                     }
