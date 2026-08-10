@@ -206,6 +206,8 @@ function actualizarGraficos(data){
     /***crearGraficoServicios(data.servicios);
     crearGraficoIncidentes(data.incidentesGrafico);***/
     crearGraficoFrecuencia(data.frecuencia);
+    crearGraficoTopUnidades(data.unidades);
+    crearGraficoTopVentas(data.ventas);
 }
 
 /******************************************************
@@ -605,4 +607,39 @@ async function actualizarGraficoFrecuencia(){
         return;
     }
     crearGraficoFrecuencia(res.data);
+}
+
+/******************************************************
+ * Actualizar Ranking de Productos
+ ******************************************************/
+async function actualizarRankingProductos(){
+
+    const periodo =
+        document.getElementById(
+            "filtroProductos"
+        ).value;
+
+    const res = await llamarAPI(
+        "obtenerRankingProductos",
+        {
+            periodo: periodo
+        }
+    );
+
+    if(!res.ok){
+
+        alert(res.error);
+
+        return;
+
+    }
+
+    crearGraficoTopUnidades(
+        res.data.unidades
+    );
+
+    crearGraficoTopVentas(
+        res.data.ventas
+    );
+
 }
