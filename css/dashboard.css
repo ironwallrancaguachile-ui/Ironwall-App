@@ -66,7 +66,7 @@ main {
   padding: 15px 20px;
 }
 
-/* KPIS COMPACTOS Y PROPORCIONADOS */
+/* KPIS COMPACTOS Y UNIFORMES */
 .kpis {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -80,26 +80,28 @@ main {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
   transition: .2s;
-  min-height: 85px; /* Altura mínima uniforme para todas las tarjetas */
+  min-height: 85px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Alinea todo desde arriba */
-  position: relative; /* Permite anclar elementos si es necesario */
+  justify-content: flex-start;
+  position: relative;
 }
 
-/* 1. TÍTULO CON ALTURA FIJA: Reserva espacio para hasta 3 líneas en TODAS las tarjetas */
+.card:hover {
+  transform: translateY(-2px);
+}
+
 .card h3 {
   font-size: 11px;
   color: #666;
   line-height: 1.2;
   white-space: normal;
   margin-bottom: 2px;
-  height: 38px; /* Forzar espacio uniforme de título en todas las tarjetas */
+  height: 38px; /* Espacio uniforme reservado para títulos de hasta 3 líneas */
   display: flex;
   align-items: flex-start;
 }
 
-/* 2. VALOR ALINEADO: Todos los números arrancan en la misma altura horizontal */
 .valor {
   font-size: 22px;
   font-weight: bold;
@@ -107,33 +109,29 @@ main {
   margin-top: 1px;
 }
 
-/* 3. SUBTEXTO CORTITO: No empuja el número, se ubica debajo */
 #periodoRecurrentes,
 .card small {
-  font-size: 10px;
+  font-size: 9.5px;
   line-height: 1;
   letter-spacing: -0.2px;
   color: #777;
   white-space: nowrap;
+  display: block;
   margin-top: 2px;
-}
-
-.card:hover {
-  transform: translateY(-2px);
 }
 
 .verde { color: #2e7d32; }
 .rojo { color: #c62828; }
 .azul { color: #1565c0; }
 
-
+/* GRÁFICOS COMPACTOS (3 COLUMNAS FIJAS Y ALTURA CONTROLADA) */
 .graficos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 15px;
 }
-/* 1. La tarjeta ahora se adapta al contenido en lugar de forzar 240px */
+
 .grafico {
   background: white;
   padding: 12px 15px;
@@ -142,7 +140,8 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  height: auto; /* Permite que el contenedor se encoja al tamaño del gráfico */
+  height: 180px; /* Altura compacta sin espacio sobrante abajo */
+  overflow: hidden;
 }
 
 .grafico h2 {
@@ -152,15 +151,7 @@ main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 0; /* IMPIDE que Chart.js o el canvas aplasten el título a 0px de alto */
-}
-
-/* Forzamos que el canvas tome únicamente el espacio sobrante */
-.grafico canvas {
-  flex-grow: 1;
-  width: 100% !important;
-  height: 100% !important;
-  max-height: 180px; /* Limita la altura máxima del canvas para no tapar el título */
+  flex-shrink: 0; /* Evita que el canvas colapse o tape el título */
 }
 
 .grafico select {
@@ -169,17 +160,21 @@ main {
   margin-bottom: 6px;
   border-radius: 4px;
   border: 1px solid #ccc;
+  flex-shrink: 0;
 }
 
 .periodoRanking {
   font-size: 11px;
   color: #777;
   margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
+.grafico canvas,
 canvas {
   width: 100% !important;
   height: 100% !important;
+  flex-grow: 1;
 }
 
 /* PANELES Y TABLAS */
