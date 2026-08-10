@@ -115,7 +115,7 @@ main {
   letter-spacing: -0.2px;
   color: #777;
   white-space: nowrap;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .card:hover {
@@ -126,14 +126,14 @@ main {
 .rojo { color: #c62828; }
 .azul { color: #1565c0; }
 
-/* GRÁFICOS (3 COLUMNAS FIJAS EN LAPTOP / PANTALLA ANCHA) */
+
 .graficos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 15px;
 }
-
+/* GRÁFICOS (3 COLUMNAS FIJAS EN LAPTOP / PANTALLA ANCHA) */
 .grafico {
   background: white;
   padding: 12px 15px;
@@ -141,16 +141,26 @@ main {
   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 240px; /* Altura perfecta para evitar scroll excesivo */
+  justify-content: flex-start; /* Cambia a flex-start para que el título se quede arriba fijo */
+  height: 240px;
 }
 
 .grafico h2 {
   font-size: 13px;
-  margin-bottom: 4px;
+  font-weight: bold;
+  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 0; /* IMPIDE que Chart.js o el canvas aplasten el título a 0px de alto */
+}
+
+/* Forzamos que el canvas tome únicamente el espacio sobrante */
+.grafico canvas {
+  flex-grow: 1;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 180px; /* Limita la altura máxima del canvas para no tapar el título */
 }
 
 .grafico select {
