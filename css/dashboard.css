@@ -63,23 +63,27 @@ button:hover {
 }
 
 main {
-  padding: 15px 25px;
+  padding: 15px 20px;
 }
 
-/* KPIS COMPACTOS */
+/* KPIS COMPACTOS Y PROPORCIONADOS */
 .kpis {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 15px;
 }
 
 .card {
   background: white;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
   transition: .2s;
+  height: 68px; /* Altura fija para que no se alarguen hacia abajo */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .card:hover {
@@ -87,16 +91,16 @@ main {
 }
 
 .card h3 {
-  font-size: 12px;
-  color: #777;
-  margin-bottom: 6px;
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .valor {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -104,7 +108,7 @@ main {
 .rojo { color: #c62828; }
 .azul { color: #1565c0; }
 
-/* GRÁFICOS COMPACTOS (3 COLUMNAS) */
+/* GRÁFICOS (3 COLUMNAS FIJAS EN LAPTOP / PANTALLA ANCHA) */
 .graficos {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -120,7 +124,7 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 220px;
+  height: 240px; /* Altura perfecta para evitar scroll excesivo */
 }
 
 .grafico h2 {
@@ -161,15 +165,15 @@ canvas {
 .panel {
   background: white;
   border-radius: 10px;
-  padding: 15px;
+  padding: 12px 15px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
   overflow: auto;
-  max-height: 250px;
+  max-height: 220px;
 }
 
 .panel h2 {
-  font-size: 15px;
-  margin-bottom: 10px;
+  font-size: 14px;
+  margin-bottom: 8px;
   font-weight: bold;
 }
 
@@ -184,14 +188,14 @@ thead {
 }
 
 th {
-  padding: 8px;
+  padding: 6px 8px;
   text-align: left;
   font-weight: bold;
   border-bottom: 2px solid #dcdcdc;
 }
 
 td {
-  padding: 8px;
+  padding: 6px 8px;
   border-bottom: 1px solid #eeeeee;
 }
 
@@ -199,15 +203,15 @@ tbody tr:hover {
   background: #fafafa;
 }
 
-/* FOOTER INDEPENDIENTE */
+/* FOOTER */
 footer {
   background: #212121;
   color: white;
-  padding: 12px 25px;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: 12px;
   width: 100%;
 }
 
@@ -225,21 +229,23 @@ footer {
 .error {
   background: #ffebee;
   color: #b71c1c;
-  padding: 10px;
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  font-size: 13px;
 }
 
 .ok {
   background: #e8f5e9;
   color: #1b5e20;
-  padding: 10px;
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  font-size: 13px;
 }
 
 /* RESPONSIVE */
-@media (max-width: 1400px) {
+@media (max-width: 1200px) {
   .kpis {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -248,7 +254,7 @@ footer {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .kpis {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -257,32 +263,5 @@ footer {
   }
   .paneles {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .topbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .acciones {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  button {
-    width: 100%;
-  }
-  main {
-    padding: 10px;
-  }
-  .kpis {
-    grid-template-columns: 1fr;
-  }
-  footer {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
   }
 }
