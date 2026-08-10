@@ -148,10 +148,10 @@ main {
 }
 
 /* Eliminamos el alto/ancho forzado del canvas */
-/***canvas {
+canvas {
     width: 100% !important;
     height: 100% !important;
-}***/
+}
 
 /* Envoltorio que mantiene la proporción correcta 
 .canvas-container {
@@ -172,11 +172,11 @@ main {
     height: 280px; /* Define la altura total de la tarjeta 
 }**/
 
-/* 2. Controlar la altura relativa del canvas */
+/* 2. Controlar la altura relativa del canvas 
 canvas {
     width: 100% !important;
-    height: 220px !important; /* Altura limpia fija para Chart.js */
-}
+    height: 220px !important; /* Altura limpia fija para Chart.js
+}***/
 .grafico {
     background: white;
     padding: 12px 15px;
