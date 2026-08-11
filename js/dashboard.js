@@ -425,10 +425,16 @@ async function actualizarGraficoFrecuencia() {
 async function actualizarRankingProductos() {
     const el = document.getElementById("filtroProductos");
     if (!el) return;
+
+    // Actualiza el texto informativo sobre Top Venta Total
+    const elTextoPeriodo = document.getElementById("periodoVentaTotal");
+    if (elTextoPeriodo) {
+        const textoSeleccionado = el.options[el.selectedIndex].text;
+        elTextoPeriodo.innerText = `Según período de productos · ${textoSeleccionado}`;
+    }
     const res = await llamarAPI("obtenerRankingProductos", { periodo: el.value });
-
     if (!res.ok) { alert(res.error); return; }
-
+    
     crearGraficoTopUnidades(res.data.unidades);
     crearGraficoTopVentas(res.data.ventas);
 }
