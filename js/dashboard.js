@@ -597,15 +597,17 @@ async function actualizarGraficoTopServicios() {
     const el = document.getElementById("filtroTopServicios");
     if (!el) return;
 
-    const criterio = el.value;
-    const res = await llamarAPI("obtenerTopServicios", { criterio });
-
-    if (!res.ok) {
-        console.error("Error en Top Servicios:", res.error);
-        return;
+    // Actualiza el texto dentro del <span> en el <h2>
+    const elTextoPeriodo = document.getElementById("periodoTopServicios");
+    if (elTextoPeriodo) {
+        const modo = el.value === "ingresos" ? "ingresos ($)" : "cantidad vendida";
+        elTextoPeriodo.innerText = `(${modo} · Últimos 90 días)`;
     }
 
-    crearGraficoTopServicios(res.data, criterio);
+    const res = await llamarAPI("obtenerTopServicios", { criterio: el.value });
+    if (!res.ok) { console.error("Error Top Servicios:", res.error); return; }
+
+    crearGraficoTopServicios(res.data, el.value);
 }
 
 /******************************************************
