@@ -18,6 +18,7 @@ let chartServicios = null;
 let chartFrecuencia = null;
 let chartTopUnidades = null;
 let chartTopVentas = null;
+let chartTopServicios = null;
 
 /******************************************************
  * Llamada al Apps Script
@@ -80,6 +81,8 @@ async function cargarDashboard() {
     actualizarTablas(d);
     actualizarGraficos(d);
     actualizarRankingProductos();
+    actualizarGraficoTopServicios();
+    
     document.getElementById("ultimaActualizacion").innerHTML =
         new Date().toLocaleTimeString("es-CL");
 }
@@ -592,6 +595,66 @@ function crearGraficoTopVentas(data) {
         }
     );
 }
+/******************************************************
+ * Top Servicios: Pases
+ ******************************************************/
+
+function crearGraficoTopServicios(data, criterio) {
+  if (chartTopServicios) chartTopServicios.destroy();
+
+  const esIngresos = criterio === "ingresos";
+
+  chartTopServicios = new Chart(
+    document.getElementById("graficoTopServicios"),
+    {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: data.datasets[0].label,
+          data: data.datasets[0].data,
+          backgroundColor: "#1565C0",
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        barPercentage: 0.7,
+        categoryPercentage: 0.8,
+        layout: { padding: { right: 55 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            anchor: "end",
+            align: "end",
+            color: "#333333",
+            font: { weight: "bold", size: 11 },
+            formatter: function (value) {
+              return esIngresos
+                ? "$" + value.toLocaleString("es-CL")
+                : value.toLocaleString("es-CL");
+            }
+          }
+        },
+        scales: {
+          x: { display: false },
+          y: { ticks: { font: { size: 11 }, autoSkip: false } }
+        }
+      }
+    }
+  );
+}
+/******************************************************
+ * Peticiones de Filtro Pases
+ ******************************************************/
+async function actualizarGraficoTopServicios() {
+  const criterio = document.getElementById("filtroTopServicios").value;
+  const res = await llamarAPI("obtenerTopServicios", { criterio: criterio });
+  if (!res.ok) { alert(res.error); return; }
+  crearGraficoTopServicios(res.data, criterio);
+}
 
 /******************************************************
  * Eventos e Inicialización
@@ -602,6 +665,7 @@ document.getElementById("btnActualizar").addEventListener("click", cargarDashboa
 window.onload = function () {
     document.getElementById("filtroFrecuencia").addEventListener("change", actualizarGraficoFrecuencia);
     document.getElementById("filtroProductos").addEventListener("change", actualizarRankingProductos);
+    document.getElementById("filtroTopServicios").addEventListener("change", actualizarGraficoTopServicios);
     
     cargarDashboard();
 };
