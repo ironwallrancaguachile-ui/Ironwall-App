@@ -189,23 +189,19 @@ canvas,
 /* Espaciador alineado idéntico a un selector HTML */
 .grafico-spacer {
     display: flex;
-    align-items: center;
+    align-items: flex-start;     /* Pega el texto a la parte superior (cerca del título) */
     width: 100%;
     
-    /* Mismo padding, font-size y line-height que el <select> */
-    padding: 6px 12px;
-    font-size: 13px;
+    /* Edición de tamaño y posición del texto */
+    font-size: 11px;             /* Texto más pequeño (antes 13px) */
     font-weight: 500;
-    color: #666666;
+    color: #888888;              /* Color gris más tenue */
+    padding: 0 4px;              /* Espaciado interno reducido */
     
-    /* Simula la altura exacta del borde del <select> sin mostrarlo */
-    border: 1px solid transparent; 
-    border-radius: 6px;
-    box-sizing: border-box;
-    
-    /* Forzar altura exacta */
-    height: 35px; 
+    /* Mantiene las dimensiones exactas del <select> para no mover los gráficos */
+    height: 35px;                /* Altura fija total igual al selector */
     margin-bottom: 12px;
+    box-sizing: border-box;
 }
 
 /* PANELES Y TABLAS */
