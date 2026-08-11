@@ -395,15 +395,7 @@ function crearGraficoFrecuencia(data) {
                     borderRadius: 4
                 }]
             },
-            /***options: {
-                indexAxis: "y",
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        right: 45 // Margen para asegurar que las etiquetas no se corten
-                    }
-                },***/
+
                 options: {
                     indexAxis: "y",
                     responsive: true,
@@ -506,17 +498,7 @@ function crearGraficoTopUnidades(data) {
                         right: 55 // Margen para las etiquetas numéricas
                     }
                 },
-                // ...resto de opciones (plugins, scales, etc.)
-            
-            /***options: {
-                indexAxis: "y",
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        right: 45 // Margen para la etiqueta numérica exterior
-                    }
-                },***/
+
                 plugins: {
                     legend: { display: false },
                     datalabels: {
@@ -579,17 +561,7 @@ function crearGraficoTopVentas(data) {
                         right: 55 // Margen para las etiquetas numéricas
                     }
                 },
-                // ...resto de opciones (plugins, scales, etc.)
-            
-            /**options: {
-                indexAxis: "y",
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        right: 75 // Espacio suficiente para no cortar precios de varios dígitos
-                    }
-                },*****/
+
                 plugins: {
                     legend: { display: false },
                     datalabels: {
