@@ -14,7 +14,6 @@ let chartVentas = null;
 let chartClientes = null;
 let chartFinanzas = null;
 let chartPago = null;
-let chartServicios = null;
 let chartFrecuencia = null;
 let chartTopUnidades = null;
 let chartTopVentas = null;
@@ -45,7 +44,7 @@ async function llamarAPI(action, payload = {}) {
  ******************************************************/
 
 function pesos(valor) {
-    return "$" + Number(valor).toLocaleString("es-CL", {
+    return "$" + Number(valor || 0).toLocaleString("es-CL", {
         maximumFractionDigits: 0
     });
 }
@@ -55,8 +54,8 @@ function pesos(valor) {
  ******************************************************/
 
 function actualizarFecha() {
-    document.getElementById("fechaActual").innerHTML =
-        new Date().toLocaleString("es-CL");
+    const el = document.getElementById("fechaActual");
+    if (el) el.innerHTML = new Date().toLocaleString("es-CL");
 }
 
 /******************************************************
@@ -65,26 +64,28 @@ function actualizarFecha() {
 
 async function cargarDashboard() {
     actualizarFecha();
-    const res = await llamarAPI(
-        "obtenerDashboard",
-        {
-            periodoFrecuencia: document.getElementById("filtroFrecuencia").value
-        }
-    );
+    
+    const selectorFrecuencia = document.getElementById("filtroFrecuencia");
+    const periodoFrecuencia = selectorFrecuencia ? selectorFrecuencia.value : "90";
+
+    const res = await llamarAPI("obtenerDashboard", { periodoFrecuencia });
 
     if (!res.ok) {
         alert(res.error);
         return;
     }
+    
     const d = res.data;
     actualizarKPIs(d.kpis);
     actualizarTablas(d);
     actualizarGraficos(d);
-    actualizarRankingProductos();
-    actualizarGraficoTopServicios();
     
-    document.getElementById("ultimaActualizacion").innerHTML =
-        new Date().toLocaleTimeString("es-CL");
+    // Filtros secundarios
+    await actualizarRankingProductos();
+    await actualizarGraficoTopServicios();
+    
+    const elUltima = document.getElementById("ultimaActualizacion");
+    if (elUltima) elUltima.innerHTML = new Date().toLocaleTimeString("es-CL");
 }
 
 /******************************************************
@@ -92,18 +93,18 @@ async function cargarDashboard() {
  ******************************************************/
 
 function actualizarKPIs(k) {
+    if (!k) return;
     document.getElementById("ventasMes").innerHTML = pesos(k.ingresosMes);
-    document.getElementById("clientesMes").innerHTML = k.clientesMes;
+    document.getElementById("clientesMes").innerHTML = k.clientesMes || 0;
     document.getElementById("ticketPromedio").innerHTML = pesos(k.ticketPromedio);
-    document.getElementById("bajoStock").innerHTML = k.bajoStock;
-    document.getElementById("incidentes").innerHTML = k.incidentes;
+    document.getElementById("bajoStock").innerHTML = k.bajoStock || 0;
+    document.getElementById("incidentes").innerHTML = k.incidentes || 0;
     document.getElementById("valorInventario").innerHTML = pesos(k.valorInventario);
 
     const selector = document.getElementById("filtroFrecuencia");
     if (selector) {
         const textoPeriodo = selector.options[selector.selectedIndex].text;
-        document.getElementById("periodoRecurrentes").innerHTML =
-            "2+ visitas · " + textoPeriodo;
+        document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
     }
 }
 
@@ -111,8 +112,9 @@ function actualizarKPIs(k) {
  * Tablas
  ******************************************************/
 
-function actualizarTablaStock(lista) {
+function actualizarTablaStock(lista = []) {
     const tbody = document.querySelector("#tablaStock tbody");
+    if (!tbody) return;
     tbody.innerHTML = "";
     lista.forEach(function (p) {
         tbody.innerHTML += `
@@ -126,8 +128,9 @@ function actualizarTablaStock(lista) {
     });
 }
 
-function actualizarTablaIncidentes(lista) {
+function actualizarTablaIncidentes(lista = []) {
     const tbody = document.querySelector("#tablaIncidentes tbody");
+    if (!tbody) return;
     tbody.innerHTML = "";
     lista.forEach(function (i) {
         tbody.innerHTML += `
@@ -163,7 +166,9 @@ function actualizarGraficos(data) {
  ******************************************************/
 
 function crearGraficoVentas(data) {
+    if (!data) return;
     if (chartVentas) chartVentas.destroy();
+    
     chartVentas = new Chart(
         document.getElementById("graficoVentas"),
         {
@@ -184,12 +189,8 @@ function crearGraficoVentas(data) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    datalabels: {
-                        display: false // <- Desactiva los números fijos sobre la línea
-                    },
-                    legend: {
-                      display: false /* Oculta la leyenda superior en Ventas y Clientes */
-                    }
+                    datalabels: { display: false },
+                    legend: { display: false }
                 }
             }
         }
@@ -201,7 +202,9 @@ function crearGraficoVentas(data) {
  ******************************************************/
 
 function crearGraficoClientes(data) {
+    if (!data) return;
     if (chartClientes) chartClientes.destroy();
+    
     chartClientes = new Chart(
         document.getElementById("graficoClientes"),
         {
@@ -222,12 +225,8 @@ function crearGraficoClientes(data) {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    datalabels: {
-                        display: false // <- Desactiva los números fijos sobre la línea
-                    },
-                    legend: {
-                      display: false /* Oculta la leyenda superior en Ventas y Clientes */
-                    }
+                    datalabels: { display: false },
+                    legend: { display: false }
                 }
             }
         }
@@ -235,10 +234,11 @@ function crearGraficoClientes(data) {
 }
 
 /******************************************************
- * Finanzas — Ingresos vs Egresos (Últimos 6 meses)
+ * Finanzas
  ******************************************************/
 
 function crearGraficoFinanzas(data) {
+    if (!data) return;
     if (chartFinanzas) chartFinanzas.destroy();
 
     chartFinanzas = new Chart(
@@ -246,7 +246,7 @@ function crearGraficoFinanzas(data) {
         {
             type: "line",
             data: {
-                labels: data.labels, // ["Mar", "Abr", "May", "Jun", "Jul", "Ago"]
+                labels: data.labels,
                 datasets: [
                     {
                         label: "Ingresos",
@@ -274,23 +274,14 @@ function crearGraficoFinanzas(data) {
                 plugins: {
                     legend: {
                         position: "bottom",
-                        labels: {
-                            boxWidth: 12, // Achica el cuadro de color de la leyenda
-                            font: {
-                                size: 10 // <--- Reduce el tamaño de la letra de la leyenda (ej. 10px u 9.5px)
-                            }
-                        }
+                        labels: { boxWidth: 12, font: { size: 10 } }
                     },
-                    datalabels: {
-                        display: false // Oculta los números fijos sobre las líneas
-                    }
+                    datalabels: { display: false }
                 },
                 scales: {
                     y: {
                         ticks: {
-                            callback: function(value) {
-                                return pesos(value); // Muestra precios formateados ($100.000)
-                            }
+                            callback: function(value) { return pesos(value); }
                         }
                     }
                 }
@@ -300,9 +291,11 @@ function crearGraficoFinanzas(data) {
 }
 
 /******************************************************
- * Metodos de pago
+ * Métodos de Pago
  ******************************************************/
+
 function crearGraficoPago(data) {
+    if (!data) return;
     if (chartPago) chartPago.destroy();
 
     chartPago = new Chart(
@@ -328,19 +321,11 @@ function crearGraficoPago(data) {
                 plugins: {
                     legend: {
                         position: "right",
-                        labels: {
-                            boxWidth: 12, // Achica el cuadro de color de la leyenda
-                            font: {
-                                size: 10 // <--- Reduce el tamaño de la letra de la leyenda (ej. 10px u 9.5px)
-                            }
-                        }
+                        labels: { boxWidth: 12, font: { size: 10 } }
                     },
                     datalabels: {
                         color: "#FFFFFF",
-                        font: {
-                            weight: "bold",
-                            size: 11   /* Reduce la letra del porcentaje (ej. de 12px a 9px u 8.5px) */
-                        },
+                        font: { weight: "bold", size: 11 },
                         formatter: function (value, ctx) {
                             let total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                             let porcentaje = ((value / total) * 100).toFixed(1);
@@ -358,11 +343,11 @@ function crearGraficoPago(data) {
  ******************************************************/
 
 function crearGraficoFrecuencia(data) {
+    if (!data) return;
     if (chartFrecuencia) chartFrecuencia.destroy();
     
     const valores = data.datasets[0].data;
 
-    // Métricas para el KPI de recurrentes
     const unVisita = Number(valores[0]) || 0;
     const dosTres = Number(valores[1]) || 0;
     const cuatroCinco = Number(valores[2]) || 0;
@@ -384,7 +369,6 @@ function crearGraficoFrecuencia(data) {
         document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
     }
 
-    // Creación del gráfico
     chartFrecuencia = new Chart(
         document.getElementById("graficoFrecuencia"),
         {
@@ -394,49 +378,32 @@ function crearGraficoFrecuencia(data) {
                 datasets: [{
                     label: "Clientes",
                     data: valores,
-                    backgroundColor: "#F57C00", // Color anaranjado
+                    backgroundColor: "#F57C00",
                     borderRadius: 4
                 }]
             },
-
-                options: {
-                    indexAxis: "y",
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    barPercentage: 0.7,      // Controla el grosor individual de cada barra
-                    categoryPercentage: 0.8, // Espaciado entre barras para evitar deformación
-                    layout: {
-                        padding: {
-                            right: 55 // Margen para las etiquetas numéricas
-                        }
-                    },
-                    // ...resto de opciones (plugins, scales, etc.)
-                
+            options: {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: false,
+                barPercentage: 0.7,
+                categoryPercentage: 0.8,
+                layout: { padding: { right: 55 } },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
                         anchor: "end",
                         align: "end",
                         color: "#E65100",
-                        font: {
-                            weight: "bold",
-                            size: 11
-                        },
+                        font: { weight: "bold", size: 11 },
                         formatter: function (value) {
                             return value.toLocaleString("es-CL");
                         }
                     }
                 },
                 scales: {
-                    x: {
-                        display: false // Se oculta el eje horizontal saturado
-                    },
-                    y: {
-                        ticks: {
-                            font: { size: 11 },
-                            autoSkip: false
-                        }
-                    }
+                    x: { display: false },
+                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
                 }
             }
         }
@@ -448,23 +415,19 @@ function crearGraficoFrecuencia(data) {
  ******************************************************/
 
 async function actualizarGraficoFrecuencia() {
-    const periodo = document.getElementById("filtroFrecuencia").value;
-    const res = await llamarAPI("obtenerFrecuenciaClientes", { periodo: periodo });
-    if (!res.ok) {
-        alert(res.error);
-        return;
-    }
+    const el = document.getElementById("filtroFrecuencia");
+    if (!el) return;
+    const res = await llamarAPI("obtenerFrecuenciaClientes", { periodo: el.value });
+    if (!res.ok) { alert(res.error); return; }
     crearGraficoFrecuencia(res.data);
 }
 
 async function actualizarRankingProductos() {
-    const periodo = document.getElementById("filtroProductos").value;
-    const res = await llamarAPI("obtenerRankingProductos", { periodo: periodo });
+    const el = document.getElementById("filtroProductos");
+    if (!el) return;
+    const res = await llamarAPI("obtenerRankingProductos", { periodo: el.value });
 
-    if (!res.ok) {
-        alert(res.error);
-        return;
-    }
+    if (!res.ok) { alert(res.error); return; }
 
     crearGraficoTopUnidades(res.data.unidades);
     crearGraficoTopVentas(res.data.ventas);
@@ -475,6 +438,7 @@ async function actualizarRankingProductos() {
  ******************************************************/
 
 function crearGraficoTopUnidades(data) {
+    if (!data) return;
     if (chartTopUnidades) chartTopUnidades.destroy();
 
     chartTopUnidades = new Chart(
@@ -494,39 +458,24 @@ function crearGraficoTopUnidades(data) {
                 indexAxis: "y",
                 responsive: true,
                 maintainAspectRatio: false,
-                barPercentage: 0.7,      // Controla el grosor individual de cada barra
-                categoryPercentage: 0.8, // Espaciado entre barras para evitar deformación
-                layout: {
-                    padding: {
-                        right: 55 // Margen para las etiquetas numéricas
-                    }
-                },
-
+                barPercentage: 0.7,
+                categoryPercentage: 0.8,
+                layout: { padding: { right: 55 } },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
                         anchor: "end",
                         align: "end",
                         color: "#333333",
-                        font: {
-                            weight: "bold",
-                            size: 11
-                        },
+                        font: { weight: "bold", size: 11 },
                         formatter: function (value) {
                             return value.toLocaleString("es-CL");
                         }
                     }
                 },
                 scales: {
-                    x: {
-                        display: false // Ocultar eje horizontal saturado
-                    },
-                    y: {
-                        ticks: {
-                            font: { size: 11 },
-                            autoSkip: false
-                        }
-                    }
+                    x: { display: false },
+                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
                 }
             }
         }
@@ -538,6 +487,7 @@ function crearGraficoTopUnidades(data) {
  ******************************************************/
 
 function crearGraficoTopVentas(data) {
+    if (!data) return;
     if (chartTopVentas) chartTopVentas.destroy();
 
     chartTopVentas = new Chart(
@@ -557,115 +507,118 @@ function crearGraficoTopVentas(data) {
                 indexAxis: "y",
                 responsive: true,
                 maintainAspectRatio: false,
-                barPercentage: 0.7,      // Controla el grosor individual de cada barra
-                categoryPercentage: 0.8, // Espaciado entre barras para evitar deformación
-                layout: {
-                    padding: {
-                        right: 55 // Margen para las etiquetas numéricas
-                    }
-                },
-
+                barPercentage: 0.7,
+                categoryPercentage: 0.8,
+                layout: { padding: { right: 55 } },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
                         anchor: "end",
                         align: "end",
                         color: "#2E7D32",
-                        font: {
-                            weight: "bold",
-                            size: 11
-                        },
+                        font: { weight: "bold", size: 11 },
                         formatter: function (value) {
-                            return pesos(value); // Muestra el valor formateado ($100.000) al extremo
+                            return pesos(value);
                         }
                     }
                 },
                 scales: {
-                    x: {
-                        display: false // Desactiva el eje X inferior
-                    },
-                    y: {
-                        ticks: {
-                            font: { size: 11 },
-                            autoSkip: false
-                        }
-                    }
+                    x: { display: false },
+                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
                 }
             }
         }
     );
 }
+
 /******************************************************
- * Top Servicios: Pases
+ * Top Servicios: Pases (Púrpura #6A1B9A)
  ******************************************************/
 
 function crearGraficoTopServicios(data, criterio) {
-  if (chartTopServicios) chartTopServicios.destroy();
+    if (!data) return;
+    if (chartTopServicios) chartTopServicios.destroy();
 
-  const esIngresos = criterio === "ingresos";
+    const esIngresos = criterio === "ingresos";
+    const colorVioleta = "#6A1B9A";
 
-  chartTopServicios = new Chart(
-    document.getElementById("graficoTopServicios"),
-    {
-      type: "bar",
-      data: {
-        labels: data.labels,
-        datasets: [{
-          label: data.datasets[0].label,
-          data: data.datasets[0].data,
-          backgroundColor: "#1565C0",
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: "y",
-        responsive: true,
-        maintainAspectRatio: false,
-        barPercentage: 0.7,
-        categoryPercentage: 0.8,
-        layout: { padding: { right: 55 } },
-        plugins: {
-          legend: { display: false },
-          datalabels: {
-            anchor: "end",
-            align: "end",
-            color: "#333333",
-            font: { weight: "bold", size: 11 },
-            formatter: function (value) {
-              return esIngresos
-                ? "$" + value.toLocaleString("es-CL")
-                : value.toLocaleString("es-CL");
+    chartTopServicios = new Chart(
+        document.getElementById("graficoTopServicios"),
+        {
+            type: "bar",
+            data: {
+                labels: data.labels || [],
+                datasets: [{
+                    label: data.datasets?.[0]?.label || "Servicios",
+                    data: data.datasets?.[0]?.data || [],
+                    backgroundColor: colorVioleta,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: false,
+                barPercentage: 0.7,
+                categoryPercentage: 0.8,
+                layout: { padding: { right: 55 } },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: "end",
+                        align: "end",
+                        color: colorVioleta,
+                        font: { weight: "bold", size: 11 },
+                        formatter: function (value) {
+                            return esIngresos ? pesos(value) : Number(value).toLocaleString("es-CL");
+                        }
+                    }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
+                }
             }
-          }
-        },
-        scales: {
-          x: { display: false },
-          y: { ticks: { font: { size: 11 }, autoSkip: false } }
         }
-      }
-    }
-  );
+    );
 }
+
 /******************************************************
  * Peticiones de Filtro Pases
  ******************************************************/
+
 async function actualizarGraficoTopServicios() {
-  const criterio = document.getElementById("filtroTopServicios").value;
-  const res = await llamarAPI("obtenerTopServicios", { criterio: criterio });
-  if (!res.ok) { alert(res.error); return; }
-  crearGraficoTopServicios(res.data, criterio);
+    const el = document.getElementById("filtroTopServicios");
+    if (!el) return;
+
+    const criterio = el.value;
+    const res = await llamarAPI("obtenerTopServicios", { criterio });
+
+    if (!res.ok) {
+        console.error("Error en Top Servicios:", res.error);
+        return;
+    }
+
+    crearGraficoTopServicios(res.data, criterio);
 }
 
 /******************************************************
  * Eventos e Inicialización
  ******************************************************/
 
-document.getElementById("btnActualizar").addEventListener("click", cargarDashboard);
+const btnActualizar = document.getElementById("btnActualizar");
+if (btnActualizar) {
+    btnActualizar.addEventListener("click", cargarDashboard);
+}
 
 window.onload = function () {
-    document.getElementById("filtroFrecuencia").addEventListener("change", actualizarGraficoFrecuencia);
-    document.getElementById("filtroProductos").addEventListener("change", actualizarRankingProductos);
-    document.getElementById("filtroTopServicios").addEventListener("change", actualizarGraficoTopServicios);
-    
+    const filtroFrecuencia = document.getElementById("filtroFrecuencia");
+    const filtroProductos = document.getElementById("filtroProductos");
+    const filtroTopServicios = document.getElementById("filtroTopServicios");
+
+    if (filtroFrecuencia) filtroFrecuencia.addEventListener("change", actualizarGraficoFrecuencia);
+    if (filtroProductos) filtroProductos.addEventListener("change", actualizarRankingProductos);
+    if (filtroTopServicios) filtroTopServicios.addEventListener("change", actualizarGraficoTopServicios);
+
     cargarDashboard();
 };
