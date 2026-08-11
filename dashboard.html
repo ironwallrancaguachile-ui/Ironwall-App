@@ -99,7 +99,6 @@
         <section class="graficos">
             <div class="grafico">
                 <h2>Ventas — Últimos 6 meses</h2>
-                <!-- Espaciador reservado para alineación vertical con gráficos que tienen selectores -->
                 <div class="grafico-spacer"></div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoVentas"></canvas>
@@ -108,7 +107,6 @@
 
             <div class="grafico">
                 <h2>Clientes — Últimos 6 meses</h2>
-                <!-- Espaciador reservado para alineación vertical con gráficos que tienen selectores -->
                 <div class="grafico-spacer"></div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoClientes"></canvas>
@@ -117,7 +115,7 @@
 
             <div class="grafico">
                 <h2>Frecuencia de Visitas por Cliente</h2>
-                <select id="filtroFrecuencia" onchange="actualizarGraficoFrecuencia()">
+                <select id="filtroFrecuencia">
                     <option value="30">Últimos 30 días</option>
                     <option value="90" selected>Últimos 90 días</option>
                     <option value="180">Últimos 180 días</option>
@@ -131,7 +129,6 @@
 
             <div class="grafico">
                 <h2>Ingresos vs Egresos</h2>
-                <!-- Espaciador reservado para alineación vertical con gráficos que tienen selectores -->
                 <div class="grafico-spacer"></div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoFinanzas"></canvas>
@@ -140,7 +137,6 @@
 
             <div class="grafico">
                 <h2>Métodos de Pago</h2>
-                <!-- Espaciador reservado para alineación vertical con gráficos que tienen selectores -->
                 <div class="grafico-spacer"></div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoPago"></canvas>
@@ -150,7 +146,7 @@
             <!-- TOP 10 UNIDADES -->
             <div class="grafico">
                 <h2>🏆 Top 10 — Unidades vendidas</h2>
-                <select id="filtroProductos" onchange="actualizarRankingProductos()">
+                <select id="filtroProductos">
                     <option value="30">Últimos 30 días</option>
                     <option value="90" selected>Últimos 90 días</option>
                     <option value="180">Últimos 180 días</option>
@@ -165,21 +161,22 @@
             <!-- TOP 10 VENTAS -->
             <div class="grafico">
                 <h2>💰 Top 10 — Venta total</h2>
-                <div class="periodoRanking">Según período seleccionado</div>
+                <div class="grafico-spacer"></div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoTopVentas"></canvas>
                 </div>
             </div>
 
+            <!-- TOP 10 SERVICIOS / PASES -->
             <div class="grafico">
-              <h2>Top 10 Servicios/Pases</h2>
-              <select id="filtroTopServicios">
-                <option value="ingresos" selected>Por ingresos ($)</option>
-                <option value="cantidad">Por cantidad vendida</option>
-              </select>
-              <div class="grafico-canvas-wrap">
-                <canvas id="graficoTopServicios"></canvas>
-              </div>
+                <h2>🎟️ Top 10 — Servicios / Pases</h2>
+                <select id="filtroTopServicios">
+                    <option value="ingresos" selected>Por ingresos ($)</option>
+                    <option value="cantidad">Por cantidad vendida</option>
+                </select>
+                <div class="grafico-canvas-wrap">
+                    <canvas id="graficoTopServicios"></canvas>
+                </div>
             </div>
         </section>
 
