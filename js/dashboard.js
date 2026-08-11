@@ -273,7 +273,7 @@ function crearGraficoFinanzas(data) {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: "bottom",
+                        position: "right",
                         labels: { boxWidth: 12, font: { size: 10 } }
                     },
                     datalabels: { display: false }
