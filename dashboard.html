@@ -96,10 +96,11 @@
         </section>
 
         <!-- SECCIÓN GRÁFICOS -->
+<!-- SECCIÓN GRÁFICOS -->
         <section class="graficos">
             <div class="grafico">
                 <h2>Ventas — Últimos 6 meses</h2>
-                <div class="grafico-spacer"></div>
+                <div class="grafico-spacer">Muestra la tendencia mensual de ventas</div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoVentas"></canvas>
                 </div>
@@ -107,7 +108,7 @@
 
             <div class="grafico">
                 <h2>Clientes — Últimos 6 meses</h2>
-                <div class="grafico-spacer"></div>
+                <div class="grafico-spacer">Muestra el flujo de nuevos clientes</div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoClientes"></canvas>
                 </div>
@@ -129,7 +130,7 @@
 
             <div class="grafico">
                 <h2>Ingresos vs Egresos</h2>
-                <div class="grafico-spacer"></div>
+                <div class="grafico-spacer">Últimos 6 meses de flujo financiero</div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoFinanzas"></canvas>
                 </div>
@@ -137,7 +138,7 @@
 
             <div class="grafico">
                 <h2>Métodos de Pago</h2>
-                <div class="grafico-spacer"></div>
+                <div class="grafico-spacer">Distribución de cobros del mes actual</div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoPago"></canvas>
                 </div>
@@ -161,7 +162,8 @@
             <!-- TOP 10 VENTAS -->
             <div class="grafico">
                 <h2>💰 Top 10 — Venta total</h2>
-                <div class="grafico-spacer"></div>
+                <!-- Este texto cambiará dinámicamente según el selector de Productos -->
+                <div class="grafico-spacer" id="periodoVentaTotal">Según período seleccionado (Últimos 90 días)</div>
                 <div class="grafico-canvas-wrap">
                     <canvas id="graficoTopVentas"></canvas>
                 </div>
