@@ -200,7 +200,7 @@ canvas,
     
     /* Mantiene las dimensiones exactas del <select> para no mover los gráficos */
     height: 35px;                /* Altura fija total igual al selector */
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     box-sizing: border-box;
 }
 
