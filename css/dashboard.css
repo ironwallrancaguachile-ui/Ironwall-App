@@ -186,11 +186,16 @@ canvas,
   max-height: 140px !important; /* Limita el alto del gráfico para dejarlo compacto */
 }
 
-/* Espaciador invisible para igualar la altura de las cabeceras */
+/* Espaciador visible alineado con los selectores */
 .grafico-spacer {
-  height: 24px; /* Ocupa exactamente el mismo alto que ocupa un <select> */
+  height: 38px;               /* Alto equivalente al <select> con padding */
   margin-bottom: 6px;
-  visibility: hidden; /* Se mantiene transparente e invisible, pero ocupa espacio físico */
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #666666;
+  font-weight: 500;
+  /* Se eliminó 'visibility: hidden;' para mostrar el texto del período */
 }
 
 /* PANELES Y TABLAS */
