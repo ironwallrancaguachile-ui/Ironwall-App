@@ -411,33 +411,69 @@ function crearGraficoFrecuencia(data) {
 }
 
 /******************************************************
- * Peticiones de Filtro
+ * Peticiones con Filtro Centralizado
  ******************************************************/
 
 async function actualizarGraficoFrecuencia() {
-    const el = document.getElementById("filtroFrecuencia");
-    if (!el) return;
-    const res = await llamarAPI("obtenerFrecuenciaClientes", { periodo: el.value });
+    // Lee el filtro global o asigna '90' por defecto
+    const el = document.getElementById("filtroGlobalPeriodo");
+    const periodo = el ? el.value : "90";
+
+    const res = await llamarAPI("obtenerFrecuenciaClientes", { periodo: periodo });
     if (!res.ok) { alert(res.error); return; }
     crearGraficoFrecuencia(res.data);
 }
 
 async function actualizarRankingProductos() {
-    const el = document.getElementById("filtroProductos");
-    if (!el) return;
+    // Lee el filtro global o asigna '90' por defecto
+    const el = document.getElementById("filtroGlobalPeriodo");
+    const periodo = el ? el.value : "90";
 
-    // Actualiza el texto informativo sobre Top Venta Total
-    const elTextoPeriodo = document.getElementById("periodoVentaTotal");
-    if (elTextoPeriodo) {
-        const textoSeleccionado = el.options[el.selectedIndex].text;
-        elTextoPeriodo.innerText = `Según período de productos · ${textoSeleccionado}`;
-    }
-    const res = await llamarAPI("obtenerRankingProductos", { periodo: el.value });
+    const res = await llamarAPI("obtenerRankingProductos", { periodo: periodo });
+
     if (!res.ok) { alert(res.error); return; }
-    
+
     crearGraficoTopUnidades(res.data.unidades);
     crearGraficoTopVentas(res.data.ventas);
 }
+
+async function actualizarGraficoTopServicios() {
+    const el = document.getElementById("filtroTopServicios");
+    const criterio = el ? el.value : "ingresos";
+
+    const res = await llamarAPI("obtenerTopServicios", { criterio: criterio });
+    if (!res.ok) { console.error("Error Top Servicios:", res.error); return; }
+
+    crearGraficoTopServicios(res.data, criterio);
+}
+
+/******************************************************
+ * Eventos e Inicialización
+ ******************************************************/
+
+const btnActualizar = document.getElementById("btnActualizar");
+if (btnActualizar) {
+    btnActualizar.addEventListener("click", cargarDashboard);
+}
+
+window.onload = function () {
+    const filtroGlobal = document.getElementById("filtroGlobalPeriodo");
+    const filtroServicios = document.getElementById("filtroTopServicios");
+
+    // Al cambiar el período global, reconsultamos la frecuencia y el ranking de productos
+    if (filtroGlobal) {
+        filtroGlobal.addEventListener("change", function () {
+            actualizarGraficoFrecuencia();
+            actualizarRankingProductos();
+        });
+    }
+
+    if (filtroServicios) {
+        filtroServicios.addEventListener("change", actualizarGraficoTopServicios);
+    }
+
+    cargarDashboard();
+};
 
 /******************************************************
  * Ranking Top 10 — Unidades
@@ -588,45 +624,3 @@ function crearGraficoTopServicios(data, criterio) {
         }
     );
 }
-
-/******************************************************
- * Peticiones de Filtro Pases
- ******************************************************/
-
-async function actualizarGraficoTopServicios() {
-    const el = document.getElementById("filtroTopServicios");
-    if (!el) return;
-
-    // Actualiza el texto dentro del <span> en el <h2>
-    const elTextoPeriodo = document.getElementById("periodoTopServicios");
-    if (elTextoPeriodo) {
-        const modo = el.value === "ingresos" ? "ingresos ($)" : "cantidad vendida";
-        elTextoPeriodo.innerText = `(${modo} · Últimos 90 días)`;
-    }
-
-    const res = await llamarAPI("obtenerTopServicios", { criterio: el.value });
-    if (!res.ok) { console.error("Error Top Servicios:", res.error); return; }
-
-    crearGraficoTopServicios(res.data, el.value);
-}
-
-/******************************************************
- * Eventos e Inicialización
- ******************************************************/
-
-const btnActualizar = document.getElementById("btnActualizar");
-if (btnActualizar) {
-    btnActualizar.addEventListener("click", cargarDashboard);
-}
-
-window.onload = function () {
-    const filtroFrecuencia = document.getElementById("filtroFrecuencia");
-    const filtroProductos = document.getElementById("filtroProductos");
-    const filtroTopServicios = document.getElementById("filtroTopServicios");
-
-    if (filtroFrecuencia) filtroFrecuencia.addEventListener("change", actualizarGraficoFrecuencia);
-    if (filtroProductos) filtroProductos.addEventListener("change", actualizarRankingProductos);
-    if (filtroTopServicios) filtroTopServicios.addEventListener("change", actualizarGraficoTopServicios);
-
-    cargarDashboard();
-};
