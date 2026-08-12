@@ -65,10 +65,12 @@ function actualizarFecha() {
 async function cargarDashboard() {
     actualizarFecha();
     
-    const selectorFrecuencia = document.getElementById("filtroFrecuencia");
-    const periodoFrecuencia = selectorFrecuencia ? selectorFrecuencia.value : "90";
+    // 1. Leer el nuevo selector centralizado
+    const selectorGlobal = document.getElementById("filtroGlobalPeriodo");
+    const periodoGlobal = selectorGlobal ? selectorGlobal.value : "90";
 
-    const res = await llamarAPI("obtenerDashboard", { periodoFrecuencia });
+    // 2. Pasar el periodo global al backend si lo requiere
+    const res = await llamarAPI("obtenerDashboard", { periodoFrecuencia: periodoGlobal });
 
     if (!res.ok) {
         alert(res.error);
@@ -80,7 +82,7 @@ async function cargarDashboard() {
     actualizarTablas(d);
     actualizarGraficos(d);
     
-    // Filtros secundarios
+    // 3. Cargar rankings vinculados al filtro
     await actualizarRankingProductos();
     await actualizarGraficoTopServicios();
     
