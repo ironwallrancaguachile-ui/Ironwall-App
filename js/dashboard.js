@@ -440,15 +440,24 @@ async function actualizarRankingProductos() {
 }
 
 async function actualizarGraficoTopServicios() {
-    const el = document.getElementById("filtroTopServicios");
-    const criterio = el ? el.value : "ingresos";
+    // 1. Leemos el criterio (ingresos/unidades)
+    const elCriterio = document.getElementById("filtroTopServicios");
+    const criterio = elCriterio ? elCriterio.value : "ingresos";
 
-    const res = await llamarAPI("obtenerTopServicios", { criterio: criterio });
+    // 2. Leemos el período global (el cursor de 90 días)
+    const elPeriodo = document.getElementById("filtroGlobalPeriodo");
+    const periodo = elPeriodo ? elPeriodo.value : "90";
+
+    // 3. Enviamos AMBOS parámetros a la API
+    const res = await llamarAPI("obtenerTopServicios", { 
+        criterio: criterio, 
+        periodo: periodo 
+    });
+
     if (!res.ok) { console.error("Error Top Servicios:", res.error); return; }
 
     crearGraficoTopServicios(res.data, criterio);
 }
-
 /******************************************************
  * Eventos e Inicialización
  ******************************************************/
