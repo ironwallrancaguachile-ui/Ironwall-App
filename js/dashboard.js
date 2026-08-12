@@ -1,6 +1,7 @@
 /******************************************************
  * IRONWALL ERP
  * Dashboard JavaScript
+ * dashboard.js
  ******************************************************/
 
 // Registrar el plugin de Chart.js
@@ -40,7 +41,7 @@ async function llamarAPI(action, payload = {}) {
 }
 
 /******************************************************
- * Formato moneda
+ * Formato Moneda
  ******************************************************/
 
 function pesos(valor) {
@@ -50,7 +51,7 @@ function pesos(valor) {
 }
 
 /******************************************************
- * Actualizar fecha superior
+ * Fecha Superior
  ******************************************************/
 
 function actualizarFecha() {
@@ -65,11 +66,9 @@ function actualizarFecha() {
 async function cargarDashboard() {
     actualizarFecha();
     
-    // 1. Leer el nuevo selector centralizado
     const selectorGlobal = document.getElementById("filtroGlobalPeriodo");
     const periodoGlobal = selectorGlobal ? selectorGlobal.value : "90";
 
-    // 2. Pasar el periodo global al backend si lo requiere
     const res = await llamarAPI("obtenerDashboard", { periodoFrecuencia: periodoGlobal });
 
     if (!res.ok) {
@@ -82,7 +81,6 @@ async function cargarDashboard() {
     actualizarTablas(d);
     actualizarGraficos(d);
     
-    // 3. Cargar rankings vinculados al filtro
     await actualizarRankingProductos();
     await actualizarGraficoTopServicios();
     
@@ -103,7 +101,7 @@ function actualizarKPIs(k) {
     document.getElementById("incidentes").innerHTML = k.incidentes || 0;
     document.getElementById("valorInventario").innerHTML = pesos(k.valorInventario);
 
-    const selector = document.getElementById("filtroFrecuencia");
+    const selector = document.getElementById("filtroGlobalPeriodo");
     if (selector) {
         const textoPeriodo = selector.options[selector.selectedIndex].text;
         document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
@@ -163,10 +161,6 @@ function actualizarGraficos(data) {
     crearGraficoFrecuencia(data.frecuencia);
 }
 
-/******************************************************
- * Ventas
- ******************************************************/
-
 function crearGraficoVentas(data) {
     if (!data) return;
     if (chartVentas) chartVentas.destroy();
@@ -199,10 +193,6 @@ function crearGraficoVentas(data) {
     );
 }
 
-/******************************************************
- * Clientes
- ******************************************************/
-
 function crearGraficoClientes(data) {
     if (!data) return;
     if (chartClientes) chartClientes.destroy();
@@ -234,10 +224,6 @@ function crearGraficoClientes(data) {
         }
     );
 }
-
-/******************************************************
- * Finanzas
- ******************************************************/
 
 function crearGraficoFinanzas(data) {
     if (!data) return;
@@ -292,10 +278,6 @@ function crearGraficoFinanzas(data) {
     );
 }
 
-/******************************************************
- * Métodos de Pago
- ******************************************************/
-
 function crearGraficoPago(data) {
     if (!data) return;
     if (chartPago) chartPago.destroy();
@@ -340,10 +322,6 @@ function crearGraficoPago(data) {
     );
 }
 
-/******************************************************
- * Frecuencia
- ******************************************************/
-
 function crearGraficoFrecuencia(data) {
     if (!data) return;
     if (chartFrecuencia) chartFrecuencia.destroy();
@@ -365,7 +343,7 @@ function crearGraficoFrecuencia(data) {
 
     document.getElementById("clientesRecurrentes").innerHTML = porcentaje.toFixed(1) + "%";
 
-    const selector = document.getElementById("filtroFrecuencia");
+    const selector = document.getElementById("filtroGlobalPeriodo");
     if (selector) {
         const textoPeriodo = selector.options[selector.selectedIndex].text;
         document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
@@ -439,9 +417,9 @@ async function actualizarRankingProductos() {
 
 async function actualizarGraficoTopServicios() {
     const elCriterio = document.getElementById("filtroTopServicios");
-    const criterio = elCriterio ? elCriterio.value : "ingresos";
-
     const elPeriodo = document.getElementById("filtroGlobalPeriodo");
+
+    const criterio = elCriterio ? elCriterio.value : "ingresos";
     const periodo = elPeriodo ? elPeriodo.value : "90";
 
     const res = await llamarAPI("obtenerTopServicios", { 
@@ -449,13 +427,16 @@ async function actualizarGraficoTopServicios() {
         periodo: periodo 
     });
 
-    if (!res.ok) { console.error("Error Top Servicios:", res.error); return; }
+    if (!res || !res.ok) { 
+        console.error("Error al obtener Top Servicios:", res ? res.error : "Sin respuesta"); 
+        return; 
+    }
 
     crearGraficoTopServicios(res.data, criterio);
 }
 
 /******************************************************
- * Ranking Top 10 — Unidades
+ * Rankings Top 10
  ******************************************************/
 
 function crearGraficoTopUnidades(data) {
@@ -503,10 +484,6 @@ function crearGraficoTopUnidades(data) {
     );
 }
 
-/******************************************************
- * Ranking Top 10 — Ventas Totales ($)
- ******************************************************/
-
 function crearGraficoTopVentas(data) {
     if (!data) return;
     if (chartTopVentas) chartTopVentas.destroy();
@@ -552,44 +529,16 @@ function crearGraficoTopVentas(data) {
     );
 }
 
-/******************************************************
- * Top Servicios: Pases (Púrpura #6A1B9A)
- ******************************************************/
-
-async function actualizarGraficoTopServicios() {
-    const elCriterio = document.getElementById("filtroTopServicios");
-    const elPeriodo = document.getElementById("filtroGlobalPeriodo");
-
-    const criterio = elCriterio ? elCriterio.value : "ingresos";
-    const periodo = elPeriodo ? elPeriodo.value : "90";
-
-    // Envía el objeto con ambos parámetros para filtrar correctamente por fecha
-    const res = await llamarAPI("obtenerTopServicios", {
-        criterio: criterio,
-        periodo: periodo
-    });
-
-    if (!res || !res.ok) { 
-        console.error("Error al obtener Top Servicios:", res ? res.error : "Sin respuesta"); 
-        return; 
-    }
-
-    crearGraficoTopServicios(res.data, criterio);
-}
-
 function crearGraficoTopServicios(data, criterio) {
     if (!data) return;
 
-    // Destruir la instancia anterior para permitir el redibujado correcto
     if (chartTopServicios) {
         chartTopServicios.destroy();
     }
 
-    // Soporta tanto "unidades" como "cantidad"
     const esIngresos = (criterio === "ingresos");
     const colorVioleta = "#6A1B9A";
 
-    // Extraer labels y datasets de forma segura
     const labels = data.labels || [];
     const datasetData = data.datasets?.[0]?.data || [];
     const datasetLabel = data.datasets?.[0]?.label || (esIngresos ? "Ingresos ($)" : "Pases vendidos");
@@ -648,15 +597,14 @@ window.onload = function () {
     const filtroGlobal = document.getElementById("filtroGlobalPeriodo");
     const filtroServicios = document.getElementById("filtroTopServicios");
 
-    // El filtro global actualiza Frecuencia y Ranking de Productos
     if (filtroGlobal) {
         filtroGlobal.addEventListener("change", function () {
             actualizarGraficoFrecuencia();
             actualizarRankingProductos();
+            actualizarGraficoTopServicios();
         });
     }
 
-    // El selector propio de Top Servicios cambia entre Ingresos y Unidades
     if (filtroServicios) {
         filtroServicios.addEventListener("change", actualizarGraficoTopServicios);
     }
