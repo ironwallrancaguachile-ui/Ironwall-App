@@ -454,6 +454,8 @@ async function actualizarGraficoTopServicios() {
         periodo: periodo 
     });
 
+    console.log("<-- Respuesta de la API:", res);
+    
     if (!res.ok) { console.error("Error Top Servicios:", res.error); return; }
 
     crearGraficoTopServicios(res.data, criterio);
