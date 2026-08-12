@@ -556,25 +556,47 @@ function crearGraficoTopVentas(data) {
  * Top Servicios: Pases (Púrpura #6A1B9A)
  ******************************************************/
 
+async function actualizarGraficoTopServicios() {
+    const elCriterio = document.getElementById("filtroTopServicios");
+    const criterio = elCriterio ? elCriterio.value : "ingresos";
+
+    // Llamada directa reconociendo el criterio elegido
+    const res = await llamarAPI("obtenerTopServicios", criterio);
+
+    if (!res || !res.ok) { 
+        console.error("Error al obtener Top Servicios:", res ? res.error : "Sin respuesta"); 
+        return; 
+    }
+
+    crearGraficoTopServicios(res.data, criterio);
+}
+
 function crearGraficoTopServicios(data, criterio) {
     if (!data) return;
 
+    // Destruir la instancia anterior para permitir el redibujado correcto
     if (chartTopServicios) {
         chartTopServicios.destroy();
     }
 
-    const esIngresos = criterio === "ingresos";
+    // Soporta tanto "unidades" como "cantidad"
+    const esIngresos = (criterio === "ingresos");
     const colorVioleta = "#6A1B9A";
+
+    // Extraer labels y datasets de forma segura
+    const labels = data.labels || [];
+    const datasetData = data.datasets?.[0]?.data || [];
+    const datasetLabel = data.datasets?.[0]?.label || (esIngresos ? "Ingresos ($)" : "Pases vendidos");
 
     chartTopServicios = new Chart(
         document.getElementById("graficoTopServicios"),
         {
             type: "bar",
             data: {
-                labels: data.labels || [],
+                labels: labels,
                 datasets: [{
-                    label: data.datasets?.[0]?.label || "Servicios",
-                    data: data.datasets?.[0]?.data || [],
+                    label: datasetLabel,
+                    data: datasetData,
                     backgroundColor: colorVioleta,
                     borderRadius: 4
                 }]
