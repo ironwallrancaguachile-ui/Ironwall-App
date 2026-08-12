@@ -301,6 +301,43 @@ footer {
   font-size: 13px;
 }
 
+/* Panel de Filtros Superior */
+.panel-filtros {
+    background: #ffffff;
+    padding: 14px 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.filtro-grupo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filtro-grupo label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444444;
+}
+
+.filtro-grupo select {
+    color: #555555;
+    border: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1200px) {
   .kpis {
