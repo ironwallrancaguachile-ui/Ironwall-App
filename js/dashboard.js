@@ -558,10 +558,16 @@ function crearGraficoTopVentas(data) {
 
 async function actualizarGraficoTopServicios() {
     const elCriterio = document.getElementById("filtroTopServicios");
-    const criterio = elCriterio ? elCriterio.value : "ingresos";
+    const elPeriodo = document.getElementById("filtroGlobalPeriodo");
 
-    // Llamada directa reconociendo el criterio elegido
-    const res = await llamarAPI("obtenerTopServicios", criterio);
+    const criterio = elCriterio ? elCriterio.value : "ingresos";
+    const periodo = elPeriodo ? elPeriodo.value : "90";
+
+    // Envía el objeto con ambos parámetros para filtrar correctamente por fecha
+    const res = await llamarAPI("obtenerTopServicios", {
+        criterio: criterio,
+        periodo: periodo
+    });
 
     if (!res || !res.ok) { 
         console.error("Error al obtener Top Servicios:", res ? res.error : "Sin respuesta"); 
