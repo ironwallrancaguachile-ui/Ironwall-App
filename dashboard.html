@@ -96,89 +96,69 @@
         </section>
 
         <!-- SECCIÓN GRÁFICOS -->
-<!-- SECCIÓN GRÁFICOS -->
+
+        <!-- BARRA DE FILTROS CENTRALIZADA -->
+        <div class="panel-filtros">
+            <div class="filtro-grupo">
+                <label for="filtroGlobalPeriodo">📅 Período de Análisis:</label>
+                <select id="filtroGlobalPeriodo">
+                    <option value="30">Últimos 30 días</option>
+                    <option value="90" selected>Últimos 90 días</option>
+                    <option value="180">Últimos 180 días</option>
+                    <option value="365">Último año</option>
+                    <option value="historico">Histórico completo</option>
+                </select>
+            </div>
+        
+            <div class="filtro-grupo">
+                <label for="filtroTopServicios">🎟️ Vista Servicios:</label>
+                <select id="filtroTopServicios">
+                    <option value="ingresos" selected>Por ingresos ($)</option>
+                    <option value="cantidad">Por cantidad vendida</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- SECCIÓN GRÁFICOS (LIMPIA Y SIMÉTRICA) -->
         <section class="graficos">
             <div class="grafico">
                 <h2>Ventas — Últimos 6 meses</h2>
-                <div class="grafico-spacer">Muestra la tendencia mensual de ventas</div>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoVentas"></canvas>
-                </div>
+                <div class="grafico-canvas-wrap"><canvas id="graficoVentas"></canvas></div>
             </div>
-
+        
             <div class="grafico">
                 <h2>Clientes — Últimos 6 meses</h2>
-                <div class="grafico-spacer">Muestra el flujo de nuevos clientes</div>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoClientes"></canvas>
-                </div>
+                <div class="grafico-canvas-wrap"><canvas id="graficoClientes"></canvas></div>
             </div>
-
+        
             <div class="grafico">
                 <h2>Frecuencia de Visitas por Cliente</h2>
-                <select id="filtroFrecuencia">
-                    <option value="30">Últimos 30 días</option>
-                    <option value="90" selected>Últimos 90 días</option>
-                    <option value="180">Últimos 180 días</option>
-                    <option value="365">Último año</option>
-                    <option value="historico">Histórico completo</option>
-                </select>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoFrecuencia"></canvas>
-                </div>
+                <div class="grafico-canvas-wrap"><canvas id="graficoFrecuencia"></canvas></div>
             </div>
-
+        
             <div class="grafico">
                 <h2>Ingresos vs Egresos</h2>
-                <div class="grafico-spacer">Últimos 6 meses de flujo financiero</div>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoFinanzas"></canvas>
-                </div>
+                <div class="grafico-canvas-wrap"><canvas id="graficoFinanzas"></canvas></div>
             </div>
-
+        
             <div class="grafico">
                 <h2>Métodos de Pago</h2>
-                <div class="grafico-spacer">Distribución de cobros del mes actual</div>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoPago"></canvas>
-                </div>
+                <div class="grafico-canvas-wrap"><canvas id="graficoPago"></canvas></div>
             </div>
-
-            <!-- TOP 10 UNIDADES -->
+        
             <div class="grafico">
                 <h2>🏆 Top 10 — Unidades vendidas</h2>
-                <select id="filtroProductos">
-                    <option value="30">Últimos 30 días</option>
-                    <option value="90" selected>Últimos 90 días</option>
-                    <option value="180">Últimos 180 días</option>
-                    <option value="365">Último año</option>
-                    <option value="historico">Histórico completo</option>
-                </select>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoTopUnidades"></canvas>
-                </div>
+                <div class="grafico-canvas-wrap"><canvas id="graficoTopUnidades"></canvas></div>
             </div>
-
-            <!-- TOP 10 VENTAS -->
+        
             <div class="grafico">
                 <h2>💰 Top 10 — Venta total</h2>
-                <!-- Este texto cambiará dinámicamente según el selector de Productos -->
-                <div class="grafico-spacer" id="periodoVentaTotal">Según período seleccionado (Últimos 90 días)</div>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoTopVentas"></canvas>
-                </div>
+                <div class="grafico-canvas-wrap"><canvas id="graficoTopVentas"></canvas></div>
             </div>
-
-            <!-- TOP 10 SERVICIOS / PASES -->
+        
             <div class="grafico">
-                <h2>🎟️ Top 10 — Servicios / Pases <span id="periodoTopServicios" class="texto-periodo-titulo">(Según período seleccionable)</span></h2>
-                <select id="filtroTopServicios">
-                    <option value="ingresos" selected>Por Ventas ($)</option>
-                    <option value="cantidad">Por cantidad vendida</option>
-                </select>
-                <div class="grafico-canvas-wrap">
-                    <canvas id="graficoTopServicios"></canvas>
-                </div>
+                <h2>🎟️ Top 10 — Servicios / Pases</h2>
+                <div class="grafico-canvas-wrap"><canvas id="graficoTopServicios"></canvas></div>
             </div>
         </section>
 
