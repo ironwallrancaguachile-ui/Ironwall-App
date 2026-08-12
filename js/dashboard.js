@@ -417,7 +417,6 @@ function crearGraficoFrecuencia(data) {
  ******************************************************/
 
 async function actualizarGraficoFrecuencia() {
-    // Lee el filtro global o asigna '90' por defecto
     const el = document.getElementById("filtroGlobalPeriodo");
     const periodo = el ? el.value : "90";
 
@@ -427,7 +426,6 @@ async function actualizarGraficoFrecuencia() {
 }
 
 async function actualizarRankingProductos() {
-    // Lee el filtro global o asigna '90' por defecto
     const el = document.getElementById("filtroGlobalPeriodo");
     const periodo = el ? el.value : "90";
 
@@ -440,53 +438,21 @@ async function actualizarRankingProductos() {
 }
 
 async function actualizarGraficoTopServicios() {
-    // 1. Leemos el criterio (ingresos/unidades)
     const elCriterio = document.getElementById("filtroTopServicios");
     const criterio = elCriterio ? elCriterio.value : "ingresos";
 
-    // 2. Leemos el período global (el cursor de 90 días)
     const elPeriodo = document.getElementById("filtroGlobalPeriodo");
     const periodo = elPeriodo ? elPeriodo.value : "90";
 
-    // 3. Enviamos AMBOS parámetros a la API
     const res = await llamarAPI("obtenerTopServicios", { 
         criterio: criterio, 
         periodo: periodo 
     });
 
-    console.log("<-- Respuesta de la API:", res);
-    
     if (!res.ok) { console.error("Error Top Servicios:", res.error); return; }
 
     crearGraficoTopServicios(res.data, criterio);
 }
-/******************************************************
- * Eventos e Inicialización
- ******************************************************/
-
-const btnActualizar = document.getElementById("btnActualizar");
-if (btnActualizar) {
-    btnActualizar.addEventListener("click", cargarDashboard);
-}
-
-window.onload = function () {
-    const filtroGlobal = document.getElementById("filtroGlobalPeriodo");
-    const filtroServicios = document.getElementById("filtroTopServicios");
-
-    // Al cambiar el período global, reconsultamos la frecuencia y el ranking de productos
-    if (filtroGlobal) {
-        filtroGlobal.addEventListener("change", function () {
-            actualizarGraficoFrecuencia();
-            actualizarRankingProductos();
-        });
-    }
-
-    if (filtroServicios) {
-        filtroServicios.addEventListener("change", actualizarGraficoTopServicios);
-    }
-
-    cargarDashboard();
-};
 
 /******************************************************
  * Ranking Top 10 — Unidades
@@ -592,7 +558,10 @@ function crearGraficoTopVentas(data) {
 
 function crearGraficoTopServicios(data, criterio) {
     if (!data) return;
-    if (chartTopServicios) chartTopServicios.destroy();
+
+    if (chartTopServicios) {
+        chartTopServicios.destroy();
+    }
 
     const esIngresos = criterio === "ingresos";
     const colorVioleta = "#6A1B9A";
@@ -637,3 +606,43 @@ function crearGraficoTopServicios(data, criterio) {
         }
     );
 }
+
+/******************************************************
+ * Eventos e Inicialización
+ ******************************************************/
+
+const btnActualizar = document.getElementById("btnActualizar");
+if (btnActualizar) {
+    btnActualizar.addEventListener("click", cargarDashboard);
+}
+
+window.onload = function () {
+    const filtroGlobal = document.getElementById("filtroGlobalPeriodo");
+    const filtroServicios = document.getElementById("filtroTopServicios");
+
+    // Al cambiar el período global, actualizamos Frecuencia, Ranking de Productos Y Top Servicios
+    if (filtroGlobal) {
+        const eventoFiltro = filtroGlobal.tagName === "INPUT" ? "input" : "change";
+        
+        filtroGlobal.addEventListener(eventoFiltro, function () {
+            actualizarGraficoFrecuencia();
+            actualizarRankingProductos();
+            actualizarGraficoTopServicios(); // <-- ¡Llamada agregada correctamente!
+        });
+        
+        // Listener de respaldo para cuando se suelta el cursor o cambia de opción
+        if (eventoFiltro === "input") {
+            filtroGlobal.addEventListener("change", function () {
+                actualizarGraficoFrecuencia();
+                actualizarRankingProductos();
+                actualizarGraficoTopServicios();
+            });
+        }
+    }
+
+    if (filtroServicios) {
+        filtroServicios.addEventListener("change", actualizarGraficoTopServicios);
+    }
+
+    cargarDashboard();
+};
