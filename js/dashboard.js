@@ -642,26 +642,15 @@ window.onload = function () {
     const filtroGlobal = document.getElementById("filtroGlobalPeriodo");
     const filtroServicios = document.getElementById("filtroTopServicios");
 
-    // Al cambiar el período global, actualizamos Frecuencia, Ranking de Productos Y Top Servicios
+    // El filtro global actualiza Frecuencia y Ranking de Productos
     if (filtroGlobal) {
-        const eventoFiltro = filtroGlobal.tagName === "INPUT" ? "input" : "change";
-        
-        filtroGlobal.addEventListener(eventoFiltro, function () {
+        filtroGlobal.addEventListener("change", function () {
             actualizarGraficoFrecuencia();
             actualizarRankingProductos();
-            actualizarGraficoTopServicios(); // <-- ¡Llamada agregada correctamente!
         });
-        
-        // Listener de respaldo para cuando se suelta el cursor o cambia de opción
-        if (eventoFiltro === "input") {
-            filtroGlobal.addEventListener("change", function () {
-                actualizarGraficoFrecuencia();
-                actualizarRankingProductos();
-                actualizarGraficoTopServicios();
-            });
-        }
     }
 
+    // El selector propio de Top Servicios cambia entre Ingresos y Unidades
     if (filtroServicios) {
         filtroServicios.addEventListener("change", actualizarGraficoTopServicios);
     }
