@@ -197,6 +197,7 @@ function crearGraficoVentas(data) {
                         }
                     },
                     y: {
+                        callback: function(value) { return pesos(value); },
                         ticks: {
                             font: {
                                 size: 10
@@ -305,7 +306,7 @@ function crearGraficoFinanzas(data) {
                                 size: 10
                             }
                         }
-                    }
+                    },
                     y: {
                         ticks: {
                             callback: function(value) { return pesos(value); },
