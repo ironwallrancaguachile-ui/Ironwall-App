@@ -266,13 +266,14 @@ tbody tr:hover {
 footer {
   background: #212121;
   color: #666666;
-  padding: 15px 40px;
+  padding: 20px 0px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
   width: 100%;
   box-sizing: border-box;
+  grid-column: 1 / -1;
 }
 
 #ultimaActualizacion {
