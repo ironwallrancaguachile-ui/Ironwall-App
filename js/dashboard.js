@@ -204,7 +204,6 @@ function crearGraficoVentas(data) {
                                           compactDisplay: 'short'
                                         }).format(value);
                                       },
-                            /*callback: function(value) { return pesos(value); },*/
                             font: {
                                 size: 10
                             }
@@ -632,8 +631,16 @@ function crearGraficoTopServicios(data, criterio) {
                         color: colorVioleta,
                         font: { weight: "bold", size: 11 },
                         formatter: function (value) {
-                            return esIngresos ? pesos(value) : Number(value).toLocaleString("es-CL");
+                            return new Intl.NumberFormat('es-CL', {
+                                style: 'currency',
+                                currency: 'CLP',
+                                notation: 'compact',
+                                compactDisplay: 'short'
+                            }).format(value);
                         }
+                        /*formatter: function (value) {
+                            return esIngresos ? pesos(value) : Number(value).toLocaleString("es-CL");
+                        }*/
                     }
                 },
                 scales: {
