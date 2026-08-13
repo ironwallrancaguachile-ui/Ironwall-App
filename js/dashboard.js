@@ -197,8 +197,8 @@ function crearGraficoVentas(data) {
                         }
                     },
                     y: {
-                        callback: function(value) { return pesos(value); },
                         ticks: {
+                            callback: function(value) { return pesos(value); },
                             font: {
                                 size: 10
                             }
