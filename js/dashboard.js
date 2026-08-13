@@ -187,7 +187,10 @@ function crearGraficoVentas(data) {
                 plugins: {
                     datalabels: { display: false },
                     legend: { display: false }
-                }
+                },
+                scales: {
+                    x: {
+                        size: 10
             }
         }
     );
