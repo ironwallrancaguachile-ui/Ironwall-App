@@ -198,7 +198,13 @@ function crearGraficoVentas(data) {
                     },
                     y: {
                         ticks: {
-                            callback: function(value) { return pesos(value); },
+                            callback: function(value) { return new Intl.NumberFormat('es-CL', { style: 'currency',
+                                          currency: 'CLP',
+                                          notation: 'compact',
+                                          compactDisplay: 'short'
+                                        }).format(value);
+                                      },
+                            /*callback: function(value) { return pesos(value); },*/
                             font: {
                                 size: 10
                             }
