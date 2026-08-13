@@ -315,7 +315,14 @@ function crearGraficoFinanzas(data) {
                     },
                     y: {
                         ticks: {
-                            callback: function(value) { return pesos(value); },
+                            callback: function(value) {
+                                return new Intl.NumberFormat('es-CL', {
+                                  style: 'currency',
+                                  currency: 'CLP',
+                                  notation: 'compact',
+                                  compactDisplay: 'short'
+                                }).format(value);
+                              },      
                             font:{
                                 size: 10
                             }
@@ -565,8 +572,13 @@ function crearGraficoTopVentas(data) {
                         color: "#2E7D32",
                         font: { weight: "bold", size: 11 },
                         formatter: function (value) {
-                            return pesos(value);
-                        }
+                                return new Intl.NumberFormat('es-CL', {
+                                    style: 'currency',
+                                    currency: 'CLP',
+                                    notation: 'compact',
+                                    compactDisplay: 'short'
+                                }).format(value);
+                            }
                     }
                 },
                 scales: {
