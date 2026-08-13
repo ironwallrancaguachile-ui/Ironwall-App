@@ -266,19 +266,16 @@ tbody tr:hover {
 footer {
   background: #212121;
   color: #666666;
-  padding: 15px 25px;            /* Mismo padding que la .topbar */
+  padding: 15px 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
   
-  /* Truco para extender de extremo a extremo dentro de <main> */
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  /* Se extiende a los bordes sin desbordar la pantalla */
+  width: calc(100% + 40px);
+  margin-left: -20px;
+  margin-bottom: -15px; /* Compensa el padding inferior de <main> */
   box-sizing: border-box;
 }
 
