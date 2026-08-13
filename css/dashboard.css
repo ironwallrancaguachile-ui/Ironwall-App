@@ -265,8 +265,8 @@ tbody tr:hover {
 /* FOOTER */
 footer {
   background: #212121;
-  color: #fff;
-  padding: 10px 40px;
+  color: #666666;
+  padding: 20px 0px;
   display: flex;
   justify-content: space-between;
   align-items: center;
