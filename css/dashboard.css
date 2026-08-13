@@ -271,12 +271,7 @@ footer {
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
-  
-  /* Se extiende a los bordes sin desbordar la pantalla */
-  width: calc(100% + 40px);
-  margin-left: -20px;
-  margin-bottom: -15px; /* Compensa el padding inferior de <main> */
-  box-sizing: border-box;
+  width: 100%;
 }
 
 #ultimaActualizacion {
