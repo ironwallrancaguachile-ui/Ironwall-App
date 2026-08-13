@@ -265,15 +265,13 @@ tbody tr:hover {
 /* FOOTER */
 footer {
   background: #212121;
-  color: white;
-  padding: 10px 20px;
+  color: #fff;
+  padding: 10px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 12px;
   width: 100%;
-  box-sizing: border-box; /* Previene desbordamiento del ancho de pantalla */
-  margin: 0 20px;         /* Separa el footer 20px de cada borde (o padding-left/right) */
 }
 
 #ultimaActualizacion {
