@@ -235,6 +235,22 @@ function crearGraficoClientes(data) {
                 plugins: {
                     datalabels: { display: false },
                     legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -283,9 +299,19 @@ function crearGraficoFinanzas(data) {
                     datalabels: { display: false }
                 },
                 scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
                     y: {
                         ticks: {
-                            callback: function(value) { return pesos(value); }
+                            callback: function(value) { return pesos(value); },
+                            font:{
+                                size: 10
+                            }
                         }
                     }
                 }
