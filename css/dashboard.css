@@ -153,13 +153,14 @@ main {
 }
 
 .grafico h2 {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-shrink: 0;
+  color: #666666;
 }
 
 .grafico select {
@@ -322,16 +323,16 @@ footer {
 }
 
 .filtro-grupo label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: #444444;
+    color: #666666;
 }
 
 .filtro-grupo select {
     color: #555555;
     border: 1px solid #e0e0e0;
     background-color: #ffffff;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     padding: 6px 12px;
     border-radius: 6px;
