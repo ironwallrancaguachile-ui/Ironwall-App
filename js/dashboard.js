@@ -426,7 +426,7 @@ function crearGraficoFrecuencia(data) {
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
+                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
                 }
             }
         }
@@ -520,7 +520,7 @@ function crearGraficoTopUnidades(data) {
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
+                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
                 }
             }
         }
@@ -565,7 +565,7 @@ function crearGraficoTopVentas(data) {
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
+                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
                 }
             }
         }
@@ -620,7 +620,7 @@ function crearGraficoTopServicios(data, criterio) {
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 11 }, autoSkip: false } }
+                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
                 }
             }
         }
