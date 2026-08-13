@@ -631,12 +631,15 @@ function crearGraficoTopServicios(data, criterio) {
                         color: colorVioleta,
                         font: { weight: "bold", size: 11 },
                         formatter: function (value) {
+                            if(esIngresos) {
                             return new Intl.NumberFormat('es-CL', {
                                 style: 'currency',
                                 currency: 'CLP',
                                 notation: 'compact',
                                 compactDisplay: 'short'
                             }).format(value);
+                            }
+                            return value;
                         }
                         /*formatter: function (value) {
                             return esIngresos ? pesos(value) : Number(value).toLocaleString("es-CL");
