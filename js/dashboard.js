@@ -191,6 +191,11 @@ function crearGraficoVentas(data) {
                 scales: {
                     x: {
                         size: 10
+                    },
+                    y: {
+                        size: 10
+                    }
+                }
             }
         }
     );
