@@ -190,10 +190,10 @@ function crearGraficoVentas(data) {
                 },
                 scales: {
                     x: {
-                        size: 10
+                        size: 9
                     },
                     y: {
-                        size: 10
+                        size: 9
                     }
                 }
             }
