@@ -190,10 +190,18 @@ function crearGraficoVentas(data) {
                 },
                 scales: {
                     x: {
-                        size: 9
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
                     },
                     y: {
-                        size: 9
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
                     }
                 }
             }
