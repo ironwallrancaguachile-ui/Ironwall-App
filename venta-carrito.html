@@ -639,11 +639,13 @@ function mostrarStock(){
         return;
 
     }
-
+// Muestra el proveedor (si existe) junto con el stock
+    const proveedorTexto = producto.proveedor ? " | Proveedor: " + producto.proveedor : "";
 
     info.textContent =
         "Stock disponible: " +
-        producto.stockActual;
+        producto.stockActual +
+        proveedorTexto;
 
 }
 
