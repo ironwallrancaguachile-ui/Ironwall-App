@@ -554,7 +554,6 @@ async function cargarProductos(){
 
 }
 
-
 function pintarProductos(){
 
     const select =
@@ -579,8 +578,12 @@ function pintarProductos(){
             p.codigo;
 
 
+        // Se agrega el proveedor en el texto visible del <option>
+        const proveedorTexto = p.proveedor ? " (" + p.proveedor + ")" : "";
+
         option.textContent =
             p.nombre +
+            proveedorTexto +
             " — $" +
             formatearNumero(p.precioVenta) +
             " — stock: " +
@@ -594,6 +597,7 @@ function pintarProductos(){
     });
 
 }
+
 
 
 /******************************************************
