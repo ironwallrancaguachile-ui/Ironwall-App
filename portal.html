@@ -146,10 +146,10 @@ min-width:250px;
 font-variant-numeric: tabular-nums;
 }
 
-/* GRID Y TARJETAS MINIMIZADAS */
+/* GRID Y TARJETAS MINIMIZADAS EN DESKTOP */
 .grid{
 display:grid;
-grid-template-columns:repeat(5, 1fr); /* 5 columnas en escritorio para tarjetas horizontales */
+grid-template-columns:repeat(5, 1fr);
 gap:10px;
 max-width:1450px;
 margin:-30px auto 0 auto;
@@ -211,24 +211,24 @@ font-size:12px;
 letter-spacing:.5px;
 }
 
-/* SMARTPHONE */
+/* REGULADOR PARA TABLET Y PANTALLAS INTERMEDIAS */
 @media (max-width:1024px){
   .grid{
-    grid-template-columns:repeat(5, 1fr);
+    grid-template-columns:repeat(3, 1fr);
   }
 }
 
-  /* SMARTPHONE (2 tarjetas por fila + Logo sobre el título) */
-@media (max-width: 768px) {
+/* REGULADOR PARA SMARTPHONE (VERTICAL Y HORIZONTAL) */
+@media (max-width: 768px), (max-height: 500px) and (orientation: landscape) {
   body {
-    padding: -10px 18px;
+    padding: 0 18px;
   }
   
-  /* Cabecera vertical centrada */
+  /* Cabecera unificada en teléfono */
   header {
     flex-direction: column;
     align-items: center;
-    margin: -35px auto 10px auto;
+    margin: -15px auto 10px auto;
     padding: 0;
   }
 
@@ -240,11 +240,11 @@ letter-spacing:.5px;
   }
   
   header img {
-    width: 240px;
+    width: 240px !important;
     max-width: 100%;
     height: auto;
     margin-right: 0;
-    margin-top: -35px;
+    margin-top: -15px;
     margin-bottom: -30px;
     transform: none;
     display: block;
@@ -253,29 +253,30 @@ letter-spacing:.5px;
   .tituloMarca {
     text-align: left;
     width: 100%;
-    padding-left: 10;
-    margin-top: -20px;
+    padding-left: 10px !important;
+    margin-top: -10px;
   }
   
+  /* MANTENIMIENTO RIGUROSO DE VALORES EN AMBAS ORIENTACIONES */
   .logoTexto {
-    font-size: 25px;
+    font-size: 25px !important;
     letter-spacing: 1px;
     line-height: 1;
     margin: 0 0 4px 0;
   }
 
   .tituloMarca h2 {
-    font-size: 18px;
+    font-size: 18px !important;
     line-height: 1.1;
   }
 
   .sub {
     margin-top: 4px;
-    font-size: 13px;
+    font-size: 13px !important;
   }
 
   .sub2 {
-    font-size: 11px;
+    font-size: 11px !important;
   }
   
   .infoSistema {
@@ -283,17 +284,18 @@ letter-spacing:.5px;
     border-left: none;
     border-top: 2px solid #e5e5e5;
     padding-top: 10px;
-    padding-left: 10;
+    padding-left: 10px !important;
     width: 100%;
     text-align: left;
-    font-size: 13px;
+    font-size: 13px !important;
   }
   
-  /* Forzado a 2 tarjetas por fila en teléfono */
+  /* TARJETAS EN TELÉFONO */
   .grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     padding: 0;
+    margin-top: 10px;
   }
 
   .card {
@@ -313,6 +315,13 @@ letter-spacing:.5px;
 
   .desc {
     font-size: 12px;
+  }
+}
+
+/* AJUSTE ESPECÍFICO DE PARRILLA SI EL TELÉFONO ESTÁ HORIZONTAL */
+@media (max-height: 500px) and (orientation: landscape) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr) !important; /* Aprovecha el ancho horizontal */
   }
 }
 </style>
