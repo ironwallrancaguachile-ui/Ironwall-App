@@ -109,6 +109,14 @@
   <h1>Inventario: Stock y Ajustes</h1>
   <p class="sub">Registra cuando llega mercadería, o cuando corriges un conteo.</p>
 
+  <!-- Contenedor del Resumen de Productos Bajo Stock -->
+  <div id="resumenStockBajo" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">⚠️ Productos Bajo Stock Mínimo</h3>
+    <div id="listaStockBajo" style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="font-size: 13px; color: #888;">Cargando productos...</span>
+    </div>
+  </div>
+
   <label>¿Qué pasó? *</label>
   <div class="tipo-botones">
     <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
@@ -229,23 +237,63 @@
 
     function pintarProductos() {
       const select = document.getElementById('producto');
+      const valorPrevio = select.value;
+
       select.innerHTML = '<option value="">-- Selecciona --</option>' +
         productosCache.map(function (p) {
           const proveedorTexto = p.proveedor ? ' — ' + p.proveedor : '';
           return '<option value="' + p.codigo + '">' + p.nombre + proveedorTexto + ' (stock: ' + p.stockActual + ')</option>';
         }).join('');
+
+      if (valorPrevio) select.value = valorPrevio;
+
+      generarTarjetaStockBajo_();
+      mostrarStock();
+    }
+
+    function generarTarjetaStockBajo_() {
+      const contenedor = document.getElementById('listaStockBajo');
+      if (!productosCache || productosCache.length === 0) {
+        contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros de stock</span>';
+        return;
+      }
+
+      const bajos = productosCache.filter(function (p) {
+        return Number(p.stockActual) <= Number(p.stockMinimo);
+      });
+
+      if (bajos.length === 0) {
+        contenedor.innerHTML = '<span style="font-size: 13px; color: #1e824c; font-weight: 600;">✅ Todos los productos tienen stock suficiente</span>';
+        return;
+      }
+
+      contenedor.innerHTML = bajos.map(function (p) {
+        return `
+          <div style="background: #fdf2f2; border: 1px solid #f5c6c0; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
+            <strong style="color: #c0392b;">${p.nombre}:</strong> 
+            <span style="color: #922b21; font-weight: bold;">${p.stockActual} u.</span>
+            <span style="color: #7f8c8d; font-size: 11px;">(mín: ${p.stockMinimo})</span>
+          </div>
+        `;
+      }).join('');
     }
 
     function mostrarStock() {
-      const codigo = document.getElementById('producto').value;
+      const select = document.getElementById('producto');
+      const codigo = select.value;
       const info = document.getElementById('stockInfo');
+
+      if (!codigo) { 
+        info.style.display = 'none'; 
+        return; 
+      }
+
       const producto = productosCache.find(function (p) { return p.codigo === codigo; });
       if (!producto) { info.style.display = 'none'; return; }
 
       info.style.display = 'block';
-      const proveedorTexto = producto.proveedor ? 'Proveedor: ' + producto.proveedor + ' — ' : '';
-      info.textContent = proveedorTexto + 'Stock actual: ' + producto.stockActual + (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
-      info.className = producto.stockActual <= producto.stockMinimo ? 'bajo' : '';
+      info.textContent = 'Stock actual: ' + producto.stockActual + (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
+      info.className = Number(producto.stockActual) <= Number(producto.stockMinimo) ? 'bajo' : '';
     }
 
     function cargarProductos() {
