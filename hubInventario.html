@@ -24,41 +24,57 @@ h1{
   color:#666;
   font-size:14px;
 }
-.grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:18px;
-  margin-top:25px;
+/* Reducir espacio entre tarjetas */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px; /* Reducido de 18px a 10px */
+  margin-top: 15px;
 }
-.card{
-  display:block;
-  background:#fff;
-  border:1px solid #e5e5e5;
-  border-radius:18px;
-  padding:22px;
-  text-decoration:none;
-  color:#222;
-  box-shadow:0 5px 15px rgba(0,0,0,.08);
-  transition:.2s;
+
+/* Tarjeta más compacta en layout horizontal (Flexbox) */
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px; /* Esquinas ligeramente más estilizadas */
+  padding: 12px 16px;  /* Reducido de 22px a 12px vertical */
+  text-decoration: none;
+  color: #222;
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  transition: .2s;
 }
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 10px 20px rgba(0,0,0,.12);
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0,0,0,.08);
 }
-.icon{
-  font-size:42px;
-  margin-bottom:12px;
+
+/* Ícono más pequeño al lado izquierdo */
+.icon {
+  font-size: 24px; /* Reducido de 42px a 24px */
+  line-height: 1;
 }
-.titulo{
-  font-size:18px;
-  font-weight:700;
-  margin-bottom:6px;
-  margin-top:0px;
+
+/* Contenedor de texto a la derecha del ícono */
+.card-content {
+  display: flex;
+  flex-direction: column;
 }
-.desc{
-  font-size:14px;
-  color:#666;
-  line-height:1.4;
+
+.titulo {
+  font-size: 15px; /* Reducido de 18px */
+  font-weight: 700;
+  margin: 0;
+}
+
+.desc {
+  font-size: 12px; /* Reducido de 14px */
+  color: #666;
+  margin-top: 2px;
+  line-height: 1.2;
 }
 .encabezadoCliente{
   text-align:center;
