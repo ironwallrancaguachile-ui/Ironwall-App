@@ -93,10 +93,18 @@
   <p class="sub">Registra articulos del muro, o cuando corriges un conteo.</p>
 
    <!-- Contenedor del Resumen por Proveedor -->
-  <div id="resumenProveedores" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <div id="resumenProveedores" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
     <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">🧗‍♂️ Presas/Herramientas por Marca/Proveedor</h3>
     <div id="listaProveedores" style="display: flex; flex-wrap: wrap; gap: 8px;">
       <span style="font-size: 13px; color: #888;">Cargando resumen...</span>
+    </div>
+  </div>
+
+  <!-- Contenedor del Resumen de Equipamiento Bajo Stock -->
+  <div id="resumenStockBajo" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">⚠️ Equipamiento / Presas Bajo Stock Mínimo</h3>
+    <div id="listaStockBajo" style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="font-size: 13px; color: #888;">Cargando lista...</span>
     </div>
   </div>
 
@@ -227,14 +235,19 @@
 
     function pintarProductos() {
       const select = document.getElementById('producto');
+      const valorPrevio = select.value;
+
       select.innerHTML = '<option value="">-- Selecciona --</option>' +
         productosCache.map(function (p) {
           const proveedorTexto = p.proveedor ? ' — ' + p.proveedor : '';
           return '<option value="' + p.codigo + '">' + p.nombre + proveedorTexto + ' (stock: ' + p.stockActual + ')</option>';
         }).join('');
     
-      // Generar Tarjeta de Resumen por Proveedor
+      if (valorPrevio) select.value = valorPrevio;
+
+      // Generar tarjetas de resumen
       generarResumenProveedores_();
+      generarResumenStockBajo_();
       mostrarStock();
     }
     
@@ -258,6 +271,33 @@
           <div style="background: #f0f4f8; border: 1px solid #d0dbe5; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
             <strong style="color: #1a1a1a;">${prov}:</strong> 
             <span style="color: #2b6cb0; font-weight: bold;">${conteo[prov]} unidades</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function generarResumenStockBajo_() {
+      const contenedor = document.getElementById('listaStockBajo');
+      if (!productosCache || productosCache.length === 0) {
+        contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros de stock</span>';
+        return;
+      }
+
+      const bajos = productosCache.filter(function (p) {
+        return Number(p.stockActual) <= Number(p.stockMinimo);
+      });
+
+      if (bajos.length === 0) {
+        contenedor.innerHTML = '<span style="font-size: 13px; color: #1e824c; font-weight: 600;">✅ Todo el equipamiento tiene stock suficiente</span>';
+        return;
+      }
+
+      contenedor.innerHTML = bajos.map(function (p) {
+        return `
+          <div style="background: #fdf2f2; border: 1px solid #f5c6c0; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
+            <strong style="color: #c0392b;">${p.nombre}:</strong> 
+            <span style="color: #922b21; font-weight: bold;">${p.stockActual} u.</span>
+            <span style="color: #7f8c8d; font-size: 11px;">(mín: ${p.stockMinimo})</span>
           </div>
         `;
       }).join('');
@@ -290,7 +330,7 @@
 
     function cargarProductos() {
       const cache = leerCache_('productos_equipamiento_cache');
-           if (cache) { productosCache = cache; pintarProductos(); }
+      if (cache) { productosCache = cache; pintarProductos(); }
 
       llamarApi(API_URL_INVENTARIO, 'listarEquipamientoInterno', {})
         .then(function (resp) {
