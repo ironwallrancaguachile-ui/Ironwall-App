@@ -232,7 +232,7 @@
       const cache = leerCache_('productos_inventario_cache');
       if (cache) { productosCache = cache; pintarProductos(); }
 
-      llamarApi(API_URL_INVENTARIO, 'listarProductosActivos', {})
+      llamarApi(API_URL_INVENTARIO, 'listarProductosTienda', {})
         .then(function (resp) {
           if (resp.ok) {
             productosCache = resp.data;
