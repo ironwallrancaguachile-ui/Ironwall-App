@@ -1,16 +1,11 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
 <title>Ironwall | Sistema</title>
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script>
-
 function verificarAcceso(){
   const clave = prompt("Ingrese la contraseña de Gerencia:");
   if(!clave) return;
@@ -27,10 +22,7 @@ function verificarAcceso(){
   .then(r=>r.json())
   .then(resp=>{
     if(resp.ok){
-      sessionStorage.setItem(
-      "dashboard_autorizado",
-      "SI"
-      );
+      sessionStorage.setItem("dashboard_autorizado", "SI");
       window.location.href="dashboard.html";
     }else{
       alert("Contraseña incorrecta.");
@@ -40,11 +32,9 @@ function verificarAcceso(){
     alert("Error validando acceso.");
   });
 }
-  
 </script>
    
 <style>
-
 @font-face{
 font-family:'Archivo Extra Condensed';
 src:url("fonts/Archivo_ExtraCondensed-Regular.ttf");
@@ -65,13 +55,11 @@ font-family:'Archivo';
 src:url("fonts/Archivo-Regular.ttf");
 font-weight:400;
 }
-
 @font-face{
 font-family:'Archivo';
 src:url("fonts/Archivo-SemiBold.ttf");
 font-weight:600;
 }
-
 @font-face{
 font-family:'Archivo';
 src:url("fonts/Archivo-Bold.ttf");
@@ -86,11 +74,7 @@ font-family:'Archivo', sans-serif;
 }
   
 body{
-background:
-linear-gradient(
-180deg,
-#eef2f7 0%,
-#f8f9fb 100%);
+background: linear-gradient(180deg, #eef2f7 0%, #f8f9fb 100%);
 padding:0 20px;
 }
   
@@ -98,9 +82,9 @@ header{
 display:flex;
 justify-content:space-between;
 align-items:center;
-max-width:1500px;
-margin:0 auto -20px auto;
-padding:5px 20px;
+max-width:1450px;
+margin:0 auto 15px auto;
+padding:10px 35px;
 }
 
 .marca{
@@ -110,7 +94,7 @@ gap:8px;
 }
 
 header img{
-width:320px;
+width:280px;
 height:auto;
 margin-right:5px;
 transform:translateY(-5px);
@@ -124,22 +108,24 @@ gap:35px;
 
 .logoTexto{
 font-family:Boris, sans-serif;
-font-size:52px;
+font-size:46px;
 letter-spacing:2px;
 line-height:0.95;
 }
 
 .tituloMarca h2{
 font-family:Archivo,sans-serif;
-font-size:26px;
+font-size:22px;
 font-weight:400;
 letter-spacing:1px;
 }
 
 .sub{
 font-family:Archivo,sans-serif;
-font-size:16px;
+font-size:14px;
 font-weight:500;
+color:#666;
+margin-top:4px;
 }
 
 .sub2{
@@ -152,171 +138,132 @@ letter-spacing:.5px;
 text-align:left;
 font-size:14px;
 color:#666;
-line-height:1.9;
-padding-left:35px;
+line-height:1.6;
+padding-left:25px;
 border-left:2px solid #e5e5e5;
-
-min-width:280px;
+min-width:250px;
 font-variant-numeric: tabular-nums;
 }
 
-h1{
-margin:0;
-}
-
-.sub{
-color:#666;
-margin-top:8px;
-}
-
+/* GRID Y TARJETAS MINIMIZADAS */
 .grid{
 display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:20px;
+grid-template-columns:repeat(3, 1fr); /* 3 columnas en escritorio para tarjetas horizontales */
+gap:12px;
 max-width:1450px;
 margin:0 auto;
 padding:0 35px;
 }
 
 .card{
+display:flex;
+align-items:center;
+gap:14px;
 background:white;
-border-radius:18px;
-padding:22px;
+border-radius:12px;
+padding:12px 16px;
 text-decoration:none;
 color:#222;
-box-shadow:0 5px 20px rgba(0,0,0,.08);
-transition:.25s;
+box-shadow:0 2px 8px rgba(0,0,0,.04);
+border: 1px solid #e8ecef;
+transition:.2s;
 }
 
 .card:hover{
-transform:translateY(-5px);
-box-shadow:0 15px 35px rgba(0,0,0,.15);
+transform:translateY(-2px);
+box-shadow:0 6px 16px rgba(0,0,0,.08);
+border-color:#d0d7de;
 }
 
 .icon{
-font-size:42px;
-margin-bottom:18px;
+font-size:26px;
+line-height:1;
+min-width:32px;
+text-align:center;
+}
+
+.card-content{
+display:flex;
+flex-direction:column;
 }
 
 .titulo{
 font-family:Archivo,sans-serif;
-font-size:22px;
-font-weight:600;
+font-size:15px;
+font-weight:700;
+line-height:1.2;
 }
 
 .desc{
-font-size:15px;
-line-height:1.5;
+font-size:12px;
+line-height:1.3;
 color:#666;
+margin-top:2px;
 }
 
 footer{
-margin-top:35px;
+margin-top:25px;
+margin-bottom:15px;
 text-align:center;
 color:#999;
 font-size:12px;
 letter-spacing:.5px;
 }
-/* ===========================
-   VERSION SMARTPHONE
-   =========================== */
-    @media (max-width:768px){
-    
-    body{
-    padding:15px;
-    }
-    
-    /* Cabecera vertical */
-    header{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    margin:0 auto 10px auto;
-    padding:0;
-    }
-    
-    /* Logo */
-    header img{
-    width:320px;
-    max-width:100%;
-    height:auto;
-    margin-bottom:-25px;
-    transform:none;
-    display:block;
-    }
-    
-    /* Nombre y textos */
-    .tituloMarca{
-    text-align:left;
-    width:100%;
-    padding-left:20px;
-    margin-top:-20px;
-    }
-    
-    .logoTexto{
-    font-size:36px;
-    letter-spacing:1px;
-    white-space:nowrap;
-    line-height:1;
-    margin:0 0 10px 0;
-    }
-    
-    .tituloMarca h2{
-    margin-top:6px;
-    font-size:28px;
-    line-height:1.1;
-    }
-    
-    .sub{
-    margin-top:10px;
-    }
-    
-    .sub2{
-    font-size:12px;
-    }
-    
-    /* Fecha hora turno */
-    .infoSistema{
-    margin-top:15px;
-    border-left:none;
-    border-top:2px solid #e5e5e5;
-    padding-top:12px;
-    width:100%;
-    text-align:left;
-    }
-    
-    /* Tarjetas */
-    .grid{
-    grid-template-columns:1fr;
-    gap:15px;
-    width:100%;
-    }
-    .card{
-    padding:20px;
-    border-radius:16px;
-    }
-    .icon{
-    font-size:38px;
-    }
-    .titulo{
-    font-size:21px;
-    }
-    .desc{
-    font-size:15px;
-    }
-    .marca{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        width:100%;
-    }  
-    .tituloMarca{
-    text-align:left;
-    width:100%;
-    padding-left:15px;
-    margin-top:-20px;
-    }
-    }
+
+/* SMARTPHONE */
+@media (max-width:1024px){
+  .grid{
+    grid-template-columns:repeat(2, 1fr);
+  }
+}
+
+@media (max-width:768px){
+  body{
+  padding:10px;
+  }
+  
+  header{
+  flex-direction:column;
+  align-items:center;
+  margin:0 auto 10px auto;
+  padding:0;
+  }
+  
+  header img{
+  width:260px;
+  margin-bottom:-15px;
+  transform:none;
+  }
+  
+  .tituloMarca{
+  text-align:left;
+  width:100%;
+  padding-left:15px;
+  }
+  
+  .logoTexto{
+  font-size:32px;
+  }
+  
+  .infoSistema{
+  margin-top:10px;
+  border-left:none;
+  border-top:2px solid #e5e5e5;
+  padding-top:10px;
+  padding-left:0;
+  width:100%;
+  }
+  
+  .grid{
+  grid-template-columns:1fr;
+  gap:10px;
+  padding:0 10px;
+  }
+
+  .card{
+  padding:12px 14px;
+  }
+}
 </style>
 
 </head>
@@ -325,176 +272,138 @@ letter-spacing:.5px;
 
 <header>
     <div class="marca">
-    <img src="img/logosn.png">   
-    <div class="tituloMarca">      
-    <h1 class="logoTexto">IRONWALL</h1>
-    <h2>Rancagua</h2>   
-    <div class="sub">
-    Sistema de Gestión
-    </div>    
-    <div class="sub2">
-    Administración interna • Clientes • Operaciones
-    </div>
-    </div>
+      <img src="img/logosn.png" alt="Logo Ironwall">   
+      <div class="tituloMarca">      
+        <h1 class="logoTexto">IRONWALL</h1>
+        <h2>Rancagua</h2>   
+        <div class="sub">Sistema de Gestión</div>    
+        <div class="sub2">Administración interna • Clientes • Operaciones</div>
+      </div>
     </div>   
    
     <div class="infoSistema">
-    <div id="fechaActual"></div>
-    <div id="horaActual"></div>
+      <div id="fechaActual"></div>
+      <div id="horaActual"></div>
       <div class="turnoSistema">
-      Turno actual:
-      <strong><span id="turnoActual"></span></strong>
+        Turno actual: <strong><span id="turnoActual"></span></strong>
       </div>
     </div>
 </header>
 
 <div class="grid">
 
-<a class="card" href="portalcliente.html">
-<div class="icon">👤</div>
-<div class="titulo">
-Home del Cliente 
-</div>
-<div class="desc">
-Registro Clientes
-</div>
-</a>
+  <a class="card" href="portalcliente.html">
+    <div class="icon">👤</div>
+    <div class="card-content">
+      <div class="titulo">Home del Cliente</div>
+      <div class="desc">Registro Clientes</div>
+    </div>
+  </a>
 
-<a class="card" href="checkin.html">
-<div class="icon">  🎟    💳 </div>
-<div class="titulo">
-Check-In 
-</div>
-<div class="titulo">
-Cargar Pase
-</div>
-<div class="desc">
-Ingreso clientes & Agregar membresías
-</div>
-</a>
+  <a class="card" href="checkin.html">
+    <div class="icon">🎟️</div>
+    <div class="card-content">
+      <div class="titulo">Check-In / Cargar Pase</div>
+      <div class="desc">Ingreso clientes & Agregar membresías</div>
+    </div>
+  </a>
 
-<a class="card" href="ficha360.html">
-<div class="icon">📄</div>
-<div class="titulo">
-Ficha Cliente
-</div>
-<div class="desc">
-Historial,
-Pases &
-Notas
-</div>
-</a>
+  <a class="card" href="ficha360.html">
+    <div class="icon">📄</div>
+    <div class="card-content">
+      <div class="titulo">Ficha Cliente</div>
+      <div class="desc">Historial, Pases & Notas</div>
+    </div>
+  </a>
 
-<a class="card" href="venta-carrito.html">
-<div class="icon">🛒</div>
-<div class="titulo">
-Tienda: Carrito de Ventas
-</div>
-<div class="desc">
-Registra cuando vendes algo.
-</div>
-</a>
+  <a class="card" href="venta-carrito.html">
+    <div class="icon">🛒</div>
+    <div class="card-content">
+      <div class="titulo">Tienda: Carrito de Ventas</div>
+      <div class="desc">Registra cuando vendes algo</div>
+    </div>
+  </a>
 
-<a class="card" href="hubInventario.html">
-<div class="icon">📦</div>
-<div class="titulo">
-Inventario: Compras de insumos y ajustes.
-</div>
-<div class="desc">
-Registra cuando cuando llega mercadería, o cuando corriges un conteo.
-</div>
-</a>
+  <a class="card" href="hubInventario.html">
+    <div class="icon">📦</div>
+    <div class="card-content">
+      <div class="titulo">Inventario</div>
+      <div class="desc">Compras de insumos y ajustes</div>
+    </div>
+  </a>
 
-<a class="card" href="movimientos.html">
-<div class="icon">💵</div>
-<div class="titulo">
-Caja General
-</div>
-<div class="desc">
-Solo gastos e ingresos sin stock
-</div>
-</a>
+  <a class="card" href="movimientos.html">
+    <div class="icon">💵</div>
+    <div class="card-content">
+      <div class="titulo">Caja General</div>
+      <div class="desc">Gastos e ingresos sin stock</div>
+    </div>
+  </a>
 
-<a class="card" href="incidentes.html">
-<div class="icon">🚨</div>
-<div class="titulo">
-Registro de incidentes
-</div>
-<div class="desc">
-Cualquier caída, lesión o situación fuera de lo normal 
-</div>
-</a>
+  <a class="card" href="incidentes.html">
+    <div class="icon">🚨</div>
+    <div class="card-content">
+      <div class="titulo">Registro de Incidentes</div>
+      <div class="desc">Caídas, lesiones o situaciones anormales</div>
+    </div>
+  </a>
 
-<a class="card" href="resumen.html">
-<div class="icon">🎛️</div>
-<div class="titulo">
-Centro de Control
-</div>
-<div class="desc">
-Gestión del Turno
-</div>
-</a>
+  <a class="card" href="resumen.html">
+    <div class="icon">🎛️</div>
+    <div class="card-content">
+      <div class="titulo">Centro de Control</div>
+      <div class="desc">Gestión del Turno</div>
+    </div>
+  </a>
 
-<a class="card" href="mensajespendientes.html">
-<div class="icon">📬</div>
-<div class="titulo">
-Mensajes pendientes
-</div>
-<div class="desc">
-Cópialos y mándalos por WhatsApp o correo
-</div>
-</a>
+  <a class="card" href="mensajespendientes.html">
+    <div class="icon">📬</div>
+    <div class="card-content">
+      <div class="titulo">Mensajes Pendientes</div>
+      <div class="desc">Envío por WhatsApp o correo</div>
+    </div>
+  </a>
 
-<a class="card" href="dashboard.html" onclick="verificarAcceso(); return false;">  
-<div class="icon">📊</div>
-<div class="titulo">
-Dashboard
-</div>
-<div class="desc">
-Solo gerencia
-</div>
-
-</a>
+  <a class="card" href="dashboard.html" onclick="verificarAcceso(); return false;">  
+    <div class="icon">📊</div>
+    <div class="card-content">
+      <div class="titulo">Dashboard</div>
+      <div class="desc">Acceso exclusivo Gerencia</div>
+    </div>
+  </a>
 
 </div>
 
 <footer>
-Ironwall Gestión v1.0 |
-Rancagua 2026
+Ironwall Gestión v1.0 | Rancagua 2026
 </footer>
   
 <script>
 function actualizarSistema(){
-const ahora = new Date();
-const opcionesFecha = {
-weekday:'long',
-year:'numeric',
-month:'long',
-day:'numeric'
-};
-document.getElementById("fechaActual").innerHTML =
-"📅 " + ahora.toLocaleDateString('es-CL', opcionesFecha);
-  
-document.getElementById("horaActual").innerHTML =
-"🕒 " + ahora.toLocaleTimeString('es-CL');
-  
-let hora = ahora.getHours();
-let turno="Mañana";
-if(hora>=13 && hora<18){
-turno="Tarde";
-}
-if(hora>=18 || hora<6){
-turno="Noche";
-}
+  const ahora = new Date();
+  const opcionesFecha = {
+    weekday:'long',
+    year:'numeric',
+    month:'long',
+    day:'numeric'
+  };
+  document.getElementById("fechaActual").innerHTML = "📅 " + ahora.toLocaleDateString('es-CL', opcionesFecha);
+  document.getElementById("horaActual").innerHTML = "🕒 " + ahora.toLocaleTimeString('es-CL');
+    
+  let hora = ahora.getHours();
+  let turno = "Mañana";
+  if(hora >= 13 && hora < 18){
+    turno = "Tarde";
+  }
+  if(hora >= 18 || hora < 6){
+    turno = "Noche";
+  }
 
-document.getElementById("turnoActual").innerHTML =
-"👤 <strong>" + turno + "</strong>";
-  
+  document.getElementById("turnoActual").innerHTML = "👤 <strong>" + turno + "</strong>";
 }
 actualizarSistema();
-setInterval(actualizarSistema,1000);
+setInterval(actualizarSistema, 1000);
 </script>
 
 </body>
-
 </html>
