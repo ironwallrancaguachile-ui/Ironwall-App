@@ -35,6 +35,67 @@ function verificarAcceso(){
 </script>
    
 <style>
+/* SMARTPHONE */
+@media (max-width:768px){
+  body{
+    padding:10px;
+  }
+  
+  header{
+    flex-direction:column;
+    align-items:center;
+    margin:0 auto 10px auto;
+    padding:0;
+  }
+  
+  header img{
+    width:260px;
+    margin-bottom:-15px;
+    transform:none;
+  }
+  
+  .tituloMarca{
+    text-align:left;
+    width:100%;
+    padding-left:15px;
+  }
+  
+  .logoTexto{
+    font-size:32px;
+  }
+  
+  .infoSistema{
+    margin-top:10px;
+    border-left:none;
+    border-top:2px solid #e5e5e5;
+    padding-top:10px;
+    padding-left:0;
+    width:100%;
+  }
+  
+  .grid{
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 5px;
+  }
+
+  /* Vuelve el ícono arriba del título solo en pantallas pequeñas */
+  .card{
+    flex-direction: column;
+    text-align: center;
+    padding: 14px 12px;
+    gap: 6px;
+  }
+
+  .icon{
+    font-size: 32px;
+    margin-bottom: 2px;
+  }
+
+  .card-content{
+    align-items: center;
+  }
+}
 @font-face{
 font-family:'Archivo Extra Condensed';
 src:url("fonts/Archivo_ExtraCondensed-Regular.ttf");
