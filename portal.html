@@ -211,13 +211,6 @@ font-size:12px;
 letter-spacing:.5px;
 }
 
-/* REGULADOR PARA TABLET Y PANTALLAS INTERMEDIAS */
-@media (max-width:1024px){
-  .grid{
-    grid-template-columns:repeat(3, 1fr);
-  }
-}
-
 /* REGULADOR PARA SMARTPHONE (VERTICAL Y HORIZONTAL) */
 @media (max-width: 768px), (max-height: 500px) and (orientation: landscape) {
   body {
@@ -228,7 +221,7 @@ letter-spacing:.5px;
   header {
     flex-direction: column;
     align-items: center;
-    margin: -15px auto 10px auto;
+    margin: -10px auto 10px auto;
     padding: 0;
   }
 
@@ -239,13 +232,14 @@ letter-spacing:.5px;
     text-align: left;
   }
   
+  /* LOGO MÁS PEQUEÑO (180px) */
   header img {
-    width: 240px !important;
+    width: 180px !important; /* <-- REDUCIDO DE 240px A 180px */
     max-width: 100%;
     height: auto;
     margin-right: 0;
-    margin-top: -15px;
-    margin-bottom: -30px;
+    margin-top: -10px;
+    margin-bottom: -15px;
     transform: none;
     display: block;
   }
@@ -254,7 +248,7 @@ letter-spacing:.5px;
     text-align: left;
     width: 100%;
     padding-left: 10px !important;
-    margin-top: -10px;
+    margin-top: 0px;
   }
   
   /* MANTENIMIENTO RIGUROSO DE VALORES EN AMBAS ORIENTACIONES */
@@ -318,10 +312,30 @@ letter-spacing:.5px;
   }
 }
 
-/* AJUSTE ESPECÍFICO DE PARRILLA SI EL TELÉFONO ESTÁ HORIZONTAL */
+/* AJUSTES EXCLUSIVOS SI EL TELÉFONO ESTÁ EN HORIZONTAL (LANDSCAPE) */
 @media (max-height: 500px) and (orientation: landscape) {
+  
+  /* Coloca la marca en horizontal y pasa el logo a la DERECHA del texto */
+  .marca {
+    flex-direction: row-reverse !important; /* Título a la izq, Logo a la der */
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+  }
+
+  header img {
+    margin: 0 !important; /* Elimina márgenes negativos verticales en horizontal */
+    width: 150px !important; /* Tamaño aún más compacto para no forzar scroll */
+  }
+
+  .tituloMarca {
+    width: auto !important;
+    padding-left: 0 !important;
+    margin-top: 0 !important;
+  }
+
   .grid {
-    grid-template-columns: repeat(3, 1fr) !important; /* Aprovecha el ancho horizontal */
+    grid-template-columns: repeat(3, 1fr) !important; /* 3 columnas para aprovechar el ancho */
   }
 }
 </style>
