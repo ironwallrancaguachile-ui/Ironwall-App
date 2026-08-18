@@ -168,10 +168,10 @@
       const prefijoProv = (provClean.length >= 3) ? provClean.substring(0, 3) : (provClean ? (provClean + 'XXX').substring(0, 3) : 'GEN');
 
       // 2. Elementos anti-repetición: Timestamp recortado + Caracteres aleatorios
-      const timestamp = Date.now().toString().slice(-4); 
-      const aleatorio = Math.random().toString(36).substring(2, 5).toUpperCase(); 
+      const timestamp = Date.now().toString().slice(-1); 
+      const aleatorio = Math.random().toString(36).substring(2, 4).toUpperCase(); 
 
-      // Resultado Ej: MAG-PET-9842A1X
+      // Resultado Ej: MAG-PET-A1X
       return `${prefijoItem}-${prefijoProv}-${timestamp}${aleatorio}`;
     }
 
@@ -218,7 +218,7 @@
         CostoUnitario: 0,
         StockActual: cantidad,
         StockMinimo: 2,
-        Activo: true,
+        Activo: si,
         CategoriaFinanzas: categoriaFinanzas,
         CategoriaCompraFinanzas: categoriaCompraFinanzas
       };
