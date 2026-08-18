@@ -36,7 +36,7 @@
       border-color: #1a1a1a;
     }
 
-    /* Animación suave para secciones dinámicas */
+    /* Transición suave para secciones dinámicas */
     .seccion-dinamica {
       display: none;
       border-top: 1px dashed #ddd;
@@ -58,6 +58,7 @@
       transition: background 0.2s;
     }
     button:hover { background: #333; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .btnHome {
       display: inline-flex;
@@ -88,77 +89,48 @@
 
   <div id="formulario">
     <h1>📦 Agregar Nuevo Ítem</h1>
-    <p class="sub">Registra artículos para la tienda o equipamiento para el muro.</p>
+    <p class="sub">Ingresa la información básica. Las categorías financieras se asignan automáticamente.</p>
 
-    <!-- 1. Selector de Tipo de Inventario -->
+    <!-- 1. Categoría Principal -->
     <div class="form-group">
-      <label>¿A qué inventario pertenece? *</label>
-      <select id="tipoItem" required onchange="toggleCamposEspecificos()">
-        <option value="" disabled selected>Selecciona destino...</option>
-        <option value="tienda">🛍️ Tienda & Insumos Comerciales</option>
-        <option value="presas">🛠️ Presas & Equipamiento Muro</option>
+      <label>Categoría del Producto *</label>
+      <select id="categoria" required onchange="evaluarCategoria()">
+        <option value="" disabled selected>-- Selecciona una categoría --</option>
+        <option value="Escalada">Escalada</option>
+        <option value="Accesorios de escalada">Accesorios de escalada</option>
+        <option value="Hidratacion">Hidratación</option>
+        <option value="Barras">Barras</option>
+        <option value="Dulces">Dulces</option>
+        <option value="Cafe">Café</option>
+        <option value="Arriendo">Arriendo</option>
+        <option value="Presa">Presa</option>
+        <option value="Herramienta">Herramienta</option>
       </select>
     </div>
 
-    <!-- 2. Campos Comunes -->
+    <!-- 2. Nombre del Ítem -->
     <div class="form-group">
       <label>Nombre del Ítem / Modelo *</label>
       <input type="text" id="nombre" placeholder="Ej: Magnesio 250g o Crimp Trough XL" required>
     </div>
 
+    <!-- 3. Proveedor / Marca -->
     <div class="form-group">
-      <label>Marca / Fabricante</label>
-      <input type="text" id="marca" placeholder="Ej: Black Diamond, Cheeta, Petzl">
+      <label>Proveedor / Marca</label>
+      <input type="text" id="proveedor" placeholder="Ej: Black Diamond, Cheeta, Petzl">
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Cantidad Inicial *</label>
-        <input type="number" id="cantidad" min="1" value="1" required>
-      </div>
-      <div class="form-group">
-        <label>Stock Mínimo (Alerta)</label>
-        <input type="number" id="stockMinimo" min="0" value="2">
-      </div>
+    <!-- 4. Cantidad Inicial -->
+    <div class="form-group">
+      <label>Cantidad Inicial *</label>
+      <input type="number" id="cantidad" min="1" value="1" required>
     </div>
 
-    <!-- 3. Campos Exclusivos de TIENDA -->
-    <div id="camposTienda" class="seccion-dinamica">
+    <!-- 5. Campo Dinámico: Solo si es Venta / Arriendo (Tienda) -->
+    <div id="bloquePrecio" class="seccion-dinamica">
       <div class="form-group">
         <label>Precio de Venta ($) *</label>
         <input type="number" id="precioVenta" placeholder="Ej: 8900" min="0">
-      </div>
-      <div class="form-group">
-        <label>Categoría de Producto</label>
-        <select id="categoriaTienda">
-          <option value="magnesio">Magnesio</option>
-          <option value="accesorios">Accesorios</option>
-          <option value="snacks">Snacks / Bebidas</option>
-          <option value="calzado">Zapatillas / Escalada</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- 4. Campos Exclusivos de PRESAS / EQUIPAMIENTO -->
-    <div id="camposPresas" class="seccion-dinamica">
-      <div class="form-group">
-        <label>Tipo de Agarre / Equipo</label>
-        <select id="tipoAgarre">
-          <option value="crimp">Regleta (Crimp)</option>
-          <option value="sloper">Romo (Sloper)</option>
-          <option value="jug">Jarra (Jug)</option>
-          <option value="pinch">Pinza (Pinch)</option>
-          <option value="volumen">Volumen / Estructura</option>
-          <option value="seguridad">Arnés / Mosquetón / Cuerda</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Color / Marcaje</label>
-        <input type="text" id="color" placeholder="Ej: Rojo, Verde, N/A">
-      </div>
-      <div class="form-group">
-        <label>Ubicación Actual</label>
-        <input type="text" id="ubicacion" placeholder="Ej: Bodega Muro, Sector B">
       </div>
     </div>
 
@@ -166,56 +138,101 @@
   </div>
 
   <script>
-    function toggleCamposEspecificos() {
-      const tipo = document.getElementById('tipoItem').value;
-      const camposTienda = document.getElementById('camposTienda');
-      const camposPresas = document.getElementById('camposPresas');
+    const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
+
+    // Lista de categorías que pertenecen a Equipamiento
+    const CATEGORIAS_EQUIPAMIENTO = ['Presa', 'Herramienta'];
+
+    function evaluarCategoria() {
+      const categoria = document.getElementById('categoria').value;
+      const bloquePrecio = document.getElementById('bloquePrecio');
       const inputPrecio = document.getElementById('precioVenta');
 
-      if (tipo === 'tienda') {
-        camposTienda.style.display = 'block';
-        camposPresas.style.display = 'none';
-        inputPrecio.setAttribute('required', 'true');
-      } else if (tipo === 'presas') {
-        camposTienda.style.display = 'none';
-        camposPresas.style.display = 'block';
+      // Si es Presa o Herramienta, Oculta el Precio de Venta
+      if (CATEGORIAS_EQUIPAMIENTO.includes(categoria)) {
+        bloquePrecio.style.display = 'none';
         inputPrecio.removeAttribute('required');
+        inputPrecio.value = '';
       } else {
-        camposTienda.style.display = 'none';
-        camposPresas.style.display = 'none';
+        // Si es cualquiera de Tienda / Arriendo, Muestra el Precio
+        bloquePrecio.style.display = 'block';
+        inputPrecio.setAttribute('required', 'true');
       }
     }
 
     function guardarItem() {
-      const tipo = document.getElementById('tipoItem').value;
+      const categoria = document.getElementById('categoria').value;
       const nombre = document.getElementById('nombre').value.trim();
+      const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
+      const precioVentaInput = document.getElementById('precioVenta').value;
+      const btn = document.getElementById('btnGuardar');
 
-      if (!tipo) {
-        alert('Por favor selecciona el inventario de destino.');
+      // Validaciones en pantalla
+      if (!categoria) {
+        alert('Por favor selecciona una categoría.');
         return;
       }
       if (!nombre) {
         alert('Por favor ingresa el nombre del ítem.');
         return;
       }
+      if (cantidad <= 0) {
+        alert('Ingresa una cantidad inicial válida.');
+        return;
+      }
 
-      // Estructura de datos lista para enviar a Apps Script o backend
+      const esEquipamiento = CATEGORIAS_EQUIPAMIENTO.includes(categoria);
+
+      if (!esEquipamiento && (!precioVentaInput || parseFloat(precioVentaInput) < 0)) {
+        alert('Ingresa un precio de venta válido.');
+        return;
+      }
+
+      // Reglas automáticas en segundo plano
+      const categoriaFinanzas = esEquipamiento ? 'Equipamiento' : 'Tienda';
+      const categoriaCompraFinanzas = esEquipamiento ? 'Equipamiento' : 'Insumos';
+      const precioVenta = esEquipamiento ? 0 : parseFloat(precioVentaInput);
+
+      // Objeto formateado según las columnas de la Google Sheet
       const itemData = {
-        tipoItem: tipo,
-        nombre: nombre,
-        marca: document.getElementById('marca').value.trim(),
-        cantidad: parseInt(document.getElementById('cantidad').value),
-        stockMinimo: parseInt(document.getElementById('stockMinimo').value),
-        // Campos específicos
-        precioVenta: tipo === 'tienda' ? document.getElementById('precioVenta').value : null,
-        categoriaTienda: tipo === 'tienda' ? document.getElementById('categoriaTienda').value : null,
-        tipoAgarre: tipo === 'presas' ? document.getElementById('tipoAgarre').value : null,
-        color: tipo === 'presas' ? document.getElementById('color').value.trim() : null,
-        ubicacion: tipo === 'presas' ? document.getElementById('ubicacion').value.trim() : null
+        Codigo: "ITEM-" + Date.now(),
+        Nombre: nombre,
+        Categoria: categoria,
+        Proveedor: document.getElementById('proveedor').value.trim() || 'Sin Especificar',
+        PrecioVenta: precioVenta,
+        CostoUnitario: 0,
+        StockActual: cantidad,
+        StockMinimo: 2,
+        Activo: true,
+        CategoriaFinanzas: categoriaFinanzas,
+        CategoriaCompraFinanzas: categoriaCompraFinanzas
       };
 
-      console.log('Objeto listo para enviar:', itemData);
-      alert('¡Ítem registrado con éxito en ' + (tipo === 'tienda' ? 'Tienda' : 'Stock Muro') + '!');
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      // Envío a Google Apps Script / Drive
+      fetch(API_URL_INVENTARIO, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'agregarNuevoItem', payload: itemData })
+      })
+      .then(r => r.json())
+      .then(resp => {
+        if (resp.ok) {
+          alert('¡Ítem registrado con éxito!');
+          window.location.href = 'hubInventario.html';
+        } else {
+          throw new Error(resp.error || 'Error al guardar el ítem');
+        }
+      })
+      .catch(err => {
+        alert('Ocurrió un error: ' + err.message);
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.textContent = 'Guardar Ítem';
+      });
     }
   </script>
 </body>
