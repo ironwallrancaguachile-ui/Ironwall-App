@@ -35,23 +35,22 @@ function verificarAcceso(){
 </script>
    
 <style>
-/* SMARTPHONE (Pantallas pequeñas) */
+
+  /* SMARTPHONE (2 tarjetas por fila + Logo sobre el título) */
 @media (max-width: 768px) {
   body {
     padding: 8px;
   }
   
-  /* Cabecera vertical centrada (Logo arriba del título) */
+  /* Cabecera vertical centrada */
   header {
-    display: flex;
     flex-direction: column;
     align-items: center;
     margin: 0 auto 10px auto;
     padding: 0;
   }
-  
+
   .marca {
-    display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
@@ -81,17 +80,17 @@ function verificarAcceso(){
     line-height: 1;
     margin: 0 0 4px 0;
   }
-  
+
   .tituloMarca h2 {
     font-size: 22px;
     line-height: 1.1;
   }
-  
+
   .sub {
     margin-top: 4px;
     font-size: 13px;
   }
-  
+
   .sub2 {
     font-size: 11px;
   }
@@ -106,15 +105,14 @@ function verificarAcceso(){
     text-align: center;
     font-size: 13px;
   }
-
-  /* REJILLA EN SMARTPHONE: 2 tarjetas por fila */
+  
+  /* Forzado a 2 tarjetas por fila en teléfono */
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 8px;
     padding: 0;
   }
 
-  /* Tarjeta súper compacta para caber en 2 columnas */
   .card {
     padding: 8px 10px;
     gap: 8px;
@@ -127,13 +125,14 @@ function verificarAcceso(){
   }
 
   .titulo {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .desc {
     font-size: 10px;
   }
 }
+  
 @font-face{
 font-family:'Archivo Extra Condensed';
 src:url("fonts/Archivo_ExtraCondensed-Regular.ttf");
