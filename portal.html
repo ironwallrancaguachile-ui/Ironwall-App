@@ -35,14 +35,14 @@ function verificarAcceso(){
 </script>
    
 <style>
-/* SMARTPHONE */
-@media (max-width:768px){
-  body{
-    padding: 10px;
+/* SMARTPHONE (Pantallas pequeñas) */
+@media (max-width: 768px) {
+  body {
+    padding: 8px;
   }
   
-  /* Cabecera vertical centrada */
-  header{
+  /* Cabecera vertical centrada (Logo arriba del título) */
+  header {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -50,8 +50,7 @@ function verificarAcceso(){
     padding: 0;
   }
   
-  /* Contenedor del logo y marca en columna */
-  .marca{
+  .marca {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -59,9 +58,8 @@ function verificarAcceso(){
     text-align: center;
   }
   
-  /* Logo sobre el título */
-  header img{
-    width: 280px;
+  header img {
+    width: 240px;
     max-width: 100%;
     height: auto;
     margin-right: 0;
@@ -70,50 +68,70 @@ function verificarAcceso(){
     display: block;
   }
   
-  /* Título y textos centrados bajo el logo */
-  .tituloMarca{
+  .tituloMarca {
     text-align: center;
     width: 100%;
     padding-left: 0;
     margin-top: 0;
   }
   
-  .logoTexto{
-    font-size: 36px;
+  .logoTexto {
+    font-size: 32px;
     letter-spacing: 1px;
     line-height: 1;
-    margin: 0 0 6px 0;
+    margin: 0 0 4px 0;
   }
   
-  .tituloMarca h2{
-    font-size: 24px;
+  .tituloMarca h2 {
+    font-size: 22px;
     line-height: 1.1;
   }
   
-  .sub{
-    margin-top: 6px;
+  .sub {
+    margin-top: 4px;
+    font-size: 13px;
   }
   
-  .sub2{
-    font-size: 12px;
+  .sub2 {
+    font-size: 11px;
   }
   
-  /* Bloque de fecha, hora y turno */
-  .infoSistema{
-    margin-top: 15px;
+  .infoSistema {
+    margin-top: 12px;
     border-left: none;
     border-top: 2px solid #e5e5e5;
-    padding-top: 12px;
+    padding-top: 10px;
     padding-left: 0;
     width: 100%;
     text-align: center;
+    font-size: 13px;
   }
-  
-  /* Rejilla de tarjetas en smartphone */
-  .grid{
+
+  /* REJILLA EN SMARTPHONE: 2 tarjetas por fila */
+  .grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     padding: 0;
+  }
+
+  /* Tarjeta súper compacta para caber en 2 columnas */
+  .card {
+    padding: 8px 10px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  .icon {
+    font-size: 20px;
+    min-width: 22px;
+  }
+
+  .titulo {
+    font-size: 13px;
+  }
+
+  .desc {
+    font-size: 10px;
   }
 }
 @font-face{
