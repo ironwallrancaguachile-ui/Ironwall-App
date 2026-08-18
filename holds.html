@@ -90,6 +90,14 @@
   <h1>🛠️🧗 Stock Presas & Mantenimiento</h1>
   <p class="sub">Registra articulos del muro, o cuando corriges un conteo.</p>
 
+   <!-- Contenedor del Resumen por Proveedor -->
+  <div id="resumenProveedores" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">🧗‍♂️ Presas por Marca / Proveedor</h3>
+    <div id="listaProveedores" style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="font-size: 13px; color: #888;">Cargando resumen...</span>
+    </div>
+  </div>
+
   <label>¿Qué pasó? *</label>
   <div class="tipo-botones">
     <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
@@ -215,6 +223,34 @@
           const proveedorTexto = p.proveedor ? ' — ' + p.proveedor : '';
           return '<option value="' + p.codigo + '">' + p.nombre + proveedorTexto + ' (stock: ' + p.stockActual + ')</option>';
         }).join('');
+    
+      // Generar Tarjeta de Resumen por Proveedor
+      generarResumenProveedores_();
+    }
+    
+    function generarResumenProveedores_() {
+      const contenedor = document.getElementById('listaProveedores');
+      if (!productosCache || productosCache.length === 0) {
+        contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros</span>';
+        return;
+      }
+    
+      // Agrupar conteo de stock por proveedor
+      const conteo = {};
+      productosCache.forEach(function (p) {
+        const prov = p.proveedor || 'Sin Marca';
+        conteo[prov] = (conteo[prov] || 0) + Number(p.stockActual || 0);
+      });
+    
+      // Renderizar como etiquetas / badges
+      contenedor.innerHTML = Object.keys(conteo).map(function (prov) {
+        return `
+          <div style="background: #f0f4f8; border: 1px solid #d0dbe5; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
+            <strong style="color: #1a1a1a;">${prov}:</strong> 
+            <span style="color: #2b6cb0; font-weight: bold;">${conteo[prov]} unidades</span>
+          </div>
+        `;
+      }).join('');
     }
 
     function mostrarStock() {
