@@ -4,157 +4,181 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Portal Cliente</title>
+<title>Portal Cliente | Ironwall</title>
 
 <style>
-
-body{
-  font-family:-apple-system, Arial, sans-serif;
-  max-width:480px;
-  margin:0 auto;
-  padding:20px 16px;
-  background:#fafafa;
-  color:#222;
-}
-h1{
-  font-size:22px;
-  margin-bottom:5px;
-}
-.sub{
-  color:#666;
-  font-size:14px;
-}
-.grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:18px;
-  margin-top:25px;
-}
-.card{
-  display:block;
-  background:#fff;
-  border:1px solid #e5e5e5;
-  border-radius:18px;
-  padding:22px;
-  text-decoration:none;
-  color:#222;
-  box-shadow:0 5px 15px rgba(0,0,0,.08);
-  transition:.2s;
-}
-.card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 10px 20px rgba(0,0,0,.12);
-}
-.icon{
-  font-size:42px;
-  margin-bottom:12px;
-}
-.titulo{
-  font-size:18px;
-  font-weight:700;
-  margin-bottom:6px;
-  margin-top:0px;
-}
-.desc{
-  font-size:14px;
-  color:#666;
-  line-height:1.4;
-}
-.encabezadoCliente{
-  text-align:center;
-  margin-top:10px;
-  margin-bottom:20px;
-}
-.logoCliente{
-  width:240px;
-  height:240px;
-  object-fit:contain;
-  margin-bottom:-60px;
-}
-.encabezadoCliente h1{
-  font-size:22px;
-  margin:0;
-  font-weight:700;
-}
-.encabezadoCliente p{
-  margin:5px 0 0;
-  color:#777;
-  font-size:13px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
+body {
+  background: linear-gradient(180deg, #eef2f7 0%, #f8f9fb 100%);
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 15px 16px;
+  color: #222;
+  min-height: 100vh;
+}
+
+/* ENCABEZADO MINIMALISTA */
+.encabezadoCliente {
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+
+.logoCliente {
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: -10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #111;
+}
+
+.sub {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* REJILLA Y TARJETAS COMPACTAS HORIZONTALES */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e8ecef;
+  border-radius: 10px;
+  padding: 10px 14px;
+  text-decoration: none;
+  color: #222;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .04);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .08);
+  border-color: #d0d7de;
+}
+
+.icon {
+  font-size: 24px;
+  line-height: 1;
+  min-width: 28px;
+  text-align: center;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.titulo {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #111;
+}
+
+.desc {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+/* AJUSTES PARA PANTALLAS UN POCO MÁS ANCHAS */
+@media (min-width: 480px) {
+  body {
+    padding: 25px 20px;
+  }
+
+  .grid {
+    gap: 12px;
+  }
+
+  .card {
+    padding: 12px 16px;
+    gap: 14px;
+  }
+
+  .icon {
+    font-size: 28px;
+    min-width: 32px;
+  }
+
+  .titulo {
+    font-size: 15px;
+  }
+
+  .desc {
+    font-size: 12px;
+  }
+}
 </style>
 
 </head>
 
-
 <body>
 
   <div class="encabezadoCliente">
-  
-    <img src="img/logo.png" class="logoCliente">
-  
-  </div>
-<h1>Portal Personas</h1>
-
-<p class="sub">
-Tu espacio para registrarte, consultar tus pases y ayudarnos a mejorar Ironwall.
-</p>
-
-
-<div class="grid">
-
-
-<a class="card" href="index.html">
-
-  <div class="icon">
-    👤
+    <img src="img/logo.png" class="logoCliente" alt="Logo Ironwall">
+    <h1>Portal Personas</h1>
   </div>
 
-  <div class="titulo">
-    Registrarme
+  <p class="sub">
+    Tu espacio para registrarte, consultar tus pases y ayudarnos a mejorar Ironwall.
+  </p>
+
+  <div class="grid">
+
+    <a class="card" href="index.html">
+      <div class="icon">👤</div>
+      <div class="card-content">
+        <div class="titulo">Registrarme</div>
+        <div class="desc">Crear mi ficha como nuevo cliente</div>
+      </div>
+    </a>
+
+    <a class="card" href="fichaConsultaCliente.html">
+      <div class="icon">🎟️</div>
+      <div class="card-content">
+        <div class="titulo">Mis pases y visitas</div>
+        <div class="desc">Consulta tus pases activos e historial</div>
+      </div>
+    </a>
+
+    <a class="card" href="feedback.html">
+      <div class="icon">💡</div>
+      <div class="card-content">
+        <div class="titulo">Feedback y sugerencias</div>
+        <div class="desc">Cuéntanos ideas, mejoras o cualquier situación que quieras compartir</div>
+      </div>
+    </a>
+
   </div>
-
-  <div class="desc">
-    Crear mi ficha como nuevo cliente
-  </div>
-
-</a>
-
-
-
-<a class="card" href="fichaConsultaCliente.html">
-
-  <div class="icon">
-    🎟️
-  </div>
-
-  <div class="titulo">
-    Mis pases y visitas
-  </div>
-
-  <div class="desc">
-    Consulta tus pases activos e historial
-  </div>
-
-</a>
-<a class="card" href="feedback.html">
-
-    <div class="icon">
-        💡
-    </div>
-
-    <div class="titulo">
-        Feedback y sugerencias
-    </div>
-
-    <div class="desc">
-        Cuéntanos ideas, mejoras o cualquier situación que quieras compartir.
-    </div>
-
-</a>
-
-</div>
-
 
 </body>
 </html>
