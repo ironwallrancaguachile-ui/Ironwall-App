@@ -38,6 +38,8 @@
   }
   .tipo-botones button.activo-entrada { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
   .tipo-botones button.activo-ajuste { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
+  .tipo-botones button.activo-salida { border-color: #c0392b; background: #fdf2f2; color: #c0392b; }
+
   #stockInfo {
     font-size: 13px;
     color: #666;
@@ -99,10 +101,11 @@
   </div>
 
   <label>¿Qué pasó? *</label>
-  <div class="tipo-botones">
-    <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
+   <div class="tipo-botones">
+    <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Ingreso (compra)</button>
+    <button type="button" id="btnSalida" onclick="elegirTipo('Salida')">Baja / Descarte</button>
     <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
-  </div>
+   </div>
 
   <label>Producto *</label>
   <select id="producto" onchange="mostrarStock()">
@@ -191,28 +194,34 @@
     function elegirTipo(tipo) {
       tipoSeleccionado = tipo;
       document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
+      document.getElementById('btnSalida').className = tipo === 'Salida' ? 'activo-salida' : '';
       document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
-
+    
       const selectMotivo = document.getElementById('motivo');
       const labelCantidad = document.getElementById('labelCantidad');
       let opciones = [];
       let motivoPorDefecto = '';
-
+    
       if (tipo === 'Entrada') {
-        opciones = MOTIVOS_ENTRADA;
+        opciones = ['Compra a proveedor', 'Ajuste de inventario'];
         labelCantidad.textContent = 'Cantidad que ingresa *';
         motivoPorDefecto = 'Compra a proveedor';
+      }
+      if (tipo === 'Salida') {
+        opciones = ['Daño / Rotura (Descarte)', 'Pérdida / Extravío', 'Retiro por Seguridad'];
+        labelCantidad.textContent = 'Cantidad a dar de baja *';
+        motivoPorDefecto = 'Daño / Rotura (Descarte)';
       }
       if (tipo === 'Ajuste') {
         opciones = ['Conteo físico / corrección'];
         labelCantidad.textContent = 'Stock real (reemplaza el actual) *';
         motivoPorDefecto = 'Conteo físico / corrección';
       }
-
+    
       selectMotivo.innerHTML = '<option value="">-- Selecciona --</option>' +
         opciones.map(function (m) { return '<option value="' + m + '">' + m + '</option>'; }).join('');
       selectMotivo.value = motivoPorDefecto;
-
+    
       mostrarMedioPagoSiCompra();
     }
 
@@ -266,14 +275,15 @@
     }
 
     function cargarProductos() {
-      const cache = leerCache_('productos_inventario_cache');
+      const cache = leerCache_('productos_equipamiento_cache');
+      /**const cache = leerCache_('productos_inventario_cache');**/
       if (cache) { productosCache = cache; pintarProductos(); }
 
       llamarApi(API_URL_INVENTARIO, 'listarEquipamientoInterno', {})
         .then(function (resp) {
           if (resp.ok) {
             productosCache = resp.data;
-            guardarCache_('productos_inventario_cache', resp.data);
+            guardarCache_('productos_equipamiento_cache', resp.data);
             pintarProductos();
           }
         })
