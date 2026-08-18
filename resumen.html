@@ -198,35 +198,37 @@
       document.getElementById('fechaHoy').textContent = new Date().toLocaleDateString('es-CL', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
-
+    
       Promise.all([
         llamarApi(API_URL_CLIENTES, 'obtenerResumenDiaClientes', {}),
         llamarApi(API_URL_FINANZAS, 'obtenerResumenDiaFinanzas', {}),
         llamarApi(API_URL_CLIENTES, 'contarMensajesPendientes', {}),
-        llamarApi(API_URL_INVENTARIO, 'contarProductosBajoStock', {}),
+        llamarApi(API_URL_INVENTARIO, 'listarProductos', {}),             // Productos Tienda
+        llamarApi(API_URL_INVENTARIO, 'listarEquipamientoInterno', {}),  // Equipamiento / Presas
         llamarApi(API_URL_INCIDENTES, 'contarIncidentesAbiertosHoy', {})
       ]).then(function (resultados) {
         const respClientes = resultados[0];
         const respFinanzas = resultados[1];
         const respMensajes = resultados[2];
-        const respStock = resultados[3];
-        const respIncidentes = resultados[4];
-
+        const respTienda = resultados[3];
+        const respEquipo = resultados[4];
+        const respIncidentes = resultados[5];
+    
         document.getElementById('cargando').style.display = 'none';
         document.getElementById('contenido').style.display = 'block';
-
+    
         let hayAlertas = false;
-
+    
         if (respClientes.ok) {
           document.getElementById('visitasHoy').textContent = respClientes.data.visitasHoy;
           document.getElementById('clientesDistintosHoy').textContent = respClientes.data.clientesDistintosHoy;
           document.getElementById('clientesNuevosHoy').textContent = respClientes.data.clientesNuevosHoy;
         }
-
+    
         if (respFinanzas.ok) {
           document.getElementById('ingresosHoy').textContent = formatearPesos(respFinanzas.data.ingresosHoy);
           document.getElementById('egresosHoy').textContent = formatearPesos(respFinanzas.data.egresosHoy);
-
+    
           const porMedioPago = respFinanzas.data.ingresosPorMedioPago || {};
           const desglose = document.getElementById('desgloseMedioPago');
           const claves = Object.keys(porMedioPago);
@@ -238,24 +240,42 @@
             }).join('');
           }
         }
-
+    
         if (respMensajes.ok) {
           document.getElementById('mensajesPendientes').textContent = respMensajes.data;
           marcarKpi('kpiMensajes', respMensajes.data, 1);
           if (respMensajes.data >= 1) hayAlertas = true;
         }
-
-        if (respStock.ok) {
-          document.getElementById('stockBajo').textContent = respStock.data;
-          marcarKpi('kpiStock', respStock.data, 1);
-          if (respStock.data >= 1) hayAlertas = true;
+    
+        // --- CÁLCULO UNIFICADO DE STOCK BAJO ---
+        let totalBajoStock = 0;
+    
+        // Contar productos de tienda con stock bajo
+        if (respTienda.ok && Array.isArray(respTienda.data)) {
+          respTienda.data.forEach(function (p) {
+            if (Number(p.stockActual) <= Number(p.stockMinimo)) {
+              totalBajoStock++;
+            }
+          });
         }
-
+    
+        // Contar equipamiento/presas con stock bajo
+        if (respEquipo.ok && Array.isArray(respEquipo.data)) {
+          respEquipo.data.forEach(function (p) {
+            if (Number(p.stockActual) <= Number(p.stockMinimo)) {
+              totalBajoStock++;
+            }
+          });
+        }
+    
+        document.getElementById('stockBajo').textContent = totalBajoStock;
+        marcarKpi('kpiStock', totalBajoStock, 1);
+        if (totalBajoStock >= 1) hayAlertas = true;
+    
         if (respIncidentes.ok) {
           document.getElementById('incidentesHoy').textContent = respIncidentes.data;
-          // Un incidente reportado es informativo, no bloquea el cierre por sí solo.
         }
-
+    
         const estadoDiv = document.getElementById('estadoGeneral');
         if (hayAlertas) {
           estadoDiv.className = 'estado-general alerta';
@@ -264,7 +284,7 @@
           estadoDiv.className = 'estado-general ok';
           estadoDiv.textContent = '✅ Todo en orden para cerrar el turno';
         }
-
+    
         document.getElementById('actualizado').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CL');
       }).catch(function (err) {
         document.getElementById('cargando').style.display = 'none';
