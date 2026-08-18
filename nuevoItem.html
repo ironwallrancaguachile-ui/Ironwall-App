@@ -36,7 +36,6 @@
       border-color: #1a1a1a;
     }
 
-    /* Transición suave para secciones dinámicas */
     .seccion-dinamica {
       display: none;
       border-top: 1px dashed #ddd;
@@ -89,9 +88,9 @@
 
   <div id="formulario">
     <h1>📦 Agregar Nuevo Ítem</h1>
-    <p class="sub">Ingresa la información básica. Las categorías financieras se asignan automáticamente.</p>
+    <p class="sub">Ingresa la información básica. El código único y las categorías financieras se asignan automáticamente.</p>
 
-    <!-- 1. Categoría Principal -->
+    <!-- Categoría Principal -->
     <div class="form-group">
       <label>Categoría del Producto *</label>
       <select id="categoria" required onchange="evaluarCategoria()">
@@ -108,25 +107,25 @@
       </select>
     </div>
 
-    <!-- 2. Nombre del Ítem -->
+    <!-- Nombre del Ítem -->
     <div class="form-group">
       <label>Nombre del Ítem / Modelo *</label>
       <input type="text" id="nombre" placeholder="Ej: Magnesio 250g o Crimp Trough XL" required>
     </div>
 
-    <!-- 3. Proveedor / Marca -->
+    <!-- Proveedor / Marca -->
     <div class="form-group">
       <label>Proveedor / Marca</label>
       <input type="text" id="proveedor" placeholder="Ej: Black Diamond, Cheeta, Petzl">
     </div>
 
-    <!-- 4. Cantidad Inicial -->
+    <!-- Cantidad Inicial -->
     <div class="form-group">
       <label>Cantidad Inicial *</label>
       <input type="number" id="cantidad" min="1" value="1" required>
     </div>
 
-    <!-- 5. Campo Dinámico: Solo si es Venta / Arriendo (Tienda) -->
+    <!-- Campo Dinámico: Precio -->
     <div id="bloquePrecio" class="seccion-dinamica">
       <div class="form-group">
         <label>Precio de Venta ($) *</label>
@@ -140,7 +139,6 @@
   <script>
     const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
 
-    // Lista de categorías que pertenecen a Equipamiento
     const CATEGORIAS_EQUIPAMIENTO = ['Presa', 'Herramienta'];
 
     function evaluarCategoria() {
@@ -148,26 +146,43 @@
       const bloquePrecio = document.getElementById('bloquePrecio');
       const inputPrecio = document.getElementById('precioVenta');
 
-      // Si es Presa o Herramienta, Oculta el Precio de Venta
       if (CATEGORIAS_EQUIPAMIENTO.includes(categoria)) {
         bloquePrecio.style.display = 'none';
         inputPrecio.removeAttribute('required');
         inputPrecio.value = '';
       } else {
-        // Si es cualquiera de Tienda / Arriendo, Muestra el Precio
         bloquePrecio.style.display = 'block';
         inputPrecio.setAttribute('required', 'true');
       }
     }
 
+    // Generador de Código Unico Anti-repetición
+    function generarCodigoUnico(nombreItem, proveedorItem) {
+      // 1. Limpiar espacios y acentos, tomar primeros 3 caracteres
+      const normalizar = (texto) => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      
+      const itemClean = normalizar(nombreItem);
+      const provClean = normalizar(proveedorItem);
+
+      const prefijoItem = (itemClean.length >= 3) ? itemClean.substring(0, 3) : (itemClean + 'XXX').substring(0, 3);
+      const prefijoProv = (provClean.length >= 3) ? provClean.substring(0, 3) : (provClean ? (provClean + 'XXX').substring(0, 3) : 'GEN');
+
+      // 2. Elementos anti-repetición: Timestamp recortado + Caracteres aleatorios
+      const timestamp = Date.now().toString().slice(-4); 
+      const aleatorio = Math.random().toString(36).substring(2, 5).toUpperCase(); 
+
+      // Resultado Ej: MAG-PET-9842A1X
+      return `${prefijoItem}-${prefijoProv}-${timestamp}${aleatorio}`;
+    }
+
     function guardarItem() {
       const categoria = document.getElementById('categoria').value;
       const nombre = document.getElementById('nombre').value.trim();
+      const proveedorRaw = document.getElementById('proveedor').value.trim();
       const cantidad = parseInt(document.getElementById('cantidad').value) || 0;
       const precioVentaInput = document.getElementById('precioVenta').value;
       const btn = document.getElementById('btnGuardar');
 
-      // Validaciones en pantalla
       if (!categoria) {
         alert('Por favor selecciona una categoría.');
         return;
@@ -188,17 +203,17 @@
         return;
       }
 
-      // Reglas automáticas en segundo plano
+      // Generar código autoincrementable/único y asignaciones automáticas
+      const codigoGenerado = generarCodigoUnico(nombre, proveedorRaw);
       const categoriaFinanzas = esEquipamiento ? 'Equipamiento' : 'Tienda';
       const categoriaCompraFinanzas = esEquipamiento ? 'Equipamiento' : 'Insumos';
       const precioVenta = esEquipamiento ? 0 : parseFloat(precioVentaInput);
 
-      // Objeto formateado según las columnas de la Google Sheet
       const itemData = {
-        Codigo: "ITEM-" + Date.now(),
+        Codigo: codigoGenerado,
         Nombre: nombre,
         Categoria: categoria,
-        Proveedor: document.getElementById('proveedor').value.trim() || 'Sin Especificar',
+        Proveedor: proveedorRaw || 'Sin Especificar',
         PrecioVenta: precioVenta,
         CostoUnitario: 0,
         StockActual: cantidad,
@@ -211,7 +226,6 @@
       btn.disabled = true;
       btn.textContent = 'Guardando...';
 
-      // Envío a Google Apps Script / Drive
       fetch(API_URL_INVENTARIO, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -220,7 +234,7 @@
       .then(r => r.json())
       .then(resp => {
         if (resp.ok) {
-          alert('¡Ítem registrado con éxito!');
+          alert(`¡Ítem registrado con éxito!\nCódigo generado: ${codigoGenerado}`);
           window.location.href = 'hubInventario.html';
         } else {
           throw new Error(resp.error || 'Error al guardar el ítem');
