@@ -1,0 +1,79 @@
+<form id="formNuevoItem">
+  <h2>📦 Registrar Nuevo Ítem</h2>
+
+  <!-- 1. Selector de Destino -->
+  <div class="form-group">
+    <label for="tipoItem">¿A qué inventario pertenece? *</label>
+    <select id="tipoItem" name="tipoItem" required onchange="toggleCamposEspecificos()">
+      <option value="" disabled selected>Selecciona una opción...</option>
+      <option value="tienda">🛍️ Tienda / Insumo Comercial</option>
+      <option value="presas">🛠️ Presa / Equipamiento Muro</option>
+    </select>
+  </div>
+
+  <!-- 2. Campos Comunes -->
+  <div class="form-group">
+    <label for="nombre">Nombre del Ítem / Modelo *</label>
+    <input type="text" id="nombre" name="nombre" placeholder="Ej: Magnesio 250g o Crimp Trough XL" required>
+  </div>
+
+  <div class="form-group">
+    <label for="marca">Marca / Proveedor</label>
+    <input type="text" id="marca" name="marca" placeholder="Ej: Black Diamond, Cheeta, Petzl">
+  </div>
+
+  <div class="form-row" style="display: flex; gap: 12px;">
+    <div class="form-group" style="flex: 1;">
+      <label for="cantidad">Cantidad Inicial *</label>
+      <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
+    </div>
+    <div class="form-group" style="flex: 1;">
+      <label for="stockMinimo">Stock Mínimo (Alerta)</label>
+      <input type="number" id="stockMinimo" name="stockMinimo" min="0" value="2">
+    </div>
+  </div>
+
+  <!-- 3. Campos Exclusivos de TIENDA -->
+  <div id="camposTienda" class="seccion-dinamica" style="display: none;">
+    <hr>
+    <div class="form-group">
+      <label for="precioVenta">Precio de Venta ($) *</label>
+      <input type="number" id="precioVenta" name="precioVenta" placeholder="Ej: 8900" min="0">
+    </div>
+    <div class="form-group">
+      <label for="categoriaTienda">Categoría de Tienda</label>
+      <select id="categoriaTienda" name="categoriaTienda">
+        <option value="accesorios">Accesorios</option>
+        <option value="snacks">Snacks / Bebidas</option>
+        <option value="magnesio">Magnesio</option>
+        <option value="calzado">Zapatillas / Pies de Gato</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- 4. Campos Exclusivos de PRESAS / EQUIPAMIENTO -->
+  <div id="camposPresas" class="seccion-dinamica" style="display: none;">
+    <hr>
+    <div class="form-group">
+      <label for="tipoAgarre">Tipo de Agarre / Equipo</label>
+      <select id="tipoAgarre" name="tipoAgarre">
+        <option value="jug">Jug (Jarra)</option>
+        <option value="crimp">Crimp (Regleta)</option>
+        <option value="sloper">Sloper (Romo)</option>
+        <option value="pinch">Pinch (Pinza)</option>
+        <option value="herramienta">Herramienta / Ferretería</option>
+        <option value="seguridad">Arnés / Cuerda / Mosquetón</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="color">Color / Marcaje</label>
+      <input type="text" id="color" name="color" placeholder="Ej: Rojo, Verde, N/A">
+    </div>
+    <div class="form-group">
+      <label for="ubicacion">Ubicación Actual / Bodega</label>
+      <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: Bodega Sector A, Muro Principal">
+    </div>
+  </div>
+
+  <button type="submit" class="btnGuardar" style="margin-top: 16px; width: 100%;">Guardar Ítem</button>
+</form>
