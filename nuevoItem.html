@@ -1,79 +1,222 @@
-<form id="formNuevoItem">
-  <h2>📦 Registrar Nuevo Ítem</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agregar Nuevo Ítem | Ironwall Stock</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+      background: #fafafa;
+      color: #222;
+    }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+    
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .form-group { flex: 1; }
 
-  <!-- 1. Selector de Destino -->
-  <div class="form-group">
-    <label for="tipoItem">¿A qué inventario pertenece? *</label>
-    <select id="tipoItem" name="tipoItem" required onchange="toggleCamposEspecificos()">
-      <option value="" disabled selected>Selecciona una opción...</option>
-      <option value="tienda">🛍️ Tienda / Insumo Comercial</option>
-      <option value="presas">🛠️ Presa / Equipamiento Muro</option>
-    </select>
-  </div>
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      color: #222;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: #1a1a1a;
+    }
 
-  <!-- 2. Campos Comunes -->
-  <div class="form-group">
-    <label for="nombre">Nombre del Ítem / Modelo *</label>
-    <input type="text" id="nombre" name="nombre" placeholder="Ej: Magnesio 250g o Crimp Trough XL" required>
-  </div>
+    /* Animación suave para secciones dinámicas */
+    .seccion-dinamica {
+      display: none;
+      border-top: 1px dashed #ddd;
+      padding-top: 16px;
+      margin-top: 16px;
+    }
 
-  <div class="form-group">
-    <label for="marca">Marca / Proveedor</label>
-    <input type="text" id="marca" name="marca" placeholder="Ej: Black Diamond, Cheeta, Petzl">
-  </div>
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      background: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #333; }
 
-  <div class="form-row" style="display: flex; gap: 12px;">
-    <div class="form-group" style="flex: 1;">
-      <label for="cantidad">Cantidad Inicial *</label>
-      <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
-    </div>
-    <div class="form-group" style="flex: 1;">
-      <label for="stockMinimo">Stock Mínimo (Alerta)</label>
-      <input type="number" id="stockMinimo" name="stockMinimo" min="0" value="2">
-    </div>
-  </div>
+    .btnHome {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #222;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 3px 12px rgba(0,0,0,.12);
+      transition: .2s;
+      margin-bottom: 20px;
+    }
+    .btnHome:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.15);
+    }
+  </style>
+</head>
+<body>
 
-  <!-- 3. Campos Exclusivos de TIENDA -->
-  <div id="camposTienda" class="seccion-dinamica" style="display: none;">
-    <hr>
+  <a href="inventario.html" class="btnHome">
+    ⬅️ Volver
+  </a>
+
+  <div id="formulario">
+    <h1>📦 Agregar Nuevo Ítem</h1>
+    <p class="sub">Registra artículos para la tienda o equipamiento para el muro.</p>
+
+    <!-- 1. Selector de Tipo de Inventario -->
     <div class="form-group">
-      <label for="precioVenta">Precio de Venta ($) *</label>
-      <input type="number" id="precioVenta" name="precioVenta" placeholder="Ej: 8900" min="0">
-    </div>
-    <div class="form-group">
-      <label for="categoriaTienda">Categoría de Tienda</label>
-      <select id="categoriaTienda" name="categoriaTienda">
-        <option value="accesorios">Accesorios</option>
-        <option value="snacks">Snacks / Bebidas</option>
-        <option value="magnesio">Magnesio</option>
-        <option value="calzado">Zapatillas / Pies de Gato</option>
+      <label>¿A qué inventario pertenece? *</label>
+      <select id="tipoItem" required onchange="toggleCamposEspecificos()">
+        <option value="" disabled selected>Selecciona destino...</option>
+        <option value="tienda">🛍️ Tienda & Insumos Comerciales</option>
+        <option value="presas">🛠️ Presas & Equipamiento Muro</option>
       </select>
     </div>
+
+    <!-- 2. Campos Comunes -->
+    <div class="form-group">
+      <label>Nombre del Ítem / Modelo *</label>
+      <input type="text" id="nombre" placeholder="Ej: Magnesio 250g o Crimp Trough XL" required>
+    </div>
+
+    <div class="form-group">
+      <label>Marca / Fabricante</label>
+      <input type="text" id="marca" placeholder="Ej: Black Diamond, Cheeta, Petzl">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cantidad Inicial *</label>
+        <input type="number" id="cantidad" min="1" value="1" required>
+      </div>
+      <div class="form-group">
+        <label>Stock Mínimo (Alerta)</label>
+        <input type="number" id="stockMinimo" min="0" value="2">
+      </div>
+    </div>
+
+    <!-- 3. Campos Exclusivos de TIENDA -->
+    <div id="camposTienda" class="seccion-dinamica">
+      <div class="form-group">
+        <label>Precio de Venta ($) *</label>
+        <input type="number" id="precioVenta" placeholder="Ej: 8900" min="0">
+      </div>
+      <div class="form-group">
+        <label>Categoría de Producto</label>
+        <select id="categoriaTienda">
+          <option value="magnesio">Magnesio</option>
+          <option value="accesorios">Accesorios</option>
+          <option value="snacks">Snacks / Bebidas</option>
+          <option value="calzado">Zapatillas / Escalada</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 4. Campos Exclusivos de PRESAS / EQUIPAMIENTO -->
+    <div id="camposPresas" class="seccion-dinamica">
+      <div class="form-group">
+        <label>Tipo de Agarre / Equipo</label>
+        <select id="tipoAgarre">
+          <option value="crimp">Regleta (Crimp)</option>
+          <option value="sloper">Romo (Sloper)</option>
+          <option value="jug">Jarra (Jug)</option>
+          <option value="pinch">Pinza (Pinch)</option>
+          <option value="volumen">Volumen / Estructura</option>
+          <option value="seguridad">Arnés / Mosquetón / Cuerda</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Color / Marcaje</label>
+        <input type="text" id="color" placeholder="Ej: Rojo, Verde, N/A">
+      </div>
+      <div class="form-group">
+        <label>Ubicación Actual</label>
+        <input type="text" id="ubicacion" placeholder="Ej: Bodega Muro, Sector B">
+      </div>
+    </div>
+
+    <button id="btnGuardar" onclick="guardarItem()">Guardar Ítem</button>
   </div>
 
-  <!-- 4. Campos Exclusivos de PRESAS / EQUIPAMIENTO -->
-  <div id="camposPresas" class="seccion-dinamica" style="display: none;">
-    <hr>
-    <div class="form-group">
-      <label for="tipoAgarre">Tipo de Agarre / Equipo</label>
-      <select id="tipoAgarre" name="tipoAgarre">
-        <option value="jug">Jug (Jarra)</option>
-        <option value="crimp">Crimp (Regleta)</option>
-        <option value="sloper">Sloper (Romo)</option>
-        <option value="pinch">Pinch (Pinza)</option>
-        <option value="herramienta">Herramienta / Ferretería</option>
-        <option value="seguridad">Arnés / Cuerda / Mosquetón</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="color">Color / Marcaje</label>
-      <input type="text" id="color" name="color" placeholder="Ej: Rojo, Verde, N/A">
-    </div>
-    <div class="form-group">
-      <label for="ubicacion">Ubicación Actual / Bodega</label>
-      <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: Bodega Sector A, Muro Principal">
-    </div>
-  </div>
+  <script>
+    function toggleCamposEspecificos() {
+      const tipo = document.getElementById('tipoItem').value;
+      const camposTienda = document.getElementById('camposTienda');
+      const camposPresas = document.getElementById('camposPresas');
+      const inputPrecio = document.getElementById('precioVenta');
 
-  <button type="submit" class="btnGuardar" style="margin-top: 16px; width: 100%;">Guardar Ítem</button>
-</form>
+      if (tipo === 'tienda') {
+        camposTienda.style.display = 'block';
+        camposPresas.style.display = 'none';
+        inputPrecio.setAttribute('required', 'true');
+      } else if (tipo === 'presas') {
+        camposTienda.style.display = 'none';
+        camposPresas.style.display = 'block';
+        inputPrecio.removeAttribute('required');
+      } else {
+        camposTienda.style.display = 'none';
+        camposPresas.style.display = 'none';
+      }
+    }
+
+    function guardarItem() {
+      const tipo = document.getElementById('tipoItem').value;
+      const nombre = document.getElementById('nombre').value.trim();
+
+      if (!tipo) {
+        alert('Por favor selecciona el inventario de destino.');
+        return;
+      }
+      if (!nombre) {
+        alert('Por favor ingresa el nombre del ítem.');
+        return;
+      }
+
+      // Estructura de datos lista para enviar a Apps Script o backend
+      const itemData = {
+        tipoItem: tipo,
+        nombre: nombre,
+        marca: document.getElementById('marca').value.trim(),
+        cantidad: parseInt(document.getElementById('cantidad').value),
+        stockMinimo: parseInt(document.getElementById('stockMinimo').value),
+        // Campos específicos
+        precioVenta: tipo === 'tienda' ? document.getElementById('precioVenta').value : null,
+        categoriaTienda: tipo === 'tienda' ? document.getElementById('categoriaTienda').value : null,
+        tipoAgarre: tipo === 'presas' ? document.getElementById('tipoAgarre').value : null,
+        color: tipo === 'presas' ? document.getElementById('color').value.trim() : null,
+        ubicacion: tipo === 'presas' ? document.getElementById('ubicacion').value.trim() : null
+      };
+
+      console.log('Objeto listo para enviar:', itemData);
+      alert('¡Ítem registrado con éxito en ' + (tipo === 'tienda' ? 'Tienda' : 'Stock Muro') + '!');
+    }
+  </script>
+</body>
+</html>
