@@ -264,8 +264,16 @@
     }
 
     function mostrarStock() {
-      const codigo = document.getElementById('producto').value;
+      const select = document.getElementById('producto');
+      const codigo = select.value;
       const info = document.getElementById('stockInfo');
+    
+      if (!codigo) { 
+        info.style.display = 'none'; 
+        return; 
+      }
+    
+      // Busca siempre en el cache actualizado
       const producto = productosCache.find(function (p) { return p.codigo === codigo; });
       
       if (!producto) { 
@@ -274,11 +282,10 @@
       }
     
       info.style.display = 'block';
-      // Muestra solo el stock actual y el mínimo (sin el texto del proveedor)
       info.textContent = 'Stock actual: ' + producto.stockActual + 
         (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
       
-      info.className = producto.stockActual <= producto.stockMinimo ? 'bajo' : '';
+      info.className = Number(producto.stockActual) <= Number(producto.stockMinimo) ? 'bajo' : '';
     }
 
     function cargarProductos() {
