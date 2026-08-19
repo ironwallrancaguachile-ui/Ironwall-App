@@ -33,17 +33,27 @@
     font-size: 14px;
     font-weight: 600;
   }
+  
+  /* ================= TARJETAS MINIMALISTAS ================= */
   .seccion {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 14px;
-    margin-top: 14px;
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
   }
   .seccion h2 { font-size: 15px; margin: 0 0 8px; }
-  .seccion p { margin: 3px 0; font-size: 14px; }
-  .item { border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px; font-size: 13px; }
+  .seccion p { margin: 2px 0; font-size: 13px; color: #444; }
+  .item { 
+    border-top: 1px solid #f5f5f5; 
+    padding-top: 6px; 
+    margin-top: 6px; 
+    font-size: 13px; 
+  }
   .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  /* ======================================================== */
+
   #notaTexto {
     width: 100%;
     padding: 10px;
@@ -78,23 +88,23 @@
   #sinDatos { font-size: 13px; color: #888; }
 
   .btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:#ffffff;
-  color:#222;
-  text-decoration:none;
-  padding:10px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
-  transition:.2s;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#ffffff;
+    color:#222;
+    text-decoration:none;
+    padding:10px 18px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:600;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+    transition:.2s;
   }
   
   .btnHome:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
   }
 </style>
 </head>
@@ -199,7 +209,6 @@
     mensaje.style.display = 'none';
     contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
 
-    // Llama al backend configurado para buscar por Código ID, Nombre o Apellido
     llamarApi('buscarClientesPorTexto', { termino: termino })
       .then(function (resp) {
         if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
@@ -231,7 +240,7 @@
 
     lista.forEach(function (c) {
       const nombreMostrar = (c.nombre + ' ' + c.apellido).trim() || 'Cliente sin nombre';
-      html += '<div class="item" style="cursor:pointer; padding:10px 0;" onclick="cargarFichaCliente(\'' + c.idCliente + '\')">'
+      html += '<div class="item" style="cursor:pointer; padding:8px 0;" onclick="cargarFichaCliente(\'' + c.idCliente + '\')">'
         + '<strong>' + nombreMostrar + '</strong><br>'
         + '<span style="color:#888; font-size:12px;">Código ID: ' + c.idCliente + '</span>'
         + '</div>';
@@ -343,7 +352,7 @@
           + '<span style="color:#888">' + n.registradoPor + ' — ' + new Date(n.fecha).toLocaleDateString() + '</span></div>';
       });
     }
-    html += '<textarea id="notaTexto" placeholder="Escribe una nota sobre este cliente..."></textarea>'
+    html += '<textarea id="notaTexto" placeholder="Escribe una nota sobre este cliente..." style="margin-top:8px;"></textarea>'
       + '<select id="notaResponsable"><option value="">-- Tu nombre --</option>'
       + staffCache.map(function (s) { return '<option value="' + s + '">' + s + '</option>'; }).join('')
       + '</select>'
