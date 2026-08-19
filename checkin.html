@@ -624,56 +624,50 @@
     cargarDetalleCheckin(idCliente, staff);
   }
 
-  function registrarMovimientoFinanzasAutomatico_(montoTotal, detalleVenta, medioPago, responsable, categoria) {
-    return new Promise(resolve => {
-      try {
-        const datosMovimiento = {
-          tipo: 'Ingreso',
-          categoria: categoria || 'Tienda',
-          medioPago: medioPago,
-          monto: Number(montoTotal),
-          descripcion: detalleVenta,
-          comprobante: '',
-          responsable: responsable
-        };
+/******************************************************
+ * REGISTRO DIRECTO EN FINANZAS (Misma lógica de Inventario)
+ ******************************************************/
+function registrarMovimientoFinanzasAutomatico_(
+  montoTotal,
+  detalleVenta,
+  medioPago,
+  responsable,
+  categoria
+) {
+  const payload = {
+    action: 'registrarMovimiento',
+    payload: {
+      tipo: 'Ingreso',
+      categoria: categoria || 'Tienda',
+      medioPago: medioPago,
+      monto: Number(montoTotal),
+      descripcion: detalleVenta,
+      comprobante: '',
+      responsable: responsable
+    }
+  };
 
-        const iframeName = 'iframe_finanzas_' + Date.now();
-        const iframe = document.createElement('iframe');
-        iframe.name = iframeName;
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = API_URL_FINANZAS;
-        form.target = iframeName;
-
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'postData';
-        input.value = JSON.stringify({
-          action: 'registrarMovimiento',
-          payload: datosMovimiento
-        });
-        form.appendChild(input);
-
-        document.body.appendChild(form);
-        form.submit();
-
-        setTimeout(() => {
-          try {
-            document.body.removeChild(form);
-            document.body.removeChild(iframe);
-          } catch (e) {}
-          resolve(true);
-        }, 1800);
-
-      } catch (err) {
-        console.error('Error al registrar en Finanzas:', err);
-        resolve(false);
-      }
-    });
-  }
+  return fetch(API_URL_FINANZAS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.text())
+  .then(texto => {
+    try {
+      const resp = JSON.parse(texto);
+      // Retorna verdadero solo si la API de Finanzas respondió exitosamente
+      return resp.ok || resp.status === 'success' || resp.success;
+    } catch (e) {
+      console.error('Respuesta no válida de Finanzas:', texto);
+      return false;
+    }
+  })
+  .catch(err => {
+    console.error('Error de red al registrar en Finanzas:', err);
+    return false;
+  });
+}
 
   function anularCheckin(idCheckin, idCliente, staff, boton) {
     if (boton.disabled) return;
