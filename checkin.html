@@ -229,494 +229,495 @@
   <div id="resultado"></div>
   <button id="nuevaLectura" style="display:none" onclick="reiniciar()">Escanear siguiente cliente</button>
 
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
-    const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
+<script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+  const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
 
-    let scanner = null;
-    let escaneando = true;
-    let serviciosCache = [];
-    let carritoPases = [];
+  let scanner = null;
+  let escaneando = true;
+  let serviciosCache = [];
+  let carritoPases = [];
 
-    function fetchConReintento(url, opciones, soloUnIntento) {
-      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
-      const intentos = soloUnIntento ? 1 : 2;
+  function fetchConReintento(url, opciones, soloUnIntento) {
+    const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+    const intentos = soloUnIntento ? 1 : 2;
 
-      function intentar(intentosRestantes) {
-        const controlador = new AbortController();
-        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+    function intentar(intentosRestantes) {
+      const controlador = new AbortController();
+      const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
 
-        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
-          .then(function (r) { clearTimeout(timeoutId); return r; })
-          .catch(function (err) {
-            clearTimeout(timeoutId);
-            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
-            if (soloUnIntento) throw new Error('No pudimos confirmar la acción. Revisa el estado antes de reintentar.');
-            throw new Error('El servidor está tardando en responder. Intenta de nuevo.');
-          });
-      }
-
-      return intentar(intentos);
-    }
-
-    function llamarApi(accion, payload, esEscritura) {
-      return fetchConReintento(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: accion, payload: payload })
-      }, esEscritura).then(function (r) {
-        return r.text().then(function (texto) {
-          try { return JSON.parse(texto); }
-          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
+      return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+        .then(function (r) { clearTimeout(timeoutId); return r; })
+        .catch(function (err) {
+          clearTimeout(timeoutId);
+          if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+          if (soloUnIntento) throw new Error('No pudimos confirmar la acción. Revisa el estado antes de reintentar.');
+          throw new Error('El servidor está tardando en responder. Intenta de nuevo.');
         });
+    }
+
+    return intentar(intentos);
+  }
+
+  function llamarApi(accion, payload, esEscritura) {
+    return fetchConReintento(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: accion, payload: payload })
+    }, esEscritura).then(function (r) {
+      return r.text().then(function (texto) {
+        try { return JSON.parse(texto); }
+        catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
       });
-    }
+    });
+  }
 
-    function cargarCatalogo() {
-      const cache = leerCache_('servicios_cache');
-      if (cache) serviciosCache = cache;
+  function cargarCatalogo() {
+    const cache = leerCache_('servicios_cache');
+    if (cache) serviciosCache = cache;
 
-      llamarApi('listarServicios', {})
-        .then(function (resp) {
-          if (resp.ok) {
-            serviciosCache = resp.data;
-            guardarCache_('servicios_cache', resp.data);
-          }
-        })
-        .catch(function () { });
-    }
-
-    function cargarStaff() {
-      const select = document.getElementById('staff');
-
-      function pintarOpciones(nombres) {
-        const valorPrevio = select.value;
-        select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
-        nombres.forEach(function (nombre) {
-          const opt = document.createElement('option');
-          opt.value = nombre;
-          opt.textContent = nombre;
-          select.appendChild(opt);
-        });
-        if (valorPrevio && nombres.indexOf(valorPrevio) !== -1) {
-          select.value = valorPrevio;
+    llamarApi('listarServicios', {})
+      .then(function (resp) {
+        if (resp.ok) {
+          serviciosCache = resp.data;
+          guardarCache_('servicios_cache', resp.data);
         }
-      }
+      })
+      .catch(function () { });
+  }
 
-      const cache = leerCache_('staff_cache');
-      if (cache) pintarOpciones(cache);
+  function cargarStaff() {
+    const select = document.getElementById('staff');
 
-      llamarApi('listarStaff', {})
-        .then(function (resp) {
-          if (!resp.ok || !resp.data) return;
-          pintarOpciones(resp.data);
-          guardarCache_('staff_cache', resp.data);
-        })
-        .catch(function () { });
-    }
-
-    function guardarCache_(clave, datos) {
-      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
-      catch (e) { }
-    }
-
-    function leerCache_(clave) {
-      try {
-        const crudo = localStorage.getItem(clave);
-        if (!crudo) return null;
-        const parsed = JSON.parse(crudo);
-        if (Date.now() - parsed.guardado > 12 * 60 * 60 * 1000) return null;
-        return parsed.datos;
-      } catch (e) { return null; }
-    }
-
-    function iniciarScanner() {
-      scanner = new Html5Qrcode('reader');
-      scanner.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: 220 },
-        function (idDecodificado) {
-          if (!escaneando) return;
-          escaneando = false;
-          scanner.pause();
-          procesarCliente(idDecodificado.trim());
-        }
-      ).catch(function () {
-        document.getElementById('reader').innerHTML =
-          '<p style="font-size:12px;color:#c0392b;padding:10px;margin:0;">No se pudo abrir la cámara. Usa la búsqueda manual.</p>';
+    function pintarOpciones(nombres) {
+      const valorPrevio = select.value;
+      select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+      nombres.forEach(function (nombre) {
+        const opt = document.createElement('option');
+        opt.value = nombre;
+        opt.textContent = nombre;
+        select.appendChild(opt);
       });
-    }
-
-    function buscarManual() {
-      const termino = document.getElementById('idManual').value.trim();
-      if (!termino) return;
-      procesarCliente(termino);
-    }
-
-    function procesarCliente(termino) {
-      const staff = document.getElementById('staff').value.trim();
-
-      if (!staff) {
-        document.getElementById('resultado').style.display = 'grid';
-        document.getElementById('resultado').innerHTML =
-          '<div id="sinPases">Escribe tu nombre en "Validado por" antes de buscar un cliente.</div>';
-        escaneando = true;
-        if (scanner) scanner.resume();
-        return;
+      if (valorPrevio && nombres.indexOf(valorPrevio) !== -1) {
+        select.value = valorPrevio;
       }
+    }
 
+    const cache = leerCache_('staff_cache');
+    if (cache) pintarOpciones(cache);
+
+    llamarApi('listarStaff', {})
+      .then(function (resp) {
+        if (!resp.ok || !resp.data) return;
+        pintarOpciones(resp.data);
+        guardarCache_('staff_cache', resp.data);
+      })
+      .catch(function () { });
+  }
+
+  function guardarCache_(clave, datos) {
+    try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+    catch (e) { }
+  }
+
+  function leerCache_(clave) {
+    try {
+      const crudo = localStorage.getItem(clave);
+      if (!crudo) return null;
+      const parsed = JSON.parse(crudo);
+      if (Date.now() - parsed.guardado > 12 * 60 * 60 * 1000) return null;
+      return parsed.datos;
+    } catch (e) { return null; }
+  }
+
+  function iniciarScanner() {
+    scanner = new Html5Qrcode('reader');
+    scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: 220 },
+      function (idDecodificado) {
+        if (!escaneando) return;
+        escaneando = false;
+        scanner.pause();
+        procesarCliente(idDecodificado.trim());
+      }
+    ).catch(function () {
+      document.getElementById('reader').innerHTML =
+        '<p style="font-size:12px;color:#c0392b;padding:10px;margin:0;">No se pudo abrir la cámara. Usa la búsqueda manual.</p>';
+    });
+  }
+
+  function buscarManual() {
+    const termino = document.getElementById('idManual').value.trim();
+    if (!termino) return;
+    procesarCliente(termino);
+  }
+
+  function procesarCliente(termino) {
+    const staff = document.getElementById('staff').value.trim();
+
+    if (!staff) {
       document.getElementById('resultado').style.display = 'grid';
-      document.getElementById('mensajeOk').style.display = 'none';
-      document.getElementById('resultado').innerHTML = '<p style="font-size:13px;color:#888;grid-column:1/-1;">Buscando cliente...</p>';
-
-      llamarApi('buscarClientesPorTexto', { termino: termino })
-        .then(function (resp) {
-          if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
-          const lista = resp.data || [];
-
-          if (lista.length === 0) {
-            document.getElementById('resultado').innerHTML =
-              '<div id="sinPases">No se encontraron clientes para: "' + termino + '"</div>';
-            return;
-          }
-
-          if (lista.length === 1) {
-            cargarDetalleCheckin(lista[0].idCliente, staff);
-          } else {
-            renderResultadosMultiples(lista, staff);
-          }
-        })
-        .catch(mostrarError);
+      document.getElementById('resultado').innerHTML =
+        '<div id="sinPases">Escribe tu nombre en "Validado por" antes de buscar un cliente.</div>';
+      escaneando = true;
+      if (scanner) scanner.resume();
+      return;
     }
 
-    function renderResultadosMultiples(lista, staff) {
-      let html = '<div class="card" style="grid-column:1/-1;"><h3>Resultados encontrados (' + lista.length + ')</h3>';
+    document.getElementById('resultado').style.display = 'grid';
+    document.getElementById('mensajeOk').style.display = 'none';
+    document.getElementById('resultado').innerHTML = '<p style="font-size:13px;color:#888;grid-column:1/-1;">Buscando cliente...</p>';
 
-      lista.forEach(function (c) {
-        const nombreMostrar = (c.nombre + ' ' + c.apellido).trim() || 'Cliente sin nombre';
-        html += '<div class="item" style="cursor:pointer; padding:6px 0;" onclick="cargarDetalleCheckin(\'' + c.idCliente + '\', \'' + staff.replace(/'/g, '') + '\')">'
-          + '<strong>' + nombreMostrar + '</strong> · '
-          + '<span style="color:#888; font-size:11px;">ID: ' + c.idCliente + '</span>'
+    llamarApi('buscarClientesPorTexto', { termino: termino })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
+        const lista = resp.data || [];
+
+        if (lista.length === 0) {
+          document.getElementById('resultado').innerHTML =
+            '<div id="sinPases">No se encontraron clientes para: "' + termino + '"</div>';
+          return;
+        }
+
+        if (lista.length === 1) {
+          cargarDetalleCheckin(lista[0].idCliente, staff);
+        } else {
+          renderResultadosMultiples(lista, staff);
+        }
+      })
+      .catch(mostrarError);
+  }
+
+  function renderResultadosMultiples(lista, staff) {
+    let html = '<div class="card" style="grid-column:1/-1;"><h3>Resultados encontrados (' + lista.length + ')</h3>';
+
+    lista.forEach(function (c) {
+      const nombreMostrar = (c.nombre + ' ' + c.apellido).trim() || 'Cliente sin nombre';
+      html += '<div class="item" style="cursor:pointer; padding:6px 0;" onclick="cargarDetalleCheckin(\'' + c.idCliente + '\', \'' + staff.replace(/'/g, '') + '\')">'
+        + '<strong>' + nombreMostrar + '</strong> · '
+        + '<span style="color:#888; font-size:11px;">ID: ' + c.idCliente + '</span>'
+        + '</div>';
+    });
+
+    html += '</div>';
+    document.getElementById('resultado').innerHTML = html;
+  }
+
+  function cargarDetalleCheckin(idCliente, staff) {
+    carritoPases = []; 
+    llamarApi('buscarClienteYPases', { idCliente: idCliente })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error(resp.error);
+        const cliente = resp.data.cliente;
+        if (!cliente) {
+          document.getElementById('resultado').innerHTML =
+            '<div id="sinPases">Cliente no encontrado: ' + idCliente + '</div>';
+          return;
+        }
+        renderPases(cliente, resp.data.pases, resp.data.checkinsHoy, staff);
+      })
+      .catch(mostrarError);
+  }
+
+  function renderPases(cliente, pases, checkinsHoy, staff) {
+    let html = '';
+
+    /* ===== COLUMNA IZQUIERDA: CLIENTE + PASES ACTIVOS + CHECK-INS HOY ===== */
+    html += '<div class="card">'
+      + '<h3>Cliente</h3>'
+      + '<div style="font-size:14px; font-weight:700;">' + cliente.nombre + ' ' + cliente.apellido + '</div>'
+      + '<p style="font-size:11px; color:#888; margin-bottom:8px;">ID: ' + cliente.idCliente + '</p>';
+
+    // Pases activos
+    html += '<label style="margin-top:6px;">Pases Activos</label>';
+    if (!pases || pases.length === 0) {
+      html += '<p style="font-size:11px; color:#c0392b; margin:4px 0;">Sin pases activos.</p>';
+    } else {
+      pases.forEach(function (p) {
+        html += '<div class="item-pase">'
+          + '<div style="font-weight:700; font-size:12px;">' + p.nombreServicio + '</div>'
+          + '<p>Usos: <strong>' + p.usosRestantes + '</strong> / ' + p.usosTotales + '</p>'
+          + (p.fechaVencimiento ? '<p style="color:#888; font-size:10px;">Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</p>' : '')
+          + '<button onclick="confirmar(\'' + cliente.idCliente + '\',\'' + p.idPase + '\',\'' + staff.replace(/'/g, '') + '\', this)">Confirmar ingreso</button>'
           + '</div>';
       });
-
-      html += '</div>';
-      document.getElementById('resultado').innerHTML = html;
     }
 
-    function cargarDetalleCheckin(idCliente, staff) {
-      carritoPases = []; 
-      llamarApi('buscarClienteYPases', { idCliente: idCliente })
-        .then(function (resp) {
-          if (!resp.ok) throw new Error(resp.error);
-          const cliente = resp.data.cliente;
-          if (!cliente) {
-            document.getElementById('resultado').innerHTML =
-              '<div id="sinPases">Cliente no encontrado: ' + idCliente + '</div>';
-            return;
-          }
-          renderPases(cliente, resp.data.pases, resp.data.checkinsHoy, staff);
-        })
-        .catch(mostrarError);
-    }
-
-    function renderPases(cliente, pases, checkinsHoy, staff) {
-      let html = '';
-
-      /* ===== COLUMNA IZQUIERDA: CLIENTE + PASES ACTIVOS + CHECK-INS HOY ===== */
-      html += '<div class="card">'
-        + '<h3>Cliente</h3>'
-        + '<div style="font-size:14px; font-weight:700;">' + cliente.nombre + ' ' + cliente.apellido + '</div>'
-        + '<p style="font-size:11px; color:#888; margin-bottom:8px;">ID: ' + cliente.idCliente + '</p>';
-
-      // Pases activos
-      html += '<label style="margin-top:6px;">Pases Activos</label>';
-      if (!pases || pases.length === 0) {
-        html += '<p style="font-size:11px; color:#c0392b; margin:4px 0;">Sin pases activos.</p>';
-      } else {
-        pases.forEach(function (p) {
-          html += '<div class="item-pase">'
-            + '<div style="font-weight:700; font-size:12px;">' + p.nombreServicio + '</div>'
-            + '<p>Usos: <strong>' + p.usosRestantes + '</strong> / ' + p.usosTotales + '</p>'
-            + (p.fechaVencimiento ? '<p style="color:#888; font-size:10px;">Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</p>' : '')
-            + '<button onclick="confirmar(\'' + cliente.idCliente + '\',\'' + p.idPase + '\',\'' + staff.replace(/'/g, '') + '\', this)">Confirmar ingreso</button>'
-            + '</div>';
-        });
-      }
-
-      // Check-ins de hoy
-      if (checkinsHoy && checkinsHoy.length > 0) {
-        html += '<div style="background:#fff8e6; border:1px solid #f39c12; border-radius:6px; padding:6px; margin-top:10px;">'
-          + '<div style="font-size:10px; font-weight:700; color:#d35400; text-transform:uppercase;">Check-ins de Hoy</div>';
-        checkinsHoy.forEach(function (c) {
-          const hora = new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          html += '<div class="item" style="display:flex; justify-content:space-between; align-items:center;">'
-            + '<span>' + hora + '</span>'
-            + '<button style="background:#c0392b; padding:2px 6px; font-size:10px; width:auto; margin-top:0;" '
-            + 'onclick="anularCheckin(\'' + c.idCheckin + '\', \'' + cliente.idCliente + '\', \'' + staff.replace(/'/g, '') + '\', this)">Anular</button>'
-            + '</div>';
-        });
-        html += '</div>';
-      }
-
-      html += '</div>'; // Fin Columna Izquierda
-
-      /* ===== COLUMNA DERECHA: CARRITO DE VENTAS ===== */
-      html += '<div class="card" style="background:#fcfcfc;">'
-        + '<h3>🛒 Cargar Pases</h3>'
-        + '<label>Servicio</label>'
-        + '<select id="selectServicio">' + opcionesServicios() + '</select>'
-        + '<label>Cantidad</label>'
-        + '<input type="number" id="cantPases" value="1" min="1" style="text-align:center;">'
-        + '<button style="background:#1565C0; margin-top:8px;" onclick="agregarAlCarritoPases()">+ Agregar al carrito</button>'
-        + '<div id="boxCarritoPases"></div>'
-        + '<label style="margin-top:8px;">Medio de Pago</label>'
-        + '<select id="selectMedioPago">'
-        + '<option value="Mercado Pago">Mercado Pago</option>'
-        + '<option value="Transferencia">Transferencia</option>'
-        + '<option value="Efectivo">Efectivo</option>'
-        + '</select>'
-        + '<button id="btnConfirmarPases" style="background:#1a1a1a; margin-top:8px;" disabled '
-        + 'onclick="procesarCarritoPases(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">'
-        + 'Confirmar compra'
-        + '</button>'
-        + '</div>'; // Fin Columna Derecha
-
-      document.getElementById('resultado').innerHTML = html;
-      document.getElementById('nuevaLectura').style.display = (!pases || pases.length === 0) ? 'block' : 'none';
-      renderCarritoPasesUI();
-    }
-
-    function opcionesServicios() {
-      if (!serviciosCache.length) return '<option value="">(catalogo no cargado)</option>';
-      return serviciosCache.map(function (s) {
-        return '<option value="' + s.codigo + '">' + s.nombre + ' - $' + formatearNumero(s.precio) + '</option>';
-      }).join('');
-    }
-
-    /* LÓGICA DEL CARRITO DE PASES */
-    function agregarAlCarritoPases() {
-      const codigo = document.getElementById('selectServicio').value;
-      const cantidad = parseInt(document.getElementById('cantPases').value, 10);
-
-      if (!codigo || isNaN(cantidad) || cantidad <= 0) return;
-
-      const servicio = serviciosCache.find(function (s) { return s.codigo === codigo; });
-      if (!servicio) return;
-
-      const existente = carritoPases.find(function (item) { return item.codigo === codigo; });
-      if (existente) {
-        existente.cantidad += cantidad;
-      } else {
-        carritoPases.push({
-          codigo: servicio.codigo,
-          nombre: servicio.nombre,
-          precio: Number(servicio.precio) || 0,
-          categoriaFinanzas: servicio.categoriaFinanzas || 'Pases',
-          cantidad: cantidad
-        });
-      }
-
-      document.getElementById('cantPases').value = 1;
-      renderCarritoPasesUI();
-    }
-
-    function eliminarDelCarritoPases(index) {
-      carritoPases.splice(index, 1);
-      renderCarritoPasesUI();
-    }
-
-    function renderCarritoPasesUI() {
-      const container = document.getElementById('boxCarritoPases');
-      const btnConfirmar = document.getElementById('btnConfirmarPases');
-      if (!container) return;
-
-      if (carritoPases.length === 0) {
-        container.innerHTML = '<p style="font-size:10.5px; color:#888; margin:6px 0; text-align:center;">Carrito vacío.</p>';
-        if (btnConfirmar) {
-          btnConfirmar.disabled = true;
-          btnConfirmar.textContent = 'Confirmar compra';
-        }
-        return;
-      }
-
-      let html = '<div class="carrito-box">';
-      let total = 0;
-
-      carritoPases.forEach(function (item, idx) {
-        const subtotal = item.precio * item.cantidad;
-        total += subtotal;
-        html += '<div class="carrito-item">'
-          + '<div><strong>' + item.nombre + '</strong> x' + item.cantidad + '</div>'
-          + '<div style="display:flex; align-items:center; gap:4px;">'
-          + '<span>$' + formatearNumero(subtotal) + '</span>'
-          + '<button class="btn-eliminar-item" onclick="eliminarDelCarritoPases(' + idx + ')">✕</button>'
-          + '</div></div>';
+    // Check-ins de hoy
+    if (checkinsHoy && checkinsHoy.length > 0) {
+      html += '<div style="background:#fff8e6; border:1px solid #f39c12; border-radius:6px; padding:6px; margin-top:10px;">'
+        + '<div style="font-size:10px; font-weight:700; color:#d35400; text-transform:uppercase;">Check-ins de Hoy</div>';
+      checkinsHoy.forEach(function (c) {
+        const hora = new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        html += '<div class="item" style="display:flex; justify-content:space-between; align-items:center;">'
+          + '<span>' + hora + '</span>'
+          + '<button style="background:#c0392b; padding:2px 6px; font-size:10px; width:auto; margin-top:0;" '
+          + 'onclick="anularCheckin(\'' + c.idCheckin + '\', \'' + cliente.idCliente + '\', \'' + staff.replace(/'/g, '') + '\', this)">Anular</button>'
+          + '</div>';
       });
-
-      html += '<div style="display:flex; justify-content:space-between; font-weight:700; font-size:11px; margin-top:4px; padding-top:4px; border-top:1px solid #ddd;">'
-        + '<span>TOTAL</span><span>$' + formatearNumero(total) + '</span></div></div>';
-
-      container.innerHTML = html;
-      if (btnConfirmar) {
-        btnConfirmar.disabled = false;
-        btnConfirmar.textContent = 'Confirmar ($' + formatearNumero(total) + ')';
-      }
+      html += '</div>';
     }
 
-    async function procesarCarritoPases(idCliente, nombre, apellido, staff, boton) {
-      if (carritoPases.length === 0) return;
+    html += '</div>'; // Fin Columna Izquierda
 
-      const medioPago = document.getElementById('selectMedioPago').value;
-      boton.disabled = true;
-      boton.textContent = 'Procesando...';
+    /* ===== COLUMNA DERECHA: CARRITO DE VENTAS ===== */
+    html += '<div class="card" style="background:#fcfcfc;">'
+      + '<h3>🛒 Cargar Pases</h3>'
+      + '<label>Servicio</label>'
+      + '<select id="selectServicio">' + opcionesServicios() + '</select>'
+      + '<label>Cantidad</label>'
+      + '<input type="number" id="cantPases" value="1" min="1" style="text-align:center;">'
+      + '<button style="background:#1565C0; margin-top:8px;" onclick="agregarAlCarritoPases()">+ Agregar al carrito</button>'
+      + '<div id="boxCarritoPases"></div>'
+      + '<label style="margin-top:8px;">Medio de Pago</label>'
+      + '<select id="selectMedioPago">'
+      + '<option value="Mercado Pago">Mercado Pago</option>'
+      + '<option value="Transferencia">Transferencia</option>'
+      + '<option value="Efectivo">Efectivo</option>'
+      + '</select>'
+      + '<button id="btnConfirmarPases" style="background:#1a1a1a; margin-top:8px;" disabled '
+      + 'onclick="procesarCarritoPases(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">'
+      + 'Confirmar compra'
+      + '</button>'
+      + '</div>'; // Fin Columna Derecha
 
-      let totalVenta = 0;
-      let nombresPases = [];
-      let errores = 0;
-      let categoriaParaFinanzas = 'Pases';
+    document.getElementById('resultado').innerHTML = html;
+    document.getElementById('nuevaLectura').style.display = (!pases || pases.length === 0) ? 'block' : 'none';
+    renderCarritoPasesUI();
+  }
 
-      for (let item of carritoPases) {
-        if (item.categoriaFinanzas) {
-          categoriaParaFinanzas = item.categoriaFinanzas;
-        }
-        for (let i = 0; i < item.cantidad; i++) {
-          try {
-            const resp = await llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: item.codigo }, true);
-            if (resp.ok) {
-              totalVenta += item.precio;
-            } else {
-              errores++;
-            }
-          } catch (e) {
+  function opcionesServicios() {
+    if (!serviciosCache.length) return '<option value="">(catalogo no cargado)</option>';
+    return serviciosCache.map(function (s) {
+      return '<option value="' + s.codigo + '">' + s.nombre + ' - $' + formatearNumero(s.precio) + '</option>';
+    }).join('');
+  }
+
+  /* LÓGICA DEL CARRITO DE PASES */
+  function agregarAlCarritoPases() {
+    const codigo = document.getElementById('selectServicio').value;
+    const cantidad = parseInt(document.getElementById('cantPases').value, 10);
+
+    if (!codigo || isNaN(cantidad) || cantidad <= 0) return;
+
+    const servicio = serviciosCache.find(function (s) { return s.codigo === codigo; });
+    if (!servicio) return;
+
+    const existente = carritoPases.find(function (item) { return item.codigo === codigo; });
+    if (existente) {
+      existente.cantidad += cantidad;
+    } else {
+      carritoPases.push({
+        codigo: servicio.codigo,
+        nombre: servicio.nombre,
+        precio: Number(servicio.precio) || 0,
+        categoriaFinanzas: servicio.categoriaFinanzas || 'Pases',
+        cantidad: cantidad
+      });
+    }
+
+    document.getElementById('cantPases').value = 1;
+    renderCarritoPasesUI();
+  }
+
+  function eliminarDelCarritoPases(index) {
+    carritoPases.splice(index, 1);
+    renderCarritoPasesUI();
+  }
+
+  function renderCarritoPasesUI() {
+    const container = document.getElementById('boxCarritoPases');
+    const btnConfirmar = document.getElementById('btnConfirmarPases');
+    if (!container) return;
+
+    if (carritoPases.length === 0) {
+      container.innerHTML = '<p style="font-size:10.5px; color:#888; margin:6px 0; text-align:center;">Carrito vacío.</p>';
+      if (btnConfirmar) {
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = 'Confirmar compra';
+      }
+      return;
+    }
+
+    let html = '<div class="carrito-box">';
+    let total = 0;
+
+    carritoPases.forEach(function (item, idx) {
+      const subtotal = item.precio * item.cantidad;
+      total += subtotal;
+      html += '<div class="carrito-item">'
+        + '<div><strong>' + item.nombre + '</strong> x' + item.cantidad + '</div>'
+        + '<div style="display:flex; align-items:center; gap:4px;">'
+        + '<span>$' + formatearNumero(subtotal) + '</span>'
+        + '<button class="btn-eliminar-item" onclick="eliminarDelCarritoPases(' + idx + ')">✕</button>'
+        + '</div></div>';
+    });
+
+    html += '<div style="display:flex; justify-content:space-between; font-weight:700; font-size:11px; margin-top:4px; padding-top:4px; border-top:1px solid #ddd;">'
+      + '<span>TOTAL</span><span>$' + formatearNumero(total) + '</span></div></div>';
+
+    container.innerHTML = html;
+    if (btnConfirmar) {
+      btnConfirmar.disabled = false;
+      btnConfirmar.textContent = 'Confirmar ($' + formatearNumero(total) + ')';
+    }
+  }
+
+  /* PROCESAMIENTO DEL CARRITO CON SECUENCIA FIABLE DE FINANZAS */
+  async function procesarCarritoPases(idCliente, nombre, apellido, staff, boton) {
+    if (carritoPases.length === 0) return;
+
+    const medioPago = document.getElementById('selectMedioPago').value;
+    boton.disabled = true;
+    boton.textContent = 'Procesando...';
+
+    let totalVenta = 0;
+    let nombresPases = [];
+    let errores = 0;
+    let categoriaFinanzas = 'Pases';
+
+    // 1. Cargar cada pase en el sistema de Check-in
+    for (let item of carritoPases) {
+      if (item.categoriaFinanzas) {
+        categoriaFinanzas = item.categoriaFinanzas;
+      }
+      for (let i = 0; i < item.cantidad; i++) {
+        try {
+          const resp = await llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: item.codigo }, true);
+          if (resp.ok) {
+            totalVenta += item.precio;
+          } else {
             errores++;
           }
+        } catch (e) {
+          errores++;
         }
-        nombresPases.push(item.nombre + ' x' + item.cantidad);
       }
-
-      let mensajeFinal = '✅ Pases cargados.';
-
-      if (totalVenta > 0) {
-        const detalle = nombresPases.join(', ') + ' - ' + nombre + ' ' + apellido + ' (' + idCliente + ')';
-        const okFinanzas = await registrarIngresoAutomatico_(totalVenta, categoriaParaFinanzas, detalle, medioPago, staff);
-        mensajeFinal += okFinanzas 
-          ? ' Ingreso registrado en Finanzas ($' + formatearNumero(totalVenta) + ').' 
-          : ' (⚠️ Error en Finanzas)';
-      }
-
-      if (errores > 0) {
-        mensajeFinal += ' ⚠️ ' + errores + ' pase(s) fallaron.';
-      }
-
-      carritoPases = [];
-      const msgOk = document.getElementById('mensajeOk');
-      msgOk.style.display = 'block';
-      msgOk.textContent = mensajeFinal;
-
-      cargarDetalleCheckin(idCliente, staff);
+      nombresPases.push(item.nombre + (item.cantidad > 1 ? ' x' + item.cantidad : ''));
     }
 
-    function registrarIngresoAutomatico_(monto, categoria, descripcion, medioPago, staff) {
-      const datosMovimiento = {
+    let mensajeFinal = '✅ Pases cargados.';
+
+    // 2. Registrar el movimiento en Finanzas (Restaurando la firma/estructura exacta inicial)
+    if (totalVenta > 0) {
+      const detalle = 'Venta pases: ' + nombresPases.join(', ') + ' - ' + nombre + ' ' + apellido + ' (' + idCliente + ')';
+      const okFinanzas = await registrarIngresoAutomatico_(totalVenta, categoriaFinanzas, detalle, medioPago, staff);
+      
+      if (okFinanzas) {
+        mensajeFinal += ' Ingreso registrado en Finanzas ($' + formatearNumero(totalVenta) + ').';
+      } else {
+        mensajeFinal += ' (⚠️ Error al conectar con Finanzas)';
+      }
+    }
+
+    if (errores > 0) {
+      mensajeFinal += ' ⚠️ ' + errores + ' pase(s) fallaron al crearse.';
+    }
+
+    carritoPases = [];
+    const msgOk = document.getElementById('mensajeOk');
+    msgOk.style.display = 'block';
+    msgOk.textContent = mensajeFinal;
+
+    cargarDetalleCheckin(idCliente, staff);
+  }
+
+  /* FUNCIÓN INICIAL RESTAURADA PARA FINANZAS */
+  function registrarIngresoAutomatico_(monto, categoria, descripcion, medioPago, staff) {
+    const payload = {
+      action: 'registrarMovimiento',
+      payload: {
         tipo: 'Ingreso',
-        categoria: categoria || 'Ingreso Varios',
+        categoria: categoria || 'Pases',
         medioPago: medioPago,
         monto: Number(monto),
         descripcion: descripcion,
-        comprobante: '',
         responsable: staff
-      };
+      }
+    };
 
-      // Se utiliza la misma estrategia de reintento/timeout sin no-cors
-      return fetchConReintento(API_URL_FINANZAS, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
-      }, true)
-      .then(function (r) {
-        return r.text().then(function (texto) {
-          try {
-            const resp = JSON.parse(texto);
-            return !!(resp.ok || resp.status === 'success' || resp.success);
-          } catch (e) {
-            // Si el backend de Finanzas no devuelve un JSON standard pero sí un OK o status 200 HTTP
-            return r.ok;
-          }
-        });
+    return fetch(API_URL_FINANZAS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      return res && (res.ok === true || res.status === 'success' || res.success === true);
+    })
+    .catch(function (err) {
+      console.error('Error registrando en Finanzas:', err);
+      return false;
+    });
+  }
+
+  function anularCheckin(idCheckin, idCliente, staff, boton) {
+    boton.disabled = true;
+    boton.textContent = 'Anulando...';
+
+    llamarApi('anularCheckin', { idCheckin: idCheckin, staff: staff }, true)
+      .then(function (resp) {
+        if (!resp.ok) throw new Error(resp.error);
+        return llamarApi('buscarClienteYPases', { idCliente: idCliente });
+      })
+      .then(function (resp2) {
+        if (resp2 && resp2.ok && resp2.data.cliente) {
+          renderPases(resp2.data.cliente, resp2.data.pases, resp2.data.checkinsHoy, staff);
+        }
       })
       .catch(function (err) {
-        console.error('Error procesando en Finanzas:', err);
-        return false;
+        boton.disabled = false;
+        boton.textContent = 'Anular';
+        mostrarError(err);
       });
-    }
+  }
 
-    function anularCheckin(idCheckin, idCliente, staff, boton) {
-      boton.disabled = true;
-      boton.textContent = 'Anulando...';
+  function confirmar(idCliente, idPase, staff, boton) {
+    boton.disabled = true;
+    boton.textContent = 'Procesando...';
 
-      llamarApi('anularCheckin', { idCheckin: idCheckin, staff: staff }, true)
-        .then(function (resp) {
-          if (!resp.ok) throw new Error(resp.error);
-          return llamarApi('buscarClienteYPases', { idCliente: idCliente });
-        })
-        .then(function (resp2) {
-          if (resp2 && resp2.ok && resp2.data.cliente) {
-            renderPases(resp2.data.cliente, resp2.data.pases, resp2.data.checkinsHoy, staff);
-          }
-        })
-        .catch(function (err) {
-          boton.disabled = false;
-          boton.textContent = 'Anular';
-          mostrarError(err);
-        });
-    }
+    llamarApi('checkin', { idCliente: idCliente, idPase: idPase, validadoPor: staff }, true)
+      .then(function (resp) {
+        if (!resp.ok) throw new Error(resp.error);
+        boton.textContent = '✅ Confirmado';
+        boton.style.background = '#1e824c';
+        const mensaje = document.getElementById('mensajeOk');
+        mensaje.style.display = 'block';
+        mensaje.textContent = '✅ Ingreso registrado. Quedan ' + resp.data.usosRestantes + ' uso(s).';
+        mensaje.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('nuevaLectura').style.display = 'block';
+      })
+      .catch(function (err) {
+        boton.disabled = false;
+        boton.textContent = 'Confirmar ingreso';
+        mostrarError(err);
+      });
+  }
 
-    function confirmar(idCliente, idPase, staff, boton) {
-      boton.disabled = true;
-      boton.textContent = 'Procesando...';
+  function mostrarError(err) {
+    document.getElementById('resultado').innerHTML =
+      '<div id="sinPases">Error: ' + err.message + '</div>';
+    document.getElementById('nuevaLectura').style.display = 'block';
+  }
 
-      llamarApi('checkin', { idCliente: idCliente, idPase: idPase, validadoPor: staff }, true)
-        .then(function (resp) {
-          if (!resp.ok) throw new Error(resp.error);
-          boton.textContent = '✅ Confirmado';
-          boton.style.background = '#1e824c';
-          const mensaje = document.getElementById('mensajeOk');
-          mensaje.style.display = 'block';
-          mensaje.textContent = '✅ Ingreso registrado. Quedan ' + resp.data.usosRestantes + ' uso(s).';
-          mensaje.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          document.getElementById('nuevaLectura').style.display = 'block';
-        })
-        .catch(function (err) {
-          boton.disabled = false;
-          boton.textContent = 'Confirmar ingreso';
-          mostrarError(err);
-        });
-    }
+  function reiniciar() {
+    document.getElementById('idManual').value = '';
+    document.getElementById('resultado').innerHTML = '';
+    document.getElementById('mensajeOk').style.display = 'none';
+    document.getElementById('nuevaLectura').style.display = 'none';
+    carritoPases = [];
+    escaneando = true;
+    if (scanner) scanner.resume();
+  }
 
-    function mostrarError(err) {
-      document.getElementById('resultado').innerHTML =
-        '<div id="sinPases">Error: ' + err.message + '</div>';
-      document.getElementById('nuevaLectura').style.display = 'block';
-    }
+  function formatearNumero(numero) {
+    return Number(numero || 0).toLocaleString('es-CL');
+  }
 
-    function reiniciar() {
-      document.getElementById('idManual').value = '';
-      document.getElementById('resultado').innerHTML = '';
-      document.getElementById('mensajeOk').style.display = 'none';
-      document.getElementById('nuevaLectura').style.display = 'none';
-      carritoPases = [];
-      escaneando = true;
-      if (scanner) scanner.resume();
-    }
-
-    function formatearNumero(numero) {
-      return Number(numero || 0).toLocaleString('es-CL');
-    }
-
-    cargarCatalogo();
-    cargarStaff();
-    iniciarScanner();
-  </script>
+  cargarCatalogo();
+  cargarStaff();
+  iniciarScanner();
+</script>  
 </body>
 </html>
