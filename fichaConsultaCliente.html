@@ -16,7 +16,7 @@
     color: #1a1a1a;
   }
 
-  /* BOTÓN HOME Y CABECERA ORIGINALES */
+  /* BOTÓN HOME */
   .btnHome {
     display: inline-flex;
     align-items: center;
@@ -40,7 +40,7 @@
   h1 { font-size: 24px; margin: 20px 0 4px; font-weight: 700; }
   p.sub { color: #666; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
 
-  /* BUSCADOR MINIMALISTA */
+  /* BUSCADOR */
   .buscador { 
     display: flex; 
     gap: 10px; 
@@ -78,16 +78,11 @@
     opacity: 0.9;
   }
 
-  /* DISPOSICIÓN EN GRID DE 2 COLUMNAS */
+  /* GRID STRICTO DE 2 COLUMNAS POR FILA */
   .grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-  }
-
-  /* TARJETA DEL NOMBRE COMPLETA AL INICIO */
-  .seccion-principal {
-    grid-column: 1 / -1;
   }
 
   /* TARJETAS / SECCIONES */
@@ -103,17 +98,14 @@
 
   .seccion h2 { 
     font-size: 15px; 
-    margin: 0 0 8px; 
+    margin: 0 0 10px; 
     font-weight: 600;
     color: #111;
+    border-bottom: 1px solid #f0f0f2;
+    padding-bottom: 8px;
   }
 
-  .seccion-principal h2 {
-    font-size: 18px;
-    margin: 0 0 4px;
-  }
-
-  .seccion p { margin: 2px 0; font-size: 14px; color: #444; }
+  .seccion p { margin: 4px 0; font-size: 14px; color: #444; }
 
   /* ITEMS INTERNOS */
   .item { 
@@ -131,7 +123,7 @@
   #mensaje.ok { color: #38a169; }
   #sinDatos { font-size: 14px; color: #718096; padding: 12px 0; }
 
-  /* RESPONSIVE PARA DISPOSITIVOS MÓVILES */
+  /* APILAMIENTO EN MÓVILES PANTALLA PEQUEÑA */
   @media (max-width: 600px) {
     .grid-container {
       grid-template-columns: 1fr;
@@ -160,7 +152,6 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
     let idClienteActual = '';
-    let staffCache = [];
 
     function fetchConReintento(url, opciones, soloUnIntento) {
       const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
@@ -224,15 +215,24 @@
       const c = data.cliente;
       let html = '<div class="grid-container">';
       
-      // 1. DATOS CLIENTE (OCUPA TODO EL ANCHO DE ARRIBA)
+      // 1. NOMBRE CLIENTE (FILA 1 - IZQUIERDA)
       html += `
-      <div class="seccion seccion-principal">
-        <h2>${c.nombre} ${c.apellido}</h2>
+      <div class="seccion">
+        <h2>Cliente</h2>
+        <p style="font-size:16px; font-weight:600; color:#111;">${c.nombre} ${c.apellido}</p>
         <p style="color:#718096">Código: <strong>${c.idCliente}</strong></p>
       </div>
       `;
-      
-      // 2. PASES
+
+      // 2. RESUMEN VISITAS (FILA 1 - DERECHA)
+      html += `
+      <div class="seccion">
+        <h2>Resumen de visitas</h2>
+        <p>Total acumulado: <strong style="font-size:16px">${data.totalVisitas || 0}</strong> visitas</p>
+      </div>
+      `;
+
+      // 3. PASES ACTIVOS (FILA 2 - IZQUIERDA)
       html += `
       <div class="seccion">
         <h2>Pases activos</h2>
@@ -253,16 +253,8 @@
         }); 
       }      
       html += '</div>';
-           
-      // 3. RESUMEN VISITAS
-      html += `
-      <div class="seccion">
-        <h2>Resumen de visitas</h2>
-        <p>Total acumulado: <strong style="font-size:16px">${data.totalVisitas || 0}</strong> visitas</p>
-      </div>
-      `;
 
-      // 4. ÚLTIMAS VISITAS
+      // 4. ÚLTIMAS VISITAS (FILA 2 - DERECHA)
       html += `
       <div class="seccion">
         <h2>Últimas visitas</h2>
