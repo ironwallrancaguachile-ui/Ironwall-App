@@ -10,135 +10,127 @@
 
 <style>
 
-*{
-box-sizing:border-box;
+* {
+  box-sizing: border-box;
 }
 
-body{
-
-font-family:-apple-system,Arial,sans-serif;
-max-width:600px;
-margin:auto;
-padding:20px;
-background:#f8f8f8;
-
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background: #f8f8f8;
+  color: #222;
 }
 
-.btnHome{
-
-display:inline-flex;
-align-items:center;
-gap:8px;
-padding:10px 18px;
-background:#fff;
-text-decoration:none;
-color:#222;
-border-radius:12px;
-box-shadow:0 3px 12px rgba(0,0,0,.12);
-font-weight:600;
-
+.btnHome {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #fff;
+  text-decoration: none;
+  color: #222;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.12);
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.logo{
-
-display:block;
-margin:25px auto 10px;
-width:120px;
-
+/* CONTENEDOR HORIZONTAL (LOGO A LA IZQ, TEXTO A LA DER) */
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0 25px 0;
 }
 
-h1{
-
-text-align:center;
-margin-bottom:5px;
-font-size:22px;
-
+.logo {
+  width: 90px;
+  height: auto;
+  display: block;
+  margin: 0;
+  object-fit: contain;
 }
 
-.sub{
-
-text-align:center;
-color:#666;
-margin-bottom:25px;
-
+.textoEncabezado {
+  text-align: left;
 }
 
-.card{
-
-background:#fff;
-border-radius:16px;
-padding:22px;
-box-shadow:0 4px 15px rgba(0,0,0,.08);
-
+h1 {
+  text-align: left;
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
 }
 
-label{
+.sub {
+  text-align: left;
+  color: #666;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
 
-display:block;
-margin-top:15px;
-margin-bottom:6px;
-font-weight:600;
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
 
+label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 select,
 textarea,
-input{
-
-width:100%;
-padding:12px;
-border:1px solid #ccc;
-border-radius:10px;
-font-size:15px;
-
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 15px;
 }
 
-textarea{
-
-min-height:140px;
-resize:vertical;
-
+textarea {
+  min-height: 140px;
+  resize: vertical;
 }
 
-button{
-
-margin-top:25px;
-width:100%;
-padding:14px;
-background:#1565C0;
-color:white;
-border:none;
-border-radius:10px;
-font-size:16px;
-font-weight:bold;
-cursor:pointer;
-
+button {
+  margin-top: 25px;
+  width: 100%;
+  padding: 14px;
+  background: #1565C0;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-button:hover{
-
-background:#0d47a1;
-
+button:hover {
+  background: #0d47a1;
 }
 
-#mensaje{
-
-margin-top:18px;
-text-align:center;
-font-weight:bold;
-
+#mensaje {
+  margin-top: 18px;
+  text-align: center;
+  font-weight: bold;
 }
 
-.ok{
-
-color:#1e824c;
-
+.ok {
+  color: #1e824c;
 }
 
-.error{
-
-color:#c0392b;
-
+.error {
+  color: #c0392b;
 }
 
 </style>
@@ -148,146 +140,48 @@ color:#c0392b;
 <body>
 
 <a href="portalcliente.html" class="btnHome">
-
-🏠 Home
-
+  🏠 Home
 </a>
 
-<img src="img/logo.png" class="logo">
-
-<h1>
-
-💡 Ideas para mejorar Ironwall
-
-</h1>
-
-<p class="sub">
-
-Tu opinión nos ayuda a seguir creciendo.
-
-</p>
+<!-- ENCABEZADO AGRUPADO -->
+<div class="encabezado">
+  <img src="img/logo.png" class="logo" alt="Logo Ironwall">
+  <div class="textoEncabezado">
+    <h1>💡 Ideas para mejorar Ironwall</h1>
+    <p class="sub">Tu opinión nos ayuda a seguir creciendo.</p>
+  </div>
+</div>
 
 <div class="card">
 
-<label>
-
-Categoría
-
-</label>
-
+<label>Categoría</label>
 <select id="categoria">
-
-<option value="">
-
-Seleccione...
-
-</option>
-
-<option>
-
-💡 Idea de mejora
-
-</option>
-
-<option>
-
-🧗 Experiencia de escalada
-
-</option>
-
-<option>
-
-🏋 Equipamiento
-
-</option>
-
-<option>
-
-🧹 Limpieza
-
-</option>
-
-<option>
-
-😊 Atención del personal
-
-</option>
-
-<option>
-
-⚠ Problema encontrado
-
-</option>
-
-<option>
-
-❤️ Felicitaciones
-
-</option>
-
-<option>
-
-📦 Otro
-
-</option>
-
+  <option value="">Seleccione...</option>
+  <option>💡 Idea de mejora</option>
+  <option>🧗 Experiencia de escalada</option>
+  <option>🏋 Equipamiento</option>
+  <option>🧹 Limpieza</option>
+  <option>😊 Atención del personal</option>
+  <option>⚠ Problema encontrado</option>
+  <option>❤️ Felicitaciones</option>
+  <option>📦 Otro</option>
 </select>
 
-<label>
-
-Prioridad
-
-</label>
-
+<label>Prioridad</label>
 <select id="prioridad">
-
-<option>
-
-Normal
-
-</option>
-
-<option>
-
-Importante
-
-</option>
-
-<option>
-
-Urgente
-
-</option>
-
+  <option>Normal</option>
+  <option>Importante</option>
+  <option>Urgente</option>
 </select>
 
-<label>
+<label>Comentario</label>
+<textarea id="comentario" placeholder="Cuéntanos con el mayor detalle posible..."></textarea>
 
-Comentario
+<label>Nombre (opcional)</label>
+<input type="text" id="nombre" placeholder="Nombre">
 
-</label>
-
-<textarea
-id="comentario"
-placeholder="Cuéntanos con el mayor detalle posible..."></textarea>
-
-<label>
-
-Nombre (opcional)
-
-</label>
-
-<input
-type="text"
-id="nombre"
-placeholder="Nombre">
-
-<button
-type="button"
-onclick="enviarFeedback()">
-
-Enviar comentario
-
+<button type="button" onclick="enviarFeedback()">
+  Enviar comentario
 </button>
 
 <div id="mensaje"></div>
@@ -299,102 +193,65 @@ Enviar comentario
 const API_URL="https://script.google.com/macros/s/AKfycbzgTpnOQzlvROwFPSiptTHvki4aaJDel03SIXNHdYZmQP4wKzQzqz2N6uP5Xup6XnPtMQ/exec";
 
 function llamarAPI(action,payload={}){
-
-return fetch(API_URL,{
-
-method:"POST",
-
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-
-body:JSON.stringify({
-
-action:action,
-
-payload:payload
-
-})
-
-})
-
-.then(r=>r.json());
-
+  return fetch(API_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"text/plain;charset=utf-8"
+    },
+    body:JSON.stringify({
+      action:action,
+      payload:payload
+    })
+  })
+  .then(r=>r.json());
 }
 
 function enviarFeedback(){
+  const categoria=document.getElementById("categoria").value;
+  const prioridad=document.getElementById("prioridad").value;
+  const comentario=document.getElementById("comentario").value.trim();
+  const nombre=document.getElementById("nombre").value.trim();
 
-const categoria=document.getElementById("categoria").value;
-const prioridad=document.getElementById("prioridad").value;
-const comentario=document.getElementById("comentario").value.trim();
-const nombre=document.getElementById("nombre").value.trim();
+  const mensaje=document.getElementById("mensaje");
 
-const mensaje=document.getElementById("mensaje");
+  mensaje.innerHTML="";
+  mensaje.className="";
 
-mensaje.innerHTML="";
-mensaje.className="";
+  if(categoria==""){
+    mensaje.className="error";
+    mensaje.innerHTML="Selecciona una categoría.";
+    return;
+  }
 
-if(categoria==""){
+  if(comentario==""){
+    mensaje.className="error";
+    mensaje.innerHTML="Debes escribir un comentario.";
+    return;
+  }
 
-mensaje.className="error";
-mensaje.innerHTML="Selecciona una categoría.";
-
-return;
-
-}
-
-if(comentario==""){
-
-mensaje.className="error";
-mensaje.innerHTML="Debes escribir un comentario.";
-
-return;
-
-}
-
-llamarAPI("guardarFeedback",{
-
-categoria:categoria,
-
-prioridad:prioridad,
-
-nombre:nombre,
-
-comentario:comentario
-
-})
-
-.then(function(res){
-
-if(res.ok){
-
-mensaje.className="ok";
-
-mensaje.innerHTML="✅ Muchas gracias. Tu comentario fue enviado.";
-
-document.getElementById("categoria").value="";
-document.getElementById("prioridad").value="Normal";
-document.getElementById("comentario").value="";
-document.getElementById("nombre").value="";
-
-}else{
-
-mensaje.className="error";
-
-mensaje.innerHTML=res.error;
-
-}
-
-})
-
-.catch(function(){
-
-mensaje.className="error";
-
-mensaje.innerHTML="No fue posible enviar el comentario.";
-
-});
-
+  llamarAPI("guardarFeedback",{
+    categoria:categoria,
+    prioridad:prioridad,
+    nombre:nombre,
+    comentario:comentario
+  })
+  .then(function(res){
+    if(res.ok){
+      mensaje.className="ok";
+      mensaje.innerHTML="✅ Muchas gracias. Tu comentario fue enviado.";
+      document.getElementById("categoria").value="";
+      document.getElementById("prioridad").value="Normal";
+      document.getElementById("comentario").value="";
+      document.getElementById("nombre").value="";
+    }else{
+      mensaje.className="error";
+      mensaje.innerHTML=res.error;
+    }
+  })
+  .catch(function(){
+    mensaje.className="error";
+    mensaje.innerHTML="No fue posible enviar el comentario.";
+  });
 }
 
 </script>
