@@ -19,7 +19,7 @@
   p.sub { color: #666; margin-top: 0; font-size: 13px; }
   label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin: 12px 0 4px; }
   
-  select {
+  select, input {
     width: 100%;
     padding: 10px;
     font-size: 14px;
@@ -59,7 +59,7 @@
   /* ================= GRID DE 2 COLUMNAS FIJAS ================= */
   #resultado {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Siempre 2 columnas en cualquier pantalla */
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
     margin-top: 14px;
   }
@@ -75,7 +75,7 @@
   }
 
   .card.full-width {
-    grid-column: 1 / -1; /* Ocupa las 2 columnas cuando corresponde */
+    grid-column: 1 / -1;
   }
 
   .card h3 { 
@@ -107,7 +107,7 @@
     cursor: pointer;
   }
 
-  .card button:disabled { opacity: 0.5; }
+  .card button:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .item { 
     border-top: 1px solid #f2f2f2; 
@@ -117,6 +117,32 @@
   }
   .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
   /* ============================================================= */
+
+  /* Estilos Carrito de Pases */
+  .carrito-box {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 8px;
+  }
+  .carrito-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .carrito-item:last-child { border-bottom: none; }
+  .btn-eliminar-item {
+    background: #fdecea !important;
+    color: #c0392b !important;
+    padding: 2px 6px !important;
+    font-size: 10px !important;
+    width: auto !important;
+    margin-top: 0 !important;
+  }
 
   #sinPases {
     background: #fdecea;
@@ -200,6 +226,11 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
     const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
 
+    let scanner = null;
+    let escaneando = true;
+    let serviciosCache = [];
+    let carritoPases = [];
+
     function fetchConReintento(url, opciones, soloUnIntento) {
       const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
       const intentos = soloUnIntento ? 1 : 2;
@@ -213,8 +244,8 @@
           .catch(function (err) {
             clearTimeout(timeoutId);
             if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
-            if (soloUnIntento) throw new Error('No pudimos confirmar si la acción se completó. Revisa el estado del pase antes de reintentar.');
-            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+            if (soloUnIntento) throw new Error('No pudimos confirmar la acción. Revisa el estado antes de reintentar.');
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo.');
           });
       }
 
@@ -233,10 +264,6 @@
         });
       });
     }
-
-    let scanner = null;
-    let escaneando = true;
-    let serviciosCache = [];
 
     function cargarCatalogo() {
       const cache = leerCache_('servicios_cache');
@@ -309,7 +336,7 @@
         }
       ).catch(function () {
         document.getElementById('reader').innerHTML =
-          '<p style="font-size:12px;color:#c0392b;padding:10px;margin:0;">No se pudo abrir la cámara. Usa la búsqueda manual de abajo.</p>';
+          '<p style="font-size:12px;color:#c0392b;padding:10px;margin:0;">No se pudo abrir la cámara. Usa la búsqueda manual.</p>';
       });
     }
 
@@ -325,7 +352,7 @@
       if (!staff) {
         document.getElementById('resultado').style.display = 'grid';
         document.getElementById('resultado').innerHTML =
-          '<div id="sinPases">Escribe tu nombre en "Validado por" antes de buscar o escanear un cliente.</div>';
+          '<div id="sinPases">Escribe tu nombre en "Validado por" antes de buscar un cliente.</div>';
         escaneando = true;
         if (scanner) scanner.resume();
         return;
@@ -335,7 +362,6 @@
       document.getElementById('mensajeOk').style.display = 'none';
       document.getElementById('resultado').innerHTML = '<p style="font-size:13px;color:#888;grid-column:1/-1;">Buscando cliente...</p>';
 
-      // Búsqueda flexible por texto (Código, Nombre o Apellido)
       llamarApi('buscarClientesPorTexto', { termino: termino })
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
@@ -372,6 +398,7 @@
     }
 
     function cargarDetalleCheckin(idCliente, staff) {
+      carritoPases = []; // Limpia el carrito al cambiar/cargar cliente
       llamarApi('buscarClienteYPases', { idCliente: idCliente })
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
@@ -389,12 +416,12 @@
     function renderPases(cliente, pases, checkinsHoy, staff) {
       let html = '';
 
-      // Encabezado del Cliente (A lo ancho)
+      // Encabezado del Cliente
       html += '<div class="card full-width"><h3>Cliente</h3>'
         + '<div style="font-size:15px; font-weight:700;">' + cliente.nombre + ' ' + cliente.apellido + '</div>'
         + '<p style="font-size:11px; color:#888;">ID: ' + cliente.idCliente + '</p></div>';
 
-      // Pases activos (Distribuidos en 2 columnas)
+      // Pases activos
       if (!pases || pases.length === 0) {
         html += '<div id="sinPases">Sin pases activos.</div>';
       } else {
@@ -423,20 +450,182 @@
         html += '</div>';
       }
 
-      // Cargar pase manual (a lo ancho)
+      // Sección Carrito de Pases
       html += '<div class="card full-width" style="background:#fcfcfc;">'
-        + '<h3>Cargar pase (cobrado en caja)</h3>'
-        + '<select id="selectServicio" style="margin-top:4px;">' + opcionesServicios() + '</select>'
-        + '<select id="selectMedioPago" style="margin-top:6px;">'
+        + '<h3>🛒 Cargar Pases (Cobrado en caja)</h3>'
+        + '<div style="display:flex; gap:6px; margin-top:4px;">'
+        + '<select id="selectServicio" style="flex:2;">' + opcionesServicios() + '</select>'
+        + '<input type="number" id="cantPases" value="1" min="1" style="flex:1; text-align:center;">'
+        + '</div>'
+        + '<button style="background:#1565C0; margin-top:6px;" onclick="agregarAlCarritoPases()">+ Agregar al carrito</button>'
+        + '<div id="boxCarritoPases"></div>'
+        + '<label style="margin-top:8px;">Medio de Pago</label>'
+        + '<select id="selectMedioPago">'
         + '<option value="Mercado Pago">Mercado Pago</option>'
         + '<option value="Transferencia">Transferencia</option>'
         + '<option value="Efectivo">Efectivo</option>'
         + '</select>'
-        + '<button style="background:#1a1a1a;" onclick="cargarPase(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">Cargar pase</button>'
+        + '<button id="btnConfirmarPases" style="background:#1a1a1a; margin-top:8px;" disabled '
+        + 'onclick="procesarCarritoPases(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">'
+        + 'Confirmar compra'
+        + '</button>'
         + '</div>';
 
       document.getElementById('resultado').innerHTML = html;
       document.getElementById('nuevaLectura').style.display = (!pases || pases.length === 0) ? 'block' : 'none';
+      renderCarritoPasesUI();
+    }
+
+    function opcionesServicios() {
+      if (!serviciosCache.length) return '<option value="">(catálogo no cargado, recarga la página)</option>';
+      return serviciosCache.map(function (s) {
+        return '<option value="' + s.codigo + '">' + s.nombre + ' - $' + formatearNumero(s.precio) + '</option>';
+      }).join('');
+    }
+
+    /* LÓGICA DEL CARRITO DE PASES */
+    function agregarAlCarritoPases() {
+      const codigo = document.getElementById('selectServicio').value;
+      const cantidad = parseInt(document.getElementById('cantPases').value, 10);
+
+      if (!codigo || isNaN(cantidad) || cantidad <= 0) return;
+
+      const servicio = serviciosCache.find(function (s) { return s.codigo === codigo; });
+      if (!servicio) return;
+
+      const existente = carritoPases.find(function (item) { return item.codigo === codigo; });
+      if (existente) {
+        existente.cantidad += cantidad;
+      } else {
+        carritoPases.push({
+          codigo: servicio.codigo,
+          nombre: servicio.nombre,
+          precio: Number(servicio.precio) || 0,
+          categoriaFinanzas: servicio.categoriaFinanzas || 'Pases',
+          cantidad: cantidad
+        });
+      }
+
+      document.getElementById('cantPases').value = 1;
+      renderCarritoPasesUI();
+    }
+
+    function eliminarDelCarritoPases(index) {
+      carritoPases.splice(index, 1);
+      renderCarritoPasesUI();
+    }
+
+    function renderCarritoPasesUI() {
+      const container = document.getElementById('boxCarritoPases');
+      const btnConfirmar = document.getElementById('btnConfirmarPases');
+      if (!container) return;
+
+      if (carritoPases.length === 0) {
+        container.innerHTML = '<p style="font-size:11px; color:#888; margin:6px 0; text-align:center;">No hay pases agregados.</p>';
+        if (btnConfirmar) {
+          btnConfirmar.disabled = true;
+          btnConfirmar.textContent = 'Confirmar compra';
+        }
+        return;
+      }
+
+      let html = '<div class="carrito-box">';
+      let total = 0;
+
+      carritoPases.forEach(function (item, idx) {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        html += '<div class="carrito-item">'
+          + '<div><strong>' + item.nombre + '</strong> x' + item.cantidad + '</div>'
+          + '<div style="display:flex; align-items:center; gap:6px;">'
+          + '<span>$' + formatearNumero(subtotal) + '</span>'
+          + '<button class="btn-eliminar-item" onclick="eliminarDelCarritoPases(' + idx + ')">✕</button>'
+          + '</div></div>';
+      });
+
+      html += '<div style="display:flex; justify-content:space-between; font-weight:700; font-size:12px; margin-top:6px; padding-top:4px; border-top:1px solid #ddd;">'
+        + '<span>TOTAL</span><span>$' + formatearNumero(total) + '</span></div></div>';
+
+      container.innerHTML = html;
+      if (btnConfirmar) {
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = 'Confirmar compra ($' + formatearNumero(total) + ')';
+      }
+    }
+
+    async function procesarCarritoPases(idCliente, nombre, apellido, staff, boton) {
+      if (carritoPases.length === 0) return;
+
+      const medioPago = document.getElementById('selectMedioPago').value;
+      boton.disabled = true;
+      boton.textContent = 'Procesando venta...';
+
+      let totalVenta = 0;
+      let nombresPases = [];
+      let errores = 0;
+
+      for (let item of carritoPases) {
+        for (let i = 0; i < item.cantidad; i++) {
+          try {
+            const resp = await llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: item.codigo }, true);
+            if (resp.ok) {
+              totalVenta += item.precio;
+            } else {
+              errores++;
+            }
+          } catch (e) {
+            errores++;
+          }
+        }
+        nombresPases.push(item.nombre + ' x' + item.cantidad);
+      }
+
+      let mensajeFinal = '✅ Pases cargados con éxito.';
+
+      if (totalVenta > 0) {
+        const detalle = nombresPases.join(', ') + ' - ' + nombre + ' ' + apellido + ' (' + idCliente + ')';
+        const okFinanzas = await registrarIngresoAutomatico_(totalVenta, 'Pases', detalle, medioPago, staff);
+        mensajeFinal += okFinanzas 
+          ? ' Ingreso registrado en Finanzas ($' + formatearNumero(totalVenta) + ').' 
+          : ' (⚠️ No se pudo registrar en Finanzas automáticamente)';
+      }
+
+      if (errores > 0) {
+        mensajeFinal += ' ⚠️ ' + errores + ' pase(s) no pudieron ser cargados.';
+      }
+
+      carritoPases = [];
+      const msgOk = document.getElementById('mensajeOk');
+      msgOk.style.display = 'block';
+      msgOk.textContent = mensajeFinal;
+
+      // Recargar datos
+      cargarDetalleCheckin(idCliente, staff);
+    }
+
+    function registrarIngresoAutomatico_(monto, categoria, descripcion, medioPago, staff) {
+      const datosMovimiento = {
+        tipo: 'Ingreso',
+        categoria: categoria || 'Pases',
+        medioPago: medioPago,
+        monto: monto,
+        descripcion: descripcion,
+        comprobante: '',
+        responsable: staff
+      };
+
+      return fetch(API_URL_FINANZAS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
+      }).then(function (r) { return r.text(); })
+        .then(function (texto) {
+          try {
+            const resp = JSON.parse(texto);
+            return !!resp.ok;
+          } catch (e) { return false; }
+        })
+        .catch(function () { return false; });
     }
 
     function anularCheckin(idCheckin, idCliente, staff, boton) {
@@ -458,81 +647,6 @@
           boton.textContent = 'Anular';
           mostrarError(err);
         });
-    }
-
-    function opcionesServicios() {
-      if (!serviciosCache.length) return '<option value="">(catálogo no cargado, recarga la página)</option>';
-      return serviciosCache.map(function (s) {
-        return '<option value="' + s.codigo + '">' + s.nombre + ' - $' + s.precio + '</option>';
-      }).join('');
-    }
-
-    function cargarPase(idCliente, nombre, apellido, staff, boton) {
-      const select = document.getElementById('selectServicio');
-      const codigo = select.value;
-      const medioPago = document.getElementById('selectMedioPago').value;
-      if (!codigo) return;
-
-      boton.disabled = true;
-      boton.textContent = 'Cargando...';
-
-      llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: codigo }, true)
-        .then(function (resp) {
-          if (!resp.ok) throw new Error(resp.error);
-
-          let mensaje = '✅ Pase cargado correctamente.';
-
-          if (resp.data.precio > 0 && resp.data.categoriaFinanzas) {
-            return registrarIngresoAutomatico_(resp.data, medioPago, idCliente, staff)
-              .then(function (okFinanzas) {
-                mensaje += okFinanzas
-                  ? ' Ingreso registrado en Finanzas.'
-                  : ' (No se pudo registrar en Finanzas automáticamente)';
-                return { resp: resp, mensaje: mensaje };
-              });
-          }
-          return { resp: resp, mensaje: mensaje };
-        })
-        .then(function (resultado) {
-          document.getElementById('mensajeOk').style.display = 'block';
-          document.getElementById('mensajeOk').textContent = resultado.mensaje;
-          return llamarApi('buscarClienteYPases', { idCliente: idCliente });
-        })
-        .then(function (r2) {
-          if (r2 && r2.ok && r2.data.cliente) {
-            renderPases(r2.data.cliente, r2.data.pases, r2.data.checkinsHoy, staff);
-          }
-        })
-        .catch(function (err) {
-          boton.disabled = false;
-          boton.textContent = 'Cargar pase';
-          mostrarError(err);
-        });
-    }
-
-    function registrarIngresoAutomatico_(datosPase, medioPago, idCliente, staff) {
-      const datosMovimiento = {
-        tipo: 'Ingreso',
-        categoria: datosPase.categoriaFinanzas,
-        medioPago: medioPago,
-        monto: datosPase.precio,
-        descripcion: datosPase.nombreServicio + ' - ' + datosPase.nombreCliente + ' (' + idCliente + ')',
-        comprobante: '',
-        responsable: staff
-      };
-
-      return fetch(API_URL_FINANZAS, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
-      }).then(function (r) { return r.text(); })
-        .then(function (texto) {
-          try {
-            const resp = JSON.parse(texto);
-            return !!resp.ok;
-          } catch (e) { return false; }
-        })
-        .catch(function () { return false; });
     }
 
     function confirmar(idCliente, idPase, staff, boton) {
@@ -568,8 +682,13 @@
       document.getElementById('resultado').innerHTML = '';
       document.getElementById('mensajeOk').style.display = 'none';
       document.getElementById('nuevaLectura').style.display = 'none';
+      carritoPases = [];
       escaneando = true;
       if (scanner) scanner.resume();
+    }
+
+    function formatearNumero(numero) {
+      return Number(numero || 0).toLocaleString('es-CL');
     }
 
     cargarCatalogo();
