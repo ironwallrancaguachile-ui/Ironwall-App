@@ -78,11 +78,16 @@
     opacity: 0.9;
   }
 
-  /* DISPOSICIÓN EN 2 TARJETAS POR FILA (GRID) */
+  /* DISPOSICIÓN EN GRID DE 2 COLUMNAS */
   .grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+  }
+
+  /* TARJETA DEL NOMBRE COMPLETA AL INICIO */
+  .seccion-principal {
+    grid-column: 1 / -1;
   }
 
   /* TARJETAS / SECCIONES */
@@ -98,14 +103,17 @@
 
   .seccion h2 { 
     font-size: 15px; 
-    margin: 0 0 12px; 
+    margin: 0 0 8px; 
     font-weight: 600;
     color: #111;
-    border-bottom: 1px solid #f0f0f2;
-    padding-bottom: 8px;
   }
 
-  .seccion p { margin: 4px 0; font-size: 14px; color: #444; }
+  .seccion-principal h2 {
+    font-size: 18px;
+    margin: 0 0 4px;
+  }
+
+  .seccion p { margin: 2px 0; font-size: 14px; color: #444; }
 
   /* ITEMS INTERNOS */
   .item { 
@@ -216,9 +224,9 @@
       const c = data.cliente;
       let html = '<div class="grid-container">';
       
-      // 1. DATOS CLIENTE
+      // 1. DATOS CLIENTE (OCUPA TODO EL ANCHO DE ARRIBA)
       html += `
-      <div class="seccion">
+      <div class="seccion seccion-principal">
         <h2>${c.nombre} ${c.apellido}</h2>
         <p style="color:#718096">Código: <strong>${c.idCliente}</strong></p>
       </div>
