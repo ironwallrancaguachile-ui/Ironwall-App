@@ -180,6 +180,7 @@
 
   // --- BÚSQUEDA ADAPTADA (CÓDIGO O NOMBRE/APELLIDO) ---
 // Normaliza texto eliminando tildes y pasando a minúsculas
+// Normaliza texto eliminando tildes y pasando a minúsculas
 function normalizarTexto(texto) {
   return String(texto || '')
     .normalize('NFD')
@@ -197,22 +198,90 @@ function buscar() {
   mensaje.style.display = 'none';
   contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
 
-  // 1. Intentar cargar la ficha directamente por el ID/Código ingresado
+  // 1. Intentar primero buscar si es un Código/ID exacto
   llamarApi('obtenerFichaCompleta', { idCliente: termino })
     .then(function (resp) {
       if (resp.ok && resp.data && resp.data.cliente) {
-        // Encontrado directamente por código
+        // ¡Encontrado por código directo!
         idClienteActual = resp.data.cliente.idCliente;
         renderFicha(resp.data);
       } else {
-        // 2. Si no es un ID directo, buscar coincidencias por Nombre o Apellido
-        buscarPorNombreOApellido(termino);
+        // 2. Si no lo encuentra por ID directo, buscar por Nombre / Apellido
+        ejecutarBusquedaPorTexto(termino);
       }
     })
     .catch(function () {
-      // En caso de fallo con ID directo, intentar búsqueda por texto
-      buscarPorNombreOApellido(termino);
+      ejecutarBusquedaPorTexto(termino);
     });
+}
+
+function ejecutarBusquedaPorTexto(termino) {
+  const mensaje = document.getElementById('mensaje');
+  const contenido = document.getElementById('contenido');
+  const termBuscado = normalizarTexto(termino);
+
+  // Consultar la lista global de clientes
+  llamarApi('listarClientes', {})
+    .then(function (resp) {
+      // Extrae la lista probando las variaciones comunes que puede retornar Apps Script
+      const listaOriginal = resp.data || resp.clientes || (Array.isArray(resp) ? resp : []);
+
+      const coincidencias = listaOriginal.filter(function (c) {
+        // Obtener los valores sin importar si la primera letra es Mayúscula o Minúscula en la hoja
+        const id = normalizarTexto(c.idCliente || c.IDCliente || c.id);
+        const nom = normalizarTexto(c.nombre || c.Nombre || c.Nombres);
+        const ape = normalizarTexto(c.apellido || c.Apellido || c.Apellidos);
+        const completo = (nom + ' ' + ape).trim();
+        const clienteUnificado = normalizarTexto(c.cliente || c.Cliente || c.nombreCompleto || c.NombreCompleto);
+
+        // Comprueba si el término está en el ID, Nombre, Apellido o Nombre Completo
+        return nom.includes(termBuscado) || 
+               ape.includes(termBuscado) || 
+               completo.includes(termBuscado) || 
+               clienteUnificado.includes(termBuscado) ||
+               id.includes(termBuscado);
+      });
+
+      if (coincidencias.length === 0) {
+        contenido.innerHTML = '<div id="sinDatos">No se encontraron clientes para: "' + termino + '"</div>';
+        return;
+      }
+
+      if (coincidencias.length === 1) {
+        // Si hay un solo resultado, carga la ficha automáticamente
+        const idEncontrado = coincidencias[0].idCliente || coincidencias[0].IDCliente || coincidencias[0].id;
+        cargarFichaCliente(idEncontrado);
+      } else {
+        // Si hay varios resultados (ej: buscan "Claudio" y hay dos Claudios), muestra la lista para elegir
+        renderResultadosMultiples(coincidencias);
+      }
+    })
+    .catch(function (err) {
+      mensaje.className = 'error';
+      mensaje.textContent = 'No se encontró el cliente o hubo un error al consultar la lista.';
+      mensaje.style.display = 'block';
+      contenido.innerHTML = '';
+    });
+}
+
+function renderResultadosMultiples(lista) {
+  const contenido = document.getElementById('contenido');
+  let html = '<div class="seccion"><h2>Resultados encontrados (' + lista.length + ')</h2>';
+
+  lista.forEach(function (c) {
+    const id = c.idCliente || c.IDCliente || c.id;
+    const nom = c.nombre || c.Nombre || c.Nombres || '';
+    const ape = c.apellido || c.Apellido || c.Apellidos || '';
+    const nombreMostrar = (nom + ' ' + ape).trim() || c.cliente || c.Cliente || 'Cliente sin nombre';
+
+    html += '<div class="item" style="cursor:pointer; padding:10px 0;" onclick="cargarFichaCliente(\'' + id + '\')">'
+      + '<strong>' + nombreMostrar + '</strong><br>'
+      + '<span style="color:#888; font-size:12px;">Código ID: ' + id + '</span>'
+      + '</div>';
+  });
+
+  html += '</div>';
+  contenido.innerHTML = html;
 }
 
 function buscarPorNombreOApellido(termino) {
