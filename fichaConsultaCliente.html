@@ -78,11 +78,11 @@
     opacity: 0.9;
   }
 
-  /* GRID STRICTO DE 2 COLUMNAS POR FILA */
+  /* GRID RÍGIDO DE 2 COLUMNAS (IGUAL EN TODOS LOS DISPOSITIVOS) */
   .grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 12px;
   }
 
   /* TARJETAS / SECCIONES */
@@ -90,30 +90,35 @@
     background: #fff;
     border: 1px solid rgba(0,0,0,0.06);
     border-radius: 16px;
-    padding: 18px;
+    padding: 16px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.02);
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* Evita roturas de layout en móviles */
   }
 
   .seccion h2 { 
-    font-size: 15px; 
+    font-size: 14px; 
     margin: 0 0 10px; 
     font-weight: 600;
     color: #111;
     border-bottom: 1px solid #f0f0f2;
     padding-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .seccion p { margin: 4px 0; font-size: 14px; color: #444; }
+  .seccion p { margin: 4px 0; font-size: 13px; color: #444; }
 
   /* ITEMS INTERNOS */
   .item { 
     border-top: 1px dashed #e2e8f0; 
-    padding-top: 10px; 
-    margin-top: 10px; 
-    font-size: 13px; 
+    padding-top: 8px; 
+    margin-top: 8px; 
+    font-size: 12px; 
     color: #333;
+    word-break: break-word;
   }
   .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
 
@@ -122,13 +127,6 @@
   #mensaje.error { color: #e53e3e; }
   #mensaje.ok { color: #38a169; }
   #sinDatos { font-size: 14px; color: #718096; padding: 12px 0; }
-
-  /* APILAMIENTO EN MÓVILES PANTALLA PEQUEÑA */
-  @media (max-width: 600px) {
-    .grid-container {
-      grid-template-columns: 1fr;
-    }
-  }
 </style>
 </head>
 <body>
@@ -219,16 +217,16 @@
       html += `
       <div class="seccion">
         <h2>Cliente</h2>
-        <p style="font-size:16px; font-weight:600; color:#111;">${c.nombre} ${c.apellido}</p>
-        <p style="color:#718096">Código: <strong>${c.idCliente}</strong></p>
+        <p style="font-size:15px; font-weight:600; color:#111; word-break:break-word;">${c.nombre} ${c.apellido}</p>
+        <p style="color:#718096">Cód: <strong>${c.idCliente}</strong></p>
       </div>
       `;
 
       // 2. RESUMEN VISITAS (FILA 1 - DERECHA)
       html += `
       <div class="seccion">
-        <h2>Resumen de visitas</h2>
-        <p>Total acumulado: <strong style="font-size:16px">${data.totalVisitas || 0}</strong> visitas</p>
+        <h2>Resumen visitas</h2>
+        <p>Acumulado: <strong style="font-size:15px">${data.totalVisitas || 0}</strong></p>
       </div>
       `;
 
@@ -238,13 +236,13 @@
         <h2>Pases activos</h2>
       `;
       if (!data.pases || data.pases.length === 0) {
-        html += `<p style="color:#a0aec0">No tienes pases activos.</p>`;
+        html += `<p style="color:#a0aec0">Sin pases activos.</p>`;
       } else {   
         data.pases.forEach(function(p){ 
           html += `
           <div class="item">
             <strong>${p.nombreServicio}</strong><br>
-            Usos restantes: ${p.usosRestantes} de ${p.usosTotales}
+            Restantes: ${p.usosRestantes}/${p.usosTotales}
             ${p.fechaVencimiento 
               ? '<br><span style="color:#718096">Vence: '+new Date(p.fechaVencimiento).toLocaleDateString()+'</span>'
               : ''}
@@ -260,12 +258,12 @@
         <h2>Últimas visitas</h2>
       `;
       if (!data.ultimasVisitas || data.ultimasVisitas.length === 0){
-        html += `<p style="color:#a0aec0">Todavía no tienes visitas registradas.</p>`;
+        html += `<p style="color:#a0aec0">Sin visitas aún.</p>`;
       } else {
         data.ultimasVisitas.forEach(function(v){ 
           html += `
           <div class="item">
-            ${new Date(v).toLocaleString()}
+            ${new Date(v).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
           </div>
           `;  
         });  
