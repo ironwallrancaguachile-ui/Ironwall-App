@@ -114,7 +114,7 @@
   <div id="mensaje"></div>
   <div id="contenido"></div>
 
-  <script>
+<script>
   // ⚠️ URL del Apps Script de CLIENTES
   const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
@@ -164,10 +164,12 @@
       })
       .catch(function () { /* seguimos con la caché si falla */ });
   }
+
   function guardarCache_(clave, datos) {
     try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
     catch (e) { /* nada grave si falla */ }
   }
+
   function leerCache_(clave) {
     try {
       const crudo = localStorage.getItem(clave);
@@ -178,199 +180,60 @@
     } catch (e) { return null; }
   }
 
-  // --- BÚSQUEDA ADAPTADA (CÓDIGO O NOMBRE/APELLIDO) ---
-// Normaliza texto eliminando tildes y pasando a minúsculas
-// Normaliza texto eliminando tildes y pasando a minúsculas
-function normalizarTexto(texto) {
-  return String(texto || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-}
+  // --- BÚSQUEDA Y NAVEGACIÓN ---
 
-function buscar() {
-  const termino = document.getElementById('idBuscar').value.trim();
-  if (!termino) return;
+  function normalizarTexto(texto) {
+    return String(texto || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
 
-  const mensaje = document.getElementById('mensaje');
-  const contenido = document.getElementById('contenido');
-  mensaje.style.display = 'none';
-  contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
+  function buscar() {
+    const termino = document.getElementById('idBuscar').value.trim();
+    if (!termino) return;
 
-  // 1. Intentar primero buscar si es un Código/ID exacto
-  llamarApi('obtenerFichaCompleta', { idCliente: termino })
-    .then(function (resp) {
-      if (resp.ok && resp.data && resp.data.cliente) {
-        // ¡Encontrado por código directo!
-        idClienteActual = resp.data.cliente.idCliente;
-        renderFicha(resp.data);
-      } else {
-        // 2. Si no lo encuentra por ID directo, buscar por Nombre / Apellido
-        ejecutarBusquedaPorTexto(termino);
-      }
-    })
-    .catch(function () {
-      ejecutarBusquedaPorTexto(termino);
-    });
-}
+    const mensaje = document.getElementById('mensaje');
+    const contenido = document.getElementById('contenido');
+    mensaje.style.display = 'none';
+    contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
 
-function ejecutarBusquedaPorTexto(termino) {
-  const mensaje = document.getElementById('mensaje');
-  const contenido = document.getElementById('contenido');
-  const termBuscado = normalizarTexto(termino);
+    // Llama al backend configurado para buscar por Código ID, Nombre o Apellido
+    llamarApi('buscarClientesPorTexto', { termino: termino })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
 
-  // Consultar la lista global de clientes
-  llamarApi('listarClientes', {})
-    .then(function (resp) {
-      // Extrae la lista probando las variaciones comunes que puede retornar Apps Script
-      const listaOriginal = resp.data || resp.clientes || (Array.isArray(resp) ? resp : []);
+        const lista = resp.data || [];
 
-      const coincidencias = listaOriginal.filter(function (c) {
-        // Obtener los valores sin importar si la primera letra es Mayúscula o Minúscula en la hoja
-        const id = normalizarTexto(c.idCliente || c.IDCliente || c.id);
-        const nom = normalizarTexto(c.nombre || c.Nombre || c.Nombres);
-        const ape = normalizarTexto(c.apellido || c.Apellido || c.Apellidos);
-        const completo = (nom + ' ' + ape).trim();
-        const clienteUnificado = normalizarTexto(c.cliente || c.Cliente || c.nombreCompleto || c.NombreCompleto);
+        if (lista.length === 0) {
+          contenido.innerHTML = '<div id="sinDatos">No se encontraron clientes para: "' + termino + '"</div>';
+          return;
+        }
 
-        // Comprueba si el término está en el ID, Nombre, Apellido o Nombre Completo
-        return nom.includes(termBuscado) || 
-               ape.includes(termBuscado) || 
-               completo.includes(termBuscado) || 
-               clienteUnificado.includes(termBuscado) ||
-               id.includes(termBuscado);
+        if (lista.length === 1) {
+          cargarFichaCliente(lista[0].idCliente);
+        } else {
+          renderResultadosMultiples(lista);
+        }
+      })
+      .catch(function (err) {
+        mensaje.className = 'error';
+        mensaje.textContent = 'Error al buscar: ' + err.message;
+        mensaje.style.display = 'block';
+        contenido.innerHTML = '';
       });
-
-      if (coincidencias.length === 0) {
-        contenido.innerHTML = '<div id="sinDatos">No se encontraron clientes para: "' + termino + '"</div>';
-        return;
-      }
-
-      if (coincidencias.length === 1) {
-        // Si hay un solo resultado, carga la ficha automáticamente
-        const idEncontrado = coincidencias[0].idCliente || coincidencias[0].IDCliente || coincidencias[0].id;
-        cargarFichaCliente(idEncontrado);
-      } else {
-        // Si hay varios resultados (ej: buscan "Claudio" y hay dos Claudios), muestra la lista para elegir
-        renderResultadosMultiples(coincidencias);
-      }
-    })
-    .catch(function (err) {
-      mensaje.className = 'error';
-      mensaje.textContent = 'No se encontró el cliente o hubo un error al consultar la lista.';
-      mensaje.style.display = 'block';
-      contenido.innerHTML = '';
-    });
-}
-
-function renderResultadosMultiples(lista) {
-  const contenido = document.getElementById('contenido');
-  let html = '<div class="seccion"><h2>Resultados encontrados (' + lista.length + ')</h2>';
-
-  lista.forEach(function (c) {
-    const id = c.idCliente || c.IDCliente || c.id;
-    const nom = c.nombre || c.Nombre || c.Nombres || '';
-    const ape = c.apellido || c.Apellido || c.Apellidos || '';
-    const nombreMostrar = (nom + ' ' + ape).trim() || c.cliente || c.Cliente || 'Cliente sin nombre';
-
-    html += '<div class="item" style="cursor:pointer; padding:10px 0;" onclick="cargarFichaCliente(\'' + id + '\')">'
-      + '<strong>' + nombreMostrar + '</strong><br>'
-      + '<span style="color:#888; font-size:12px;">Código ID: ' + id + '</span>'
-      + '</div>';
-  });
-
-  html += '</div>';
-  contenido.innerHTML = html;
-}
-
-function buscarPorNombreOApellido(termino) {
-  const mensaje = document.getElementById('mensaje');
-  const contenido = document.getElementById('contenido');
-  const termBuscado = normalizarTexto(termino);
-
-  // Consulta el listado usando obtenerClientes (o la función que lista en tu backend)
-  llamarApi('obtenerClientes', {})
-    .then(function (resp) {
-      const lista = resp.data || resp.clientes || [];
-      
-      const coincidencias = lista.filter(function (c) {
-        const nom = normalizarTexto(c.nombre);
-        const ape = normalizarTexto(c.apellido);
-        const completo = (nom + ' ' + ape).trim();
-        const id = normalizarTexto(c.idCliente);
-
-        return nom.includes(termBuscado) || ape.includes(termBuscado) || completo.includes(termBuscado) || id.includes(termBuscado);
-      });
-
-      if (coincidencias.length === 0) {
-        contenido.innerHTML = '<div id="sinDatos">No se encontraron clientes para: ' + termino + '</div>';
-        return;
-      }
-
-      if (coincidencias.length === 1) {
-        // Una sola coincidencia -> Cargar ficha directamente
-        cargarFichaCliente(coincidencias[0].idCliente);
-      } else {
-        // Varias coincidencias -> Desplegar lista para elegir
-        renderResultadosMultiples(coincidencias);
-      }
-    })
-    .catch(function (err) {
-      mensaje.className = 'error';
-      mensaje.textContent = 'Cliente no encontrado o error de búsqueda: ' + err.message;
-      mensaje.style.display = 'block';
-      contenido.innerHTML = '';
-    });
-}
-
-function renderResultadosMultiples(lista) {
-  const contenido = document.getElementById('contenido');
-  let html = '<div class="seccion"><h2>Resultados encontrados (' + lista.length + ')</h2>';
-
-  lista.forEach(function (c) {
-    html += '<div class="item" style="cursor:pointer; padding:10px 0;" onclick="cargarFichaCliente(\'' + c.idCliente + '\')">'
-      + '<strong>' + c.nombre + ' ' + c.apellido + '</strong><br>'
-      + '<span style="color:#888; font-size:12px;">ID: ' + c.idCliente + '</span>'
-      + '</div>';
-  });
-
-  html += '</div>';
-  contenido.innerHTML = html;
-}
-
-function cargarFichaCliente(id) {
-  idClienteActual = id;
-  const mensaje = document.getElementById('mensaje');
-  const contenido = document.getElementById('contenido');
-  mensaje.style.display = 'none';
-  contenido.innerHTML = '<p style="font-size:13px;color:#888">Cargando ficha...</p>';
-
-  llamarApi('obtenerFichaCompleta', { idCliente: id })
-    .then(function (resp) {
-      if (!resp.ok) throw new Error(resp.error);
-      if (!resp.data.cliente) {
-        contenido.innerHTML = '<div id="sinDatos">Cliente no encontrado: ' + id + '</div>';
-        return;
-      }
-      renderFicha(resp.data);
-    })
-    .catch(function (err) {
-      mensaje.className = 'error';
-      mensaje.textContent = 'Error: ' + err.message;
-      mensaje.style.display = 'block';
-      contenido.innerHTML = '';
-    });
-}
+  }
 
   function renderResultadosMultiples(lista) {
     const contenido = document.getElementById('contenido');
     let html = '<div class="seccion"><h2>Resultados encontrados (' + lista.length + ')</h2>';
 
     lista.forEach(function (c) {
+      const nombreMostrar = (c.nombre + ' ' + c.apellido).trim() || 'Cliente sin nombre';
       html += '<div class="item" style="cursor:pointer; padding:10px 0;" onclick="cargarFichaCliente(\'' + c.idCliente + '\')">'
-        + '<strong>' + c.nombre + ' ' + c.apellido + '</strong><br>'
-        + '<span style="color:#888; font-size:12px;">ID: ' + c.idCliente + '</span>'
+        + '<strong>' + nombreMostrar + '</strong><br>'
+        + '<span style="color:#888; font-size:12px;">Código ID: ' + c.idCliente + '</span>'
         + '</div>';
     });
 
@@ -401,6 +264,8 @@ function cargarFichaCliente(id) {
         contenido.innerHTML = '';
       });
   }
+
+  // --- RENDERIZADO DE FICHA Y COMPONENTES ---
 
   function renderResumen(data, cliente) {
     const hoy = new Date();
@@ -520,6 +385,6 @@ function cargarFichaCliente(id) {
   }
 
   cargarStaff();
-</script>
+</script>  
 </body>
 </html>
