@@ -6,101 +6,135 @@
 <title>Ficha del cliente - Ironwall</title>
 <style>
   * { box-sizing: border-box; }
+  
   body {
-    font-family: -apple-system, Arial, sans-serif;
-    max-width: 480px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 20px 16px 60px;
-    background: #fafafa;
-    color: #222;
+    padding: 24px 16px 60px;
+    background: #f4f4f6;
+    color: #1a1a1a;
   }
-  h1 { font-size: 20px; margin-bottom: 4px; }
-  p.sub { color: #666; margin-top: 0; font-size: 13px; }
-  .buscador { display: flex; gap: 8px; margin-top: 10px; }
-  .buscador input {
-    flex: 1;
-    padding: 12px;
-    font-size: 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-  .buscador button {
-    padding: 12px 16px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .seccion {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 14px;
-    margin-top: 14px;
-  }
-  .seccion h2 { font-size: 15px; margin: 0 0 8px; }
-  .seccion p { margin: 3px 0; font-size: 14px; }
-  .item { border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px; font-size: 13px; }
-  .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
-  #notaTexto {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    min-height: 60px;
-    font-family: inherit;
-    resize: vertical;
-  }
-  #notaResponsable {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    margin-top: 8px;
-  }
-  #btnNota {
-    width: 100%;
-    margin-top: 8px;
-    padding: 10px;
-    background: #1e824c;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-  }
-  #mensaje { font-size: 13px; margin-top: 8px; display: none; }
-  #mensaje.error { color: #c0392b; }
-  #mensaje.ok { color: #1e824c; }
-  #sinDatos { font-size: 13px; color: #888; }
 
-  .btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:#ffffff;
-  color:#222;
-  text-decoration:none;
-  padding:10px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
-  transition:.2s;
+  /* BOTÓN HOME Y CABECERA ORIGINALES */
+  .btnHome {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    color: #222;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    transition: all .2s ease;
   }
   
-  .btnHome:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
+  .btnHome:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,.12);
+  }
+
+  h1 { font-size: 24px; margin: 20px 0 4px; font-weight: 700; }
+  p.sub { color: #666; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
+
+  /* BUSCADOR MINIMALISTA */
+  .buscador { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 24px; 
+  }
+
+  .buscador input {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .buscador input:focus {
+    border-color: #000;
+  }
+
+  .buscador button {
+    padding: 14px 20px;
+    background: #111;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .buscador button:hover {
+    opacity: 0.9;
+  }
+
+  /* DISPOSICIÓN EN 2 TARJETAS POR FILA (GRID) */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* TARJETAS / SECCIONES */
+  .seccion {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .seccion h2 { 
+    font-size: 15px; 
+    margin: 0 0 12px; 
+    font-weight: 600;
+    color: #111;
+    border-bottom: 1px solid #f0f0f2;
+    padding-bottom: 8px;
+  }
+
+  .seccion p { margin: 4px 0; font-size: 14px; color: #444; }
+
+  /* ITEMS INTERNOS */
+  .item { 
+    border-top: 1px dashed #e2e8f0; 
+    padding-top: 10px; 
+    margin-top: 10px; 
+    font-size: 13px; 
+    color: #333;
+  }
+  .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+
+  /* MENSAJES */
+  #mensaje { font-size: 14px; margin-bottom: 16px; display: none; font-weight: 500; }
+  #mensaje.error { color: #e53e3e; }
+  #mensaje.ok { color: #38a169; }
+  #sinDatos { font-size: 14px; color: #718096; padding: 12px 0; }
+
+  /* RESPONSIVE PARA DISPOSITIVOS MÓVILES */
+  @media (max-width: 600px) {
+    .grid-container {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 </head>
 <body>
+
   <a href="portalcliente.html" class="btnHome">
-  🏠 Home
+    🏠 Home
   </a>
  
   <h1>Ficha del cliente</h1>
@@ -108,7 +142,6 @@
 
   <div class="buscador">
     <input type="text" id="idBuscar" placeholder="Código cliente, ejm: IRWXY1R5">
-   
     <button onclick="buscar()">Buscar</button>
   </div>
 
@@ -116,7 +149,6 @@
   <div id="contenido"></div>
 
   <script>
-    // ⚠️ URL del Apps Script de CLIENTES (el mismo de siempre).
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
     let idClienteActual = '';
@@ -153,20 +185,6 @@
       });
     }
 
-    function guardarCache_(clave, datos) {
-      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
-      catch (e) { /* nada grave si falla */ }
-    }
-    function leerCache_(clave) {
-      try {
-        const crudo = localStorage.getItem(clave);
-        if (!crudo) return null;
-        const parsed = JSON.parse(crudo);
-        if (Date.now() - parsed.guardado > 12 * 60 * 60 * 1000) return null;
-        return parsed.datos;
-      } catch (e) { return null; }
-    }
-
     function buscar() {
       const id = document.getElementById('idBuscar').value.trim();
       if (!id) return;
@@ -175,10 +193,9 @@
       const mensaje = document.getElementById('mensaje');
       const contenido = document.getElementById('contenido');
       mensaje.style.display = 'none';
-      contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
-       llamarApi('obtenerFichaCompleta', { idCliente: id })
-     
-     
+      contenido.innerHTML = '<p style="font-size:14px;color:#718096">Buscando...</p>';
+
+      llamarApi('obtenerFichaCompleta', { idCliente: id })
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
           if (!resp.data.cliente) {
@@ -195,105 +212,69 @@
         });
     }
 
-    function renderResumen(data, cliente) {
-      const hoy = new Date();
-      let html = '<div class="seccion"><h2>Resumen</h2>';
-
-      // Cliente desde cuándo
-      if (cliente.fechaRegistro) {
-        const registro = new Date(cliente.fechaRegistro);
-        const diasComoCliente = Math.floor((hoy - registro) / (1000 * 60 * 60 * 24));
-        html += '<p>Cliente desde: ' + registro.toLocaleDateString() + ' (' + diasComoCliente + ' días)</p>';
-      }
-
-      // Total de visitas históricas
-      html += '<p>Total de visitas: <strong>' + (data.totalVisitas || 0) + '</strong></p>';
-
-      // Hace cuánto no viene, con alerta si es mucho tiempo
-      if (data.ultimasVisitas && data.ultimasVisitas.length > 0) {
-        const ultima = new Date(data.ultimasVisitas[0]);
-        const diasSinVenir = Math.floor((hoy - ultima) / (1000 * 60 * 60 * 24));
-        const alerta = diasSinVenir >= 30;
-        html += '<p' + (alerta ? ' style="color:#c0392b;font-weight:600"' : '') + '>'
-          + 'Última visita: hace ' + diasSinVenir + ' día(s)'
-          + (alerta ? ' ⚠️ hace mucho tiempo que no vienes, ven a escalar de nuevo con nosotros!' : '')
-          + '</p>';
-      } else {
-        html += '<p style="color:#888">Aún no registra ninguna visita.</p>';
-      }
-
-      html += '</div>';
-      return html;
-    }
-
-      function renderFicha(data) {
+    function renderFicha(data) {
+      const c = data.cliente;
+      let html = '<div class="grid-container">';
       
-        const c = data.cliente;
-        let html = '';
+      // 1. DATOS CLIENTE
+      html += `
+      <div class="seccion">
+        <h2>${c.nombre} ${c.apellido}</h2>
+        <p style="color:#718096">Código: <strong>${c.idCliente}</strong></p>
+      </div>
+      `;
       
-        // DATOS CLIENTE
-        html += `
-        <div class="seccion">
-          <h2>${c.nombre} ${c.apellido}</h2>
-          <p style="color:#888">Código: ${c.idCliente}</p>
-        </div>
-        `;
-      
-        // PASES
-        html += `
-        <div class="seccion">
+      // 2. PASES
+      html += `
+      <div class="seccion">
         <h2>Pases activos</h2>
-        `;
-        if (!data.pases || data.pases.length === 0) {
-          html += `<p style="color:#888">
-          No tienes pases activos.
-          </p>`;
-            } else {   
-          data.pases.forEach(function(p){ 
-            html += `
-            <div class="item">
-              <strong>${p.nombreServicio}</strong><br>
-              Usos restantes:
-              ${p.usosRestantes} de ${p.usosTotales}
-              ${p.fechaVencimiento 
-                ? '<br>Vence: '+new Date(p.fechaVencimiento).toLocaleDateString()
-                : ''}
-            </div>
-            `;
-          }); 
-        }      
-        html += '</div>';
-             
-        // RESUMEN VISITAS
-        html += `
-        <div class="seccion">
-          <h2>Resumen de visitas</h2>
-          <p>Total de visitas: <strong>${data.totalVisitas || 0}</strong></p>
-        </div>
-        `;
-
-        // ULTIMAS VISITAS
-        html += `
-        <div class="seccion">
-        <h2>Últimas visitas</h2>
-        `;
-      if (!data.ultimasVisitas || data.ultimasVisitas.length===0){
+      `;
+      if (!data.pases || data.pases.length === 0) {
+        html += `<p style="color:#a0aec0">No tienes pases activos.</p>`;
+      } else {   
+        data.pases.forEach(function(p){ 
           html += `
-          <p style="color:#888">
-          Todavía no tienes visitas registradas.
-          </p>
+          <div class="item">
+            <strong>${p.nombreServicio}</strong><br>
+            Usos restantes: ${p.usosRestantes} de ${p.usosTotales}
+            ${p.fechaVencimiento 
+              ? '<br><span style="color:#718096">Vence: '+new Date(p.fechaVencimiento).toLocaleDateString()+'</span>'
+              : ''}
+          </div>
           `;
-         } else {
-          data.ultimasVisitas.forEach(function(v){ 
-            html += `
-            <div class="item">
+        }); 
+      }      
+      html += '</div>';
+           
+      // 3. RESUMEN VISITAS
+      html += `
+      <div class="seccion">
+        <h2>Resumen de visitas</h2>
+        <p>Total acumulado: <strong style="font-size:16px">${data.totalVisitas || 0}</strong> visitas</p>
+      </div>
+      `;
+
+      // 4. ÚLTIMAS VISITAS
+      html += `
+      <div class="seccion">
+        <h2>Últimas visitas</h2>
+      `;
+      if (!data.ultimasVisitas || data.ultimasVisitas.length === 0){
+        html += `<p style="color:#a0aec0">Todavía no tienes visitas registradas.</p>`;
+      } else {
+        data.ultimasVisitas.forEach(function(v){ 
+          html += `
+          <div class="item">
             ${new Date(v).toLocaleString()}
-            </div>
-            `;  
-          });  
-        }            
-        html += '</div>';     
-        document.getElementById('contenido').innerHTML = html;
+          </div>
+          `;  
+        });  
+      }            
+      html += '</div>';
+
+      html += '</div>'; // Cierre de grid-container
+      
+      document.getElementById('contenido').innerHTML = html;
     }
   </script>
 </body>
