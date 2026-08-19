@@ -9,57 +9,45 @@
   * { box-sizing: border-box; }
   body {
     font-family: -apple-system, Arial, sans-serif;
-    max-width: 480px;
+    max-width: 540px;
     margin: 0 auto;
-    padding: 16px;
+    padding: 20px 16px 60px;
     background: #fafafa;
     color: #222;
   }
   h1 { font-size: 20px; margin-bottom: 4px; }
   p.sub { color: #666; margin-top: 0; font-size: 13px; }
-  label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; }
-  input {
-    width: 100%;
-    padding: 10px;
-    font-size: 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
+  label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin: 12px 0 4px; }
+  
   select {
     width: 100%;
     padding: 10px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    margin-top: 6px;
     background: #fff;
   }
-  #reader { width: 100%; margin-top: 14px; border-radius: 8px; overflow: hidden; }
-  #manualBox { margin-top: 10px; display: flex; gap: 8px; }
-  #manualBox input { flex: 1; }
-  #manualBox button {
-    padding: 10px 14px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
+
+  #reader { 
+    width: 100%; 
+    margin-top: 14px; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    border: 1px solid #e8e8e8;
+    background: #fff;
+  }
+
+  .buscador { display: flex; gap: 8px; margin-top: 10px; }
+  .buscador input {
+    flex: 1;
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
     border-radius: 8px;
-    font-size: 14px;
   }
-  #resultado { margin-top: 20px; display: none; }
-  .card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 14px;
-    margin-top: 10px;
-  }
-  .card h3 { margin: 0 0 4px; font-size: 15px; }
-  .card p { margin: 2px 0; font-size: 13px; color: #555; }
-  .card button {
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    background: #1e824c;
+  .buscador button {
+    padding: 12px 16px;
+    background: #1a1a1a;
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -67,24 +55,90 @@
     font-weight: 600;
     cursor: pointer;
   }
+
+  /* ================= GRID DE 2 COLUMNAS FIJAS ================= */
+  #resultado {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Siempre 2 columnas en cualquier pantalla */
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .card {
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card.full-width {
+    grid-column: 1 / -1; /* Ocupa las 2 columnas cuando corresponde */
+  }
+
+  .card h3 { 
+    font-size: 11px; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #777;
+    margin: 0 0 6px; 
+    font-weight: 700;
+  }
+
+  .card p { 
+    margin: 2px 0; 
+    font-size: 12px; 
+    line-height: 1.3;
+    color: #222;
+  }
+
+  .card button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    background: #1e824c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
   .card button:disabled { opacity: 0.5; }
+
+  .item { 
+    border-top: 1px solid #f2f2f2; 
+    padding-top: 4px; 
+    margin-top: 4px; 
+    font-size: 11.5px; 
+  }
+  .item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  /* ============================================================= */
+
   #sinPases {
     background: #fdecea;
     border: 1px solid #f5c6c0;
     border-radius: 8px;
-    padding: 12px;
-    font-size: 13px;
-    margin-top: 12px;
+    padding: 10px;
+    font-size: 12px;
+    color: #c0392b;
+    grid-column: 1 / -1;
   }
+
   #mensajeOk {
     background: #e8f6ee;
     border: 1px solid #b7e4c7;
     border-radius: 8px;
     padding: 12px;
-    font-size: 14px;
+    font-size: 13px;
+    color: #1e824c;
     margin-top: 12px;
     display: none;
   }
+
   #nuevaLectura {
     width: 100%;
     margin-top: 14px;
@@ -92,26 +146,29 @@
     background: #eee;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
   }
-  .btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:#ffffff;
-  color:#222;
-  text-decoration:none;
-  padding:10px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
-  transition:.2s;
+
+  .btnHome {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    color: #222;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 3px 12px rgba(0,0,0,.12);
+    transition: .2s;
   }
   
-  .btnHome:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
+  .btnHome:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,.15);
   }
 </style>
 </head>
@@ -130,28 +187,19 @@
 
   <div id="reader"></div>
 
-  <div id="manualBox">
-    <input type="text" id="idManual" placeholder="Ej: IWR0001">
+  <div class="buscador">
+    <input type="text" id="idManual" placeholder="Ej: IWR0001 o Juan Perez">
     <button onclick="buscarManual()">Buscar</button>
   </div>
 
-  <div id="resultado"></div>
   <div id="mensajeOk"></div>
+  <div id="resultado"></div>
   <button id="nuevaLectura" style="display:none" onclick="reiniciar()">Escanear siguiente cliente</button>
 
   <script>
-    // ⚠️ IMPORTANTE: reemplaza esto por la URL de tu implementación de
-    // Apps Script (la que termina en /exec). Es la misma que ya tienes.
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
-
-    // ⚠️ URL de tu Apps Script de FINANZAS. Se usa para registrar
-    // automáticamente el ingreso cuando se carga un pase pagado en caja
-    // — así no hay que anotarlo dos veces (acá y en movimientos.html).
     const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
 
-    // El servidor a veces tarda (primera carga del día, tráfico alto).
-    // Este fetch espera hasta 25 segundos antes de rendirse, y si falla
-    // por tiempo agotado o error de red, reintenta una vez automáticamente.
     function fetchConReintento(url, opciones, soloUnIntento) {
       const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
       const intentos = soloUnIntento ? 1 : 2;
@@ -164,12 +212,8 @@
           .then(function (r) { clearTimeout(timeoutId); return r; })
           .catch(function (err) {
             clearTimeout(timeoutId);
-            if (intentosRestantes > 1) {
-              return intentar(intentosRestantes - 1);
-            }
-            if (soloUnIntento) {
-              throw new Error('No pudimos confirmar si la acción se completó. Antes de repetirla, revisa el estado del pase o del check-in para evitar duplicarlo.');
-            }
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+            if (soloUnIntento) throw new Error('No pudimos confirmar si la acción se completó. Revisa el estado del pase antes de reintentar.');
             throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
           });
       }
@@ -184,11 +228,8 @@
         body: JSON.stringify({ action: accion, payload: payload })
       }, esEscritura).then(function (r) {
         return r.text().then(function (texto) {
-          try {
-            return JSON.parse(texto);
-          } catch (e) {
-            throw new Error('El servidor tardó en responder. Intenta de nuevo en unos segundos.');
-          }
+          try { return JSON.parse(texto); }
+          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
         });
       });
     }
@@ -198,8 +239,6 @@
     let serviciosCache = [];
 
     function cargarCatalogo() {
-      // Muestra lo que había guardado de la última vez, al instante,
-      // mientras se actualiza en segundo plano por si cambió algo.
       const cache = leerCache_('servicios_cache');
       if (cache) serviciosCache = cache;
 
@@ -210,14 +249,13 @@
             guardarCache_('servicios_cache', resp.data);
           }
         })
-        .catch(function () { /* si falla, seguimos con lo que había en caché */ });
+        .catch(function () { });
     }
 
     function cargarStaff() {
       const select = document.getElementById('staff');
 
       function pintarOpciones(nombres) {
-        // Guarda el valor ya elegido (si había alguno) para no perderlo
         const valorPrevio = select.value;
         select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
         nombres.forEach(function (nombre) {
@@ -240,26 +278,22 @@
           pintarOpciones(resp.data);
           guardarCache_('staff_cache', resp.data);
         })
-        .catch(function () { /* si falla, seguimos con lo que había en caché */ });
+        .catch(function () { });
     }
 
-    // Caché simple en el navegador del staff, válida por 12 horas.
     function guardarCache_(clave, datos) {
-      try {
-        localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() }));
-      } catch (e) { /* si el navegador bloquea localStorage, no pasa nada grave */ }
+      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+      catch (e) { }
     }
+
     function leerCache_(clave) {
       try {
         const crudo = localStorage.getItem(clave);
         if (!crudo) return null;
         const parsed = JSON.parse(crudo);
-        const DOCE_HORAS_MS = 12 * 60 * 60 * 1000;
-        if (Date.now() - parsed.guardado > DOCE_HORAS_MS) return null;
+        if (Date.now() - parsed.guardado > 12 * 60 * 60 * 1000) return null;
         return parsed.datos;
-      } catch (e) {
-        return null;
-      }
+      } catch (e) { return null; }
     }
 
     function iniciarScanner() {
@@ -275,32 +309,69 @@
         }
       ).catch(function () {
         document.getElementById('reader').innerHTML =
-          '<p style="font-size:13px;color:#c0392b">No se pudo abrir la cámara. Usa el campo manual de abajo.</p>';
+          '<p style="font-size:12px;color:#c0392b;padding:10px;margin:0;">No se pudo abrir la cámara. Usa la búsqueda manual de abajo.</p>';
       });
     }
 
     function buscarManual() {
-      const id = document.getElementById('idManual').value.trim();
-      if (!id) return;
-      procesarCliente(id);
+      const termino = document.getElementById('idManual').value.trim();
+      if (!termino) return;
+      procesarCliente(termino);
     }
 
-    function procesarCliente(idCliente) {
+    function procesarCliente(termino) {
       const staff = document.getElementById('staff').value.trim();
 
       if (!staff) {
-        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('resultado').style.display = 'grid';
         document.getElementById('resultado').innerHTML =
-          '<div id="sinPases">Escribe tu nombre en "Validado por" antes de escanear o buscar un cliente.</div>';
+          '<div id="sinPases">Escribe tu nombre en "Validado por" antes de buscar o escanear un cliente.</div>';
         escaneando = true;
         if (scanner) scanner.resume();
         return;
       }
 
-      document.getElementById('resultado').style.display = 'block';
+      document.getElementById('resultado').style.display = 'grid';
       document.getElementById('mensajeOk').style.display = 'none';
-      document.getElementById('resultado').innerHTML = '<p>Buscando cliente...</p>';
+      document.getElementById('resultado').innerHTML = '<p style="font-size:13px;color:#888;grid-column:1/-1;">Buscando cliente...</p>';
 
+      // Búsqueda flexible por texto (Código, Nombre o Apellido)
+      llamarApi('buscarClientesPorTexto', { termino: termino })
+        .then(function (resp) {
+          if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
+          const lista = resp.data || [];
+
+          if (lista.length === 0) {
+            document.getElementById('resultado').innerHTML =
+              '<div id="sinPases">No se encontraron clientes para: "' + termino + '"</div>';
+            return;
+          }
+
+          if (lista.length === 1) {
+            cargarDetalleCheckin(lista[0].idCliente, staff);
+          } else {
+            renderResultadosMultiples(lista, staff);
+          }
+        })
+        .catch(mostrarError);
+    }
+
+    function renderResultadosMultiples(lista, staff) {
+      let html = '<div class="card full-width"><h3>Resultados encontrados (' + lista.length + ')</h3>';
+
+      lista.forEach(function (c) {
+        const nombreMostrar = (c.nombre + ' ' + c.apellido).trim() || 'Cliente sin nombre';
+        html += '<div class="item" style="cursor:pointer; padding:6px 0;" onclick="cargarDetalleCheckin(\'' + c.idCliente + '\', \'' + staff.replace(/'/g, '') + '\')">'
+          + '<strong>' + nombreMostrar + '</strong> · '
+          + '<span style="color:#888; font-size:11px;">ID: ' + c.idCliente + '</span>'
+          + '</div>';
+      });
+
+      html += '</div>';
+      document.getElementById('resultado').innerHTML = html;
+    }
+
+    function cargarDetalleCheckin(idCliente, staff) {
       llamarApi('buscarClienteYPases', { idCliente: idCliente })
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
@@ -316,45 +387,52 @@
     }
 
     function renderPases(cliente, pases, checkinsHoy, staff) {
-      let html = '<h3 style="margin:0">' + cliente.nombre + ' ' + cliente.apellido + '</h3>';
-      html += '<p style="font-size:12px;color:#888">' + cliente.idCliente + '</p>';
+      let html = '';
 
+      // Encabezado del Cliente (A lo ancho)
+      html += '<div class="card full-width"><h3>Cliente</h3>'
+        + '<div style="font-size:15px; font-weight:700;">' + cliente.nombre + ' ' + cliente.apellido + '</div>'
+        + '<p style="font-size:11px; color:#888;">ID: ' + cliente.idCliente + '</p></div>';
+
+      // Pases activos (Distribuidos en 2 columnas)
       if (!pases || pases.length === 0) {
         html += '<div id="sinPases">Sin pases activos.</div>';
       } else {
         pases.forEach(function (p) {
           html += '<div class="card">'
             + '<h3>' + p.nombreServicio + '</h3>'
-            + '<p>Usos restantes: ' + p.usosRestantes + ' de ' + p.usosTotales + '</p>'
-            + (p.fechaVencimiento ? '<p>Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</p>' : '')
+            + '<p>Usos: <strong>' + p.usosRestantes + '</strong> de ' + p.usosTotales + '</p>'
+            + (p.fechaVencimiento ? '<p style="color:#888;">Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</p>' : '')
             + '<button onclick="confirmar(\'' + cliente.idCliente + '\',\'' + p.idPase + '\',\'' + staff.replace(/'/g, '') + '\', this)">Confirmar ingreso</button>'
             + '</div>';
         });
       }
 
+      // Check-ins de hoy
       if (checkinsHoy && checkinsHoy.length > 0) {
-        html += '<div class="card" style="background:#fff8e6">'
-          + '<h3>Check-ins de hoy</h3>';
+        html += '<div class="card full-width" style="background:#fff8e6; border-color:#f39c12;">'
+          + '<h3 style="color:#d35400;">Check-ins de hoy</h3>';
         checkinsHoy.forEach(function (c) {
           const hora = new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          html += '<p style="display:flex;justify-content:space-between;align-items:center;margin:6px 0">'
+          html += '<div class="item" style="display:flex; justify-content:space-between; align-items:center;">'
             + '<span>' + hora + '</span>'
-            + '<button style="background:#c0392b;padding:6px 10px;font-size:12px" '
-            + 'onclick="anularCheckin(\'' + c.idCheckin + '\', \'' + cliente.idCliente + '\', \'' + staff.replace(/'/g, '') + '\', this)">Anular (fue un error)</button>'
-            + '</p>';
+            + '<button style="background:#c0392b; padding:4px 8px; font-size:11px; width:auto; margin-top:0;" '
+            + 'onclick="anularCheckin(\'' + c.idCheckin + '\', \'' + cliente.idCliente + '\', \'' + staff.replace(/'/g, '') + '\', this)">Anular</button>'
+            + '</div>';
         });
         html += '</div>';
       }
 
-      html += '<div class="card" style="background:#f5f5f5">'
-        + '<h3>Cargar pase (ya cobrado en caja)</h3>'
-        + '<select id="selectServicio">' + opcionesServicios() + '</select>'
-        + '<select id="selectMedioPago" style="margin-top:6px">'
+      // Cargar pase manual (a lo ancho)
+      html += '<div class="card full-width" style="background:#fcfcfc;">'
+        + '<h3>Cargar pase (cobrado en caja)</h3>'
+        + '<select id="selectServicio" style="margin-top:4px;">' + opcionesServicios() + '</select>'
+        + '<select id="selectMedioPago" style="margin-top:6px;">'
         + '<option value="Mercado Pago">Mercado Pago</option>'
         + '<option value="Transferencia">Transferencia</option>'
         + '<option value="Efectivo">Efectivo</option>'
         + '</select>'
-        + '<button style="background:#1a1a1a" onclick="cargarPase(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">Cargar pase</button>'
+        + '<button style="background:#1a1a1a;" onclick="cargarPase(\'' + cliente.idCliente + '\', \'' + cliente.nombre + '\', \'' + cliente.apellido + '\', \'' + staff.replace(/'/g, '') + '\', this)">Cargar pase</button>'
         + '</div>';
 
       document.getElementById('resultado').innerHTML = html;
@@ -368,7 +446,6 @@
       llamarApi('anularCheckin', { idCheckin: idCheckin, staff: staff }, true)
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
-          // Recarga toda la ficha del cliente para reflejar el pase restaurado
           return llamarApi('buscarClienteYPases', { idCliente: idCliente });
         })
         .then(function (resp2) {
@@ -378,7 +455,7 @@
         })
         .catch(function (err) {
           boton.disabled = false;
-          boton.textContent = 'Anular (fue un error)';
+          boton.textContent = 'Anular';
           mostrarError(err);
         });
     }
@@ -405,15 +482,12 @@
 
           let mensaje = '✅ Pase cargado correctamente.';
 
-          // Si el servicio tiene precio y categoría financiera definida,
-          // registra el ingreso solo — así no hay que anotarlo de nuevo
-          // en movimientos.html.
           if (resp.data.precio > 0 && resp.data.categoriaFinanzas) {
             return registrarIngresoAutomatico_(resp.data, medioPago, idCliente, staff)
               .then(function (okFinanzas) {
                 mensaje += okFinanzas
                   ? ' Ingreso registrado en Finanzas.'
-                  : ' (No se pudo registrar el ingreso en Finanzas automático — regístralo manual en movimientos.html)';
+                  : ' (No se pudo registrar en Finanzas automáticamente)';
                 return { resp: resp, mensaje: mensaje };
               });
           }
@@ -436,10 +510,6 @@
         });
     }
 
-    // Llama al Apps Script de Finanzas para registrar el ingreso.
-    // Nunca lanza error hacia arriba — si falla, solo devuelve false,
-    // porque el pase YA se cargó bien y no queremos que este paso
-    // secundario bloquee ni confunda al staff.
     function registrarIngresoAutomatico_(datosPase, medioPago, idCliente, staff) {
       const datosMovimiento = {
         tipo: 'Ingreso',
@@ -460,9 +530,7 @@
           try {
             const resp = JSON.parse(texto);
             return !!resp.ok;
-          } catch (e) {
-            return false;
-          }
+          } catch (e) { return false; }
         })
         .catch(function () { return false; });
     }
@@ -474,11 +542,11 @@
       llamarApi('checkin', { idCliente: idCliente, idPase: idPase, validadoPor: staff }, true)
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
-          boton.textContent = '✅ Ingreso confirmado';
+          boton.textContent = '✅ Confirmado';
           boton.style.background = '#1e824c';
           const mensaje = document.getElementById('mensajeOk');
           mensaje.style.display = 'block';
-          mensaje.textContent = '✅ Ingreso registrado correctamente. Quedan ' + resp.data.usosRestantes + ' uso(s) en este pase.';
+          mensaje.textContent = '✅ Ingreso registrado. Quedan ' + resp.data.usosRestantes + ' uso(s) en este pase.';
           mensaje.scrollIntoView({ behavior: 'smooth', block: 'center' });
           document.getElementById('nuevaLectura').style.display = 'block';
         })
