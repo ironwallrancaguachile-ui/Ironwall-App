@@ -564,7 +564,9 @@
     }
   }
 
-  /* PROCESAMIENTO DEL CARRITO CON SECUENCIA FIABLE DE FINANZAS */
+/******************************************************
+   * PROCESAR CARRITO DE PASES
+   ******************************************************/
   async function procesarCarritoPases(idCliente, nombre, apellido, staff, boton) {
     if (carritoPases.length === 0) return;
 
@@ -575,13 +577,9 @@
     let totalVenta = 0;
     let nombresPases = [];
     let errores = 0;
-    let categoriaFinanzas = 'Pases';
 
     // 1. Cargar cada pase en el sistema de Check-in
     for (let item of carritoPases) {
-      if (item.categoriaFinanzas) {
-        categoriaFinanzas = item.categoriaFinanzas;
-      }
       for (let i = 0; i < item.cantidad; i++) {
         try {
           const resp = await llamarApi('cargarPase', { idCliente: idCliente, codigoServicio: item.codigo }, true);
@@ -599,15 +597,21 @@
 
     let mensajeFinal = '✅ Pases cargados.';
 
-    // 2. Registrar el movimiento en Finanzas (Restaurando la firma/estructura exacta inicial)
+    // 2. Registrar en Finanzas usando EXACTAMENTE la misma lógica de la Tienda
     if (totalVenta > 0) {
-      const detalle = 'Venta pases: ' + nombresPases.join(', ') + ' - ' + nombre + ' ' + apellido + ' (' + idCliente + ')';
-      const okFinanzas = await registrarIngresoAutomatico_(totalVenta, categoriaFinanzas, detalle, medioPago, staff);
+      const detalleVenta = 'Venta pases: ' + nombresPases.join(' | ') + ' - ' + nombre + ' ' + apellido + ' (' + idCliente + ')';
       
+      const okFinanzas = await registrarMovimientoFinanzasAutomatico_(
+        totalVenta,
+        detalleVenta,
+        medioPago,
+        staff
+      );
+
       if (okFinanzas) {
-        mensajeFinal += ' Ingreso registrado en Finanzas ($' + formatearNumero(totalVenta) + ').';
+        mensajeFinal += ' — Finanzas registrado correctamente ($' + formatearNumero(totalVenta) + ').';
       } else {
-        mensajeFinal += ' (⚠️ Error al conectar con Finanzas)';
+        mensajeFinal += ' — ⚠️ No se pudo registrar Finanzas.';
       }
     }
 
@@ -623,31 +627,47 @@
     cargarDetalleCheckin(idCliente, staff);
   }
 
-  /* FUNCIÓN INICIAL RESTAURADA PARA FINANZAS */
-  function registrarIngresoAutomatico_(monto, categoria, descripcion, medioPago, staff) {
-    const payload = {
-      action: 'registrarMovimiento',
-      payload: {
-        tipo: 'Ingreso',
-        categoria: categoria || 'Pases',
-        medioPago: medioPago,
-        monto: Number(monto),
-        descripcion: descripcion,
-        responsable: staff
-      }
+  /******************************************************
+   * REGISTRO EN FINANZAS (RÉPLICA EXACTA DE TIENDA)
+   ******************************************************/
+  function registrarMovimientoFinanzasAutomatico_(
+    montoTotal,
+    detalleVenta,
+    medioPago,
+    responsable
+  ) {
+    const datosMovimiento = {
+      tipo: 'Ingreso',
+      categoria: 'Pases', // O 'Tienda' / 'Servicios' según tus categorías válidas de Finanzas
+      medioPago: medioPago,
+      monto: montoTotal,
+      descripcion: detalleVenta,
+      comprobante: '',
+      responsable: responsable
     };
 
-    return fetch(API_URL_FINANZAS, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
+    return fetch(
+      API_URL_FINANZAS,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action: 'registrarMovimiento',
+          payload: datosMovimiento
+        })
+      }
+    )
+    .then(function(r){
+      return r.text();
     })
-    .then(function (r) { return r.json(); })
-    .then(function (res) {
-      return res && (res.ok === true || res.status === 'success' || res.success === true);
+    .then(function(texto){
+      const resp = JSON.parse(texto);
+      return !!resp.ok;
     })
-    .catch(function (err) {
-      console.error('Error registrando en Finanzas:', err);
+    .catch(function(err){
+      console.error('Error al registrar en Finanzas:', err);
       return false;
     });
   }
