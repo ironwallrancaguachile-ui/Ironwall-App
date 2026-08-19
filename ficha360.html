@@ -37,7 +37,8 @@
   /* ================= GRID DE 2 COLUMNAS (CENTRO DE CONTROL) ================= */
   #contenido {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: 1fr 1fr; /* Siempre 2 columnas iguales en cualquier pantalla */
+    gap: 8px;
     gap: 10px;
     margin-top: 14px;
   }
