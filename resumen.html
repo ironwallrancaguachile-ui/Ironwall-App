@@ -7,31 +7,69 @@
 <style>
   * { box-sizing: border-box; }
   body {
-    font-family: -apple-system, Arial, sans-serif;
-    max-width: 480px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    max-width: 600px;
     margin: 0 auto;
-    padding: 24px 16px 60px;
+    padding: 12px 12px 20px;
     background: #fafafa;
     color: #222;
   }
-  h1 { font-size: 22px; margin-bottom: 4px; }
-  p.sub { color: #666; margin-top: 0; margin-bottom: 20px; font-size: 14px; }
+  
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .btnHome {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #ffffff;
+    color: #222;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  }
 
-  .seccion { margin-top: 22px; }
-  .seccion h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 8px; }
+  h1 { font-size: 16px; margin: 0; display: inline-block; }
+  p.sub { color: #666; margin: 0; font-size: 11px; }
+
+  .estado-general {
+    text-align: center;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .estado-general.ok { background: #e8f6ee; color: #1e824c; }
+  .estado-general.alerta { background: #fdecea; color: #c0392b; }
+
+  /* Estructura de Secciones Compactas */
+  .seccion { margin-top: 10px; }
+  .seccion h2 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin: 0 0 4px 0; }
+
+  /* Grid de KPIs */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 
   .kpi {
     background: #fff;
     border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-top: 8px;
+    border-radius: 8px;
+    padding: 6px 8px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
   }
-  .kpi .label { font-size: 14px; color: #444; }
-  .kpi .valor { font-size: 20px; font-weight: 700; }
+  .kpi .label { font-size: 10px; color: #555; line-height: 1.1; }
+  .kpi .valor { font-size: 15px; font-weight: 700; margin-top: 2px; }
   .kpi.ok { border-color: #b7e4c7; background: #f4fbf7; }
   .kpi.ok .valor { color: #1e824c; }
   .kpi.alerta { border-color: #f5c6c0; background: #fdf5f4; }
@@ -40,127 +78,148 @@
   .desglose {
     background: #fff;
     border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-top: 8px;
-    font-size: 13px;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    font-size: 11px;
   }
-  .desglose div { display: flex; justify-content: space-between; padding: 3px 0; }
+  .desglose div { display: flex; justify-content: space-between; padding: 1px 0; }
 
-  #cargando { text-align: center; color: #888; margin-top: 30px; font-size: 13px; }
-  #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
-  #actualizado { text-align: center; color: #999; font-size: 12px; margin-top: 24px; }
+  /* Bitácora Ultra Compacta */
+  .bitacora-box {
+    margin-top: 6px;
+    display: flex;
+    gap: 6px;
+  }
+  .bitacora-box textarea {
+    flex: 1;
+    height: 38px;
+    min-height: 38px;
+    padding: 6px;
+    font-size: 11px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    resize: none;
+  }
+  .bitacora-controles {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 110px;
+  }
+  .bitacora-controles select, .bitacora-controles button {
+    width: 100%;
+    padding: 4px;
+    font-size: 10px;
+    border-radius: 6px;
+  }
+  .bitacora-controles button {
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
 
-  .estado-general {
-    text-align: center;
-    padding: 16px;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 700;
-    margin-top: 4px;
-  }
-  .estado-general.ok { background: #e8f6ee; color: #1e824c; }
-  .estado-general.alerta { background: #fdecea; color: #c0392b; }
-
-  .btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:#ffffff;
-  color:#222;
-  text-decoration:none;
-  padding:10px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
-  transition:.2s;
-  }
-  
-  .btnHome:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
-  }
+  #cargando { text-align: center; color: #888; margin-top: 20px; font-size: 12px; }
+  #error { color: #c0392b; font-size: 11px; margin-top: 6px; display: none; }
+  #actualizado { text-align: center; color: #999; font-size: 10px; margin-top: 10px; }
 </style>
 </head>
 <body>
-  <a href="portal.html" class="btnHome">
-  🏠 Home
-  </a>
- 
-  <h1>Centro de Control del Turno</h1>
-  <p class="sub" id="fechaHoy"></p>
 
-  <div id="cargando">Cargando...</div>
+  <div class="top-bar">
+    <div>
+      <h1>Centro de Control</h1>
+      <p class="sub" id="fechaHoy"></p>
+    </div>
+    <a href="portal.html" class="btnHome">🏠 Home</a>
+  </div>
+
+  <div id="cargando">Cargando datos del turno...</div>
+  
   <div id="contenido" style="display:none">
 
     <div id="estadoGeneral" class="estado-general">Revisando...</div>
 
+    <!-- ACTIVIDAD -->
     <div class="seccion">
       <h2>Actividad de hoy</h2>
-      <div class="kpi">
-        <span class="label">Visitas hoy</span>
-        <span class="valor" id="visitasHoy">-</span>
-      </div>
-      <div class="kpi">
-        <span class="label">Clientes distintos hoy</span>
-        <span class="valor" id="clientesDistintosHoy">-</span>
-      </div>
-      <div class="kpi">
-        <span class="label">Clientes nuevos hoy</span>
-        <span class="valor" id="clientesNuevosHoy">-</span>
+      <div class="grid-3">
+        <div class="kpi">
+          <span class="label">Visitas</span>
+          <span class="valor" id="visitasHoy">-</span>
+        </div>
+        <div class="kpi">
+          <span class="label">Clientes</span>
+          <span class="valor" id="clientesDistintosHoy">-</span>
+        </div>
+        <div class="kpi">
+          <span class="label">Nuevos</span>
+          <span class="valor" id="clientesNuevosHoy">-</span>
+        </div>
       </div>
     </div>
 
+    <!-- CAJA -->
     <div class="seccion">
-      <h2>Caja (para conciliar con el efectivo físico)</h2>
-      <div class="kpi">
-        <span class="label">Ingresos hoy</span>
-        <span class="valor" id="ingresosHoy">-</span>
-      </div>
-      <div class="kpi">
-        <span class="label">Egresos hoy</span>
-        <span class="valor" id="egresosHoy">-</span>
+      <h2>Caja y Arqueo</h2>
+      <div class="grid-2">
+        <div class="kpi">
+          <span class="label">Ingresos</span>
+          <span class="valor" id="ingresosHoy">-</span>
+        </div>
+        <div class="kpi">
+          <span class="label">Egresos</span>
+          <span class="valor" id="egresosHoy">-</span>
+        </div>
       </div>
       <div class="desglose" id="desgloseMedioPago"></div>
     </div>
 
+    <!-- PENDIENTES DE CIERRE -->
     <div class="seccion">
-      <h2>Pendientes que revisar antes de cerrar</h2>
-      <div class="kpi" id="kpiMensajes">
-        <span class="label">Mensajes de campaña sin enviar</span>
-        <span class="valor" id="mensajesPendientes">-</span>
-      </div>
-      <div class="kpi" id="kpiStock">
-        <span class="label">Productos con stock bajo</span>
-        <span class="valor" id="stockBajo">-</span>
-      </div>
-      <div class="kpi" id="kpiIncidentes">
-        <span class="label">Incidentes reportados hoy</span>
-        <span class="valor" id="incidentesHoy">-</span>
+      <h2>Pendientes de Cierre</h2>
+      <div class="grid-3">
+        <div class="kpi" id="kpiMensajes">
+          <span class="label">Msjs Campaña</span>
+          <span class="valor" id="mensajesPendientes">-</span>
+        </div>
+        <div class="kpi" id="kpiStock">
+          <span class="label">Stock Bajo</span>
+          <span class="valor" id="stockBajo">-</span>
+        </div>
+        <div class="kpi" id="kpiIncidentes">
+          <span class="label">Incidentes</span>
+          <span class="valor" id="incidentesHoy">-</span>
+        </div>
       </div>
     </div>
 
+    <!-- BITÁCORA DE TURNO -->
     <div class="seccion">
       <h2>Bitácora de turno</h2>
       <div id="notasAnteriores"></div>
 
-      <div style="margin-top: 10px;">
-        <textarea id="notaTurnoTexto" placeholder="¿Cómo estuvo el turno? Deja cualquier observación para el siguiente turno o el administrador..." style="width:100%; min-height:70px; padding:10px; font-size:14px; border:1px solid #ccc; border-radius:8px; font-family:inherit; resize:vertical;"></textarea>
-        <select id="notaTurnoStaff" style="width:100%; margin-top:8px; padding:10px; font-size:14px; border:1px solid #ccc; border-radius:8px;">
-          <option value="">-- Tu nombre --</option>
-        </select>
-        <button id="btnNotaTurno" onclick="guardarNotaTurno()" style="width:100%; margin-top:8px; padding:10px; background:#1a1a1a; color:#fff; border:none; border-radius:8px; font-weight:600;">Guardar nota de cierre</button>
-        <div id="mensajeNotaTurno" style="font-size:13px; margin-top:6px; display:none;"></div>
+      <div class="bitacora-box">
+        <textarea id="notaTurnoTexto" placeholder="Observaciones del turno..."></textarea>
+        <div class="bitacora-controles">
+          <select id="notaTurnoStaff">
+            <option value="">-- Nombre --</option>
+          </select>
+          <button id="btnNotaTurno" onclick="guardarNotaTurno()">Guardar</button>
+        </div>
       </div>
+      <div id="mensajeNotaTurno" style="font-size:11px; margin-top:4px; display:none;"></div>
     </div>
 
   </div>
+
   <div id="error"></div>
   <div id="actualizado"></div>
 
   <script>
-    // ⚠️ Completa las 4 URLs de tus Apps Script.
     const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
     const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
     const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
@@ -196,15 +255,15 @@
 
     function cargar() {
       document.getElementById('fechaHoy').textContent = new Date().toLocaleDateString('es-CL', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        weekday: 'short', month: 'short', day: 'numeric'
       });
     
       Promise.all([
         llamarApi(API_URL_CLIENTES, 'obtenerResumenDiaClientes', {}),
         llamarApi(API_URL_FINANZAS, 'obtenerResumenDiaFinanzas', {}),
         llamarApi(API_URL_CLIENTES, 'contarMensajesPendientes', {}),
-        llamarApi(API_URL_INVENTARIO, 'listarProductosTienda', {}),             // Productos Tienda
-        llamarApi(API_URL_INVENTARIO, 'listarEquipamientoInterno', {}),  // Equipamiento / Presas
+        llamarApi(API_URL_INVENTARIO, 'listarProductosTienda', {}),
+        llamarApi(API_URL_INVENTARIO, 'listarEquipamientoInterno', {}),
         llamarApi(API_URL_INCIDENTES, 'contarIncidentesAbiertosHoy', {})
       ]).then(function (resultados) {
         const respClientes = resultados[0];
@@ -233,7 +292,7 @@
           const desglose = document.getElementById('desgloseMedioPago');
           const claves = Object.keys(porMedioPago);
           if (claves.length === 0) {
-            desglose.innerHTML = '<div>Sin ingresos registrados hoy</div>';
+            desglose.innerHTML = '<div>Sin ingresos hoy</div>';
           } else {
             desglose.innerHTML = claves.map(function (medio) {
               return '<div><span>' + medio + '</span><span>' + formatearPesos(porMedioPago[medio]) + '</span></div>';
@@ -247,24 +306,15 @@
           if (respMensajes.data >= 1) hayAlertas = true;
         }
     
-        // --- CÁLCULO UNIFICADO DE STOCK BAJO ---
         let totalBajoStock = 0;
-    
-        // Contar productos de tienda con stock bajo
         if (respTienda.ok && Array.isArray(respTienda.data)) {
           respTienda.data.forEach(function (p) {
-            if (Number(p.stockActual) <= Number(p.stockMinimo)) {
-              totalBajoStock++;
-            }
+            if (Number(p.stockActual) <= Number(p.stockMinimo)) totalBajoStock++;
           });
         }
-    
-        // Contar equipamiento/presas con stock bajo
         if (respEquipo.ok && Array.isArray(respEquipo.data)) {
           respEquipo.data.forEach(function (p) {
-            if (Number(p.stockActual) <= Number(p.stockMinimo)) {
-              totalBajoStock++;
-            }
+            if (Number(p.stockActual) <= Number(p.stockMinimo)) totalBajoStock++;
           });
         }
     
@@ -279,23 +329,22 @@
         const estadoDiv = document.getElementById('estadoGeneral');
         if (hayAlertas) {
           estadoDiv.className = 'estado-general alerta';
-          estadoDiv.textContent = '⚠️ Hay pendientes por revisar antes de cerrar';
+          estadoDiv.textContent = '⚠️ Pendientes por revisar antes de cerrar';
         } else {
           estadoDiv.className = 'estado-general ok';
-          estadoDiv.textContent = '✅ Todo en orden para cerrar el turno';
+          estadoDiv.textContent = '✅ Todo listo para cerrar turno';
         }
     
         document.getElementById('actualizado').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CL');
       }).catch(function (err) {
         document.getElementById('cargando').style.display = 'none';
         document.getElementById('error').style.display = 'block';
-        document.getElementById('error').textContent = 'Error al cargar: ' + err.message;
+        document.getElementById('error').textContent = 'Error: ' + err.message;
       });
     }
 
     function guardarCache_(clave, datos) {
-      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
-      catch (e) { /* nada grave si falla */ }
+      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); } catch (e) {}
     }
     function leerCache_(clave) {
       try {
@@ -310,7 +359,7 @@
     function cargarStaffTurno() {
       const select = document.getElementById('notaTurnoStaff');
       function pintar(nombres) {
-        select.innerHTML = '<option value="">-- Tu nombre --</option>' +
+        select.innerHTML = '<option value="">-- Staff --</option>' +
           nombres.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
       }
       const cache = leerCache_('staff_resumen_cache');
@@ -330,12 +379,12 @@
         .then(function (resp) {
           const contenedor = document.getElementById('notasAnteriores');
           if (!resp.ok || !resp.data || resp.data.length === 0) {
-            contenedor.innerHTML = '<p style="font-size:13px;color:#888">Sin notas anteriores.</p>';
+            contenedor.innerHTML = '<p style="font-size:10px;color:#888;margin:2px 0;">Sin notas recientes.</p>';
             return;
           }
-          contenedor.innerHTML = resp.data.map(function (n) {
-            return '<div class="desglose"><div><strong>' + n.staff + '</strong><span>' + new Date(n.fecha).toLocaleString('es-CL') + '</span></div>'
-              + '<div style="display:block;padding-top:2px;">' + n.nota + '</div></div>';
+          contenedor.innerHTML = resp.data.slice(0, 1).map(function (n) {
+            return '<div class="desglose"><div><strong>' + n.staff + '</strong><span>' + new Date(n.fecha).toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'}) + '</span></div>'
+              + '<div style="display:block;padding-top:1px;color:#555;">' + n.nota + '</div></div>';
           }).join('');
         });
     }
@@ -347,44 +396,38 @@
       const mensaje = document.getElementById('mensajeNotaTurno');
       mensaje.style.display = 'none';
 
-      if (!nota) { return; }
-      if (!staff) {
+      if (!nota || !staff) {
         mensaje.style.display = 'block';
         mensaje.style.color = '#c0392b';
-        mensaje.textContent = 'Elige tu nombre antes de guardar.';
+        mensaje.textContent = 'Escribe una nota y elige tu nombre.';
         return;
       }
 
       btn.disabled = true;
-      btn.textContent = 'Guardando...';
+      btn.textContent = '...';
 
-      // Escritura: un solo intento, sin reintento automático (misma
-      // regla que en el resto del sistema para evitar duplicados).
-      const controlador = new AbortController();
-      const timeoutId = setTimeout(function () { controlador.abort(); }, 20000);
       fetch(API_URL_CLIENTES, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'agregarNotaTurno', payload: { nota: nota, staff: staff } }),
-        signal: controlador.signal
-      }).then(function (r) { clearTimeout(timeoutId); return r.text(); })
+        body: JSON.stringify({ action: 'agregarNotaTurno', payload: { nota: nota, staff: staff } })
+      }).then(function (r) { return r.text(); })
         .then(function (texto) {
           const resp = JSON.parse(texto);
           if (!resp.ok) throw new Error(resp.error);
           document.getElementById('notaTurnoTexto').value = '';
           mensaje.style.display = 'block';
           mensaje.style.color = '#1e824c';
-          mensaje.textContent = '✅ Nota guardada.';
+          mensaje.textContent = '✅ Guardado.';
           cargarNotasAnteriores();
         })
         .catch(function (err) {
           mensaje.style.display = 'block';
           mensaje.style.color = '#c0392b';
-          mensaje.textContent = 'Error: ' + (err.message || 'no se pudo guardar, intenta de nuevo');
+          mensaje.textContent = 'Error al guardar.';
         })
         .finally(function () {
           btn.disabled = false;
-          btn.textContent = 'Guardar nota de cierre';
+          btn.textContent = 'Guardar';
         });
     }
 
