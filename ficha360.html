@@ -8,7 +8,7 @@
   * { box-sizing: border-box; }
   body {
     font-family: -apple-system, Arial, sans-serif;
-    max-width: 480px;
+    max-width: 540px; /* Ampliado ligeramente para acomodar 2 columnas cómodamente */
     margin: 0 auto;
     padding: 20px 16px 60px;
     background: #fafafa;
@@ -34,11 +34,11 @@
     font-weight: 600;
   }
 
-  /* ================= TARJETAS MINIMALISTAS (CENTRO DE CONTROL) ================= */
+  /* ================= GRID DE 2 COLUMNAS (CENTRO DE CONTROL) ================= */
   #contenido {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
     margin-top: 14px;
   }
 
@@ -47,8 +47,15 @@
     border: 1px solid #e8e8e8;
     border-radius: 8px;
     padding: 10px 12px;
-    margin-top: 0; /* Manejado por el flex gap de #contenido */
+    margin-top: 0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* La primera tarjeta (Datos del cliente) y la de Notas ocupan todo el ancho completo si se desea */
+  .seccion.full-width {
+    grid-column: 1 / -1;
   }
 
   .seccion h2 { 
@@ -62,7 +69,7 @@
 
   .seccion p { 
     margin: 2px 0; 
-    font-size: 13px; 
+    font-size: 12.5px; 
     line-height: 1.35;
     color: #222;
   }
@@ -111,26 +118,26 @@
   #mensaje { font-size: 13px; margin-top: 8px; display: none; }
   #mensaje.error { color: #c0392b; }
   #mensaje.ok { color: #1e824c; }
-  #sinDatos { font-size: 13px; color: #888; }
+  #sinDatos { font-size: 13px; color: #888; grid-column: 1 / -1; }
 
   .btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:#ffffff;
-  color:#222;
-  text-decoration:none;
-  padding:10px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
-  transition:.2s;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#ffffff;
+    color:#222;
+    text-decoration:none;
+    padding:10px 18px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:600;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+    transition:.2s;
   }
   
   .btnHome:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
   }
 </style>
 </head>
@@ -151,7 +158,6 @@
   <div id="contenido"></div>
 
 <script>
-  // ⚠️ URL del Apps Script de CLIENTES
   const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
   let idClienteActual = '';
@@ -198,12 +204,12 @@
           guardarCache_('staff_ficha_cache', resp.data);
         }
       })
-      .catch(function () { /* seguimos con la caché si falla */ });
+      .catch(function () { });
   }
 
   function guardarCache_(clave, datos) {
     try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
-    catch (e) { /* nada grave si falla */ }
+    catch (e) { }
   }
 
   function leerCache_(clave) {
@@ -216,16 +222,6 @@
     } catch (e) { return null; }
   }
 
-  // --- BÚSQUEDA Y NAVEGACIÓN ---
-
-  function normalizarTexto(texto) {
-    return String(texto || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
-  }
-
   function buscar() {
     const termino = document.getElementById('idBuscar').value.trim();
     if (!termino) return;
@@ -233,9 +229,8 @@
     const mensaje = document.getElementById('mensaje');
     const contenido = document.getElementById('contenido');
     mensaje.style.display = 'none';
-    contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
+    contenido.innerHTML = '<p style="font-size:13px;color:#888;grid-column:1/-1;">Buscando...</p>';
 
-    // Llama al backend configurado para buscar por Código ID, Nombre o Apellido
     llamarApi('buscarClientesPorTexto', { termino: termino })
       .then(function (resp) {
         if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
@@ -263,7 +258,7 @@
 
   function renderResultadosMultiples(lista) {
     const contenido = document.getElementById('contenido');
-    let html = '<div class="seccion"><h2>Resultados encontrados (' + lista.length + ')</h2>';
+    let html = '<div class="seccion full-width"><h2>Resultados encontrados (' + lista.length + ')</h2>';
 
     lista.forEach(function (c) {
       const nombreMostrar = (c.nombre + ' ' + c.apellido).trim() || 'Cliente sin nombre';
@@ -282,7 +277,7 @@
     const mensaje = document.getElementById('mensaje');
     const contenido = document.getElementById('contenido');
     mensaje.style.display = 'none';
-    contenido.innerHTML = '<p style="font-size:13px;color:#888">Cargando ficha...</p>';
+    contenido.innerHTML = '<p style="font-size:13px;color:#888;grid-column:1/-1;">Cargando ficha...</p>';
 
     llamarApi('obtenerFichaCompleta', { idCliente: id })
       .then(function (resp) {
@@ -301,8 +296,6 @@
       });
   }
 
-  // --- RENDERIZADO DE FICHA Y COMPONENTES ---
-
   function renderResumen(data, cliente) {
     const hoy = new Date();
     let html = '<div class="seccion"><h2>Resumen</h2>';
@@ -310,28 +303,28 @@
     if (cliente.fechaRegistro) {
       const registro = new Date(cliente.fechaRegistro);
       const diasComoCliente = Math.floor((hoy - registro) / (1000 * 60 * 60 * 24));
-      html += '<p>Cliente desde: ' + registro.toLocaleDateString() + ' (' + diasComoCliente + ' días)</p>';
+      html += '<p>Registro: ' + registro.toLocaleDateString() + ' (' + diasComoCliente + 'd)</p>';
     }
 
-    html += '<p>Total de visitas: <strong>' + (data.totalVisitas || 0) + '</strong></p>';
+    html += '<p>Visitas totales: <strong>' + (data.totalVisitas || 0) + '</strong></p>';
 
     if (data.ultimasVisitas && data.ultimasVisitas.length > 0) {
       const ultima = new Date(data.ultimasVisitas[0]);
       const diasSinVenir = Math.floor((hoy - ultima) / (1000 * 60 * 60 * 24));
       const alerta = diasSinVenir >= 30;
       html += '<p' + (alerta ? ' style="color:#c0392b;font-weight:600"' : '') + '>'
-        + 'Última visita: hace ' + diasSinVenir + ' día(s)'
-        + (alerta ? ' ⚠️ mucho tiempo sin venir' : '')
+        + 'Última: hace ' + diasSinVenir + 'd'
+        + (alerta ? ' ⚠️' : '')
         + '</p>';
     } else {
-      html += '<p style="color:#888">Aún no registra ninguna visita.</p>';
+      html += '<p style="color:#888">Sin visitas aún.</p>';
     }
 
     if (cliente.fechaRegistro && data.totalVisitas > 0) {
       const registro = new Date(cliente.fechaRegistro);
       const mesesComoCliente = Math.max(1, (hoy - registro) / (1000 * 60 * 60 * 24 * 30));
       const frecuencia = (data.totalVisitas / mesesComoCliente).toFixed(1);
-      html += '<p>Frecuencia aproximada: ' + frecuencia + ' visitas/mes</p>';
+      html += '<p>Frecuencia: ' + frecuencia + ' v/mes</p>';
     }
 
     html += '</div>';
@@ -342,10 +335,12 @@
     const c = data.cliente;
     let html = '';
 
-    html += '<div class="seccion"><h2>Cliente</h2>'
-      + '<div style="font-size:15px; font-weight:700;">' + c.nombre + ' ' + c.apellido + '</div>'
+    // Tarjeta superior de Nombre e ID a todo lo ancho (.full-width)
+    html += '<div class="seccion full-width"><h2>Cliente</h2>'
+      + '<div style="font-size:16px; font-weight:700;">' + c.nombre + ' ' + c.apellido + '</div>'
       + '<p style="color:#888; font-size:12px;">ID: ' + c.idCliente + '</p></div>';
 
+    // Resumen y Pases se ubican lado a lado (2 columnas)
     html += renderResumen(data, c);
 
     html += '<div class="seccion"><h2>Pases activos</h2>';
@@ -354,16 +349,17 @@
     } else {
       data.pases.forEach(function (p) {
         html += '<div class="item"><strong>' + p.nombreServicio + '</strong><br>'
-          + 'Usos restantes: ' + p.usosRestantes + ' de ' + p.usosTotales
-          + (p.fechaVencimiento ? ' · Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() : '')
+          + p.usosRestantes + ' de ' + p.usosTotales + ' usos'
+          + (p.fechaVencimiento ? '<br><span style="color:#888;">Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</span>' : '')
           + '</div>';
       });
     }
     html += '</div>';
 
+    // Últimas visitas (1 columna del grid)
     html += '<div class="seccion"><h2>Últimas visitas</h2>';
     if (!data.ultimasVisitas || data.ultimasVisitas.length === 0) {
-      html += '<p style="color:#888">Sin visitas registradas aún.</p>';
+      html += '<p style="color:#888">Sin visitas registradas.</p>';
     } else {
       data.ultimasVisitas.forEach(function (v) {
         html += '<div class="item">' + new Date(v).toLocaleString() + '</div>';
@@ -371,6 +367,7 @@
     }
     html += '</div>';
 
+    // Notas (se puede dejar a todo lo ancho o en 1 columna, aquí usa 1 columna para mantener balance)
     html += '<div class="seccion"><h2>Notas</h2>';
     if (!data.notas || data.notas.length === 0) {
       html += '<p style="color:#888">Sin notas aún.</p>';
@@ -380,8 +377,8 @@
           + '<span style="color:#888; font-size:11px;">' + n.registradoPor + ' — ' + new Date(n.fecha).toLocaleDateString() + '</span></div>';
       });
     }
-    html += '<textarea id="notaTexto" placeholder="Escribe una nota sobre este cliente..."></textarea>'
-      + '<select id="notaResponsable"><option value="">-- Tu nombre --</option>'
+    html += '<textarea id="notaTexto" placeholder="Escribe una nota..."></textarea>'
+      + '<select id="notaResponsable"><option value="">-- Nombre --</option>'
       + staffCache.map(function (s) { return '<option value="' + s + '">' + s + '</option>'; }).join('')
       + '</select>'
       + '<button id="btnNota" onclick="agregarNota()">Agregar nota</button>'
