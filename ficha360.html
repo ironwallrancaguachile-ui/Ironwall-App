@@ -179,60 +179,120 @@
   }
 
   // --- BÚSQUEDA ADAPTADA (CÓDIGO O NOMBRE/APELLIDO) ---
-  function buscar() {
-    const termino = document.getElementById('idBuscar').value.trim();
-    if (!termino) return;
+// Normaliza texto eliminando tildes y pasando a minúsculas
+function normalizarTexto(texto) {
+  return String(texto || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
 
-    const mensaje = document.getElementById('mensaje');
-    const contenido = document.getElementById('contenido');
-    mensaje.style.display = 'none';
-    contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
+function buscar() {
+  const termino = document.getElementById('idBuscar').value.trim();
+  if (!termino) return;
 
-    // Se solicita el listado global para permitir coincidencia por texto o ID directo
-    llamarApi('listarClientes', {})
-      .then(function (resp) {
-        if (!resp.ok) throw new Error(resp.error);
-        const lista = resp.data || [];
-        const termClean = termino.toLowerCase();
+  const mensaje = document.getElementById('mensaje');
+  const contenido = document.getElementById('contenido');
+  mensaje.style.display = 'none';
+  contenido.innerHTML = '<p style="font-size:13px;color:#888">Buscando...</p>';
 
-        // Filtrar coincidencias por ID, Nombre o Apellido
-        const resultados = lista.filter(function (c) {
-          const id = String(c.idCliente || '').toLowerCase();
-          const nom = String(c.nombre || '').toLowerCase();
-          const ape = String(c.apellido || '').toLowerCase();
-          const completo = (nom + ' ' + ape).trim();
+  // 1. Intentar cargar la ficha directamente por el ID/Código ingresado
+  llamarApi('obtenerFichaCompleta', { idCliente: termino })
+    .then(function (resp) {
+      if (resp.ok && resp.data && resp.data.cliente) {
+        // Encontrado directamente por código
+        idClienteActual = resp.data.cliente.idCliente;
+        renderFicha(resp.data);
+      } else {
+        // 2. Si no es un ID directo, buscar coincidencias por Nombre o Apellido
+        buscarPorNombreOApellido(termino);
+      }
+    })
+    .catch(function () {
+      // En caso de fallo con ID directo, intentar búsqueda por texto
+      buscarPorNombreOApellido(termino);
+    });
+}
 
-          return id.includes(termClean) || nom.includes(termClean) || ape.includes(termClean) || completo.includes(termClean);
-        });
+function buscarPorNombreOApellido(termino) {
+  const mensaje = document.getElementById('mensaje');
+  const contenido = document.getElementById('contenido');
+  const termBuscado = normalizarTexto(termino);
 
-        if (resultados.length === 0) {
-          contenido.innerHTML = '<div id="sinDatos">No se encontraron clientes para: ' + termino + '</div>';
-          return;
-        }
+  // Consulta el listado usando obtenerClientes (o la función que lista en tu backend)
+  llamarApi('obtenerClientes', {})
+    .then(function (resp) {
+      const lista = resp.data || resp.clientes || [];
+      
+      const coincidencias = lista.filter(function (c) {
+        const nom = normalizarTexto(c.nombre);
+        const ape = normalizarTexto(c.apellido);
+        const completo = (nom + ' ' + ape).trim();
+        const id = normalizarTexto(c.idCliente);
 
-        // Si hay una sola coincidencia exacta o directa, cargar la ficha
-        if (resultados.length === 1) {
-          cargarFichaCliente(resultados[0].idCliente);
-        } else {
-          // Si hay varios resultados por nombre/apellido, desplegar la lista para elegir
-          renderResultadosMultiples(resultados);
-        }
-      })
-      .catch(function (err) {
-        // En caso de fallo con listarClientes, reintentar la búsqueda directa por ID como respaldo
-        llamarApi('obtenerFichaCompleta', { idCliente: termino })
-          .then(function (resp) {
-            if (!resp.ok || !resp.data.cliente) throw new Error();
-            renderFicha(resp.data);
-          })
-          .catch(function () {
-            mensaje.className = 'error';
-            mensaje.textContent = 'Error: ' + err.message;
-            mensaje.style.display = 'block';
-            contenido.innerHTML = '';
-          });
+        return nom.includes(termBuscado) || ape.includes(termBuscado) || completo.includes(termBuscado) || id.includes(termBuscado);
       });
-  }
+
+      if (coincidencias.length === 0) {
+        contenido.innerHTML = '<div id="sinDatos">No se encontraron clientes para: ' + termino + '</div>';
+        return;
+      }
+
+      if (coincidencias.length === 1) {
+        // Una sola coincidencia -> Cargar ficha directamente
+        cargarFichaCliente(coincidencias[0].idCliente);
+      } else {
+        // Varias coincidencias -> Desplegar lista para elegir
+        renderResultadosMultiples(coincidencias);
+      }
+    })
+    .catch(function (err) {
+      mensaje.className = 'error';
+      mensaje.textContent = 'Cliente no encontrado o error de búsqueda: ' + err.message;
+      mensaje.style.display = 'block';
+      contenido.innerHTML = '';
+    });
+}
+
+function renderResultadosMultiples(lista) {
+  const contenido = document.getElementById('contenido');
+  let html = '<div class="seccion"><h2>Resultados encontrados (' + lista.length + ')</h2>';
+
+  lista.forEach(function (c) {
+    html += '<div class="item" style="cursor:pointer; padding:10px 0;" onclick="cargarFichaCliente(\'' + c.idCliente + '\')">'
+      + '<strong>' + c.nombre + ' ' + c.apellido + '</strong><br>'
+      + '<span style="color:#888; font-size:12px;">ID: ' + c.idCliente + '</span>'
+      + '</div>';
+  });
+
+  html += '</div>';
+  contenido.innerHTML = html;
+}
+
+function cargarFichaCliente(id) {
+  idClienteActual = id;
+  const mensaje = document.getElementById('mensaje');
+  const contenido = document.getElementById('contenido');
+  mensaje.style.display = 'none';
+  contenido.innerHTML = '<p style="font-size:13px;color:#888">Cargando ficha...</p>';
+
+  llamarApi('obtenerFichaCompleta', { idCliente: id })
+    .then(function (resp) {
+      if (!resp.ok) throw new Error(resp.error);
+      if (!resp.data.cliente) {
+        contenido.innerHTML = '<div id="sinDatos">Cliente no encontrado: ' + id + '</div>';
+        return;
+      }
+      renderFicha(resp.data);
+    })
+    .catch(function (err) {
+      mensaje.className = 'error';
+      mensaje.textContent = 'Error: ' + err.message;
+      mensaje.style.display = 'block';
+      contenido.innerHTML = '';
+    });
+}
 
   function renderResultadosMultiples(lista) {
     const contenido = document.getElementById('contenido');
