@@ -224,13 +224,18 @@ letter-spacing:.5px;
     margin: -10px auto 10px auto;
     padding: 0;
   }
-
   .marca {
+    flex-direction: row !important; /* Título a la der, Logo a la izq */
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+  }
+  /**.marca {
     flex-direction: column;
     align-items: center;
     width: 100%;
     text-align: left;
-  }
+  }**/
   
   /* LOGO MÁS PEQUEÑO (180px) */
   header img {
