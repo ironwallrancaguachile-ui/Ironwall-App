@@ -12,29 +12,29 @@
     label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
     select,input{width:100%;padding:10px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#fff}
     button{width:100%;padding:12px;border:0;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
-    
-    /* Contenedor Grid con 2 columnas fijas en todo tipo de pantalla */
+
+    /* Grilla de 2 columnas fijas para cualquier pantalla */
     .grid-2col{display:grid;grid-template-columns:repeat(2, 1fr);gap:16px;margin-bottom:16px}
     .card{background:#fff;padding:16px;border-radius:10px;border:1px solid #ddd;display:flex;flex-direction:column;justify-content:space-between}
-    
+
     .btnAgregar{background:#1565C0;color:#fff;margin-top:12px}
     .btnConfirmar{background:#1e824c;color:#fff;font-size:16px}
     .btnConfirmar:disabled{background:#aaa;cursor:not-allowed}
-    
+
     .item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #eee}
     .item:last-child{border-bottom:0}
     .item-nombre{font-weight:600;font-size:14px}
     .item-detalle{color:#666;font-size:12px}
     .btnEliminar{width:auto;padding:4px 8px;background:#fdecea;color:#c0392b;font-size:12px}
-    
+
     .total{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:2px solid #222;font-size:18px;font-weight:700}
     .vacio{color:#777;text-align:center;padding:15px 0;font-size:14px}
     .stock{margin-top:4px;color:#666;font-size:12px}
-    
+
     .ok,.error{display:none;margin-top:15px;padding:12px;border-radius:8px;font-size:14px}
     .ok{background:#e8f6ee;color:#1e824c}
     .error{background:#fdecea;color:#c0392b}
-    
+
     .btnHome{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#222;text-decoration:none;padding:8px 16px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 3px 12px rgba(0,0,0,.12);margin-bottom:15px}
   </style>
 </head>
@@ -45,20 +45,20 @@
   <p class="sub">Agrega todos los productos y confirma una sola vez.</p>
 
   <div class="grid-2col">
-    <!-- Tarjeta 1: Selección de producto -->
+    <!-- Tarjeta 1 -->
     <div class="card">
       <div>
         <label>Producto</label>
         <select id="producto"><option value="">-- Selecciona un producto --</option></select>
         <div id="stockInfo" class="stock"></div>
-        
+
         <label style="margin-top:10px;">Cantidad</label>
         <input id="cantidad" type="number" min="1" step="1" value="1">
       </div>
       <button class="btnAgregar" onclick="agregarAlCarrito()">+ Agregar al carrito</button>
     </div>
 
-    <!-- Tarjeta 2: Carrito -->
+    <!-- Tarjeta 2 -->
     <div class="card">
       <div>
         <h2 style="font-size:16px; margin-bottom:8px;">Carrito</h2>
@@ -69,7 +69,7 @@
   </div>
 
   <div class="grid-2col">
-    <!-- Tarjeta 3: Medio de pago -->
+    <!-- Tarjeta 3 -->
     <div class="card">
       <label>Medio de pago</label>
       <select id="medioPago">
@@ -79,7 +79,7 @@
       </select>
     </div>
 
-    <!-- Tarjeta 4: Registro y Confirmación -->
+    <!-- Tarjeta 4 -->
     <div class="card">
       <label>Registrado por</label>
       <select id="responsable"><option value="">-- Selecciona tu nombre --</option></select>
@@ -91,27 +91,22 @@
   <div id="error" class="error"></div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCj_f6I1-W92i1R90N6n9q6c9A6i0-rP3V4I23L0I/exec'; // Ajusta con la URL de tu Web App
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCj_f6I1-W92i1R90N6n9q6c9A6i0-rP3V4I23L0I/exec';
     let productosData = [];
     let carrito = [];
 
     async function cargarDatos() {
       try {
-        // Se añade { redirect: 'follow' } para manejar la redirección de Google Apps Script
-        const res = await fetch(SCRIPT_URL + '?action=getInitialData', {
-          method: 'GET',
-          redirect: 'follow'
-        });
-        
+        const res = await fetch(SCRIPT_URL + '?action=getInitialData');
         const data = await res.json();
-        
+
         productosData = data.productos || [];
         const selectProd = document.getElementById('producto');
         selectProd.innerHTML = '<option value="">-- Selecciona un producto --</option>';
         productosData.forEach(p => {
           selectProd.innerHTML += `<option value="${p.id}">${p.nombre} - $${p.precio.toLocaleString()}</option>`;
         });
-    
+
         const selectResp = document.getElementById('responsable');
         selectResp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
         (data.vendedores || []).forEach(v => {
