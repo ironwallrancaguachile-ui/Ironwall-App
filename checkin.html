@@ -339,7 +339,7 @@
     scanner = new Html5Qrcode('reader');
     scanner.start(
       { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 120, height: 120 } }, // Reducido de 220 a 160 px
+      { fps: 10, qrbox: { width: 170, height: 170 } }, // Reducido de 220 a 160 px
       idDecodificado => {
         if (!escaneando) return;
         escaneando = false;
@@ -364,7 +364,7 @@
 
   function procesarCliente(termino) {
     const staff = document.getElementById('staff').value.trim();
-
+  
     if (!staff) {
       document.getElementById('resultado').style.display = 'grid';
       document.getElementById('resultado').innerHTML =
@@ -373,22 +373,27 @@
       if (scanner) scanner.resume();
       return;
     }
-
+  
+    // Ocultar el lector y el buscador para limpiar la pantalla
+    document.getElementById('reader').style.display = 'none';
+    const buscadorEl = document.querySelector('.buscador');
+    if (buscadorEl) buscadorEl.style.display = 'none';
+  
     document.getElementById('resultado').style.display = 'grid';
     document.getElementById('mensajeOk').style.display = 'none';
     document.getElementById('resultado').innerHTML = '<p style="font-size:13px;color:#888;grid-column:1/-1;">Buscando cliente...</p>';
-
+  
     llamarApi('buscarClientesPorTexto', { termino: termino })
       .then(resp => {
         if (!resp.ok) throw new Error(resp.error || 'Error en la respuesta');
         const lista = resp.data || [];
-
+  
         if (lista.length === 0) {
           document.getElementById('resultado').innerHTML =
             '<div id="sinPases">No se encontraron clientes para: "' + termino + '"</div>';
           return;
         }
-
+  
         if (lista.length === 1) {
           cargarDetalleCheckin(lista[0].idCliente, staff);
         } else {
