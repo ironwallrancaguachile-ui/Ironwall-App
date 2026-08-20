@@ -13,7 +13,7 @@
     select,input{width:100%;padding:10px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#fff}
     button{width:100%;padding:12px;border:0;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
     
-    /* Disposición de 2 columnas fijas */
+    /* Contenedor Grid con 2 columnas fijas en todo tipo de pantalla */
     .grid-2col{display:grid;grid-template-columns:repeat(2, 1fr);gap:16px;margin-bottom:16px}
     .card{background:#fff;padding:16px;border-radius:10px;border:1px solid #ddd;display:flex;flex-direction:column;justify-content:space-between}
     
@@ -52,7 +52,7 @@
         <select id="producto"><option value="">-- Selecciona un producto --</option></select>
         <div id="stockInfo" class="stock"></div>
         
-        <label>Cantidad</label>
+        <label style="margin-top:10px;">Cantidad</label>
         <input id="cantidad" type="number" min="1" step="1" value="1">
       </div>
       <button class="btnAgregar" onclick="agregarAlCarrito()">+ Agregar al carrito</button>
@@ -60,8 +60,10 @@
 
     <!-- Tarjeta 2: Carrito -->
     <div class="card">
-      <h2 style="font-size:16px; margin-bottom:8px;">Carrito</h2>
-      <div id="listaCarrito"><div class="vacio">No hay productos agregados.</div></div>
+      <div>
+        <h2 style="font-size:16px; margin-bottom:8px;">Carrito</h2>
+        <div id="listaCarrito"><div class="vacio">No hay productos agregados.</div></div>
+      </div>
       <div class="total"><span>TOTAL</span><span id="totalVenta">$0</span></div>
     </div>
   </div>
@@ -88,9 +90,159 @@
   <div id="ok" class="ok"></div>
   <div id="error" class="error"></div>
 
-  <!-- Mantén tus funciones JavaScript de lógica intactas aquí abajo -->
   <script>
-    // Tu JS original permanece sin cambios...
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCj_f6I1-W92i1R90N6n9q6c9A6i0-rP3V4I23L0I/exec'; // Ajusta con la URL de tu Web App
+    let productosData = [];
+    let carrito = [];
+
+    async function cargarDatos() {
+      try {
+        const res = await fetch(SCRIPT_URL + '?action=getInitialData');
+        const data = await res.json();
+        
+        productosData = data.productos || [];
+        const selectProd = document.getElementById('producto');
+        selectProd.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+        productosData.forEach(p => {
+          selectProd.innerHTML += `<option value="${p.id}">${p.nombre} - $${p.precio.toLocaleString()}</option>`;
+        });
+
+        const selectResp = document.getElementById('responsable');
+        selectResp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
+        (data.vendedores || []).forEach(v => {
+          selectResp.innerHTML += `<option value="${v}">${v}</option>`;
+        });
+      } catch (e) {
+        console.error('Error cargando datos:', e);
+      }
+    }
+
+    document.getElementById('producto').addEventListener('change', function() {
+      const prod = productosData.find(p => p.id == this.value);
+      const stockDiv = document.getElementById('stockInfo');
+      if (prod) {
+        stockDiv.textContent = `Stock disponible: ${prod.stock}`;
+      } else {
+        stockDiv.textContent = '';
+      }
+    });
+
+    function agregarAlCarrito() {
+      const prodId = document.getElementById('producto').value;
+      const cant = parseInt(document.getElementById('cantidad').value);
+      if (!prodId || cant <= 0) return;
+
+      const prod = productosData.find(p => p.id == prodId);
+      if (!prod) return;
+
+      const itemExistente = carrito.find(item => item.id == prodId);
+      const cantActual = itemExistente ? itemExistente.cantidad : 0;
+
+      if (cantActual + cant > prod.stock) {
+        alert(`No hay suficiente stock. Disponible: ${prod.stock}`);
+        return;
+      }
+
+      if (itemExistente) {
+        itemExistente.cantidad += cant;
+      } else {
+        carrito.push({
+          id: prod.id,
+          nombre: prod.nombre,
+          precio: prod.precio,
+          cantidad: cant
+        });
+      }
+
+      actualizarCarrito();
+    }
+
+    function eliminarDelCarrito(index) {
+      carrito.splice(index, 1);
+      actualizarCarrito();
+    }
+
+    function actualizarCarrito() {
+      const lista = document.getElementById('listaCarrito');
+      const totalSpan = document.getElementById('totalVenta');
+      const btnConfirmar = document.getElementById('btnConfirmar');
+
+      if (carrito.length === 0) {
+        lista.innerHTML = '<div class="vacio">No hay productos agregados.</div>';
+        totalSpan.textContent = '$0';
+        btnConfirmar.disabled = true;
+        return;
+      }
+
+      let html = '';
+      let total = 0;
+
+      carrito.forEach((item, index) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        html += `
+          <div class="item">
+            <div>
+              <div class="item-nombre">${item.nombre}</div>
+              <div class="item-detalle">${item.cantidad} x $${item.precio.toLocaleString()} = $${subtotal.toLocaleString()}</div>
+            </div>
+            <button class="btnEliminar" onclick="eliminarDelCarrito(${index})">X</button>
+          </div>
+        `;
+      });
+
+      lista.innerHTML = html;
+      totalSpan.textContent = `$${total.toLocaleString()}`;
+      btnConfirmar.disabled = false;
+    }
+
+    async function confirmarVenta() {
+      const responsable = document.getElementById('responsable').value;
+      const medioPago = document.getElementById('medioPago').value;
+      const okDiv = document.getElementById('ok');
+      const errorDiv = document.getElementById('error');
+      const btnConfirmar = document.getElementById('btnConfirmar');
+
+      if (!responsable) {
+        alert('Por favor selecciona quién registra la venta.');
+        return;
+      }
+
+      btnConfirmar.disabled = true;
+      btnConfirmar.textContent = 'Procesando...';
+      okDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'registrarVenta',
+            carrito: carrito,
+            responsable: responsable,
+            medioPago: medioPago
+          })
+        });
+
+        const result = await res.json();
+        if (result.status === 'success') {
+          okDiv.textContent = '¡Venta registrada con éxito!';
+          okDiv.style.display = 'block';
+          carrito = [];
+          actualizarCarrito();
+          cargarDatos();
+        } else {
+          throw new Error(result.message || 'Error al procesar la venta');
+        }
+      } catch (e) {
+        errorDiv.textContent = 'Ocurrió un error: ' + e.message;
+        errorDiv.style.display = 'block';
+      } finally {
+        btnConfirmar.textContent = 'Confirmar venta';
+      }
+    }
+
+    window.onload = cargarDatos;
   </script>
 </body>
 </html>
