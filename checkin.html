@@ -30,11 +30,18 @@
 
   #reader { 
     width: 100%; 
-    margin-top: 14px; 
+    max-width: 280px; /* Limita el ancho del visor */
+    max-height: 200px; /* Limita la altura */
+    margin: 12px auto 0; /* Centra el visor */
     border-radius: 8px; 
     overflow: hidden; 
     border: 1px solid #e8e8e8;
     background: #fff;
+  }
+  
+  /* Opcional: ajusta el video interno de la librería para que no desborde */
+  #reader video {
+    object-fit: cover !important;
   }
 
   .buscador { display: flex; gap: 8px; margin-top: 10px; }
@@ -332,7 +339,7 @@
     scanner = new Html5Qrcode('reader');
     scanner.start(
       { facingMode: 'environment' },
-      { fps: 10, qrbox: 220 },
+      { fps: 10, qrbox: { width: 160, height: 160 } }, // Reducido de 220 a 160 px
       idDecodificado => {
         if (!escaneando) return;
         escaneando = false;
