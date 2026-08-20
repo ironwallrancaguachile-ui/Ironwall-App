@@ -97,7 +97,12 @@
 
     async function cargarDatos() {
       try {
-        const res = await fetch(SCRIPT_URL + '?action=getInitialData');
+        // Se añade { redirect: 'follow' } para manejar la redirección de Google Apps Script
+        const res = await fetch(SCRIPT_URL + '?action=getInitialData', {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        
         const data = await res.json();
         
         productosData = data.productos || [];
@@ -106,7 +111,7 @@
         productosData.forEach(p => {
           selectProd.innerHTML += `<option value="${p.id}">${p.nombre} - $${p.precio.toLocaleString()}</option>`;
         });
-
+    
         const selectResp = document.getElementById('responsable');
         selectResp.innerHTML = '<option value="">-- Selecciona tu nombre --</option>';
         (data.vendedores || []).forEach(v => {
