@@ -162,17 +162,21 @@
         }
     }
 
-    function pintarProductos(){
-        const select = document.getElementById("producto");
-        select.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+function pintarProductos() {
+    const select = document.getElementById("producto");
+    select.innerHTML = '<option value="">-- Selecciona un producto --</option>';
 
-        productos.forEach(function(p){
-            const option = document.createElement("option");
-            option.value = p.codigo;
-            option.textContent = p.nombre + " — $" + formatearNumero(p.precioVenta) + " — stock: " + p.stockActual;
-            select.appendChild(option);
-        });
-    }
+    productos.forEach(function(p) {
+        const option = document.createElement("option");
+        option.value = p.codigo;
+        
+        // Incluye el proveedor/marca si existe
+        const marca = p.proveedor ? ` [${p.proveedor}]` : '';
+        option.textContent = `${p.nombre}${marca} — $${formatearNumero(p.precioVenta)} — stock: ${p.stockActual}`;
+        
+        select.appendChild(option);
+    });
+}
 
     /******************************************************
      * MOSTRAR STOCK
