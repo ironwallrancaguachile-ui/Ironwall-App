@@ -339,7 +339,7 @@
     scanner = new Html5Qrcode('reader');
     scanner.start(
       { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 160, height: 160 } }, // Reducido de 220 a 160 px
+      { fps: 10, qrbox: { width: 120, height: 120 } }, // Reducido de 220 a 160 px
       idDecodificado => {
         if (!escaneando) return;
         escaneando = false;
