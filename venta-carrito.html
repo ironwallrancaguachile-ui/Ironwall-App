@@ -2,453 +2,1415 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nueva venta - Ironwall</title>
 
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 24px 16px 60px; background: #f7f7f7; color: #222; }
-    h1 { font-size: 24px; margin: 0 0 4px; }
-    .sub { color: #666; font-size: 14px; margin: 0 0 20px; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-    select, input { width: 100%; padding: 10px; font-size: 15px; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
-    button { width: 100%; padding: 12px; border: 0; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+<meta charset="UTF-8">
 
-    /* Disposición obligatoria de 2 tarjetas por fila en cualquier dispositivo */
-    .grid-2col { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
-    .card { background: #fff; padding: 16px; border-radius: 10px; border: 1px solid #ddd; display: flex; flex-direction: column; justify-content: space-between; }
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
 
-    .btnAgregar { margin-top: 12px; background: #1565C0; color: white; }
-    .btnConfirmar { margin-top: 12px; background: #1e824c; color: white; font-size: 16px; }
-    .btnConfirmar:disabled { background: #aaa; cursor: not-allowed; }
+<title>Nueva venta - Ironwall</title>
 
-    .item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #eee; }
-    .item:last-child { border-bottom: 0; }
-    .item-info { flex: 1; }
-    .item-nombre { font-weight: 600; font-size: 14px; }
-    .item-detalle { color: #666; font-size: 12px; margin-top: 2px; }
-    .item-total { font-weight: 600; white-space: nowrap; font-size: 13px; }
-    .btnEliminar { width: auto; padding: 4px 8px; background: #fdecea; color: #c0392b; font-size: 12px; }
+<style>
 
-    .total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 2px solid #222; font-size: 18px; font-weight: 700; }
-    .vacio { color: #777; text-align: center; padding: 15px 0; font-size: 14px; }
-    .stock { margin-top: 6px; color: #666; font-size: 13px; }
+*{
+    box-sizing:border-box;
+}
 
-    .ok, .error { display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 14px; }
-    .ok { background: #e8f6ee; color: #1e824c; }
-    .error { background: #fdecea; color: #c0392b; }
+body{
+    
+    font-family:-apple-system,BlinkMacSystemFont,
+    "Segoe UI",Arial,sans-serif;
 
-    .btnHome { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; color: #222; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 15px; font-weight: 600; box-shadow: 0 3px 12px rgba(0,0,0,.12); transition: .2s; margin-bottom: 15px; }
-    .btnHome:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.15); }
-  </style>
+    max-width:520px;
+
+    margin:0 auto;
+
+    padding:24px 16px 60px;
+
+    background:#f7f7f7;
+
+    color:#222;
+}
+
+h1{
+
+    font-size:24px;
+
+    margin:0 0 4px;
+}
+
+.sub{
+
+    color:#666;
+
+    font-size:14px;
+
+    margin:0 0 24px;
+}
+
+label{
+
+    display:block;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    margin:14px 0 5px;
+}
+
+select,
+input{
+
+    width:100%;
+
+    padding:12px;
+
+    font-size:16px;
+
+    border:1px solid #ccc;
+
+    border-radius:8px;
+
+    background:white;
+}
+
+button{
+
+    width:100%;
+
+    padding:13px;
+
+    border:0;
+
+    border-radius:8px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.btnAgregar{
+
+    margin-top:12px;
+
+    background:#1565C0;
+
+    color:white;
+}
+
+.btnConfirmar{
+
+    margin-top:18px;
+
+    background:#1e824c;
+
+    color:white;
+
+    font-size:17px;
+}
+
+.btnConfirmar:disabled{
+
+    background:#aaa;
+
+    cursor:not-allowed;
+}
+
+.carrito{
+
+    margin-top:28px;
+
+    background:white;
+
+    border-radius:10px;
+
+    padding:16px;
+
+    border:1px solid #ddd;
+}
+
+.carrito h2{
+
+    font-size:18px;
+
+    margin:0 0 12px;
+}
+
+.item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:12px 0;
+
+    border-bottom:1px solid #eee;
+}
+
+.item:last-child{
+
+    border-bottom:0;
+}
+
+.item-info{
+
+    flex:1;
+}
+
+.item-nombre{
+
+    font-weight:600;
+
+    font-size:15px;
+}
+
+.item-detalle{
+
+    color:#666;
+
+    font-size:13px;
+
+    margin-top:3px;
+}
+
+.item-total{
+
+    font-weight:600;
+
+    white-space:nowrap;
+}
+
+.btnEliminar{
+
+    width:auto;
+
+    padding:6px 9px;
+
+    background:#fdecea;
+
+    color:#c0392b;
+
+    font-size:13px;
+}
+
+.total{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:16px;
+
+    padding-top:14px;
+
+    border-top:2px solid #222;
+
+    font-size:20px;
+
+    font-weight:700;
+}
+
+.vacio{
+
+    color:#777;
+
+    text-align:center;
+
+    padding:15px 0;
+}
+
+.stock{
+
+    margin-top:6px;
+
+    color:#666;
+
+    font-size:13px;
+}
+
+.ok{
+
+    display:none;
+
+    margin-top:15px;
+
+    padding:12px;
+
+    background:#e8f6ee;
+
+    color:#1e824c;
+
+    border-radius:8px;
+
+    font-size:14px;
+}
+
+.error{
+
+    display:none;
+
+    margin-top:15px;
+
+    padding:12px;
+
+    background:#fdecea;
+
+    color:#c0392b;
+
+    border-radius:8px;
+
+    font-size:14px;
+}
+   .btnHome{
+   display:inline-flex;
+   align-items:center;
+   gap:8px;
+   background:#ffffff;
+   color:#222;
+   text-decoration:none;
+   padding:10px 18px;
+   border-radius:12px;
+   font-size:15px;
+   font-weight:600;
+   box-shadow:0 3px 12px rgba(0,0,0,.12);
+   transition:.2s;
+   }
+   .btnHome:hover{
+   transform:translateY(-2px);
+   box-shadow:0 8px 18px rgba(0,0,0,.15);
+   }
+</style>
+
 </head>
+
 
 <body>
 
-  <a href="portal.html" class="btnHome">🏠 Home</a>
-  <h1>🛒 Nueva venta</h1>
-  <p class="sub">Agrega todos los productos y confirma una sola vez.</p>
+  <a href="portal.html" class="btnHome">
+  🏠 Home
+  </a>
 
-  <div class="grid-2col">
-    <!-- Tarjeta 1: Producto y Cantidad -->
-    <div class="card">
-      <div>
-        <label style="margin-top:0;">Producto</label>
-        <select id="producto">
-          <option value="">-- Selecciona un producto --</option>
-        </select>
-        <div id="stockInfo" class="stock"></div>
+<h1>🛒 Nueva venta</h1>
 
-        <label>Cantidad</label>
-        <input id="cantidad" type="number" min="1" step="1" value="1">
-      </div>
-      <button class="btnAgregar" onclick="agregarAlCarrito()">+ Agregar al carrito</button>
-    </div>
+<p class="sub">
+    Agrega todos los productos y confirma una sola vez.
+</p>
 
-    <!-- Tarjeta 2: Carrito -->
-    <div class="card">
-      <div>
-        <h2 style="font-size:16px; margin-bottom:8px;">Carrito</h2>
-        <div id="listaCarrito">
-          <div class="vacio">No hay productos agregados.</div>
+
+<label>
+    Producto
+</label>
+
+<select id="producto">
+
+    <option value="">
+        -- Selecciona un producto --
+    </option>
+
+</select>
+
+
+<div
+    id="stockInfo"
+    class="stock"
+>
+</div>
+
+
+<label>
+    Cantidad
+</label>
+
+<input
+    id="cantidad"
+    type="number"
+    min="1"
+    step="1"
+    value="1"
+>
+
+
+<button
+    class="btnAgregar"
+    onclick="agregarAlCarrito()"
+>
+    + Agregar al carrito
+</button>
+
+
+<div class="carrito">
+
+    <h2>
+        Carrito
+    </h2>
+
+    <div id="listaCarrito">
+
+        <div class="vacio">
+            No hay productos agregados.
         </div>
-      </div>
-      <div class="total">
-        <span>TOTAL</span>
-        <span id="totalVenta">$0</span>
-      </div>
-    </div>
-  </div>
 
-  <div class="grid-2col">
-    <!-- Tarjeta 3: Medio de Pago -->
-    <div class="card">
-      <label style="margin-top:0;">Medio de pago</label>
-      <select id="medioPago">
-        <option value="Efectivo">Efectivo</option>
-        <option value="Transferencia">Transferencia</option>
-        <option value="Mercado Pago">Mercado Pago</option>
-      </select>
     </div>
 
-    <!-- Tarjeta 4: Registro y Confirmación -->
-    <div class="card">
-      <label style="margin-top:0;">Registrado por</label>
-      <select id="responsable">
-        <option value="">-- Selecciona tu nombre --</option>
-      </select>
-      <button class="btnConfirmar" id="btnConfirmar" onclick="confirmarVenta()" disabled>Confirmar venta</button>
+
+    <div class="total">
+
+        <span>
+            TOTAL
+        </span>
+
+        <span id="totalVenta">
+            $0
+        </span>
+
     </div>
-  </div>
 
-  <div id="ok" class="ok"></div>
-  <div id="error" class="error"></div>
+</div>
 
-  <script>
-    /******************************************************
-     * CONFIGURACIÓN DE APIS (RESPALDO ORIGINAL)
-     ******************************************************/
-    const API_URL_INVENTARIO =
-        'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
 
-    const API_URL_CLIENTES =
-        'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+<label>
+    Medio de pago
+</label>
 
-    const API_URL_FINANZAS =
-        'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
+<select id="medioPago">
 
-    /******************************************************
-     * VARIABLES
-     ******************************************************/
-    let productos = [];
-    let carrito = [];
+    <option value="Efectivo">
+        Efectivo
+    </option>
 
-    /******************************************************
-     * INICIO
-     ******************************************************/
-    window.onload = function(){
-        cargarProductos();
-        cargarStaff();
-    };
+    <option value="Transferencia">
+        Transferencia
+    </option>
 
-    /******************************************************
-     * API
-     ******************************************************/
-    async function llamarApi(action, payload={}){
-        const respuesta = await fetch(API_URL_INVENTARIO, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action: action, payload: payload })
-        });
-        const texto = await respuesta.text();
-        return JSON.parse(texto);
+    <option value="Mercado Pago">
+        Mercado Pago
+    </option>
+
+</select>
+
+
+<label>
+    Registrado por
+</label>
+
+<select id="responsable">
+
+    <option value="">
+        -- Selecciona tu nombre --
+    </option>
+
+</select>
+
+
+<button
+    class="btnConfirmar"
+    id="btnConfirmar"
+    onclick="confirmarVenta()"
+    disabled
+>
+    Confirmar venta
+</button>
+
+
+<div
+    id="ok"
+    class="ok"
+>
+</div>
+
+
+<div
+    id="error"
+    class="error"
+>
+</div>
+
+
+<script>
+
+
+/******************************************************
+ * CONFIGURACIÓN
+ ******************************************************/
+
+const API_URL_INVENTARIO =
+    'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
+
+const API_URL_CLIENTES =
+    'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+const API_URL_FINANZAS =
+'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
+    
+/******************************************************
+ * VARIABLES
+ ******************************************************/
+
+let productos = [];
+
+let carrito = [];
+
+
+/******************************************************
+ * INICIO
+ ******************************************************/
+
+window.onload = function(){
+
+    cargarProductos();
+
+    cargarStaff();
+
+};
+
+
+/******************************************************
+ * API
+ ******************************************************/
+
+async function llamarApi(action,payload={}){
+
+    const respuesta = await fetch(
+        API_URL_INVENTARIO,
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                    "text/plain;charset=utf-8"
+            },
+
+            body:JSON.stringify({
+
+                action:action,
+
+                payload:payload
+
+            })
+
+        }
+    );
+
+
+    const texto =
+        await respuesta.text();
+
+
+    return JSON.parse(texto);
+
+}
+
+
+/******************************************************
+ * PRODUCTOS
+ ******************************************************/
+
+async function cargarProductos(){
+
+    try{
+
+        const res =
+            await llamarApi(
+                "listarProductosActivos"
+            );
+
+
+        if(!res.ok){
+
+            mostrarError(
+                res.error
+            );
+
+            return;
+
+        }
+
+
+        productos =
+            res.data || [];
+
+
+        pintarProductos();
+
+
+    }catch(err){
+
+        mostrarError(
+            "No se pudieron cargar los productos."
+        );
+
     }
 
-    /******************************************************
-     * PRODUCTOS
-     ******************************************************/
-    async function cargarProductos(){
-        try {
-            const res = await llamarApi("listarProductosActivos");
-            if(!res.ok){
-                mostrarError(res.error);
-                return;
+}
+
+
+function pintarProductos(){
+
+    const select =
+        document.getElementById(
+            "producto"
+        );
+
+
+    select.innerHTML =
+        '<option value="">-- Selecciona un producto --</option>';
+
+
+    productos.forEach(function(p){
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            p.codigo;
+
+
+        option.textContent =
+            p.nombre +
+            " — $" +
+            formatearNumero(p.precioVenta) +
+            " — stock: " +
+            p.stockActual;
+
+
+        select.appendChild(
+            option
+        );
+
+    });
+
+}
+
+
+/******************************************************
+ * MOSTRAR STOCK
+ ******************************************************/
+
+document
+.getElementById("producto")
+.addEventListener(
+    "change",
+    mostrarStock
+);
+
+
+function mostrarStock(){
+
+    const codigo =
+        document.getElementById(
+            "producto"
+        ).value;
+
+
+    const producto =
+        productos.find(
+            function(p){
+
+                return p.codigo === codigo;
+
             }
-            productos = res.data || [];
-            pintarProductos();
-        } catch(err){
-            mostrarError("No se pudieron cargar los productos.");
-        }
+        );
+
+
+    const info =
+        document.getElementById(
+            "stockInfo"
+        );
+
+
+    if(!producto){
+
+        info.textContent = "";
+
+        return;
+
     }
 
-    function pintarProductos(){
-        const select = document.getElementById("producto");
-        select.innerHTML = '<option value="">-- Selecciona un producto --</option>';
 
-        productos.forEach(function(p){
-            const option = document.createElement("option");
-            option.value = p.codigo;
-            option.textContent = p.nombre + " — $" + formatearNumero(p.precioVenta) + " — stock: " + p.stockActual;
-            select.appendChild(option);
+    info.textContent =
+        "Stock disponible: " +
+        producto.stockActual;
+
+}
+
+
+/******************************************************
+ * AGREGAR AL CARRITO
+ ******************************************************/
+
+function agregarAlCarrito(){
+
+    ocultarMensajes();
+
+
+    const codigo =
+        document.getElementById(
+            "producto"
+        ).value;
+
+
+    const cantidad =
+        Number(
+            document.getElementById(
+                "cantidad"
+            ).value
+        );
+
+
+    if(!codigo){
+
+        mostrarError(
+            "Selecciona un producto."
+        );
+
+        return;
+
+    }
+
+
+    if(!cantidad ||
+       cantidad <= 0 ||
+       !Number.isInteger(cantidad)){
+
+        mostrarError(
+            "La cantidad debe ser un número entero mayor a 0."
+        );
+
+        return;
+
+    }
+
+
+    const producto =
+        productos.find(
+            function(p){
+
+                return p.codigo === codigo;
+
+            }
+        );
+
+
+    if(!producto){
+
+        mostrarError(
+            "Producto no encontrado."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Si el producto ya está en el carrito,
+     * acumulamos la cantidad.
+     */
+
+    const existente =
+        carrito.find(
+            function(item){
+
+                return item.codigo === codigo;
+
+            }
+        );
+
+
+    const cantidadActual =
+        existente
+        ? existente.cantidad
+        : 0;
+
+
+    if(
+        cantidadActual + cantidad >
+        Number(producto.stockActual)
+    ){
+
+        mostrarError(
+            "No hay stock suficiente de " +
+            producto.nombre +
+            ". Disponible: " +
+            producto.stockActual
+        );
+
+        return;
+
+    }
+
+
+    if(existente){
+
+        existente.cantidad += cantidad;
+
+    }else{
+
+        carrito.push({
+
+            codigo:
+                producto.codigo,
+
+            nombre:
+                producto.nombre,
+
+            cantidad:
+                cantidad,
+
+            precioVenta:
+                Number(
+                    producto.precioVenta
+                ) || 0,
+
+            categoriaFinanzas:
+                producto.categoriaFinanzas || ''
+
         });
+
     }
 
-    /******************************************************
-     * MOSTRAR STOCK
-     ******************************************************/
-    document.getElementById("producto").addEventListener("change", mostrarStock);
 
-    function mostrarStock(){
-        const codigo = document.getElementById("producto").value;
-        const producto = productos.find(function(p){ return p.codigo === codigo; });
-        const info = document.getElementById("stockInfo");
+    renderCarrito();
 
-        if(!producto){
-            info.textContent = "";
-            return;
-        }
-        info.textContent = "Stock disponible: " + producto.stockActual;
+
+    document.getElementById(
+        "cantidad"
+    ).value = 1;
+
+
+    document.getElementById(
+        "producto"
+    ).value = "";
+
+
+    document.getElementById(
+        "stockInfo"
+    ).textContent = "";
+
+}
+
+
+/******************************************************
+ * MOSTRAR CARRITO
+ ******************************************************/
+
+function renderCarrito(){
+
+    const contenedor =
+        document.getElementById(
+            "listaCarrito"
+        );
+
+
+    if(carrito.length === 0){
+
+        contenedor.innerHTML =
+            '<div class="vacio">No hay productos agregados.</div>';
+
+        document.getElementById(
+            "totalVenta"
+        ).textContent = "$0";
+
+        document.getElementById(
+            "btnConfirmar"
+        ).disabled = true;
+
+        return;
+
     }
 
-    /******************************************************
-     * AGREGAR AL CARRITO
-     ******************************************************/
-    function agregarAlCarrito(){
-        ocultarMensajes();
-        const codigo = document.getElementById("producto").value;
-        const cantidad = Number(document.getElementById("cantidad").value);
 
-        if(!codigo){
-            mostrarError("Selecciona un producto.");
-            return;
-        }
+    contenedor.innerHTML = "";
 
-        if(!cantidad || cantidad <= 0 || !Number.isInteger(cantidad)){
-            mostrarError("La cantidad debe ser un número entero mayor a 0.");
-            return;
-        }
 
-        const producto = productos.find(function(p){ return p.codigo === codigo; });
-        if(!producto){
-            mostrarError("Producto no encontrado.");
-            return;
-        }
+    let total = 0;
 
-        const existente = carrito.find(function(item){ return item.codigo === codigo; });
-        const cantidadActual = existente ? existente.cantidad : 0;
 
-        if(cantidadActual + cantidad > Number(producto.stockActual)){
-            mostrarError("No hay stock suficiente de " + producto.nombre + ". Disponible: " + producto.stockActual);
-            return;
-        }
+    carrito.forEach(
+        function(item,index){
 
-        if(existente){
-            existente.cantidad += cantidad;
-        } else {
-            carrito.push({
-                codigo: producto.codigo,
-                nombre: producto.nombre,
-                cantidad: cantidad,
-                precioVenta: Number(producto.precioVenta) || 0,
-                categoriaFinanzas: producto.categoriaFinanzas || ''
-            });
-        }
+            const subtotal =
+                item.cantidad *
+                item.precioVenta;
 
-        renderCarrito();
-        document.getElementById("cantidad").value = 1;
-        document.getElementById("producto").value = "";
-        document.getElementById("stockInfo").textContent = "";
-    }
 
-    /******************************************************
-     * MOSTRAR CARRITO
-     ******************************************************/
-    function renderCarrito(){
-        const contenedor = document.getElementById("listaCarrito");
-
-        if(carrito.length === 0){
-            contenedor.innerHTML = '<div class="vacio">No hay productos agregados.</div>';
-            document.getElementById("totalVenta").textContent = "$0";
-            document.getElementById("btnConfirmar").disabled = true;
-            return;
-        }
-
-        contenedor.innerHTML = "";
-        let total = 0;
-
-        carrito.forEach(function(item, index){
-            const subtotal = item.cantidad * item.precioVenta;
             total += subtotal;
 
-            const div = document.createElement("div");
-            div.className = "item";
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "item";
+
+
             div.innerHTML = `
+
                 <div class="item-info">
-                    <div class="item-nombre">${escapeHtml(item.nombre)}</div>
-                    <div class="item-detalle">${item.cantidad} × $${formatearNumero(item.precioVenta)}</div>
+
+                    <div class="item-nombre">
+                        ${escapeHtml(item.nombre)}
+                    </div>
+
+                    <div class="item-detalle">
+                        ${item.cantidad}
+                        × $${formatearNumero(item.precioVenta)}
+                    </div>
+
                 </div>
-                <div class="item-total">$${formatearNumero(subtotal)}</div>
-                <button class="btnEliminar" onclick="eliminarDelCarrito(${index})">✕</button>
+
+                <div class="item-total">
+                    $${formatearNumero(subtotal)}
+                </div>
+
+                <button
+                    class="btnEliminar"
+                    onclick="eliminarDelCarrito(${index})"
+                >
+                    ✕
+                </button>
+
             `;
-            contenedor.appendChild(div);
-        });
 
-        document.getElementById("totalVenta").textContent = "$" + formatearNumero(total);
-        document.getElementById("btnConfirmar").disabled = false;
+
+            contenedor.appendChild(
+                div
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "totalVenta"
+    ).textContent =
+        "$" +
+        formatearNumero(total);
+
+
+    document.getElementById(
+        "btnConfirmar"
+    ).disabled = false;
+
+}
+
+
+/******************************************************
+ * ELIMINAR DEL CARRITO
+ ******************************************************/
+
+function eliminarDelCarrito(index){
+
+    carrito.splice(
+        index,
+        1
+    );
+
+    renderCarrito();
+
+}
+
+
+/******************************************************
+ * CONFIRMAR VENTA
+ ******************************************************/
+
+async function confirmarVenta(){
+
+    ocultarMensajes();
+
+
+    if(carrito.length === 0){
+
+        mostrarError(
+            "El carrito está vacío."
+        );
+
+        return;
+
     }
 
-    /******************************************************
-     * ELIMINAR DEL CARRITO
-     ******************************************************/
-    function eliminarDelCarrito(index){
-        carrito.splice(index, 1);
-        renderCarrito();
+
+    const responsable =
+        document.getElementById(
+            "responsable"
+        ).value;
+
+
+    const medioPago =
+        document.getElementById(
+            "medioPago"
+        ).value;
+
+
+    if(!responsable){
+
+        mostrarError(
+            "Selecciona quién registra la venta."
+        );
+
+        return;
+
     }
 
-    /******************************************************
-     * CONFIRMAR VENTA
-     ******************************************************/
-    async function confirmarVenta(){
-        ocultarMensajes();
 
-        if(carrito.length === 0){
-            mostrarError("El carrito está vacío.");
-            return;
-        }
+    const boton =
+        document.getElementById(
+            "btnConfirmar"
+        );
 
-        const responsable = document.getElementById("responsable").value;
-        const medioPago = document.getElementById("medioPago").value;
 
-        if(!responsable){
-            mostrarError("Selecciona quién registra la venta.");
-            return;
-        }
+    boton.disabled = true;
 
-        const boton = document.getElementById("btnConfirmar");
-        boton.disabled = true;
-        boton.textContent = "Registrando venta...";
+    boton.textContent =
+        "Registrando venta...";
 
-        try {
-            const items = carrito.map(function(item){
-                return { codigo: item.codigo, cantidad: item.cantidad };
+
+    try{
+
+
+        /************************************************
+         * 1. PREPARAR ITEMS PARA INVENTARIO
+         ************************************************/
+
+        const items =
+            carrito.map(function(item){
+
+                return {
+
+                    codigo:
+                        item.codigo,
+
+                    cantidad:
+                        item.cantidad
+
+                };
+
             });
 
-            const res = await llamarApi("registrarVentaCarrito", {
-                medioPago: medioPago,
-                responsable: responsable,
-                items: items
-            });
 
-            if(!res.ok){
-                mostrarError(res.error);
-                return;
-            }
+        /************************************************
+         * 2. REGISTRAR TODA LA VENTA EN INVENTARIO
+         ************************************************/
 
-            const totalVenta = carrito.reduce(function(total, item){
-                return total + (Number(item.precioVenta) * Number(item.cantidad));
-            }, 0);
+        const res =
+            await llamarApi(
+                "registrarVentaCarrito",
+                {
 
-            const detalleVenta = carrito.map(function(item){
-                return (item.nombre + " x" + item.cantidad);
-            }).join(" | ");
+                    medioPago:
+                        medioPago,
 
-            const okFinanzas = await registrarMovimientoFinanzasAutomatico_(
+                    responsable:
+                        responsable,
+
+                    items:
+                        items
+
+                }
+            );
+
+
+        if(!res.ok){
+
+            mostrarError(
+                res.error
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "VENTA INVENTARIO REGISTRADA",
+            res.data
+        );
+
+
+        /************************************************
+         * 3. CALCULAR TOTAL DEL CARRITO
+         ************************************************/
+
+        const totalVenta =
+            carrito.reduce(
+                function(total,item){
+
+                    return total +
+                        (
+                            Number(
+                                item.precioVenta
+                            ) *
+                            Number(
+                                item.cantidad
+                            )
+                        );
+
+                },
+                0
+            );
+
+
+        /************************************************
+         * 4. CREAR DETALLE CONSOLIDADO
+         ************************************************/
+
+        const detalleVenta =
+            carrito
+                .map(function(item){
+
+                    return (
+                        item.nombre +
+                        " x" +
+                        item.cantidad
+                    );
+
+                })
+                .join(" | ");
+
+
+        /************************************************
+         * 5. REGISTRAR UNA SOLA VEZ EN FINANZAS
+         ************************************************/
+
+        const okFinanzas =
+            await registrarMovimientoFinanzasAutomatico_(
                 totalVenta,
-                "Venta #" + res.data.ventaId + " | " + detalleVenta,
+                "Venta #" +
+                res.data.ventaId +
+                " | " +
+                detalleVenta,
                 medioPago,
                 responsable
             );
 
-            let mensajeFinal = "Venta registrada correctamente. ID: " + res.data.ventaId + " — Total: $" + formatearNumero(totalVenta);
-            if(okFinanzas){
-                mensajeFinal += " — Finanzas registrado correctamente.";
-            } else {
-                mensajeFinal += " — ⚠️ No se pudo registrar Finanzas.";
+
+        /************************************************
+         * 6. MENSAJE FINAL
+         ************************************************/
+
+        let mensajeFinal =
+            "Venta registrada correctamente. " +
+            "ID: " +
+            res.data.ventaId +
+            " — Total: $" +
+            formatearNumero(totalVenta);
+
+
+        if(okFinanzas){
+
+            mensajeFinal +=
+                " — Finanzas registrado correctamente.";
+
+        }
+        else{
+
+            mensajeFinal +=
+                " — ⚠️ No se pudo registrar Finanzas.";
+
+        }
+
+
+        mostrarOk(
+            mensajeFinal
+        );
+
+
+        /************************************************
+         * 7. LIMPIAR CARRITO
+         ************************************************/
+
+        carrito = [];
+        document.getElementById("responsable").value = "";
+        renderCarrito();
+
+
+        /************************************************
+         * 8. ACTUALIZAR PRODUCTOS / STOCK
+         ************************************************/
+
+        await cargarProductos();
+
+
+    }
+    catch(err){
+
+        console.error(err);
+
+        mostrarError(
+            "No se pudo completar la venta: " +
+            err.message
+        );
+
+    }
+    finally{
+
+        boton.textContent = "Confirmar venta";
+        boton.classList.remove("exito");
+        boton.classList.add("btnConfirmar");
+    }
+
+}
+
+
+/******************************************************
+ * STAFF
+ ******************************************************/
+
+async function cargarStaff(){
+
+    try{
+
+        const respuesta =
+            await fetch(
+                API_URL_CLIENTES,
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body:JSON.stringify({
+
+                        action:
+                            "listarStaff",
+
+                        payload:{}
+
+                    })
+
+                }
+            );
+
+
+        const texto =
+            await respuesta.text();
+
+
+        const res =
+            JSON.parse(texto);
+
+
+        if(!res.ok || !res.data)
+            return;
+
+
+        const select =
+            document.getElementById(
+                "responsable"
+            );
+
+
+        res.data.forEach(
+            function(nombre){
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    nombre;
+
+
+                option.textContent =
+                    nombre;
+
+
+                select.appendChild(
+                    option
+                );
+
             }
+        );
 
-            mostrarOk(mensajeFinal);
 
-            carrito = [];
-            document.getElementById("responsable").value = "";
-            renderCarrito();
-            await cargarProductos();
+    }catch(err){
 
-        } catch(err){
-            console.error(err);
-            mostrarError("No se pudo completar la venta: " + err.message);
-        } finally {
-            boton.textContent = "Confirmar venta";
-            boton.classList.remove("exito");
-            boton.classList.add("btnConfirmar");
-        }
+        console.log(
+            "No se pudo cargar staff",
+            err
+        );
+
     }
 
-    /******************************************************
-     * STAFF
-     ******************************************************/
-    async function cargarStaff(){
-        try {
-            const respuesta = await fetch(API_URL_CLIENTES, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "listarStaff", payload: {} })
-            });
+}
 
-            const texto = await respuesta.text();
-            const res = JSON.parse(texto);
+/******************************************************
+Cargar en finanzas
+*******************************************************/
+function registrarMovimientoFinanzasAutomatico_(
+    montoTotal,
+    detalleVenta,
+    medioPago,
+    responsable
+){
 
-            if(!res.ok || !res.data) return;
+    const datosMovimiento = {
 
-            const select = document.getElementById("responsable");
-            res.data.forEach(function(nombre){
-                const option = document.createElement("option");
-                option.value = nombre;
-                option.textContent = nombre;
-                select.appendChild(option);
-            });
-        } catch(err){
-            console.log("No se pudo cargar staff", err);
-        }
-    }
+        tipo: 'Ingreso',
 
-    /******************************************************
-     * FINANZAS
-     ******************************************************/
-    function registrarMovimientoFinanzasAutomatico_(montoTotal, detalleVenta, medioPago, responsable){
-        const datosMovimiento = {
-            tipo: 'Ingreso',
-            categoria: 'Tienda',
-            medioPago: medioPago,
-            monto: montoTotal,
-            descripcion: detalleVenta,
-            comprobante: '',
-            responsable: responsable
-        };
+        categoria: 'Tienda',
 
-        return fetch(API_URL_FINANZAS, {
+        medioPago: medioPago,
+
+        monto: montoTotal,
+
+        descripcion: detalleVenta,
+
+        comprobante: '',
+
+        responsable: responsable
+
+    };
+
+
+    return fetch(
+        API_URL_FINANZAS,
+        {
+
             method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
-        })
-        .then(function(r){ return r.text(); })
-        .then(function(texto){
-            const resp = JSON.parse(texto);
-            return !!resp.ok;
-        })
-        .catch(function(){ return false; });
-    }
 
-    /******************************************************
-     * UTILIDADES
-     ******************************************************/
-    function formatearNumero(numero){
-        return Number(numero || 0).toLocaleString("es-CL");
-    }
+            headers: {
+                'Content-Type':
+                    'text/plain;charset=utf-8'
+            },
 
-    function escapeHtml(text){
-        const div = document.createElement("div");
-        div.textContent = text;
-        return div.innerHTML;
-    }
+            body: JSON.stringify({
 
-    function mostrarError(mensaje){
-        const div = document.getElementById("error");
-        div.textContent = mensaje;
-        div.style.display = "block";
-    }
+                action:
+                    'registrarMovimiento',
 
-    function mostrarOk(mensaje){
-        const div = document.getElementById("ok");
-        div.textContent = mensaje;
-        div.style.display = "block";
-    }
+                payload:
+                    datosMovimiento
 
-    function ocultarMensajes(){
-        document.getElementById("error").style.display = "none";
-        document.getElementById("ok").style.display = "none";
-    }
-  </script>
+            })
+
+        }
+    )
+    .then(function(r){
+
+        return r.text();
+
+    })
+    .then(function(texto){
+
+        const resp =
+            JSON.parse(texto);
+
+        return !!resp.ok;
+
+    })
+    .catch(function(){
+
+        return false;
+
+    });
+
+}
+    
+/******************************************************
+ * UTILIDADES
+ ******************************************************/
+
+function formatearNumero(numero){
+
+    return Number(numero || 0)
+        .toLocaleString(
+            "es-CL"
+        );
+
+}
+
+
+function escapeHtml(text){
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
+
+}
+
+
+function mostrarError(mensaje){
+
+    const div =
+        document.getElementById(
+            "error"
+        );
+
+
+    div.textContent =
+        mensaje;
+
+
+    div.style.display =
+        "block";
+
+}
+
+
+function mostrarOk(mensaje){
+
+    const div =
+        document.getElementById(
+            "ok"
+        );
+
+
+    div.textContent =
+        mensaje;
+
+
+    div.style.display =
+        "block";
+
+}
+
+
+function ocultarMensajes(){
+
+    document.getElementById(
+        "error"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "ok"
+    ).style.display =
+        "none";
+
+}
+
+</script>
+
 </body>
 
 </html>
