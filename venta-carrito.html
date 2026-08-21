@@ -63,6 +63,16 @@
         <label>Cantidad</label>
         <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: center;">
       </div>
+        <div class="card" style="justify-content: flex-start; gap: 6px;">
+        <label style="margin: 0;">Medio de pago</label>
+        <select id="medioPago" style="margin: 0; text-align: left;">
+          <option value="Mercado Pago">Mercado Pago</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Efectivo">Efectivo</option>
+          <option value="Debito">Debito</option>
+          <option value="Credito">Credito</option>     
+        </select>
+        </div>
       <button class="btnAgregar" onclick="agregarAlCarrito()">+ Agregar al carrito</button>
     </div>
 
@@ -84,18 +94,16 @@
   <div class="grid-2col">
    
     <!-- Tarjeta 3: Medio de Pago -->
-    <div class="card" style="justify-content: flex-start; gap: 6px;">
+   <!--<div class="card" style="justify-content: flex-start; gap: 6px;">
       <label style="margin: 0;">Medio de pago</label>
       <select id="medioPago" style="margin: 0; text-align: left;">
         <option value="Mercado Pago">Mercado Pago</option>
         <option value="Transferencia">Transferencia</option>
         <option value="Efectivo">Efectivo</option>
         <option value="Debito">Debito</option>
-        <option value="Credito">Credito</option>
-        
-        
+        <option value="Credito">Credito</option>     
       </select>
-    </div>
+    </div>--> 
 
     <!-- Tarjeta 4: Registro y Confirmación -->
     <div class="card">
