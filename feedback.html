@@ -74,17 +74,30 @@
       font-size: 14px;
     }
 
-    /* AJUSTE PARA TEXTO MULTILÍNEA EN SELECT E INPUTS */
+    /* ESTILOS DE SELECT, TEXTAREA E INPUT */
     select, textarea, input {
       width: 100%;
-      padding: 12px;
+      padding: 10px 12px;
       border: 1px solid #ccc;
       border-radius: 10px;
       font-size: 14px;
-      white-space: normal; /* Permite saltos de línea */
+      line-height: 1.3;
+      white-space: normal;
       word-wrap: break-word;
       background-color: #fff;
-      min-height: 47px;
+      min-height: 48px;
+    }
+
+    /* ESTILO ESPECÍFICO PARA SELECT (Evita recortes nativos en móviles) */
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 18px;
+      padding-right: 28px; /* Espacio para la flecha */
     }
 
     textarea {
@@ -95,7 +108,7 @@
     /* BOTÓN ADAPTATIVO */
     button {
       width: 100%;
-      padding: 12px 8px;
+      padding: 10px 8px;
       background: #1565C0;
       color: white;
       border: none;
@@ -103,7 +116,7 @@
       font-size: 15px;
       font-weight: bold;
       cursor: pointer;
-      min-height: 47px;
+      min-height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -121,18 +134,25 @@
     .ok { color: #1e824c; }
     .error { color: #c0392b; }
 
-    /* OPTIMIZACIÓN ESPECÍFICA PARA SMARTHPHONE */
+    /* OPTIMIZACIÓN MÓVIL (PANTALLAS < 500px) */
     @media (max-width: 500px) {
       .card {
         padding: 16px;
         gap: 12px;
       }
-      select, input, button {
-        font-size: 13px; /* Tamaño optimizado para 2 columnas en pantallas pequeñas */
-        padding: 10px 8px;
+      select, input {
+        font-size: 12.5px; /* Ajuste para que los nombres largos quepan holgadamente */
+        padding: 8px 6px;
+        min-height: 52px; /* Otorga suficiente alto vertical para 2 líneas completas */
+      }
+      select {
+        padding-right: 22px;
+        background-position: right 4px center;
       }
       button {
-        font-size: 14px;
+        font-size: 13.5px;
+        padding: 8px 4px;
+        min-height: 52px;
       }
     }
   </style>
