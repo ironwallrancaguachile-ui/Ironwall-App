@@ -183,7 +183,7 @@
       </div>
       <div class="form-group">
         <label>Info médica relevante</label>
-        <input type="text" id="infomedica" placeholder="opcional" oninput="soloLetras(this)">
+        <input type="text" id="informacionMedica" placeholder="opcional (ej: Asma" oninput="soloLetras(this)">
       </div>
       <!-- SECCIÓN REGLAMENTO (ANCHO COMPLETO) -->
       <div class="form-group full-width">
@@ -386,6 +386,7 @@
         email: email,
         comuna: document.getElementById('comuna').value.trim(),
         telefonoEmergencia: telefonoEmergencia,
+        informacionMedica: document.getElementById('informacionMedica').value.trim(),
         fechaNacimiento: document.getElementById('fechaNacimiento').value,
         aceptaReglamento: document.getElementById('aceptaReglamento').checked,
         aceptaDatos: document.getElementById('aceptaDatos').checked
