@@ -50,12 +50,12 @@
   <h1>🛒 Nueva venta</h1>
   <p class="sub">Agrega todos los productos y confirma una sola vez.</p>
 
-  <!-- PRIMERA FILA: Selección + Carrito -->
+<!-- FILA 1: Selección de producto + Carrito -->
   <div class="grid-2col">
-    <!-- Tarjeta 1: Opciones de Compra -->
-    <div class="card" style="justify-content: flex-start; gap: 12px;">
-      <h2 style="font-size: 16px; margin-bottom: 4px;">Detalle de la venta</h2>
-      
+    <!-- Tarjeta 1 (Paso 1): Agregar Productos -->
+    <div class="card" style="justify-content: flex-start; gap: 10px;">
+      <h2 style="font-size: 15px; color: #1565C0;">1. Selección</h2>
+
       <div>
         <label style="margin-top:0;">Producto</label>
         <select id="producto">
@@ -68,14 +68,14 @@
         <label>Cantidad</label>
         <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: center;">
       </div>
-      <button class="btnAgregar" onclick="agregarAlCarrito()">+ Agregar al carrito</button>
 
+      <button class="btnAgregar" onclick="agregarAlCarrito()">+ Agregar al carrito</button>
     </div>
 
-    <!-- Tarjeta 2: Resumen Carrito -->
+    <!-- Tarjeta 2: Carrito y Resumen -->
     <div class="card">
       <div>
-        <h2 style="font-size:16px; margin-bottom:8px;">Carrito</h2>
+        <h2 style="font-size: 15px; margin-bottom: 8px;">Carrito</h2>
         <div id="listaCarrito">
           <div class="vacio">No hay productos agregados.</div>
         </div>
@@ -87,20 +87,24 @@
     </div>
   </div>
 
-  <!-- SEGUNDA FILA: Confirmación -->
+  <!-- FILA 2: Pago y Cierre de Venta (2 Columnas paralelas) -->
   <div class="grid-2col">
-    <!-- Tarjeta 3: Registro y Confirmación -->
-    <div class="card" style="grid-column: span 2;">
-        <div>
-        <label>Medio de pago</label>
-        <select id="medioPago" style="text-align: center;">
-          <option value="Efectivo">Efectivo</option>
-          <option value="Debito">Débito</option>
-          <option value="Credito">Crédito</option>
-          <option value="Transferencia">Transferencia</option>
-          <option value="Mercado Pago">Mercado Pago</option>
-        </select>
-      </div>     
+    <!-- Tarjeta 3 (Paso 2): Detalle de Pago -->
+    <div class="card" style="justify-content: flex-start;">
+      <h2 style="font-size: 15px; color: #1565C0; margin-bottom: 10px;">2. Pago</h2>
+      <label style="margin-top:0;">Medio de pago</label>
+      <select id="medioPago" style="text-align: center;">
+        <option value="Efectivo">Efectivo</option>
+        <option value="Debito">Débito</option>
+        <option value="Credito">Crédito</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Mercado Pago">Mercado Pago</option>
+      </select>
+    </div>
+
+    <!-- Tarjeta 4 (Paso 3): Registro y Finalización -->
+    <div class="card" style="justify-content: flex-start;">
+      <h2 style="font-size: 15px; color: #1e824c; margin-bottom: 10px;">3. Cierre</h2>
       <label style="margin-top:0;">Registrado por</label>
       <select id="responsable">
         <option value="">-- Selecciona tu nombre --</option>
