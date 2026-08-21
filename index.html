@@ -1,132 +1,208 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Regístrate en Ironwall</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, Arial, sans-serif;
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-    background: #fafafa;
-    color: #222;
-  }
-  h1 { font-size: 22px; margin-bottom: 4px; }
-  p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
-  label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 4px; }
-  input {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-  button {
-    width: 100%;
-    margin-top: 24px;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-    background: #1a1a1a;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  button:disabled { opacity: 0.5; }
-  #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
-  #resultado { display: none; text-align: center; }
-  #resultado h2 { font-size: 20px; }
-  #qrcode { margin: 20px auto; display: inline-block; }
-  #idClienteTexto { font-size: 22px; font-weight: 700; letter-spacing: 1px; margin: 10px 0; }
-  .aviso {
-    background: #fff3cd;
-    border: 1px solid #ffe08a;
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 13px;
-    margin-top: 16px;
-    text-align: left;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Regístrate en Ironwall</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, Arial, sans-serif;
+      max-width: 650px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+      background: #fafafa;
+      color: #222;
+    }
+    .btnHome {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #222;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 3px 12px rgba(0,0,0,.12);
+      transition: .2s;
+      margin-bottom: 20px;
+    }
+    .btnHome:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.15);
+    }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
 
-  .btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  background:#ffffff;
-  color:#222;
-  text-decoration:none;
-  padding:10px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:600;
-  box-shadow:0 3px 12px rgba(0,0,0,.12);
-  transition:.2s;
-  }
-  
-  .btnHome:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
-  }
-</style>
+    /* CONTENEDOR GRID DE 2 COLUMNAS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 16px;
+      align-items: start;
+    }
+
+    /* ELEMENTOS QUE OCUPAN 2 COLUMNAS */
+    .full-width {
+      grid-column: span 2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .box-contenido {
+      margin-top: 8px;
+      padding: 14px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      font-size: 13px;
+      max-height: 180px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 8px;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .checkbox-label input {
+      width: auto;
+      margin-top: 3px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      background: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: 0.5; }
+    #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
+    #resultado { display: none; text-align: center; }
+    #resultado h2 { font-size: 20px; }
+    #qrcode { margin: 20px auto; display: inline-block; }
+    #idClienteTexto { font-size: 22px; font-weight: 700; letter-spacing: 1px; margin: 10px 0; }
+    .aviso {
+      background: #fff3cd;
+      border: 1px solid #ffe08a;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    /* ADAPTACIÓN MÓVIL */
+    @media (max-width: 520px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: span 1; }
+    }
+  </style>
 </head>
 <body>
-  <a href="portalcliente.html" class="btnHome">
-  🏠 Home
-  </a>
- 
+
+  <a href="portalcliente.html" class="btnHome">🏠 Home</a>
+
   <div id="formulario">
     <h1>Regístrate en Ironwall</h1>
     <p class="sub">Completa tus datos y recibe tu código de acceso personal.</p>
 
-    <label>Nombre *</label>
-    <input type="text" id="nombre" required oninput="soloLetras(this)">
+    <div class="form-grid">
+      <!-- FILA 1: Nombre | Apellido -->
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" id="nombre" required oninput="soloLetras(this)">
+      </div>
+      <div class="form-group">
+        <label>Apellido *</label>
+        <input type="text" id="apellido" required oninput="soloLetras(this)">
+      </div>
 
-    <label>Apellido *</label>
-    <input type="text" id="apellido" required oninput="soloLetras(this)">
+      <!-- FILA 2: RUT | Fecha de Nacimiento -->
+      <div class="form-group">
+        <label>RUT *</label>
+        <input type="text" id="rut" placeholder="12.345.678-9" required oninput="formatearRut(this)">
+      </div>
+      <div class="form-group">
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="fechaNacimiento">
+      </div>
 
-    <label>Teléfono</label>
-    <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
+      <!-- FILA 3: Email | Teléfono -->
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
+      </div>
 
-    <label>Email</label>
-    <input type="email" id="email">
+      <!-- FILA 4: Comuna | Teléfono Emergencia -->
+      <div class="form-group">
+        <label>Comuna</label>
+        <input type="text" id="comuna">
+      </div>
+      <div class="form-group">
+        <label>Teléfono de emergencia</label>
+        <input type="tel" id="telefonoEmergencia" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
+      </div>
 
-    <label>Comuna</label>
-    <input type="text" id="comuna">
+      <!-- SECCIÓN REGLAMENTO (ANCHO COMPLETO) -->
+      <div class="form-group full-width">
+        <div class="box-contenido" id="reglamentoContenido">Cargando reglamento...</div>
+        <label class="checkbox-label">
+          <input type="checkbox" id="aceptaReglamento" disabled>
+          <span>He leído y acepto el Reglamento Interno y el Deslinde de Responsabilidad. *</span>
+        </label>
+      </div>
 
-    <label>RUT *</label>
-    <input type="text" id="rut" placeholder="12.345.678-9" required oninput="formatearRut(this)">
+      <!-- SECCIÓN DATOS PERSONALES (ANCHO COMPLETO) -->
+      <div class="form-group full-width">
+        <div class="box-contenido" id="datosContenido">Cargando política de datos...</div>
+        <label class="checkbox-label">
+          <input type="checkbox" id="aceptaDatos" disabled>
+          <span>He leído y acepto la Política de Tratamiento de Datos Personales. *</span>
+        </label>
+      </div>
 
-    <label>Teléfono de emergencia</label>
-    <input type="tel" id="telefonoEmergencia" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
-
-    <label>Fecha de nacimiento</label>
-    <input type="date" id="fechaNacimiento">
-
-    <div style="margin-top: 20px; padding: 14px; background: #f5f5f5; border-radius: 8px; font-size: 13px; max-height: 220px; overflow-y: auto; line-height: 1.5;" id="reglamentoContenido">
-      Cargando reglamento...
+      <!-- BOTÓN DE ENVÍO -->
+      <div class="form-group full-width">
+        <button id="btnEnviar" onclick="enviar()">Registrarme</button>
+        <div id="error"></div>
+      </div>
     </div>
-
-    <label style="display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; font-weight: 400;">
-      <input type="checkbox" id="aceptaReglamento" style="width: auto; margin-top: 3px;" disabled>
-      <span>He leído y acepto el Reglamento Interno y el Deslinde de Responsabilidad. *</span>
-    </label>
-
-    <div style="margin-top: 20px; padding: 14px; background: #f5f5f5; border-radius: 8px; font-size: 13px; max-height: 220px; overflow-y: auto; line-height: 1.5;" id="datosContenido">
-      Cargando política de datos...
-    </div>
-
-    <label style="display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; font-weight: 400;">
-      <input type="checkbox" id="aceptaDatos" style="width: auto; margin-top: 3px;" disabled>
-      <span>He leído y acepto la Política de Tratamiento de Datos Personales. *</span>
-    </label>
-
-    <button id="btnEnviar" onclick="enviar()">Registrarme</button>
-    <div id="error"></div>
   </div>
 
   <div id="resultado">
@@ -140,85 +216,44 @@
   </div>
 
   <script>
-    // ⚠️ IMPORTANTE: reemplaza esto por la URL de tu implementación de
-    // Apps Script (la que termina en /exec). Es la misma que ya tienes.
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
 
-    // Deja el campo solo con letras y espacios mientras la persona escribe
-    // (incluye tildes y ñ).
-    function soloLetras(input) {
-      input.value = input.value.replace(/[^\p{L} ]/gu, '');
-    }
+    function soloLetras(input) { input.value = input.value.replace(/[^\p{L} ]/gu, ''); }
+    function soloNumeros(input) { input.value = input.value.replace(/\D/g, ''); }
 
-    // Deja el campo solo con números mientras la persona escribe.
-    function soloNumeros(input) {
-      input.value = input.value.replace(/\D/g, '');
-    }
-
-    // Autoformatea el RUT con puntos y guión mientras se escribe,
-    // sin importar cómo lo haya tipeado la persona (con puntos, sin
-    // puntos, con o sin guión, mayúscula o minúscula en la K).
     function formatearRut(input) {
       let valor = input.value.replace(/[^\dkK]/g, '').toUpperCase();
-      if (valor.length > 9) valor = valor.slice(0, 9); // máximo 8 dígitos + DV
-
-      if (valor.length <= 1) {
-        input.value = valor;
-        return;
-      }
-
+      if (valor.length > 9) valor = valor.slice(0, 9);
+      if (valor.length <= 1) { input.value = valor; return; }
       let cuerpo = valor.slice(0, -1);
       const dv = valor.slice(-1);
       cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
       input.value = cuerpo + '-' + dv;
     }
 
-    // El servidor a veces tarda (primera carga del día, tráfico alto).
-    // "soloUnIntento=true" se usa para acciones que ESCRIBEN datos
-    // (registrar, check-in, cargar pase): ahí NO conviene reintentar
-    // solo, porque cancelar la espera en el navegador no cancela lo que
-    // ya está corriendo en el servidor — un reintento automático podría
-    // duplicar el registro o descontar un pase dos veces. Para lecturas
-    // (buscar, listar) sí es seguro reintentar.
     function fetchConReintento(url, opciones, soloUnIntento) {
       const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
       const intentos = soloUnIntento ? 1 : 2;
-
       function intentar(intentosRestantes) {
         const controlador = new AbortController();
-        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
-
+        const timeoutId = setTimeout(() => controlador.abort(), TIEMPO_ESPERA_MS);
         return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
-          .then(function (r) { clearTimeout(timeoutId); return r; })
-          .catch(function (err) {
+          .then(r => { clearTimeout(timeoutId); return r; })
+          .catch(err => {
             clearTimeout(timeoutId);
-            if (intentosRestantes > 1) {
-              return intentar(intentosRestantes - 1);
-            }
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
             if (soloUnIntento) {
               throw new Error('No pudimos confirmar si tu solicitud se completó. Antes de intentar de nuevo, revisa con el staff o en el sistema si ya quedó registrado, para evitar que se duplique.');
             }
             throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
           });
       }
-
       return intentar(intentos);
     }
 
-    // Valida que el RUT tenga una forma razonable (números, con o sin
-    // puntos/guión, terminando en dígito o K). Ya NO exige que el dígito
-    // verificador sea matemáticamente correcto — eso rechazaba a personas
-    // con RUT real (errores de tipeo en el DV, RUT provisorio de
-    // extranjeros, etc.). El cruce por nombre+contacto sigue protegiendo
-    // contra duplicados aunque el DV esté mal escrito.
-    function limpiarRut(rut) {
-      return String(rut || '').replace(/[^\dkK]/g, '').toUpperCase();
-    }
+    function limpiarRut(rut) { return String(rut || '').replace(/[^\dkK]/g, '').toUpperCase(); }
     function validarRut(rutCompleto) {
       const limpio = limpiarRut(rutCompleto);
-      // Un RUT chileno real tiene entre 7 y 9 caracteres en total
-      // (cuerpo + dígito verificador). Fuera de ese rango, es casi
-      // seguro un error de tipeo grave (muy corto o muy largo).
       return limpio.length >= 7 && limpio.length <= 9;
     }
 
@@ -227,47 +262,38 @@
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: accion, payload: payload })
-      }, esEscritura).then(function (r) {
-        return r.text().then(function (texto) {
-          try {
-            return JSON.parse(texto);
-          } catch (e) {
-            throw new Error('El servidor tardó en responder. Si ya completaste el formulario, es probable que tu registro se haya guardado igual — puedes intentar de nuevo en unos segundos, o consultar con el staff.');
-          }
-        });
-      });
+      }, esEscritura).then(r => r.text().then(texto => {
+        try { return JSON.parse(texto); }
+        catch (e) {
+          throw new Error('El servidor tardó en responder. Si ya completaste el formulario, es probable que tu registro se haya guardado igual — puedes intentar de nuevo en unos segundos, o consultar con el staff.');
+        }
+      }));
     }
 
     function cargarReglamento() {
       const contenedorReglamento = document.getElementById('reglamentoContenido');
       const contenedorDatos = document.getElementById('datosContenido');
       llamarApi('obtenerReglamento', {})
-        .then(function (resp) {
+        .then(resp => {
           if (!resp.ok) throw new Error(resp.error || 'No se pudo cargar');
           renderReglamento(resp.data);
           renderPoliticaDatos(resp.data);
           document.getElementById('aceptaReglamento').disabled = false;
           document.getElementById('aceptaDatos').disabled = false;
         })
-        .catch(function () {
-          contenedorReglamento.innerHTML = '<span style="color:#c0392b">No se pudo cargar el reglamento. '
-            + '<a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
-          contenedorDatos.innerHTML = '<span style="color:#c0392b">No se pudo cargar la política de datos. '
-            + '<a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
+        .catch(() => {
+          contenedorReglamento.innerHTML = '<span style="color:#c0392b">No se pudo cargar el reglamento. <a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
+          contenedorDatos.innerHTML = '<span style="color:#c0392b">No se pudo cargar la política de datos. <a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
         });
     }
 
     function renderPoliticaDatos(data) {
       const contenedor = document.getElementById('datosContenido');
-      let html = '<strong>Política de Tratamiento de Datos Personales</strong>'
-        + '<ol style="margin: 8px 0 8px; padding-left: 20px;">';
-      (data.datos || []).forEach(function (linea) {
-        html += '<li>' + linea + '</li>';
-      });
+      let html = '<strong>Política de Tratamiento de Datos Personales</strong><ol style="margin: 8px 0 8px; padding-left: 20px;">';
+      (data.datos || []).forEach(linea => { html += '<li>' + linea + '</li>'; });
       html += '</ol>';
       if (data.emailContacto) {
-        html += '<p style="margin: 4px 0 0;">Para ejercer tus derechos de acceso, rectificación, '
-          + 'cancelación u oposición sobre tus datos, escríbenos a <strong>' + data.emailContacto + '</strong>.</p>';
+        html += '<p style="margin: 4px 0 0;">Para ejercer tus derechos de acceso, rectificación, cancelación u oposición sobre tus datos, escríbenos a <strong>' + data.emailContacto + '</strong>.</p>';
       }
       contenedor.innerHTML = html;
     }
@@ -275,15 +301,9 @@
     function renderReglamento(data) {
       const contenedor = document.getElementById('reglamentoContenido');
       let html = '<strong>Reglamento Interno</strong><ol style="margin: 8px 0 14px; padding-left: 20px;">';
-      (data.reglamento || []).forEach(function (linea) {
-        html += '<li>' + linea + '</li>';
-      });
-      html += '</ol><strong>Deslinde de Responsabilidad</strong>'
-        + '<p style="margin: 8px 0 4px;">Al registrarte, declaras que:</p>'
-        + '<ol style="margin: 0 0 8px; padding-left: 20px;">';
-      (data.deslinde || []).forEach(function (linea) {
-        html += '<li>' + linea + '</li>';
-      });
+      (data.reglamento || []).forEach(linea => { html += '<li>' + linea + '</li>'; });
+      html += '</ol><strong>Deslinde de Responsabilidad</strong><p style="margin: 8px 0 4px;">Al registrarte, declaras que:</p><ol style="margin: 0 0 8px; padding-left: 20px;">';
+      (data.deslinde || []).forEach(linea => { html += '<li>' + linea + '</li>'; });
       html += '</ol>';
       contenedor.innerHTML = html;
     }
@@ -346,7 +366,6 @@
         errorDiv.style.display = 'block';
         return;
       }
-
       if (!document.getElementById('aceptaDatos').checked) {
         errorDiv.textContent = 'Debes aceptar la Política de Tratamiento de Datos Personales para registrarte.';
         errorDiv.style.display = 'block';
@@ -357,10 +376,10 @@
         nombre: nombre,
         apellido: apellido,
         rut: rut,
-        telefono: document.getElementById('telefono').value.trim(),
-        email: document.getElementById('email').value.trim(),
+        telefono: telefono,
+        email: email,
         comuna: document.getElementById('comuna').value.trim(),
-        telefonoEmergencia: document.getElementById('telefonoEmergencia').value.trim(),
+        telefonoEmergencia: telefonoEmergencia,
         fechaNacimiento: document.getElementById('fechaNacimiento').value,
         aceptaReglamento: document.getElementById('aceptaReglamento').checked,
         aceptaDatos: document.getElementById('aceptaDatos').checked
@@ -369,20 +388,15 @@
       btn.disabled = true;
       btn.textContent = 'Registrando...';
 
-      // Si tras 5 segundos sigue esperando, se lo hacemos saber —
-      // así no parece que la página se colgó.
-      const avisoLento = setTimeout(function () {
-        btn.textContent = 'Esto puede tardar unos segundos más...';
-      }, 5000);
+      const avisoLento = setTimeout(() => { btn.textContent = 'Esto puede tardar unos segundos más...'; }, 5000);
 
       llamarApi('registrar', datos, true)
-        .then(function (resp) {
+        .then(resp => {
           clearTimeout(avisoLento);
           if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
           mostrarResultado(resp.data.idCliente, nombre, resp.data.yaExistia, resp.data.motivo);
         })
-
-        .catch(function (err) {
+        .catch(err => {
           clearTimeout(avisoLento);
           btn.disabled = false;
           btn.textContent = 'Registrarme';
@@ -395,24 +409,16 @@
       document.getElementById('formulario').style.display = 'none';
       document.getElementById('resultado').style.display = 'block';
       document.getElementById('nombreSaludo').textContent = nombre;
-     document.getElementById('idClienteTexto').textContent = idCliente;
-
+      document.getElementById('idClienteTexto').textContent = idCliente;
       if (yaExistia) {
         document.querySelector('#resultado h2').textContent = '¡Ya tenías una cuenta, ' + nombre + '!';
         if (motivo === 'datos_similares') {
-          document.querySelector('#resultado p').textContent =
-            'Encontramos un registro anterior con tu mismo nombre y datos de contacto — probablemente el RUT tenía un error de tipeo la vez pasada. Este sigue siendo tu código de acceso. Si necesitas corregir tu RUT, avísale al staff.';
+          document.querySelector('#resultado p').textContent = 'Encontramos un registro anterior con tu mismo nombre y datos de contacto — probablemente el RUT tenía un error de tipeo la vez pasada. Este sigue siendo tu código de acceso. Si necesitas corregir tu RUT, avísale al staff.';
         } else {
-          document.querySelector('#resultado p').textContent =
-            'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
+          document.querySelector('#resultado p').textContent = 'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
         }
       }
-
-      new QRCode(document.getElementById('qrcode'), {
-       text: idCliente,
-        width: 200,
-        height: 200
-      });
+      new QRCode(document.getElementById('qrcode'), { text: idCliente, width: 200, height: 200 });
     }
 
     cargarReglamento();
