@@ -68,19 +68,7 @@
         <label>Cantidad</label>
         <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: center;">
       </div>
-      
       <button class="btnAgregar" onclick="agregarAlCarrito()">+ Agregar al carrito</button>
-      
-      <div>
-        <label>Medio de pago</label>
-        <select id="medioPago" style="text-align: center;">
-          <option value="Efectivo">Efectivo</option>
-          <option value="Debito">Débito</option>
-          <option value="Credito">Crédito</option>
-          <option value="Transferencia">Transferencia</option>
-          <option value="Mercado Pago">Mercado Pago</option>
-        </select>
-      </div>
 
     </div>
 
@@ -103,6 +91,16 @@
   <div class="grid-2col">
     <!-- Tarjeta 3: Registro y Confirmación -->
     <div class="card" style="grid-column: span 2;">
+        <div>
+        <label>Medio de pago</label>
+        <select id="medioPago" style="text-align: center;">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Debito">Débito</option>
+          <option value="Credito">Crédito</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Mercado Pago">Mercado Pago</option>
+        </select>
+      </div>     
       <label style="margin-top:0;">Registrado por</label>
       <select id="responsable">
         <option value="">-- Selecciona tu nombre --</option>
