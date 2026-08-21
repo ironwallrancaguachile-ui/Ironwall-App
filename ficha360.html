@@ -332,61 +332,82 @@
     return html;
   }
 
-  function renderFicha(data) {
-    const c = data.cliente;
-    let html = '';
-
-    // Tarjeta superior de Nombre e ID a todo lo ancho (.full-width)
-    html += '<div class="seccion full-width"><h2>Cliente</h2>'
-      + '<div style="font-size:16px; font-weight:700;">' + c.nombre + ' ' + c.apellido + '</div>'
-      + '<p style="color:#888; font-size:12px;">ID: ' + c.idCliente + '</p></div>';
-
-    // Resumen y Pases se ubican lado a lado (2 columnas)
-    html += renderResumen(data, c);
-
-    html += '<div class="seccion"><h2>Pases activos</h2>';
-    if (!data.pases || data.pases.length === 0) {
-      html += '<p style="color:#888">Sin pases activos.</p>';
-    } else {
-      data.pases.forEach(function (p) {
-        html += '<div class="item"><strong>' + p.nombreServicio + '</strong><br>'
-          + p.usosRestantes + ' de ' + p.usosTotales + ' usos'
-          + (p.fechaVencimiento ? '<br><span style="color:#888;">Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</span>' : '')
-          + '</div>';
-      });
+   function renderFicha(data) {
+      const c = data.cliente;
+      let html = '';
+  
+      // Obtener información médica (soporta ambas variaciones de clave)
+      const infoMedica = c.infomedica || c.informacionMedica || 'Sin información médica registrada';
+  
+      // Tarjeta superior dividida en 2 columnas (A la izquierda Datos del Cliente, a la derecha Info Médica)
+      html += '<div class="seccion full-width">'
+        + '<div style="display: flex; gap: 12px; align-items: flex-start; width: 100%;">'
+        
+        // Columna 1: Nombre e ID
+        + '<div style="flex: 1;">'
+        + '<h2>Cliente</h2>'
+        + '<div style="font-size:16px; font-weight:700;">' + c.nombre + ' ' + c.apellido + '</div>'
+        + '<p style="color:#888; font-size:12px;">ID: ' + c.idCliente + '</p>'
+        + '</div>'
+  
+        // Divisor vertical
+        + '<div style="width: 1px; background: #e8e8e8; align-self: stretch;"></div>'
+  
+        // Columna 2: Información Médica
+        + '<div style="flex: 1;">'
+        + '<h2>Info Médica</h2>'
+        + '<p style="font-size:12.5px; color:#c0392b; font-weight:600; margin-top:2px;">' + infoMedica + '</p>'
+        + '</div>'
+  
+        + '</div>'
+        + '</div>';
+  
+      // Resumen y Pases se ubican lado a lado (2 columnas)
+      html += renderResumen(data, c);
+  
+      html += '<div class="seccion"><h2>Pases activos</h2>';
+      if (!data.pases || data.pases.length === 0) {
+        html += '<p style="color:#888">Sin pases activos.</p>';
+      } else {
+        data.pases.forEach(function (p) {
+          html += '<div class="item"><strong>' + p.nombreServicio + '</strong><br>'
+            + p.usosRestantes + ' de ' + p.usosTotales + ' usos'
+            + (p.fechaVencimiento ? '<br><span style="color:#888;">Vence: ' + new Date(p.fechaVencimiento).toLocaleDateString() + '</span>' : '')
+            + '</div>';
+        });
+      }
+      html += '</div>';
+  
+      // Últimas visitas (1 columna del grid)
+      html += '<div class="seccion"><h2>Últimas visitas</h2>';
+      if (!data.ultimasVisitas || data.ultimasVisitas.length === 0) {
+        html += '<p style="color:#888">Sin visitas registradas.</p>';
+      } else {
+        data.ultimasVisitas.forEach(function (v) {
+          html += '<div class="item">' + new Date(v).toLocaleString() + '</div>';
+        });
+      }
+      html += '</div>';
+  
+      // Notas
+      html += '<div class="seccion"><h2>Notas</h2>';
+      if (!data.notas || data.notas.length === 0) {
+        html += '<p style="color:#888">Sin notas aún.</p>';
+      } else {
+        data.notas.forEach(function (n) {
+          html += '<div class="item">' + n.nota + '<br>'
+            + '<span style="color:#888; font-size:11px;">' + n.registradoPor + ' — ' + new Date(n.fecha).toLocaleDateString() + '</span></div>';
+        });
+      }
+      html += '<textarea id="notaTexto" placeholder="Escribe una nota..."></textarea>'
+        + '<select id="notaResponsable"><option value="">-- Nombre --</option>'
+        + staffCache.map(function (s) { return '<option value="' + s + '">' + s + '</option>'; }).join('')
+        + '</select>'
+        + '<button id="btnNota" onclick="agregarNota()">Agregar nota</button>'
+        + '</div>';
+  
+      document.getElementById('contenido').innerHTML = html;
     }
-    html += '</div>';
-
-    // Últimas visitas (1 columna del grid)
-    html += '<div class="seccion"><h2>Últimas visitas</h2>';
-    if (!data.ultimasVisitas || data.ultimasVisitas.length === 0) {
-      html += '<p style="color:#888">Sin visitas registradas.</p>';
-    } else {
-      data.ultimasVisitas.forEach(function (v) {
-        html += '<div class="item">' + new Date(v).toLocaleString() + '</div>';
-      });
-    }
-    html += '</div>';
-
-    // Notas (se puede dejar a todo lo ancho o en 1 columna, aquí usa 1 columna para mantener balance)
-    html += '<div class="seccion"><h2>Notas</h2>';
-    if (!data.notas || data.notas.length === 0) {
-      html += '<p style="color:#888">Sin notas aún.</p>';
-    } else {
-      data.notas.forEach(function (n) {
-        html += '<div class="item">' + n.nota + '<br>'
-          + '<span style="color:#888; font-size:11px;">' + n.registradoPor + ' — ' + new Date(n.fecha).toLocaleDateString() + '</span></div>';
-      });
-    }
-    html += '<textarea id="notaTexto" placeholder="Escribe una nota..."></textarea>'
-      + '<select id="notaResponsable"><option value="">-- Nombre --</option>'
-      + staffCache.map(function (s) { return '<option value="' + s + '">' + s + '</option>'; }).join('')
-      + '</select>'
-      + '<button id="btnNota" onclick="agregarNota()">Agregar nota</button>'
-      + '</div>';
-
-    document.getElementById('contenido').innerHTML = html;
-  }
 
   function agregarNota() {
     const nota = document.getElementById('notaTexto').value.trim();
