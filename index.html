@@ -1,4 +1,4 @@
-<!DOCTYPEDOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -13,239 +13,421 @@
       margin: 0 auto;
       padding: 24px 16px 60px;
       background: #fafafa;
-      color: #1a1a1a;
+      color: #222;
     }
-    .card {
-      background: #fff;
+    .btnHome {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #222;
+      text-decoration: none;
+      padding: 10px 18px;
       border-radius: 12px;
-      padding: 28px 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 3px 12px rgba(0,0,0,.12);
+      transition: .2s;
       margin-bottom: 20px;
     }
-    h1 { margin-top: 0; font-size: 1.6rem; text-align: center; color: #111; }
-    p.subtitle { text-align: center; color: #666; margin-bottom: 24px; font-size: 0.95rem; }
-    .section-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #888;
-      margin: 20px 0 10px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 4px;
+    .btnHome:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.15);
     }
-    .form-group { margin-bottom: 16px; }
-    label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
-    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
+
+    /* CONTENEDOR GRID DE 2 COLUMNAS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 16px;
+      align-items: start;
+    }
+
+    /* ELEMENTOS QUE OCUPAN 2 COLUMNAS SIEMPRE */
+    .full-width {
+      grid-column: span 2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    input {
       width: 100%;
-      padding: 10px 12px;
+      padding: 12px;
+      font-size: 15px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 0.95rem;
-      transition: border-color 0.2s;
     }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: #0070f3; }
-    .radio-group { display: flex; gap: 16px; margin-top: 6px; }
-    .radio-label { font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-    .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; }
-    .checkbox-group input { margin-top: 3px; }
-    .checkbox-group label { font-weight: normal; font-size: 0.88rem; color: #444; cursor: pointer; }
-    .checkbox-group a { color: #0070f3; text-decoration: underline; cursor: pointer; }
-    button[type="submit"] {
-      width: 100%;
+
+    .box-contenido {
+      margin-top: 8px;
       padding: 14px;
-      background: #0070f3;
+      background: #f5f5f5;
+      border-radius: 8px;
+      font-size: 13px;
+      max-height: 180px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-top: 8px;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .checkbox-label input {
+      width: auto;
+      margin-top: 3px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
       color: #fff;
+      background: #1a1a1a;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
       cursor: pointer;
-      margin-top: 20px;
-      transition: background 0.2s;
     }
-    button[type="submit"]:hover { background: #0059b3; }
-    #qr-section { display: none; text-align: center; }
-    #qrcode { display: inline-block; margin: 20px 0; }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
+
+    button:disabled { opacity: 0.5; }
+    #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
+    #resultado { display: none; text-align: center; }
+    #resultado h2 { font-size: 20px; }
+    #qrcode { margin: 20px auto; display: inline-block; }
+    #idClienteTexto { font-size: 22px; font-weight: 700; letter-spacing: 1px; margin: 10px 0; }
+    .aviso {
+      background: #fff3cd;
+      border: 1px solid #ffe08a;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      margin-top: 16px;
+      text-align: left;
     }
-    .modal-content {
-      background: #fff;
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 550px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      position: relative;
-    }
-    .close-modal {
-      position: absolute;
-      top: 16px; right: 16px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: #666;
+
+    /* ADAPTACIÓN MÓVIL: Mantiene 2 columnas pero fuerza el Email a ocuparlo todo */
+    @media (max-width: 520px) {
+      .full-mobile {
+        grid-column: span 2;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="card" id="form-card">
-    <h1>Ironwall Gym</h1>
-    <p class="subtitle">Formulario de Registro de Socio</p>
+  <a href="portalcliente.html" class="btnHome">🏠 Home</a>
 
-    <form id="register-form">
-      <!-- INFORMACIÓN PERSONAL -->
-      <div class="section-title">Información Personal</div>
+  <div id="formulario">
+    <h1>Regístrate en Ironwall</h1>
+    <p class="sub">Completa tus datos y recibe tu código de acceso personal.</p>
+
+    <div class="form-grid">
+      <!-- FILA 1: Nombre | Apellido -->
       <div class="form-group">
-        <label for="nombre">Nombre Completo *</label>
-        <input type="text" id="nombre" required>
+        <label>Nombre *</label>
+        <input type="text" id="nombre" required oninput="soloLetras(this)">
       </div>
       <div class="form-group">
-        <label for="rut">RUT / DNI *</label>
-        <input type="text" id="rut" placeholder="12.345.678-K" required>
-      </div>
-      <div class="form-group">
-        <label for="email">Correo Electrónico *</label>
-        <input type="email" id="email" required>
-      </div>
-      <div class="form-group">
-        <label for="telefono">Teléfono *</label>
-        <input type="tel" id="telefono" placeholder="+56 9 1234 5678" required>
-      </div>
-      <div class="form-group">
-        <label for="fecha_nacimiento">Fecha de Nacimiento *</label>
-        <input type="date" id="fecha_nacimiento" required>
+        <label>Apellido *</label>
+        <input type="text" id="apellido" required oninput="soloLetras(this)">
       </div>
 
-      <!-- INFORMACIÓN MÉDICA (AGREGADO Y CORREGIDO) -->
-      <div class="section-title">Ficha Médica y Diagnóstico</div>
-      
+      <!-- FILA 2: RUT | Fecha de Nacimiento -->
       <div class="form-group">
-        <label>¿Posee alguna enfermedad, condición médica o lesión conocida? *</label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="tiene_enfermedad" value="si" required onclick="toggleEnfermedad(true)"> Sí</label>
-          <label class="radio-label"><input type="radio" name="tiene_enfermedad" value="no" onclick="toggleEnfermedad(false)"> No</label>
-        </div>
+        <label>RUT *</label>
+        <input type="text" id="rut" placeholder="12.345.678-9" required oninput="formatearRut(this)">
       </div>
-
-      <div class="form-group" id="group-enfermedad-detalle" style="display: none;">
-        <label for="enfermedad_detalle">Indique cuál(es) enfermedad(es) o lesión(es):</label>
-        <textarea id="enfermedad_detalle" rows="2" placeholder="Ej: Asma, Hipertensión, Lesión en rodilla derecha..."></textarea>
-      </div>
-
       <div class="form-group">
-        <label>¿Padece o ha padecido de afecciones cardíacas? *</label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="afeccion_cardiaca" value="si" required> Sí</label>
-          <label class="radio-label"><input type="radio" name="afeccion_cardiaca" value="no"> No</label>
-        </div>
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="fechaNacimiento">
       </div>
 
+      <!-- EMAIL: Ancho completo solo en móvil con la clase full-mobile -->
+      <div class="form-group full-mobile">
+        <label>Email</label>
+        <input type="email" id="email">
+      </div>
+
+      <!-- OTROS CAMPOS: Teléfono | Comuna -->
       <div class="form-group">
-        <label for="medicamentos">Medicamentos de uso habitual (opcional):</label>
-        <input type="text" id="medicamentos" placeholder="Indique si toma medicamentos diariamente">
+        <label>Teléfono</label>
+        <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
       </div>
-
       <div class="form-group">
-        <label for="contacto_emergencia">Contacto de Emergencia (Nombre y Teléfono) *</label>
-        <input type="text" id="contacto_emergencia" placeholder="Ej: María Pérez (+56 9 8765 4321)" required>
+        <label>Comuna</label>
+        <input type="text" id="comuna">
       </div>
 
-      <!-- ACEPTACIÓN DE TÉRMINOS -->
-      <div class="checkbox-group">
-        <input type="checkbox" id="acepta_reglamento" required>
-        <label for="acepta_reglamento">
-          He leído y acepto el <a onclick="openModal('modal-reglamento')">Reglamento Interno</a> *
+      <!-- TELÉFONO DE EMERGENCIA -->
+      <div class="form-group">
+        <label>Teléfono de emergencia</label>
+        <input type="tel" id="telefonoEmergencia" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
+      </div>
+      <div class="form-group">
+        <label>Info médica relevante</label>
+        <input type="text" id="infomedica" placeholder="opcional" oninput="soloLetras(this)">
+      </div>
+      <!-- SECCIÓN REGLAMENTO (ANCHO COMPLETO) -->
+      <div class="form-group full-width">
+        <div class="box-contenido" id="reglamentoContenido">Cargando reglamento...</div>
+        <label class="checkbox-label">
+          <input type="checkbox" id="aceptaReglamento" disabled>
+          <span>He leído y acepto el Reglamento Interno y el Deslinde de Responsabilidad. *</span>
         </label>
       </div>
 
-      <div class="checkbox-group">
-        <input type="checkbox" id="acepta_politica" required>
-        <label for="acepta_politica">
-          Acepto las <a onclick="openModal('modal-politica')">Políticas de Privacidad y Consentimiento Informado</a> *
+      <!-- SECCIÓN DATOS PERSONALES (ANCHO COMPLETO) -->
+      <div class="form-group full-width">
+        <div class="box-contenido" id="datosContenido">Cargando política de datos...</div>
+        <label class="checkbox-label">
+          <input type="checkbox" id="aceptaDatos" disabled>
+          <span>He leído y acepto la Política de Tratamiento de Datos Personales. *</span>
         </label>
       </div>
 
-      <button type="submit">Generar mi Código QR</button>
-    </form>
-  </div>
-
-  <!-- SECCIÓN DE QR GENERADO -->
-  <div class="card" id="qr-section">
-    <h2>¡Registro Completado!</h2>
-    <p>Presenta este código QR en la entrada del gimnasio para acceder.</p>
-    <div id="qrcode"></div>
-    <p><strong id="qr-rut-display"></strong></p>
-  </div>
-
-  <!-- MODAL REGLAMENTO (CONSERVADO ORIGINAL) -->
-  <div class="modal" id="modal-reglamento">
-    <div class="modal-content">
-      <button class="close-modal" onclick="closeModal('modal-reglamento')">&times;</button>
-      <h2>Reglamento Interno</h2>
-      <p>1. El uso de toalla es obligatorio en todas las áreas de entrenamiento.</p>
-      <p>2. Devolver las pesas y discos a su lugar correspondiente al finalizar su uso.</p>
-      <p>3. Mantener una conducta respetuosa hacia el personal y demás socios.</p>
-      <p>4. Respetar el horario de funcionamiento establecido por el establecimiento.</p>
+      <!-- BOTÓN DE ENVÍO -->
+      <div class="form-group full-width">
+        <button id="btnEnviar" onclick="enviar()">Registrarme</button>
+        <div id="error"></div>
+      </div>
     </div>
   </div>
 
-  <!-- MODAL POLÍTICA (CONSERVADO ORIGINAL) -->
-  <div class="modal" id="modal-politica">
-    <div class="modal-content">
-      <button class="close-modal" onclick="closeModal('modal-politica')">&times;</button>
-      <h2>Política de Privacidad y Salud</h2>
-      <p>Los datos recabados serán utilizados únicamente para el control de acceso e historial de seguridad médica de Ironwall Gym.</p>
-      <p>El socio declara que la información médica entregada es fidedigna y asume la responsabilidad del uso de las instalaciones.</p>
+  <div id="resultado">
+    <h2>¡Listo, <span id="nombreSaludo"></span>!</h2>
+    <p>Este es tu código de acceso. Guárdalo — te lo pedirán cada vez que vengas.</p>
+    <div id="qrcode"></div>
+    <div id="idClienteTexto"></div>
+    <div class="aviso">
+      Consejo: toma una captura de pantalla de este código o guárdalo como imagen.
     </div>
   </div>
 
   <script>
-    function toggleEnfermedad(show) {
-      const detailGroup = document.getElementById('group-enfermedad-detalle');
-      detailGroup.style.display = show ? 'block' : 'none';
-      if (!show) {
-        document.getElementById('enfermedad_detalle').value = '';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    function soloLetras(input) { input.value = input.value.replace(/[^\p{L} ]/gu, ''); }
+    function soloNumeros(input) { input.value = input.value.replace(/\D/g, ''); }
+
+    function formatearRut(input) {
+      let valor = input.value.replace(/[^\dkK]/g, '').toUpperCase();
+      if (valor.length > 9) valor = valor.slice(0, 9);
+      if (valor.length <= 1) { input.value = valor; return; }
+      let cuerpo = valor.slice(0, -1);
+      const dv = valor.slice(-1);
+      cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      input.value = cuerpo + '-' + dv;
+    }
+
+    function fetchConReintento(url, opciones, soloUnIntento) {
+      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+      const intentos = soloUnIntento ? 1 : 2;
+      function intentar(intentosRestantes) {
+        const controlador = new AbortController();
+        const timeoutId = setTimeout(() => controlador.abort(), TIEMPO_ESPERA_MS);
+        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+          .then(r => { clearTimeout(timeoutId); return r; })
+          .catch(err => {
+            clearTimeout(timeoutId);
+            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+            if (soloUnIntento) {
+              throw new Error('No pudimos confirmar si tu solicitud se completó. Antes de intentar de nuevo, revisa con el staff o en el sistema si ya quedó registrado, para evitar que se duplique.');
+            }
+            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
+          });
       }
+      return intentar(intentos);
     }
 
-    function openModal(id) {
-      document.getElementById(id).style.display = 'flex';
+    function limpiarRut(rut) { return String(rut || '').replace(/[^\dkK]/g, '').toUpperCase(); }
+    function validarRut(rutCompleto) {
+      const limpio = limpiarRut(rutCompleto);
+      return limpio.length >= 7 && limpio.length <= 9;
     }
 
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
+    function llamarApi(accion, payload, esEscritura) {
+      return fetchConReintento(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: accion, payload: payload })
+      }, esEscritura).then(r => r.text().then(texto => {
+        try { return JSON.parse(texto); }
+        catch (e) {
+          throw new Error('El servidor tardó en responder. Si ya completaste el formulario, es probable que tu registro se haya guardado igual — puedes intentar de nuevo en unos segundos, o consultar con el staff.');
+        }
+      }));
     }
 
-    document.getElementById('register-form').addEventListener('submit', function(e) {
-      e.preventDefault();
+    function cargarReglamento() {
+      const contenedorReglamento = document.getElementById('reglamentoContenido');
+      const contenedorDatos = document.getElementById('datosContenido');
+      llamarApi('obtenerReglamento', {})
+        .then(resp => {
+          if (!resp.ok) throw new Error(resp.error || 'No se pudo cargar');
+          renderReglamento(resp.data);
+          renderPoliticaDatos(resp.data);
+          document.getElementById('aceptaReglamento').disabled = false;
+          document.getElementById('aceptaDatos').disabled = false;
+        })
+        .catch(() => {
+          contenedorReglamento.innerHTML = '<span style="color:#c0392b">No se pudo cargar el reglamento. <a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
+          contenedorDatos.innerHTML = '<span style="color:#c0392b">No se pudo cargar la política de datos. <a href="#" onclick="cargarReglamento(); return false;">Reintentar</a></span>';
+        });
+    }
 
+    function renderPoliticaDatos(data) {
+      const contenedor = document.getElementById('datosContenido');
+      let html = '<strong>Política de Tratamiento de Datos Personales</strong><ol style="margin: 8px 0 8px; padding-left: 20px;">';
+      (data.datos || []).forEach(linea => { html += '<li>' + linea + '</li>'; });
+      html += '</ol>';
+      if (data.emailContacto) {
+        html += '<p style="margin: 4px 0 0;">Para ejercer tus derechos de acceso, rectificación, cancelación u oposición sobre tus datos, escríbenos a <strong>' + data.emailContacto + '</strong>.</p>';
+      }
+      contenedor.innerHTML = html;
+    }
+
+    function renderReglamento(data) {
+      const contenedor = document.getElementById('reglamentoContenido');
+      let html = '<strong>Reglamento Interno</strong><ol style="margin: 8px 0 14px; padding-left: 20px;">';
+      (data.reglamento || []).forEach(linea => { html += '<li>' + linea + '</li>'; });
+      html += '</ol><strong>Deslinde de Responsabilidad</strong><p style="margin: 8px 0 4px;">Al registrarte, declaras que:</p><ol style="margin: 0 0 8px; padding-left: 20px;">';
+      (data.deslinde || []).forEach(linea => { html += '<li>' + linea + '</li>'; });
+      html += '</ol>';
+      contenedor.innerHTML = html;
+    }
+
+    function enviar() {
+      const btn = document.getElementById('btnEnviar');
+      const errorDiv = document.getElementById('error');
+      errorDiv.style.display = 'none';
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const apellido = document.getElementById('apellido').value.trim();
       const rut = document.getElementById('rut').value.trim();
-      
-      // Limpiar contenedor de QR previo
-      document.getElementById('qrcode').innerHTML = '';
 
-      // Generar código QR con el RUT
-      new QRCode(document.getElementById('qrcode'), {
-        text: rut,
-        width: 180,
-        height: 180
-      });
+      if (!nombre || !apellido) {
+        errorDiv.textContent = 'Nombre y apellido son obligatorios.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!rut) {
+        errorDiv.textContent = 'El RUT es obligatorio.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!validarRut(rut)) {
+        errorDiv.textContent = 'El RUT debe tener entre 7 y 9 caracteres (números, con o sin puntos/guión). Revisa que no falten ni sobren dígitos.';
+        errorDiv.style.display = 'block';
+        return;
+      }
 
-      document.getElementById('qr-rut-display').innerText = 'RUT: ' + rut;
-      document.getElementById('form-card').style.display = 'none';
-      document.getElementById('qr-section').style.display = 'block';
-    });
+      const soloLetrasRegex = /^[\p{L} ]+$/u;
+      if (!soloLetrasRegex.test(nombre) || !soloLetrasRegex.test(apellido)) {
+        errorDiv.textContent = 'Nombre y apellido solo pueden contener letras.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const telefono = document.getElementById('telefono').value.trim();
+      const telefonoEmergencia = document.getElementById('telefonoEmergencia').value.trim();
+      if (telefono && (telefono.length < 8 || telefono.length > 15)) {
+        errorDiv.textContent = 'El teléfono debe incluir el código de país, solo números (ej: 56912345678).';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (telefonoEmergencia && (telefonoEmergencia.length < 8 || telefonoEmergencia.length > 15)) {
+        errorDiv.textContent = 'El teléfono de emergencia debe incluir el código de país, solo números.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const email = document.getElementById('email').value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      if (email && !emailRegex.test(email)) {
+        errorDiv.textContent = 'El email no es válido. Revisa que tenga un dominio completo (ej: nombre@gmail.com).';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (!document.getElementById('aceptaReglamento').checked) {
+        errorDiv.textContent = 'Debes aceptar el Reglamento Interno y el Deslinde de Responsabilidad para registrarte.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (!document.getElementById('aceptaDatos').checked) {
+        errorDiv.textContent = 'Debes aceptar la Política de Tratamiento de Datos Personales para registrarte.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const datos = {
+        nombre: nombre,
+        apellido: apellido,
+        rut: rut,
+        telefono: telefono,
+        email: email,
+        comuna: document.getElementById('comuna').value.trim(),
+        telefonoEmergencia: telefonoEmergencia,
+        fechaNacimiento: document.getElementById('fechaNacimiento').value,
+        aceptaReglamento: document.getElementById('aceptaReglamento').checked,
+        aceptaDatos: document.getElementById('aceptaDatos').checked
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Registrando...';
+
+      const avisoLento = setTimeout(() => { btn.textContent = 'Esto puede tardar unos segundos más...'; }, 5000);
+
+      llamarApi('registrar', datos, true)
+        .then(resp => {
+          clearTimeout(avisoLento);
+          if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
+          mostrarResultado(resp.data.idCliente, nombre, resp.data.yaExistia, resp.data.motivo);
+        })
+        .catch(err => {
+          clearTimeout(avisoLento);
+          btn.disabled = false;
+          btn.textContent = 'Registrarme';
+          errorDiv.textContent = 'Ocurrió un error: ' + err.message;
+          errorDiv.style.display = 'block';
+        });
+    }
+
+    function mostrarResultado(idCliente, nombre, yaExistia, motivo) {
+      document.getElementById('formulario').style.display = 'none';
+      document.getElementById('resultado').style.display = 'block';
+      document.getElementById('nombreSaludo').textContent = nombre;
+      document.getElementById('idClienteTexto').textContent = idCliente;
+      if (yaExistia) {
+        document.querySelector('#resultado h2').textContent = '¡Ya tenías una cuenta, ' + nombre + '!';
+        if (motivo === 'datos_similares') {
+          document.querySelector('#resultado p').textContent = 'Encontramos un registro anterior con tu mismo nombre y datos de contacto — probablemente el RUT tenía un error de tipeo la vez pasada. Este sigue siendo tu código de acceso. Si necesitas corregir tu RUT, avísale al staff.';
+        } else {
+          document.querySelector('#resultado p').textContent = 'Encontramos tu registro anterior. Este sigue siendo tu código de acceso.';
+        }
+      }
+      new QRCode(document.getElementById('qrcode'), { text: idCliente, width: 200, height: 200 });
+    }
+
+    cargarReglamento();
   </script>
 </body>
 </html>
