@@ -45,7 +45,7 @@
       align-items: start;
     }
 
-    /* ELEMENTOS QUE OCUPAN 2 COLUMNAS */
+    /* ELEMENTOS QUE OCUPAN 2 COLUMNAS SIEMPRE */
     .full-width {
       grid-column: span 2;
     }
@@ -123,11 +123,12 @@
       text-align: left;
     }
 
-    /* ADAPTACIÓN MÓVIL */
-    /**@media (max-width: 520px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .full-width { grid-column: span 1; }
-    }**/
+    /* ADAPTACIÓN MÓVIL: Mantiene 2 columnas pero fuerza el Email a ocuparlo todo */
+    @media (max-width: 520px) {
+      .full-mobile {
+        grid-column: span 2;
+      }
+    }
   </style>
 </head>
 <body>
@@ -159,22 +160,24 @@
         <input type="date" id="fechaNacimiento">
       </div>
 
-      <!-- FILA 3: Email | Teléfono -->
-      <div class="form-group">
+      <!-- EMAIL: Ancho completo solo en móvil con la clase full-mobile -->
+      <div class="form-group full-mobile">
         <label>Email</label>
         <input type="email" id="email">
       </div>
+
+      <!-- OTROS CAMPOS: Teléfono | Comuna -->
       <div class="form-group">
         <label>Teléfono</label>
         <input type="tel" id="telefono" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
       </div>
-
-      <!-- FILA 4: Comuna | Teléfono Emergencia -->
       <div class="form-group">
         <label>Comuna</label>
         <input type="text" id="comuna">
       </div>
-      <div class="form-group">
+
+      <!-- TELÉFONO DE EMERGENCIA -->
+      <div class="form-group full-mobile">
         <label>Teléfono de emergencia</label>
         <input type="tel" id="telefonoEmergencia" inputmode="numeric" maxlength="15" placeholder="56912345678" oninput="soloNumeros(this)">
       </div>
