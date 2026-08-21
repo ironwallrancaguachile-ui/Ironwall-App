@@ -65,6 +65,7 @@
     .form-group {
       display: flex;
       flex-direction: column;
+      justify-content: flex-end;
     }
 
     label {
@@ -73,12 +74,17 @@
       font-size: 14px;
     }
 
+    /* AJUSTE PARA TEXTO MULTILÍNEA EN SELECT E INPUTS */
     select, textarea, input {
       width: 100%;
       padding: 12px;
       border: 1px solid #ccc;
       border-radius: 10px;
-      font-size: 15px;
+      font-size: 14px;
+      white-space: normal; /* Permite saltos de línea */
+      word-wrap: break-word;
+      background-color: #fff;
+      min-height: 47px;
     }
 
     textarea {
@@ -86,17 +92,23 @@
       resize: vertical;
     }
 
+    /* BOTÓN ADAPTATIVO */
     button {
       width: 100%;
-      padding: 14px;
+      padding: 12px 8px;
       background: #1565C0;
       color: white;
       border: none;
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
-      height: 47px; /* Alineación con el input */
+      min-height: 47px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.2;
     }
 
     button:hover { background: #0d47a1; }
@@ -109,11 +121,20 @@
     .ok { color: #1e824c; }
     .error { color: #c0392b; }
 
-    /* ADAPTACIÓN MÓVIL */
-    /**@media (max-width: 500px) {
-      .card { grid-template-columns: 1fr; }
-      .full-width { grid-column: span 1; }
-    }**/
+    /* OPTIMIZACIÓN ESPECÍFICA PARA SMARTHPHONE */
+    @media (max-width: 500px) {
+      .card {
+        padding: 16px;
+        gap: 12px;
+      }
+      select, input, button {
+        font-size: 13px; /* Tamaño optimizado para 2 columnas en pantallas pequeñas */
+        padding: 10px 8px;
+      }
+      button {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
