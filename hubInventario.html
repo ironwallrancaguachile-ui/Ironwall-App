@@ -25,30 +25,27 @@ h1{
   font-size:14px;
 }
 /* Reducir espacio entre tarjetas */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px; /* Reducido de 18px a 10px */
-  margin-top: 15px;
+.grid{
+display:grid;
+grid-template-columns:repeat(5, 1fr);
+gap:10px;
+max-width:1450px;
+margin:-30px auto 0 auto;
+padding:0 25px;
 }
 
-/* Tarjeta más compacta en layout horizontal (Flexbox) */
-.card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px; /* Esquinas ligeramente más estilizadas */
-  padding: 12px 16px;  /* Reducido de 22px a 12px vertical */
-  text-decoration: none;
-  color: #222;
-  box-shadow: 0 2px 6px rgba(0,0,0,.04);
-  transition: .2s;
-  height: 100%;
-  flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box;
+.card{
+display:flex;
+align-items:center;
+gap:10px;
+background:white;
+border-radius:12px;
+padding:10px 12px;
+text-decoration:none;
+color:#222;
+box-shadow:0 2px 8px rgba(0,0,0,.04);
+border: 1px solid #e8ecef;
+transition:.2s;
 }
 
 .card:hover {
