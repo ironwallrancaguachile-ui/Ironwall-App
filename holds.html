@@ -155,23 +155,25 @@
   <h1>🛠️🧗 Gestión de Equipamiento y Presas</h1>
   <p class="sub">Ingreso de equipo ya sea herramientas, presas u otro articulo de mantenimiento.</p>
 
-   <!-- Contenedor del Resumen por Proveedor -->
-  <div id="resumenProveedores" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-    <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">🧗‍♂️ Stock por Marca/Proveedor</h3>
-    <div id="listaProveedores" style="display: flex; flex-wrap: wrap; gap: 8px;">
-      <span style="font-size: 13px; color: #888;">Cargando resumen...</span>
+  <!-- Contenedor Resumen por Proveedor Minimalista -->
+  <div id="resumenProveedores" class="resumen-proveedores">
+    <div class="resumen-header" style="color: #1e293b; margin-bottom: 6px;">
+      🧗‍♂️ Stock por Marca / Proveedor
+    </div>
+    <div id="listaProveedores" class="resumen-lista">
+      <span class="texto-cargando">Cargando resumen...</span>
     </div>
   </div>
-
-<!-- Banner Minimalista de Alerta / Estado -->
-<div id="resumenStockBajo" class="resumen-stock">
-  <div class="resumen-header">
-    <span id="resumenTitulo">⚠️ Productos bajo stock mínimo</span>
+  
+  <!-- Banner Minimalista de Alerta / Estado -->
+  <div id="resumenStockBajo" class="resumen-stock">
+    <div class="resumen-header">
+      <span id="resumenTitulo">⚠️ Productos bajo stock mínimo</span>
+    </div>
+    <div id="listaStockBajo" class="resumen-lista">
+      <span class="texto-cargando">Cargando productos...</span>
+    </div>
   </div>
-  <div id="listaStockBajo" class="resumen-lista">
-    <span class="texto-cargando">Cargando productos...</span>
-  </div>
-</div>
 
   <label>¿Qué pasó? *</label>
    <div class="tipo-botones">
@@ -315,28 +317,30 @@
     mostrarStock();
   }
 
-  function generarResumenProveedores_() {
-    const contenedor = document.getElementById('listaProveedores');
-    if (!productosCache || productosCache.length === 0) {
-      contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros</span>';
-      return;
-    }
-
-    const conteo = {};
-    productosCache.forEach(function (p) {
-      const prov = p.proveedor || 'Sin Marca';
-      conteo[prov] = (conteo[prov] || 0) + Number(p.stockActual || 0);
-    });
-
-    contenedor.innerHTML = Object.keys(conteo).map(function (prov) {
-      return `
-        <div style="background: #f0f4f8; border: 1px solid #d0dbe5; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
-          <strong style="color: #1a1a1a;">${prov}:</strong> 
-          <span style="color: #2b6cb0; font-weight: bold;">${conteo[prov]} unidades</span>
-        </div>
-      `;
-    }).join('');
-  }
+   function generarResumenProveedores_() {
+     const contenedor = document.getElementById('listaProveedores');
+     if (!productosCache || productosCache.length === 0) {
+       contenedor.innerHTML = '<span class="texto-cargando">Sin registros</span>';
+       return;
+     }
+   
+     // Agrupar conteo de stock por proveedor
+     const conteo = {};
+     productosCache.forEach(function (p) {
+       const prov = p.proveedor || 'Sin Marca';
+       conteo[prov] = (conteo[prov] || 0) + Number(p.stockActual || 0);
+     });
+   
+     // Renderizar como cápsulas / chips minimalistas
+     contenedor.innerHTML = Object.keys(conteo).map(function (prov) {
+       return `
+         <div class="chip-proveedor">
+           <span class="chip-prov-nombre">${prov}</span>
+           <span class="chip-prov-cantidad">${conteo[prov]} u</span>
+         </div>
+       `;
+     }).join('');
+   }
 
   /* 🟢 FUNCIÓN ACTUALIZADA AL DISEÑO MINIMALISTA */
   function generarResumenStockBajo_() {
