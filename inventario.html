@@ -330,16 +330,23 @@
       info.className = Number(producto.stockActual) <= Number(producto.stockMinimo) ? 'bajo' : '';
     }
 
-    function cargarProductos() {
-      const cache = leerCache_('productos_inventario_cache');
-      if (cache) { productosCache = cache; pintarProductos(); }
-
+    function cargarProductos(forzarServidor) {
+      // Si no estamos forzando la actualización, intentamos leer la memoria local
+      if (!forzarServidor) {
+        const cache = leerCache_('productos_inventario_cache');
+        if (cache) { 
+          productosCache = cache; 
+          pintarProductos(); 
+        }
+      }
+    
+      // Consulta siempre al servidor para traer el stock nuevo actualizado
       llamarApi(API_URL_INVENTARIO, 'listarProductosTienda', {})
         .then(function (resp) {
           if (resp.ok) {
             productosCache = resp.data;
-            guardarCache_('productos_inventario_cache', resp.data);
-            pintarProductos();
+            guardarCache_('productos_inventario_cache', resp.data); // Actualiza la memoria local
+            pintarProductos(); // Re-dibuja el selector y la tarjeta de alerta de stock bajo
           }
         })
         .catch(function () {});
@@ -461,9 +468,20 @@
       const okDiv = document.getElementById('ok');
       okDiv.textContent = mensaje;
       okDiv.style.display = 'block';
-      document.getElementById('cantidad').value = '';
+    
+      // 1. Resetear inputs
+      document.getElementById('cantidad').value = '1'; /* Restablece el valor inicial para mantener el cursor listo */
       document.getElementById('notas').value = '';
-      cargarProductos();
+      document.getElementById('producto').value = ''; /* Limpia el producto seleccionado */
+      
+      // 2. Ocultar la información de stock y medio de pago
+      document.getElementById('stockInfo').style.display = 'none';
+      if (document.getElementById('bloqueMedioPago')) {
+        document.getElementById('bloqueMedioPago').style.display = 'none';
+      }
+    
+      // 3. Forzar la recarga de productos desde el servidor (sin usar caché antiguo)
+      cargarProductos(true);
     }
 
     function registrarMovimientoFinanzasAutomatico_(tipo, categoria, montoTotal, medioPago, nombreProducto, cantidad, responsable) {
