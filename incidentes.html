@@ -145,13 +145,15 @@
       <label>Descripción *</label>
       <textarea id="descripcion" placeholder="Qué pasó, cómo, en qué momento"></textarea>
     </div> 
-   
+  </div>
+ <!-- FILA 4: pregunta -->  
   <label>¿Se contactó a emergencias o familiar?</label>
   <div class="si-no">
     <button type="button" id="btnContactoSi" onclick="elegirContacto('Si')">Sí</button>
     <button type="button" id="btnContactoNo" onclick="elegirContacto('No')">No</button>
   </div>
-  <!-- FILA 4: Ubicacion | Descripcion -->
+  <div class="form-grid">
+  <!-- FILA 5: Testigos | Reportado por... -->
     <div class="form-group">   
      <label>Testigos</label>
      <input type="text" id="testigos" placeholder="Nombres de quienes estaban presentes">
