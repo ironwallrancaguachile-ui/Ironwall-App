@@ -4,11 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Inventario - Ironwall</title>
- 
- <!-- ESTILOS COMPLETOS -->
 <style>
-
-   * { box-sizing: border-box; }
+  * { box-sizing: border-box; }
   body {
     font-family: -apple-system, Arial, sans-serif;
     max-width: 600px;
@@ -28,84 +25,96 @@
     border-radius: 8px;
     background: #fff;
   }
-  /* Resumen de Proveedores y Stock Bajo (Chips / Cápsulas) */
-  .resumen-proveedores, .resumen-stock {
-    background: #f0f4f8;
-    border: 1px solid #d0dbe5;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-  }
+      /* CONTENEDOR GRID DE 2 COLUMNAS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 16px;
+      align-items: start;
+    }
 
-  .resumen-stock.ok {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-  }
+    /* ELEMENTOS QUE OCUPAN 2 COLUMNAS SIEMPRE */
+    .full-width {
+      grid-column: span 2;
+    }
 
-  .resumen-header {
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+  .tipo-botones { display: flex; gap: 8px; margin-top: 6px; }
+  .tipo-botones button {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
     font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  .resumen-lista {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .chip-proveedor, .chip-stock {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    padding: 2px 8px;
-    font-size: 12px;
-  }
-
-  .chip-prov-nombre, .chip-nombre {
-    color: #1e293b;
     font-weight: 600;
+    cursor: pointer;
   }
-
-  .chip-prov-cantidad, .chip-cantidad {
-    background: #2563eb;
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 10px;
+  .tipo-botones button.activo-entrada { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
+  .tipo-botones button.activo-ajuste { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
+  #stockInfo {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+    display: none;
   }
-
-  .chip-stock .chip-cantidad {
-    background: #dc2626;
+  #stockInfo.bajo { color: #c0392b; font-weight: 600; }
+  button.enviar {
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
   }
+  button.enviar:disabled { opacity: 0.5; }
+  #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; }
+  #ok { color: #1e824c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
 
-  .texto-cargando {
-    font-size: 12px;
-    color: #64748b;
+  .btnHome{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#ffffff;
+    color:#222;
+    text-decoration:none;
+    padding:10px 18px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:600;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+    transition:.2s;
   }
-
-  /* Layout en 2 Columnas */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  .btnHome:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
   }
-
-  .col-span-2 {
-    grid-column: span 2;
+   .btnStock{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#ffffff;
+    color:#222;
+    text-decoration:none;
+    padding:10px 18px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:600;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+    transition:.2s;
   }
-
-  .col-flex-start {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  .btnStock:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
   }
-
-  /* Adaptabilidad Móvil */
+ /* Adaptabilidad Móvil */
   @media (max-width: 480px) {
     .form-grid {
       grid-template-columns: 1fr;
@@ -115,44 +124,35 @@
     }
   }
 </style>
+</head>
+<body>
+  <a href="hubInventario.html" class="btnHome">
+  ⬅️ Volver
+  </a>
 
-<!-- ESTRUCTURA DEL FORMULARIO -->
+  <h1>Inventario de Tienda y Mercadería</h1>
+  <p class="sub">Registra cuando llega mercadería, o cuando corriges un conteo.</p>
 
-<!-- 1. Banner Proveedores -->
-<div id="resumenProveedores" class="resumen-proveedores">
-  <div class="resumen-header" style="color: #1e293b;">
-    🧗‍♂️ Stock por Marca / Proveedor
+  <!-- Contenedor del Resumen de Productos Bajo Stock -->
+  <div id="resumenStockBajo" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 0px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+    <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">⚠️ Productos Bajo Stock Mínimo</h3>
+    <div id="listaStockBajo" style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <span style="font-size: 13px; color: #888;">Cargando productos...</span>
+    </div>
   </div>
-  <div id="listaProveedores" class="resumen-lista">
-    <span class="texto-cargando">Cargando resumen...</span>
-  </div>
-</div>
 
-<!-- 2. Banner Stock Bajo -->
-<div id="resumenStockBajo" class="resumen-stock">
-  <div id="resumenTitulo" class="resumen-header" style="color: #991b1b;">
-    ⚠️ Productos bajo stock mínimo
-  </div>
-  <div id="listaStockBajo" class="resumen-lista">
-    <span class="texto-cargando">Comprobando stock...</span>
-  </div>
-</div>
-
-<!-- 3. Formulario Grid -->
-<div class="form-grid">
-
-  <!-- Tipo de movimiento -->
-  <div class="col-span-2">
+ <div class="form-grid">
+  <!-- FILA 1: Tipo de Movimiento (Ocupa las 2 columnas) -->
+  <div class="form-group full-width">
     <label>¿Qué pasó? *</label>
     <div class="tipo-botones">
-      <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Ingreso (compra)</button>
-      <button type="button" id="btnSalida" onclick="elegirTipo('Salida')">Baja / Descarte</button>
+      <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
       <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
     </div>
   </div>
 
-  <!-- Producto (Adaptado al contenido) -->
-  <div class="col-flex-start">
+  <!-- FILA 2: Producto (Izquierda) | Cantidad (Derecha) -->
+  <div class="form-group">
     <label>Producto *</label>
     <select id="producto" onchange="mostrarStock()" style="width: fit-content; max-width: 100%;">
       <option value="">-- Selecciona --</option>
@@ -160,22 +160,28 @@
     <div id="stockInfo"></div>
   </div>
 
-  <!-- Cantidad -->
-  <div>
+  <div class="form-group">
     <label id="labelCantidad">Cantidad *</label>
-    <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">
+    <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: left;">   
   </div>
 
-  <!-- Motivo -->
-  <div>
+  <!-- FILA 3: Motivo (Izquierda) | Registrado por (Derecha) -->
+  <div class="form-group">
     <label>Motivo *</label>
-    <select id="motivo" onchange="mostrarMedioPagoSiCompra()">
+    <select id="motivo" onchange="mostrarMedioPagoSiCompra()"style="width: fit-content; max-width: 100%;">
       <option value="">-- Primero elige el tipo --</option>
     </select>
   </div>
 
-  <!-- Medio de pago (Dinámico) -->
-  <div id="bloqueMedioPago" style="display:none">
+  <div class="form-group">
+    <label>Registrado por *</label>
+    <select id="responsable">
+      <option value="">-- Selecciona tu nombre --</option>
+    </select>
+  </div>
+
+  <!-- FILA 4 CONDICIONAL: Medio de pago (Ocupa 2 columnas cuando aparece) -->
+  <div class="form-group full-width" id="bloqueMedioPago" style="display:none">
     <label id="labelMedioPago">Medio de pago (compra) *</label>
     <select id="medioPagoVenta">
       <option value="Mercado Pago">Mercado Pago</option>
@@ -184,28 +190,16 @@
     </select>
   </div>
 
-  <!-- Registrado por -->
-  <div>
-    <label>Registrado por *</label>
-    <select id="responsable">
-      <option value="">-- Selecciona tu nombre --</option>
-    </select>
-  </div>
-
-  <!-- Notas -->
-  <div>
+  <!-- FILA 5: Notas (Ocupa las 2 columnas al final) -->
+  <div class="form-group full-width">
     <label>Notas</label>
     <input type="text" id="notas" placeholder="Opcional">
   </div>
-
-  <!-- Botón de Envío -->
-  <div class="col-span-2">
-    <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
-    <div id="error"></div>
-    <div id="ok"></div>
-  </div>
-
 </div>
+ 
+  <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
+  <div id="error"></div>
+  <div id="ok"></div>
 
   <script>
     const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
@@ -546,3 +540,4 @@
   </script>
 </body>
 </html>
+
