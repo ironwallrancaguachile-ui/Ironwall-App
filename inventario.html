@@ -113,6 +113,19 @@
     transform:translateY(-2px);
     box-shadow:0 8px 18px rgba(0,0,0,.15);
   }
+ .form-grid-producto-cantidad {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 90px; /* Producto amplio (1fr) | Cantidad fija (90px) */
+    gap: 12px;
+    align-items: start;
+    width: 100%;
+  }
+
+  .form-grid-producto-cantidad select,
+  .form-grid-producto-cantidad input {
+    width: 100%;
+    box-sizing: border-box;
+  }
  /* Adaptabilidad Móvil */
   @media (max-width: 480px) {
     .form-grid {
@@ -149,7 +162,7 @@
     </div>
   </div>
  
-  <div class="form-grid">
+ <div class="form-grid-producto-cantidad">
   <!-- FILA 2: Producto (Izquierda) | Cantidad (Derecha) -->
     <div class="form-group"> 
       <label>Producto *</label>
