@@ -131,59 +131,63 @@
       <span style="font-size: 13px; color: #888;">Cargando productos...</span>
     </div>
   </div>
-  <div class="form-grid">
-  <!-- FILA 1: accion | producto -->
-    <div class="form-group">
-     <label>¿Qué pasó? *</label>
-      <div class="tipo-botones">
-        <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
-        <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Producto *</label>
-       <select id="producto" onchange="mostrarStock()">
-         <option value="">-- Selecciona --</option>
-       </select>
-       <div id="stockInfo"></div>
-    </div>
-  <!-- FILA 2: cantidad | motivo -->
-    <div class="form-group">
-     <label id="labelCantidad">Cantidad *</label>
-      <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">   
-    </div>
-    <div class="form-group">
-     <label>Motivo *</label>
-      <select id="motivo" onchange="mostrarMedioPagoSiCompra()">
-        <option value="">-- Primero elige el tipo --</option>
-      </select>
-    </div>
-  <!-- FILA 3: medio de pago | notas | Registrado por... -->
-    <div class="form-group">
-       <div id="bloqueMedioPago" style="display:none">
-         <label id="labelMedioPago">Medio de pago (compra) *</label>
-         <select id="medioPagoVenta">
-           <option value="Mercado Pago">Mercado Pago</option>
-           <option value="Transferencia">Transferencia</option>
-           <option value="Efectivo">Efectivo</option>
-         </select>
-       </div>
-    </div>
-    <div class="form-group">
-      <label>Notas</label>
-      <input type="text" id="notas" placeholder="Opcional">
-    </div>
-    <div class="form-group">
-     <label>Registrado por *</label>
-      <select id="responsable">
-        <option value="">-- Selecciona tu nombre --</option>
-      </select>
+
+ <div class="form-grid">
+  <!-- FILA 1: Tipo de Movimiento (Ocupa las 2 columnas) -->
+  <div class="form-group full-width">
+    <label>¿Qué pasó? *</label>
+    <div class="tipo-botones">
+      <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
+      <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
     </div>
   </div>
 
-  <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
-  <div id="error"></div>
-  <div id="ok"></div>
+  <!-- FILA 2: Producto (Izquierda) | Cantidad (Derecha) -->
+  <div class="form-group">
+    <label>Producto *</label>
+    <select id="producto" onchange="mostrarStock()">
+      <option value="">-- Selecciona --</option>
+    </select>
+    <div id="stockInfo"></div>
+  </div>
+
+  <div class="form-group">
+    <label id="labelCantidad">Cantidad *</label>
+    <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">   
+  </div>
+
+  <!-- FILA 3: Motivo (Izquierda) | Registrado por (Derecha) -->
+  <div class="form-group">
+    <label>Motivo *</label>
+    <select id="motivo" onchange="mostrarMedioPagoSiCompra()">
+      <option value="">-- Primero elige el tipo --</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Registrado por *</label>
+    <select id="responsable">
+      <option value="">-- Selecciona tu nombre --</option>
+    </select>
+  </div>
+
+  <!-- FILA 4 CONDICIONAL: Medio de pago (Ocupa 2 columnas cuando aparece) -->
+  <div class="form-group full-width" id="bloqueMedioPago" style="display:none">
+    <label id="labelMedioPago">Medio de pago (compra) *</label>
+    <select id="medioPagoVenta">
+      <option value="Mercado Pago">Mercado Pago</option>
+      <option value="Transferencia">Transferencia</option>
+      <option value="Efectivo">Efectivo</option>
+    </select>
+  </div>
+
+  <!-- FILA 5: Notas (Ocupa las 2 columnas al final) -->
+  <div class="form-group full-width">
+    <label>Notas</label>
+    <input type="text" id="notas" placeholder="Opcional">
+  </div>
+</div>
+
 
   <script>
     const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
