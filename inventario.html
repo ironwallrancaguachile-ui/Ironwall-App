@@ -469,18 +469,27 @@
       okDiv.textContent = mensaje;
       okDiv.style.display = 'block';
     
-      // 1. Resetear inputs
-      document.getElementById('cantidad').value = '1'; /* Restablece el valor inicial para mantener el cursor listo */
+      // 1. Limpieza de inputs de texto
+      document.getElementById('cantidad').value = '1';
       document.getElementById('notas').value = '';
-      document.getElementById('producto').value = ''; /* Limpia el producto seleccionado */
       
-      // 2. Ocultar la información de stock y medio de pago
+      // 2. Limpieza de selectores
+      document.getElementById('producto').value = '';
+      document.getElementById('motivo').value = '';
+      document.getElementById('responsable').value = '';
+      
+      // 3. Resetear el estado del tipo de movimiento
+      tipoSeleccionado = '';
+      document.getElementById('btnEntrada').className = '';
+      document.getElementById('btnAjuste').className = '';
+      
+      // 4. Ocultar la información de stock y medio de pago
       document.getElementById('stockInfo').style.display = 'none';
       if (document.getElementById('bloqueMedioPago')) {
         document.getElementById('bloqueMedioPago').style.display = 'none';
       }
     
-      // 3. Forzar la recarga de productos desde el servidor (sin usar caché antiguo)
+      // 5. Forzar la recarga de productos desde el servidor (sin usar caché antiguo)
       cargarProductos(true);
     }
 
