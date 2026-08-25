@@ -25,6 +25,23 @@
     border-radius: 8px;
     background: #fff;
   }
+      /* CONTENEDOR GRID DE 2 COLUMNAS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 16px;
+      align-items: start;
+    }
+
+    /* ELEMENTOS QUE OCUPAN 2 COLUMNAS SIEMPRE */
+    .full-width {
+      grid-column: span 2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
   .tipo-botones { display: flex; gap: 8px; margin-top: 6px; }
   .tipo-botones button {
     flex: 1;
@@ -114,43 +131,55 @@
       <span style="font-size: 13px; color: #888;">Cargando productos...</span>
     </div>
   </div>
-
-  <label>¿Qué pasó? *</label>
-  <div class="tipo-botones">
-    <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
-    <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
+  <div class="form-grid">
+  <!-- FILA 1: accion | producto -->
+    <div class="form-group">
+     <label>¿Qué pasó? *</label>
+      <div class="tipo-botones">
+        <button type="button" id="btnEntrada" onclick="elegirTipo('Entrada')">Recibí stock (compra)</button>
+        <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Producto *</label>
+       <select id="producto" onchange="mostrarStock()">
+         <option value="">-- Selecciona --</option>
+       </select>
+       <div id="stockInfo"></div>
+    </div>
+  <!-- FILA 2: cantidad | motivo -->
+    <div class="form-group">
+     <label id="labelCantidad">Cantidad *</label>
+      <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">   
+    </div>
+    <div class="form-group">
+     <label>Motivo *</label>
+      <select id="motivo" onchange="mostrarMedioPagoSiCompra()">
+        <option value="">-- Primero elige el tipo --</option>
+      </select>
+    </div>
+  <!-- FILA 3: medio de pago | notas | Registrado por... -->
+    <div class="form-group">
+       <div id="bloqueMedioPago" style="display:none">
+         <label id="labelMedioPago">Medio de pago (compra) *</label>
+         <select id="medioPagoVenta">
+           <option value="Mercado Pago">Mercado Pago</option>
+           <option value="Transferencia">Transferencia</option>
+           <option value="Efectivo">Efectivo</option>
+         </select>
+       </div>
+    </div>
+    <div class="form-group">
+      <label>Notas</label>
+      <input type="text" id="notas" placeholder="Opcional">
+    </div>
+    <div class="form-group">
+     <label>Registrado por *</label>
+      <select id="responsable">
+        <option value="">-- Selecciona tu nombre --</option>
+      </select>
+    </div>
   </div>
-
-  <label>Producto *</label>
-  <select id="producto" onchange="mostrarStock()">
-    <option value="">-- Selecciona --</option>
-  </select>
-  <div id="stockInfo"></div>
-
-  <label id="labelCantidad">Cantidad *</label>
-  <input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">
-
-  <label>Motivo *</label>
-  <select id="motivo" onchange="mostrarMedioPagoSiCompra()">
-    <option value="">-- Primero elige el tipo --</option>
-  </select>
-
-  <div id="bloqueMedioPago" style="display:none">
-    <label id="labelMedioPago">Medio de pago (compra) *</label>
-    <select id="medioPagoVenta">
-      <option value="Mercado Pago">Mercado Pago</option>
-      <option value="Transferencia">Transferencia</option>
-      <option value="Efectivo">Efectivo</option>
-    </select>
-  </div>
-
-  <label>Notas</label>
-  <input type="text" id="notas" placeholder="Opcional">
-
-  <label>Registrado por *</label>
-  <select id="responsable">
-    <option value="">-- Selecciona tu nombre --</option>
-  </select>
 
   <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
   <div id="error"></div>
