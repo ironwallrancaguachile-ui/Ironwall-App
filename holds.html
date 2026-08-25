@@ -81,6 +81,69 @@
     transform:translateY(-2px);
     box-shadow:0 8px 18px rgba(0,0,0,.15);
   }
+ /* Contenedor principal ultra compacto */
+.resumen-stock {
+  background: #fff8f8;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* Estado cuando todo está correcto */
+.resumen-stock.ok {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.resumen-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 6px;
+}
+
+.resumen-stock.ok .resumen-header {
+  color: #166534;
+}
+
+.resumen-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Cápsula (Chip) de Producto */
+.chip-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #fca5a5;
+  border-radius: 16px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.chip-nombre {
+  color: #374151;
+  font-weight: 500;
+}
+
+.chip-cantidad {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.texto-cargando {
+  font-size: 12px;
+  color: #6b7280;
+}
 
 </style>
 </head>
@@ -100,13 +163,15 @@
     </div>
   </div>
 
-  <!-- Contenedor del Resumen de Equipamiento Bajo Stock -->
-  <div id="resumenStockBajo" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-    <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">⚠️ Bajo Stock Mínimo</h3>
-    <div id="listaStockBajo" style="display: flex; flex-wrap: wrap; gap: 8px;">
-      <span style="font-size: 13px; color: #888;">Cargando lista...</span>
-    </div>
+<!-- Banner Minimalista de Alerta / Estado -->
+<div id="resumenStockBajo" class="resumen-stock">
+  <div class="resumen-header">
+    <span id="resumenTitulo">⚠️ Productos bajo stock mínimo</span>
   </div>
+  <div id="listaStockBajo" class="resumen-lista">
+    <span class="texto-cargando">Cargando productos...</span>
+  </div>
+</div>
 
   <label>¿Qué pasó? *</label>
    <div class="tipo-botones">
@@ -150,350 +215,380 @@
   <div id="error"></div>
   <div id="ok"></div>
 
-  <script>
-    const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
-    const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
-    const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
+<script>
+  const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
+  const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbx7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+  const API_URL_FINANZAS = 'https://script.google.com/macros/s/AKfycbx29m90hiJKT3UKP2uJCJSm5XcEfjWwCcMYokLnw54RBTpyGLierukwYNYdCJxCiEaKng/exec';
 
-    const MOTIVOS_ENTRADA = ['Compra a proveedor', 'Devolución de cliente', 'Ajuste de inventario'];
-  
-    let tipoSeleccionado = '';
-    let productosCache = [];
+  const MOTIVOS_ENTRADA = ['Compra a proveedor', 'Devolución de cliente', 'Ajuste de inventario'];
 
-    function soloNumeros(input) {
-      input.value = input.value.replace(/\D/g, '');
-    }
+  let tipoSeleccionado = '';
+  let productosCache = [];
 
-    function fetchConReintento(url, opciones, soloUnIntento) {
-      const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
-      const intentos = soloUnIntento ? 1 : 2;
+  function soloNumeros(input) {
+    input.value = input.value.replace(/\D/g, '');
+  }
 
-      function intentar(intentosRestantes) {
-        const controlador = new AbortController();
-        const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
+  function fetchConReintento(url, opciones, soloUnIntento) {
+    const TIEMPO_ESPERA_MS = soloUnIntento ? 20000 : 15000;
+    const intentos = soloUnIntento ? 1 : 2;
 
-        return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
-          .then(function (r) { clearTimeout(timeoutId); return r; })
-          .catch(function (err) {
-            clearTimeout(timeoutId);
-            if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
-            if (soloUnIntento) {
-              throw new Error('No pudimos confirmar si el movimiento se registró. Revisa el stock antes de repetirlo, para evitar duplicarlo.');
-            }
-            throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
-          });
-      }
-      return intentar(intentos);
-    }
+    function intentar(intentosRestantes) {
+      const controlador = new AbortController();
+      const timeoutId = setTimeout(function () { controlador.abort(); }, TIEMPO_ESPERA_MS);
 
-    function llamarApi(url, accion, payload, esEscritura) {
-      return fetchConReintento(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: accion, payload: payload })
-      }, esEscritura).then(function (r) {
-        return r.text().then(function (texto) {
-          try { return JSON.parse(texto); }
-          catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
-        });
-      });
-    }
-
-    function elegirTipo(tipo) {
-      tipoSeleccionado = tipo;
-      document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
-      document.getElementById('btnSalida').className = tipo === 'Salida' ? 'activo-salida' : '';
-      document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
-    
-      const selectMotivo = document.getElementById('motivo');
-      const labelCantidad = document.getElementById('labelCantidad');
-      let opciones = [];
-      let motivoPorDefecto = '';
-    
-      if (tipo === 'Entrada') {
-        opciones = ['Compra a proveedor', 'Ajuste de inventario'];
-        labelCantidad.textContent = 'Cantidad que ingresa *';
-        motivoPorDefecto = 'Compra a proveedor';
-      }
-      if (tipo === 'Salida') {
-        opciones = ['Daño / Rotura (Descarte)', 'Pérdida / Extravío', 'Retiro por Seguridad'];
-        labelCantidad.textContent = 'Cantidad a dar de baja *';
-        motivoPorDefecto = 'Daño / Rotura (Descarte)';
-      }
-      if (tipo === 'Ajuste') {
-        opciones = ['Conteo físico / corrección'];
-        labelCantidad.textContent = 'Stock real (reemplaza el actual) *';
-        motivoPorDefecto = 'Conteo físico / corrección';
-      }
-    
-      selectMotivo.innerHTML = '<option value="">-- Selecciona --</option>' +
-        opciones.map(function (m) { return '<option value="' + m + '">' + m + '</option>'; }).join('');
-      selectMotivo.value = motivoPorDefecto;
-    
-      mostrarMedioPagoSiCompra();
-    }
-
-    function pintarProductos() {
-      const select = document.getElementById('producto');
-      const valorPrevio = select.value;
-
-      select.innerHTML = '<option value="">-- Selecciona --</option>' +
-        productosCache.map(function (p) {
-          const proveedorTexto = p.proveedor ? ' — ' + p.proveedor : '';
-          return '<option value="' + p.codigo + '">' + p.nombre + proveedorTexto + ' (stock: ' + p.stockActual + ')</option>';
-        }).join('');
-    
-      if (valorPrevio) select.value = valorPrevio;
-
-      // Generar tarjetas de resumen
-      generarResumenProveedores_();
-      generarResumenStockBajo_();
-      mostrarStock();
-    }
-    
-    function generarResumenProveedores_() {
-      const contenedor = document.getElementById('listaProveedores');
-      if (!productosCache || productosCache.length === 0) {
-        contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros</span>';
-        return;
-      }
-    
-      // Agrupar conteo de stock por proveedor
-      const conteo = {};
-      productosCache.forEach(function (p) {
-        const prov = p.proveedor || 'Sin Marca';
-        conteo[prov] = (conteo[prov] || 0) + Number(p.stockActual || 0);
-      });
-    
-      // Renderizar como etiquetas / badges
-      contenedor.innerHTML = Object.keys(conteo).map(function (prov) {
-        return `
-          <div style="background: #f0f4f8; border: 1px solid #d0dbe5; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
-            <strong style="color: #1a1a1a;">${prov}:</strong> 
-            <span style="color: #2b6cb0; font-weight: bold;">${conteo[prov]} unidades</span>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function generarResumenStockBajo_() {
-      const contenedor = document.getElementById('listaStockBajo');
-      if (!productosCache || productosCache.length === 0) {
-        contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros de stock</span>';
-        return;
-      }
-
-      const bajos = productosCache.filter(function (p) {
-        return Number(p.stockActual) <= Number(p.stockMinimo);
-      });
-
-      if (bajos.length === 0) {
-        contenedor.innerHTML = '<span style="font-size: 13px; color: #1e824c; font-weight: 600;">✅ Todo el equipamiento tiene stock suficiente</span>';
-        return;
-      }
-
-      contenedor.innerHTML = bajos.map(function (p) {
-        return `
-          <div style="background: #fdf2f2; border: 1px solid #f5c6c0; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
-            <strong style="color: #c0392b;">${p.nombre}:</strong> 
-            <span style="color: #922b21; font-weight: bold;">${p.stockActual} u.</span>
-            <span style="color: #7f8c8d; font-size: 11px;">(mín: ${p.stockMinimo})</span>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function mostrarStock() {
-      const select = document.getElementById('producto');
-      const codigo = select.value;
-      const info = document.getElementById('stockInfo');
-    
-      if (!codigo) { 
-        info.style.display = 'none'; 
-        return; 
-      }
-    
-      // Busca siempre en el cache actualizado
-      const producto = productosCache.find(function (p) { return p.codigo === codigo; });
-      
-      if (!producto) { 
-        info.style.display = 'none'; 
-        return; 
-      }
-    
-      info.style.display = 'block';
-      info.textContent = 'Stock actual: ' + producto.stockActual + 
-        (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
-      
-      info.className = Number(producto.stockActual) <= Number(producto.stockMinimo) ? 'bajo' : '';
-    }
-
-    function cargarProductos() {
-      const cache = leerCache_('productos_equipamiento_cache');
-      if (cache) { productosCache = cache; pintarProductos(); }
-
-      llamarApi(API_URL_INVENTARIO, 'listarEquipamientoInterno', {})
-        .then(function (resp) {
-          if (resp.ok) {
-            productosCache = resp.data;
-            guardarCache_('productos_equipamiento_cache', resp.data);
-            pintarProductos();
-          }
-        })
-        .catch(function () {});
-    }
-
-    function cargarStaff() {
-      const select = document.getElementById('responsable');
-      function pintar(nombres) {
-        const valorPrevio = select.value;
-        select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>' +
-          nombres.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
-        if (valorPrevio && nombres.indexOf(valorPrevio) !== -1) select.value = valorPrevio;
-      }
-      const cache = leerCache_('staff_inventario_cache');
-      if (cache) pintar(cache);
-
-      llamarApi(API_URL_CLIENTES, 'listarStaff', {})
-        .then(function (resp) {
-          if (resp.ok && resp.data) {
-            pintar(resp.data);
-            guardarCache_('staff_inventario_cache', resp.data);
-          }
-        })
-        .catch(function () {});
-    }
-
-    function guardarCache_(clave, datos) {
-      try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
-      catch (e) {}
-    }
-    
-    function leerCache_(clave) {
-      try {
-        const crudo = localStorage.getItem(clave);
-        if (!crudo) return null;
-        const parsed = JSON.parse(crudo);
-        const DOCE_HORAS_MS = 12 * 60 * 60 * 1000;
-        if (Date.now() - parsed.guardado > DOCE_HORAS_MS) return null;
-        return parsed.datos;
-      } catch (e) { return null; }
-    }
-
-    function mostrarMedioPagoSiCompra() {
-      const motivo = document.getElementById('motivo').value;
-      const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
-      document.getElementById('bloqueMedioPago').style.display = esCompra ? 'block' : 'none';
-    }
-
-    function enviar() {
-      const btn = document.getElementById('btnEnviar');
-      const errorDiv = document.getElementById('error');
-      const okDiv = document.getElementById('ok');
-      errorDiv.style.display = 'none';
-      okDiv.style.display = 'none';
-
-      const codigoProducto = document.getElementById('producto').value;
-      const cantidad = document.getElementById('cantidad').value.trim();
-      const motivo = document.getElementById('motivo').value;
-      const responsable = document.getElementById('responsable').value;
-
-      if (!tipoSeleccionado) { mostrarError('Elige el tipo de movimiento.'); return; }
-      if (!codigoProducto) { mostrarError('Elige un producto.'); return; }
-      if (!cantidad || Number(cantidad) <= 0) { mostrarError('Ingresa una cantidad válida.'); return; }
-      if (!motivo) { mostrarError('Elige un motivo.'); return; }
-      if (!responsable) { mostrarError('Elige quién registra el movimiento.'); return; }
-
-      const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
-      const medioPago = esCompra ? document.getElementById('medioPagoVenta').value : '';
-
-      const datos = {
-        tipo: tipoSeleccionado,
-        codigoProducto: codigoProducto,
-        cantidad: Number(cantidad),
-        motivo: motivo,
-        responsable: responsable,
-        notas: document.getElementById('notas').value.trim()
-      };
-
-      btn.disabled = true;
-      btn.textContent = 'Registrando...';
-      const avisoLento = setTimeout(function () { btn.textContent = 'Esto puede tardar unos segundos más...'; }, 5000);
-
-      llamarApi(API_URL_INVENTARIO, 'registrarMovimientoInventario', datos, true)
-        .then(function (resp) {
-          clearTimeout(avisoLento);
-          if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
-
-          let mensaje = '✅ Movimiento registrado. Nuevo stock: ' + resp.data.stockNuevo;
-
-          if (esCompra && resp.data.costoUnitario > 0 && resp.data.categoriaCompraFinanzas) {
-            const montoTotal = resp.data.costoUnitario * Number(cantidad);
-            return registrarMovimientoFinanzasAutomatico_('Egreso', resp.data.categoriaCompraFinanzas, montoTotal, medioPago, resp.data.nombreProducto, cantidad, responsable)
-              .then(function (okFinanzas) {
-                mensaje += okFinanzas
-                  ? ' Egreso registrado en Finanzas.'
-                  : ' (No se pudo registrar el egreso en Finanzas automático — regístralo manual en movimientos.html)';
-                mostrarExito_(mensaje);
-              });
-          }
-
-          mostrarExito_(mensaje);
-        })
+      return fetch(url, Object.assign({}, opciones, { signal: controlador.signal }))
+        .then(function (r) { clearTimeout(timeoutId); return r; })
         .catch(function (err) {
-          clearTimeout(avisoLento);
-          mostrarError(err.message);
-        })
-        .finally(function () {
-          btn.disabled = false;
-          btn.textContent = 'Registrar movimiento';
+          clearTimeout(timeoutId);
+          if (intentosRestantes > 1) return intentar(intentosRestantes - 1);
+          if (soloUnIntento) {
+            throw new Error('No pudimos confirmar si el movimiento se registró. Revisa el stock antes de repetirlo, para evitar duplicarlo.');
+          }
+          throw new Error('El servidor está tardando en responder. Intenta de nuevo en unos segundos.');
         });
     }
+    return intentar(intentos);
+  }
 
-    function mostrarExito_(mensaje) {
-      const okDiv = document.getElementById('ok');
-      okDiv.textContent = mensaje;
-      okDiv.style.display = 'block';
-      document.getElementById('cantidad').value = '';
-      document.getElementById('notas').value = '';
-      cargarProductos();
+  function llamarApi(url, accion, payload, esEscritura) {
+    return fetchConReintento(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: accion, payload: payload })
+    }, esEscritura).then(function (r) {
+      return r.text().then(function (texto) {
+        try { return JSON.parse(texto); }
+        catch (e) { throw new Error('El servidor tardó en responder. Intenta de nuevo.'); }
+      });
+    });
+  }
+
+  function elegirTipo(tipo) {
+    tipoSeleccionado = tipo;
+    document.getElementById('btnEntrada').className = tipo === 'Entrada' ? 'activo-entrada' : '';
+    document.getElementById('btnSalida').className = tipo === 'Salida' ? 'activo-salida' : '';
+    document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
+
+    const selectMotivo = document.getElementById('motivo');
+    const labelCantidad = document.getElementById('labelCantidad');
+    let opciones = [];
+    let motivoPorDefecto = '';
+
+    if (tipo === 'Entrada') {
+      opciones = ['Compra a proveedor', 'Ajuste de inventario'];
+      labelCantidad.textContent = 'Cantidad que ingresa *';
+      motivoPorDefecto = 'Compra a proveedor';
+    }
+    if (tipo === 'Salida') {
+      opciones = ['Daño / Rotura (Descarte)', 'Pérdida / Extravío', 'Retiro por Seguridad'];
+      labelCantidad.textContent = 'Cantidad a dar de baja *';
+      motivoPorDefecto = 'Daño / Rotura (Descarte)';
+    }
+    if (tipo === 'Ajuste') {
+      opciones = ['Conteo físico / corrección'];
+      labelCantidad.textContent = 'Stock real (reemplaza el actual) *';
+      motivoPorDefecto = 'Conteo físico / corrección';
     }
 
-    function registrarMovimientoFinanzasAutomatico_(tipo, categoria, montoTotal, medioPago, nombreProducto, cantidad, responsable) {
-      const datosMovimiento = {
-        tipo: tipo,
-        categoria: categoria,
-        medioPago: medioPago,
-        monto: montoTotal,
-        descripcion: nombreProducto + ' x' + cantidad,
-        comprobante: '',
-        responsable: responsable
-      };
+    selectMotivo.innerHTML = '<option value="">-- Selecciona --</option>' +
+      opciones.map(function (m) { return '<option value="' + m + '">' + m + '</option>'; }).join('');
+    selectMotivo.value = motivoPorDefecto;
 
-      return fetch(API_URL_FINANZAS, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
-      }).then(function (r) { return r.text(); })
-        .then(function (texto) {
-          try {
-            const resp = JSON.parse(texto);
-            return !!resp.ok;
-          } catch (e) {
-            return false;
-          }
-        })
-        .catch(function () { return false; });
+    mostrarMedioPagoSiCompra();
+  }
+
+  function pintarProductos() {
+    const select = document.getElementById('producto');
+    const valorPrevio = select.value;
+
+    select.innerHTML = '<option value="">-- Selecciona --</option>' +
+      productosCache.map(function (p) {
+        const proveedorTexto = p.proveedor ? ' — ' + p.proveedor : '';
+        return '<option value="' + p.codigo + '">' + p.nombre + proveedorTexto + ' (stock: ' + p.stockActual + ')</option>';
+      }).join('');
+
+    if (valorPrevio) select.value = valorPrevio;
+
+    generarResumenProveedores_();
+    generarResumenStockBajo_();
+    mostrarStock();
+  }
+
+  function generarResumenProveedores_() {
+    const contenedor = document.getElementById('listaProveedores');
+    if (!productosCache || productosCache.length === 0) {
+      contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros</span>';
+      return;
     }
 
-    function mostrarError(msg) {
-      const errorDiv = document.getElementById('error');
-      errorDiv.textContent = msg;
-      errorDiv.style.display = 'block';
+    const conteo = {};
+    productosCache.forEach(function (p) {
+      const prov = p.proveedor || 'Sin Marca';
+      conteo[prov] = (conteo[prov] || 0) + Number(p.stockActual || 0);
+    });
+
+    contenedor.innerHTML = Object.keys(conteo).map(function (prov) {
+      return `
+        <div style="background: #f0f4f8; border: 1px solid #d0dbe5; border-radius: 6px; padding: 6px 10px; font-size: 12px;">
+          <strong style="color: #1a1a1a;">${prov}:</strong> 
+          <span style="color: #2b6cb0; font-weight: bold;">${conteo[prov]} unidades</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* 🟢 FUNCIÓN ACTUALIZADA AL DISEÑO MINIMALISTA */
+  function generarResumenStockBajo_() {
+    const contenedor = document.getElementById('listaStockBajo');
+    const banner = document.getElementById('resumenStockBajo');
+    const titulo = document.getElementById('resumenTitulo');
+
+    if (!productosCache || productosCache.length === 0) {
+      contenedor.innerHTML = '<span class="texto-cargando">Sin registros de stock</span>';
+      return;
     }
 
-    cargarProductos();
-    cargarStaff();
-  </script>
+    const bajos = productosCache.filter(function (p) {
+      return Number(p.stockActual) <= Number(p.stockMinimo);
+    });
+
+    if (bajos.length === 0) {
+      banner.classList.add('ok');
+      titulo.textContent = '✅ Todo el equipamiento tiene stock suficiente';
+      contenedor.innerHTML = '';
+      return;
+    }
+
+    banner.classList.remove('ok');
+    titulo.textContent = '⚠️ Productos bajo stock mínimo';
+
+    contenedor.innerHTML = bajos.map(function (p) {
+      return `
+        <div class="chip-stock">
+          <span class="chip-nombre">${p.nombre}</span>
+          <span class="chip-cantidad">${p.stockActual} u</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function mostrarStock() {
+    const select = document.getElementById('producto');
+    const codigo = select.value;
+    const info = document.getElementById('stockInfo');
+
+    if (!codigo) { 
+      info.style.display = 'none'; 
+      return; 
+    }
+
+    const producto = productosCache.find(function (p) { return p.codigo === codigo; });
+    
+    if (!producto) { 
+      info.style.display = 'none'; 
+      return; 
+    }
+
+    info.style.display = 'block';
+    info.textContent = 'Stock actual: ' + producto.stockActual + 
+      (producto.stockMinimo ? ' (mínimo recomendado: ' + producto.stockMinimo + ')' : '');
+    
+    info.className = Number(producto.stockActual) <= Number(producto.stockMinimo) ? 'bajo' : '';
+  }
+
+  /* 🟢 ADAPTADO PARA RECARGA FORZADA */
+  function cargarProductos(forzarServidor) {
+    if (!forzarServidor) {
+      const cache = leerCache_('productos_equipamiento_cache');
+      if (cache) { 
+        productosCache = cache; 
+        pintarProductos(); 
+      }
+    }
+
+    llamarApi(API_URL_INVENTARIO, 'listarEquipamientoInterno', {})
+      .then(function (resp) {
+        if (resp.ok) {
+          productosCache = resp.data;
+          guardarCache_('productos_equipamiento_cache', resp.data);
+          pintarProductos();
+        }
+      })
+      .catch(function () {});
+  }
+
+  function cargarStaff() {
+    const select = document.getElementById('responsable');
+    function pintar(nombres) {
+      const valorPrevio = select.value;
+      select.innerHTML = '<option value="">-- Selecciona tu nombre --</option>' +
+        nombres.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+      if (valorPrevio && nombres.indexOf(valorPrevio) !== -1) select.value = valorPrevio;
+    }
+    const cache = leerCache_('staff_inventario_cache');
+    if (cache) pintar(cache);
+
+    llamarApi(API_URL_CLIENTES, 'listarStaff', {})
+      .then(function (resp) {
+        if (resp.ok && resp.data) {
+          pintar(resp.data);
+          guardarCache_('staff_inventario_cache', resp.data);
+        }
+      })
+      .catch(function () {});
+  }
+
+  function guardarCache_(clave, datos) {
+    try { localStorage.setItem(clave, JSON.stringify({ datos: datos, guardado: Date.now() })); }
+    catch (e) {}
+  }
+  
+  function leerCache_(clave) {
+    try {
+      const crudo = localStorage.getItem(clave);
+      if (!crudo) return null;
+      const parsed = JSON.parse(crudo);
+      const DOCE_HORAS_MS = 12 * 60 * 60 * 1000;
+      if (Date.now() - parsed.guardado > DOCE_HORAS_MS) return null;
+      return parsed.datos;
+    } catch (e) { return null; }
+  }
+
+  function mostrarMedioPagoSiCompra() {
+    const motivo = document.getElementById('motivo').value;
+    const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
+    document.getElementById('bloqueMedioPago').style.display = esCompra ? 'block' : 'none';
+  }
+
+  function enviar() {
+    const btn = document.getElementById('btnEnviar');
+    const errorDiv = document.getElementById('error');
+    const okDiv = document.getElementById('ok');
+    errorDiv.style.display = 'none';
+    okDiv.style.display = 'none';
+
+    const codigoProducto = document.getElementById('producto').value;
+    const cantidad = document.getElementById('cantidad').value.trim();
+    const motivo = document.getElementById('motivo').value;
+    const responsable = document.getElementById('responsable').value;
+
+    if (!tipoSeleccionado) { mostrarError('Elige el tipo de movimiento.'); return; }
+    if (!codigoProducto) { mostrarError('Elige un producto.'); return; }
+    if (!cantidad || Number(cantidad) <= 0) { mostrarError('Ingresa una cantidad válida.'); return; }
+    if (!motivo) { mostrarError('Elige un motivo.'); return; }
+    if (!responsable) { mostrarError('Elige quién registra el movimiento.'); return; }
+
+    const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
+    const medioPago = esCompra ? document.getElementById('medioPagoVenta').value : '';
+
+    const datos = {
+      tipo: tipoSeleccionado,
+      codigoProducto: codigoProducto,
+      cantidad: Number(cantidad),
+      motivo: motivo,
+      responsable: responsable,
+      notas: document.getElementById('notas').value.trim()
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Registrando...';
+    const avisoLento = setTimeout(function () { btn.textContent = 'Esto puede tardar unos segundos más...'; }, 5000);
+
+    llamarApi(API_URL_INVENTARIO, 'registrarMovimientoInventario', datos, true)
+      .then(function (resp) {
+        clearTimeout(avisoLento);
+        if (!resp.ok) throw new Error(resp.error || 'Error desconocido');
+
+        let mensaje = '✅ Movimiento registrado. Nuevo stock: ' + resp.data.stockNuevo;
+
+        if (esCompra && resp.data.costoUnitario > 0 && resp.data.categoriaCompraFinanzas) {
+          const montoTotal = resp.data.costoUnitario * Number(cantidad);
+          return registrarMovimientoFinanzasAutomatico_('Egreso', resp.data.categoriaCompraFinanzas, montoTotal, medioPago, resp.data.nombreProducto, cantidad, responsable)
+            .then(function (okFinanzas) {
+              mensaje += okFinanzas
+                ? ' Egreso registrado en Finanzas.'
+                : ' (No se pudo registrar el egreso en Finanzas automático — regístralo manual en movimientos.html)';
+              mostrarExito_(mensaje);
+            });
+        }
+
+        mostrarExito_(mensaje);
+      })
+      .catch(function (err) {
+        clearTimeout(avisoLento);
+        mostrarError(err.message);
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = 'Registrar movimiento';
+      });
+  }
+
+  /* 🟢 LIMPIEZA COMPLETA AL REGISTRAR EXITO */
+  function mostrarExito_(mensaje) {
+    const okDiv = document.getElementById('ok');
+    okDiv.textContent = mensaje;
+    okDiv.style.display = 'block';
+
+    // Resetear inputs y selecciones
+    document.getElementById('cantidad').value = '1';
+    document.getElementById('notas').value = '';
+    document.getElementById('producto').value = '';
+    document.getElementById('motivo').value = '';
+    document.getElementById('responsable').value = '';
+
+    // Resetear botones de tipo de movimiento
+    tipoSeleccionado = '';
+    document.getElementById('btnEntrada').className = '';
+    document.getElementById('btnSalida').className = '';
+    document.getElementById('btnAjuste').className = '';
+
+    // Ocultar info secundaria
+    document.getElementById('stockInfo').style.display = 'none';
+    if (document.getElementById('bloqueMedioPago')) {
+      document.getElementById('bloqueMedioPago').style.display = 'none';
+    }
+
+    // Refrescar stock desde el servidor
+    cargarProductos(true);
+  }
+
+  function registrarMovimientoFinanzasAutomatico_(tipo, categoria, montoTotal, medioPago, nombreProducto, cantidad, responsable) {
+    const datosMovimiento = {
+      tipo: tipo,
+      categoria: categoria,
+      medioPago: medioPago,
+      monto: montoTotal,
+      descripcion: nombreProducto + ' x' + cantidad,
+      comprobante: '',
+      responsable: responsable
+    };
+
+    return fetch(API_URL_FINANZAS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'registrarMovimiento', payload: datosMovimiento })
+    }).then(function (r) { return r.text(); })
+      .then(function (texto) {
+        try {
+          const resp = JSON.parse(texto);
+          return !!resp.ok;
+        } catch (e) {
+          return false;
+        }
+      })
+      .catch(function () { return false; });
+  }
+
+  function mostrarError(msg) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = msg;
+    errorDiv.style.display = 'block';
+  }
+
+  cargarProductos();
+  cargarStaff();
+</script>
 </body>
 </html>
