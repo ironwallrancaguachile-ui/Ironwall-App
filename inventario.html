@@ -140,7 +140,6 @@
     </div>
   </div>
 
- <div class="form-grid">
   <!-- FILA 1: Tipo de Movimiento (Ocupa las 2 columnas) -->
   <div class="form-group full-width">
     <label>¿Qué pasó? *</label>
@@ -149,23 +148,24 @@
       <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
     </div>
   </div>
-
+ 
+  <div class="form-grid">
   <!-- FILA 2: Producto (Izquierda) | Cantidad (Derecha) -->
-  <div class="form-group">
-    <label>Producto *</label>
-    <select id="producto" onchange="mostrarStock()" style="width: fit-content; max-width: 400px; text-overflow: ellipsis;">
-      <option value="">-- Selecciona --</option>
-    </select>
-    <div id="stockInfo"></div>
-  </div>
-
-  <div class="form-group">
-    <label id="labelCantidad">Cantidad *</label>
-    <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: left;">   
-  </div>
+    <div class="form-group">
+      <label>Producto *</label>
+      <select id="producto" onchange="mostrarStock()" style="width: fit-content; max-width: 100%; text-overflow: ellipsis;">
+        <option value="">-- Selecciona --</option>
+      </select>
+      <div id="stockInfo"></div>
+    </div>
+  
+    <div class="form-group">
+      <label id="labelCantidad">Cantidad *</label>
+      <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: left;width: fit-content">   
+    </div>
  </div>
  
-<div class="form-group">
+<div class="form-grid">
   <!-- FILA 3: Motivo (Izquierda) | Registrado por (Derecha) -->
   <div class="form-group">
     <label>Motivo *</label>
