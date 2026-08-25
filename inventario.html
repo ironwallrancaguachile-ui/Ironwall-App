@@ -126,6 +126,12 @@
     width: 100%;
     box-sizing: border-box;
   }
+  #cantidadInfo {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+    display: none;
+  }
  /* Adaptabilidad Móvil */
   @media (max-width: 480px) {
     .form-grid {
@@ -173,8 +179,10 @@
     </div>
   
     <div class="form-group">
-      <label id="labelCantidad">Cantidad *</label>
+     <!--**<label id="labelCantidad">Cantidad *</label>**-->
+      <label >Cantidad *</label>
       <input id="cantidad" type="number" min="1" step="1" value="1" >   
+      <div id= "cantidadInfo"></div>
     </div>
  </div>
  
@@ -276,12 +284,14 @@
 
       if (tipo === 'Entrada') {
         opciones = MOTIVOS_ENTRADA;
-        labelCantidad.textContent = 'Cantidad que ingresa *';
+        /**labelCantidad.textContent = 'Cantidad que ingresa *';**/
+        labelCantidad.textContent = 'que ingresa *';
         motivoPorDefecto = 'Compra a proveedor';
       }
       if (tipo === 'Ajuste') {
         opciones = ['Conteo físico / corrección'];
-        labelCantidad.textContent = 'Stock real (reemplaza el actual) *';
+        /**labelCantidad.textContent = 'Stock real (reemplaza el actual) *';**/
+        labelCantidad.textContent = 'Stock real *';
         motivoPorDefecto = 'Conteo físico / corrección';
       }
 
