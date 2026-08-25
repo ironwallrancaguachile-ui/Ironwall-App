@@ -187,7 +187,10 @@
     <input type="text" id="notas" placeholder="Opcional">
   </div>
 </div>
-
+ 
+  <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
+  <div id="error"></div>
+  <div id="ok"></div>
 
   <script>
     const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
@@ -379,10 +382,15 @@
       } catch (e) { return null; }
     }
 
-    function mostrarMedioPagoSiCompra() {
+   /** function mostrarMedioPagoSiCompra() {
       const motivo = document.getElementById('motivo').value;
       const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
       document.getElementById('bloqueMedioPago').style.display = esCompra ? 'block' : 'none';
+    }**/
+   function mostrarMedioPagoSiCompra() {
+      const motivo = document.getElementById('motivo').value;
+      const esCompra = tipoSeleccionado === 'Entrada' && motivo === 'Compra a proveedor';
+      document.getElementById('bloqueMedioPago').style.display = esCompra ? 'flex' : 'none';
     }
 
     function enviar() {
