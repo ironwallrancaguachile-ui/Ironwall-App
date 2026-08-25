@@ -151,7 +151,7 @@
  
   <div class="form-grid">
   <!-- FILA 2: Producto (Izquierda) | Cantidad (Derecha) -->
-    <div class="form-group">
+    <div class="form-group"> 
       <label>Producto *</label>
       <select id="producto" onchange="mostrarStock()" style="width: fit-content; max-width: 100%; text-overflow: ellipsis;">
         <option value="">-- Selecciona --</option>
@@ -161,7 +161,7 @@
   
     <div class="form-group">
       <label id="labelCantidad">Cantidad *</label>
-      <input id="cantidad" type="number" min="1" step="1" value="1">   
+      <input id="cantidad" type="number" min="1" step="1" value="1" style="width: fit-content; max-width: 100%;">   
     </div>
  </div>
  
@@ -169,7 +169,7 @@
   <!-- FILA 3: Motivo (Izquierda) | Registrado por (Derecha) -->
   <div class="form-group">
     <label>Motivo *</label>
-    <select id="motivo" onchange="mostrarMedioPagoSiCompra() "style="width: fit-content; max-width: 100%;">
+    <select id="motivo" onchange="mostrarMedioPagoSiCompra()" style="width: fit-content; max-width: 100%;">
       <option value="">-- Primero elige el tipo --</option>
     </select>
   </div>
