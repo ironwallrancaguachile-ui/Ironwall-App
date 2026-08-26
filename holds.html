@@ -99,7 +99,7 @@
     <!-- FILA 1: producto | cantidad -->
     <div class="form-group">
        <label>Producto *</label>
-       <select id="producto" onchange="mostrarStock()" style="width: fit-content; max-width: 100%;">
+       <select id="producto" onchange="mostrarStock()" style="width: fit-content; max-width: 100%; text-overflow: ellipsis;display: block;">
          <option value="">-- Selecciona --</option>
        </select>
        <div id="stockInfo"></div>
@@ -107,7 +107,7 @@
     <div class="form-group">
        <label id="labelCantidad">Cantidad *</label>
        <!--<input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">-->
-       <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: left; width: fit-content; max-width: 100%;"> 
+       <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: left;"> 
     </div> 
    
     <!-- FILA 2: motivo | Medio de pago -->
