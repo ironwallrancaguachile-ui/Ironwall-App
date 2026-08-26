@@ -245,11 +245,46 @@
 
       if (valorPrevio) select.value = valorPrevio;
 
-      generarTarjetaStockBajo_();
+      /**generarTarjetaStockBajo_();**/
+      generarResumenStockBajo_() 
       mostrarStock();
     }
 
-    function generarTarjetaStockBajo_() {
+     /* 🟢 FUNCIÓN ACTUALIZADA AL DISEÑO MINIMALISTA */
+  function generarResumenStockBajo_() {
+    const contenedor = document.getElementById('listaStockBajo');
+    const banner = document.getElementById('resumenStockBajo');
+    const titulo = document.getElementById('resumenTitulo');
+
+    if (!productosCache || productosCache.length === 0) {
+      contenedor.innerHTML = '<span class="texto-cargando">Sin registros de stock</span>';
+      return;
+    }
+
+    const bajos = productosCache.filter(function (p) {
+      return Number(p.stockActual) <= Number(p.stockMinimo);
+    });
+
+    if (bajos.length === 0) {
+      banner.classList.add('ok');
+      titulo.textContent = '✅ Todo el equipamiento tiene stock suficiente';
+      contenedor.innerHTML = '';
+      return;
+    }
+
+    banner.classList.remove('ok');
+    titulo.textContent = '⚠️ Productos bajo stock mínimo';
+
+    contenedor.innerHTML = bajos.map(function (p) {
+      return `
+        <div class="chip-stock">
+          <span class="chip-nombre">${p.nombre}</span>
+          <span class="chip-cantidad">${p.stockActual} u</span>
+        </div>
+      `;
+    }).join('');
+  }
+   /** function generarTarjetaStockBajo_() {
       const contenedor = document.getElementById('listaStockBajo');
       if (!productosCache || productosCache.length === 0) {
         contenedor.innerHTML = '<span style="font-size: 13px; color: #888;">Sin registros de stock</span>';
@@ -274,7 +309,7 @@
           </div>
         `;
       }).join('');
-    }
+    }**/
 
     function mostrarStock() {
       const select = document.getElementById('producto');
