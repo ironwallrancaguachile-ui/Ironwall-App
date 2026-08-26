@@ -25,6 +25,15 @@
     border-radius: 8px;
     background: #fff;
   }
+
+  /* Contenedor principal ultra compacto */
+  .resumen-stock { background: #fff8f8; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; transition: background 0.3s, border-color 0.3s;}
+  /* Estado cuando todo está correcto */
+  .resumen-stock.ok { background: #f0fdf4; border-color: #bbf7d0;}
+  .resumen-header { font-size: 12px; font-weight: 700; color: #991b1b; margin-bottom: 6px;}
+  .resumen-stock.ok .resumen-header {color: #166534;}
+  .resumen-lista { display: flex; flex-wrap: wrap; gap: 6px;}
+ 
       /* CONTENEDOR GRID DE 2 COLUMNAS */
     .form-grid {
       display: grid;
@@ -163,13 +172,23 @@
   <h1>Inventario de Tienda y Mercadería</h1>
   <p class="sub">Registra cuando llega mercadería, o cuando corriges un conteo.</p>
 
+  <!-- Banner Minimalista de Alerta / Estado -->
+  <div id="resumenStockBajo" class="resumen-stock">
+    <div class="resumen-header">
+      <span id="resumenTitulo">⚠️ Productos bajo stock mínimo</span>
+    </div>
+    <div id="listaStockBajo" class="resumen-lista">
+      <span class="texto-cargando">Cargando productos...</span>
+    </div>
+  </div>
+ 
   <!-- Contenedor del Resumen de Productos Bajo Stock -->
-  <div id="resumenStockBajo" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 0px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <!--<div id="resumenStockBajo" style="background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 0px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
     <h3 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">⚠️ Productos Bajo Stock Mínimo</h3>
     <div id="listaStockBajo" style="display: flex; flex-wrap: wrap; gap: 8px;">
       <span style="font-size: 13px; color: #888;">Cargando productos...</span>
     </div>
-  </div>
+  </div>-->
 
   <!-- FILA 1: Tipo de Movimiento (Ocupa las 2 columnas) -->
   <div class="form-group full-width">
