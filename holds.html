@@ -57,6 +57,7 @@
   /* Adaptabilidad Móvil */
    @media (max-width: 480px) {.form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
      .col-span-2 { grid-column: span 1; } }  
+
 </style>
 </head>
  
@@ -109,7 +110,9 @@
        <!--<input type="text" id="cantidad" inputmode="numeric" placeholder="1" oninput="soloNumeros(this)">-->
        <input id="cantidad" type="number" min="1" step="1" value="1" style="text-align: left;"> 
     </div> 
-   
+  </div>
+ 
+   <div class="form-grid">
     <!-- FILA 2: motivo | Medio de pago -->
     <div class="form-group">
        <label>Motivo *</label>
