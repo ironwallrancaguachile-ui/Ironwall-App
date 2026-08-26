@@ -114,10 +114,8 @@
   </div>
 
   <div class="form-group">
-    <label>Registrado por *</label>
-    <select id="responsable" >
-      <option value="">-- Selecciona tu nombre --</option>
-    </select>
+     <label>Notas</label>
+     <input type="text" id="notas" placeholder="Opcional">
   </div>
 </div>
   <!-- FILA 4 CONDICIONAL: Medio de pago (Ocupa 2 columnas cuando aparece) -->
@@ -133,8 +131,10 @@
  <div class="form-grid">
   <!-- FILA 5: Notas (Ocupa las 2 columnas al final) -->
    <div class="form-group">
-     <label>Notas</label>
-     <input type="text" id="notas" placeholder="Opcional">
+    <label>Registrado por *</label>
+    <select id="responsable" >
+      <option value="">-- Selecciona tu nombre --</option>
+    </select>
    </div>
    <div class="form-group">
      <button class="enviar" id="btnEnviar" style="margin-top:30px"; onclick="enviar()">Registrar movimiento</button>
