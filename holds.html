@@ -53,6 +53,10 @@
   /* ELEMENTOS QUE OCUPAN 2 COLUMNAS SIEMPRE */
   .full-width { grid-column: span 2; }
   .form-group { display: flex; flex-direction: column; }
+
+  .form-grid-producto-cantidad { display: grid; grid-template-columns: minmax(0, 1fr) 90px; gap: 12px; align-items: start; width: 100%; }
+  .form-grid-producto-cantidad select,
+  .form-grid-producto-cantidad input { width: 100%; box-sizing: border-box; }
  
   /* Adaptabilidad Móvil */
    @media (max-width: 480px) {.form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -96,7 +100,7 @@
     <button type="button" id="btnAjuste" onclick="elegirTipo('Ajuste')">Corregir conteo</button>
    </div>
  
-  <div class="form-grid">
+  <div class="form-grid-producto-cantidad">
     <!-- FILA 1: producto | cantidad -->
     <div class="form-group">
        <label>Producto *</label>
