@@ -182,7 +182,7 @@
      <!--**<label id="labelCantidad">Cantidad *</label>**-->
       <label >Cantidad *</label>
       <input id="cantidad" type="number" min="1" step="1" value="1" >   
-      <div id="labelCantidad"></div>
+      <div id="cantidadInfo"></div>
     </div>
  </div>
  
@@ -278,7 +278,8 @@
       document.getElementById('btnAjuste').className = tipo === 'Ajuste' ? 'activo-ajuste' : '';
 
       const selectMotivo = document.getElementById('motivo');
-      const labelCantidad = document.getElementById('labelCantidad');
+      const cantidadInfo = document.getElementById('cantidadInfo');
+     /**const labelCantidad = document.getElementById('labelCantidad');**/
       let opciones = [];
       let motivoPorDefecto = '';
 
