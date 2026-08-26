@@ -129,7 +129,7 @@
     </div>
    
     <!-- FILA 3: Categoria | Medio de pago -->
-    <div class="form-group">
+    <div class="full-width">
        <label>Notas</label>
        <input type="text" id="notas" placeholder="Opcional">
     </div>
@@ -139,11 +139,11 @@
          <option value="">-- Selecciona tu nombre --</option>
        </select>
     </div> 
-   
-  <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
-  <div id="error"></div>
-  <div id="ok"></div>
-
+   <div class="form-group">
+    <button class="enviar" id="btnEnviar" onclick="enviar()">Registrar movimiento</button>
+    <div id="error"></div>
+    <div id="ok"></div>
+   </div> 
 <script>
   const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
   const API_URL_CLIENTES = 'https://script.google.com/macros/s/AKfycbx7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
