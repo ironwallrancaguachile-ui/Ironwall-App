@@ -98,12 +98,6 @@
   <h1>Mensajes pendientes</h1>
   <p class="sub">Cópialos y mándalos por WhatsApp o correo — marca "Enviado" cuando termines.</p>
 
-  <div class="filtros">
-    <button class="activo" id="btnTodos" onclick="filtrar('todos')">Todos</button>
-    <button id="btnWhatsapp" onclick="filtrar('WhatsApp')">WhatsApp</button>
-    <button id="btnEmail" onclick="filtrar('Email')">Email</button>
-  </div>
-
   <div id="cargando">Cargando...</div>
   <div id="lista"></div>
   <div id="vacio" style="display:none">No hay mensajes pendientes 🎉</div>
@@ -171,29 +165,34 @@
     function render() {
       const lista = document.getElementById('lista');
       const vacio = document.getElementById('vacio');
-      const filtrados = filtroActual === 'todos'
-        ? mensajesCache
-        : mensajesCache.filter(function (m) { return m.canal === filtroActual; });
-
-      if (filtrados.length === 0) {
+    
+      if (mensajesCache.length === 0) {
         lista.innerHTML = '';
         vacio.style.display = 'block';
         return;
       }
       vacio.style.display = 'none';
-
-      lista.innerHTML = filtrados.map(function (m, idx) {
-        const claseCanal = m.canal === 'WhatsApp' ? 'whatsapp' : 'email';
+    
+      lista.innerHTML = mensajesCache.map(function (m) {
+        // Construimos la línea de contacto mostrando email y/o teléfono disponibles
+        const contactoInfo = [
+          m.email ? '✉️ ' + m.email : '',
+          m.telefono ? '📱 ' + m.telefono : ''
+        ].filter(Boolean).join(' | ');
+    
         return '<div class="tarjeta">'
-          + '<span class="canal ' + claseCanal + '">' + m.canal + '</span>'
           + '<h3>' + m.nombre + '</h3>'
-          + '<div class="meta">' + m.contacto + ' — ' + m.tipo + '</div>'
+          + '<div class="meta">' + contactoInfo + ' — ' + m.tipo + '</div>'
           + (m.asunto ? '<div class="asunto">Asunto: ' + m.asunto + '</div>' : '')
           + '<div class="mensaje" id="msg-' + m.fila + '">' + m.mensaje + '</div>'
-          + '<div class="botones">'
-          + '<button class="btn-copiar" onclick="copiar(' + m.fila + ')">Copiar mensaje</button>'
-          + '<button class="btn-enviado" onclick="marcarEnviado(' + m.fila + ', this)">Ya lo envié</button>'
-          + '</div></div>';
+          + '<div class="botones" style="flex-direction: column;">'
+            + '<button class="btn-copiar" onclick="copiar(' + m.fila + ')">Copiar mensaje</button>'
+            + '<div style="display:flex; gap:8px;">'
+              + (m.telefono ? '<button class="btn-enviado" style="background:#1e824c;" onclick="marcarEnviado(' + m.fila + ', \'WhatsApp\', this)">Envié por WhatsApp</button>' : '')
+              + (m.email ? '<button class="btn-enviado" style="background:#3c3489;" onclick="marcarEnviado(' + m.fila + ', \'Email\', this)">Envié por Email</button>' : '')
+            + '</div>'
+          + '</div>'
+          + '</div>';
       }).join('');
     }
 
@@ -202,10 +201,12 @@
       navigator.clipboard.writeText(texto).catch(function () { /* si falla, el usuario puede seleccionar a mano */ });
     }
 
-    function marcarEnviado(fila, boton) {
+    function marcarEnviado(fila, canalElegido, boton) {
       boton.disabled = true;
       boton.textContent = 'Guardando...';
-      llamarApi('marcarMensajeEnviado', { fila: fila }, true)
+    
+      // Se envía el canal seleccionado ('WhatsApp' o 'Email') junto a la fila
+      llamarApi('marcarMensajeEnviado', { fila: fila, canal: canalElegido }, true)
         .then(function (resp) {
           if (!resp.ok) throw new Error(resp.error);
           mensajesCache = mensajesCache.filter(function (m) { return m.fila !== fila; });
@@ -213,7 +214,7 @@
         })
         .catch(function (err) {
           boton.disabled = false;
-          boton.textContent = 'Ya lo envié';
+          boton.textContent = 'Envié por ' + canalElegido;
           alert('Error: ' + err.message);
         });
     }
