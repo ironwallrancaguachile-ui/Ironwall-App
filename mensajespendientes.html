@@ -16,16 +16,7 @@
   }
   h1 { font-size: 20px; margin-bottom: 4px; }
   p.sub { color: #666; margin-top: 0; font-size: 13px; }
-  .filtros { display: flex; gap: 8px; margin-top: 10px; }
-  .filtros button {
-    flex: 1;
-    padding: 8px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 13px;
-  }
-  .filtros button.activo { border-color: #1a1a1a; background: #f0f0f0; font-weight: 600; }
+
   .tarjeta {
     background: #fff;
     border: 1px solid #e0e0e0;
@@ -154,7 +145,7 @@
         });
     }
 
-    function render() {
+  function render() {
       const lista = document.getElementById('lista');
       const vacio = document.getElementById('vacio');
     
@@ -166,7 +157,6 @@
       vacio.style.display = 'none';
     
       lista.innerHTML = mensajesCache.map(function (m) {
-        // Construimos la línea de contacto mostrando email y/o teléfono disponibles
         const contactoInfo = [
           m.email ? '✉️ ' + m.email : '',
           m.telefono ? '📱 ' + m.telefono : ''
@@ -178,7 +168,7 @@
           + (m.asunto ? '<div class="asunto">Asunto: ' + m.asunto + '</div>' : '')
           + '<div class="mensaje" id="msg-' + m.fila + '">' + m.mensaje + '</div>'
           + '<div class="botones" style="flex-direction: column;">'
-            + '<button class="btn-copiar" onclick="copiar(' + m.fila + ')">Copiar mensaje</button>'
+            + '<button class="btn-copiar" onclick="copiar(' + m.fila + ', this)">Copiar mensaje</button>'
             + '<div style="display:flex; gap:8px;">'
               + (m.telefono ? '<button class="btn-enviado" style="background:#1e824c;" onclick="marcarEnviado(' + m.fila + ', \'WhatsApp\', this)">Envié por WhatsApp</button>' : '')
               + (m.email ? '<button class="btn-enviado" style="background:#3c3489;" onclick="marcarEnviado(' + m.fila + ', \'Email\', this)">Envié por Email</button>' : '')
@@ -188,55 +178,52 @@
       }).join('');
     }
 
-function copiar(fila) {
-  const texto = document.getElementById('msg-' + fila).textContent;
+    function copiar(fila, btn) {
+      const texto = document.getElementById('msg-' + fila).textContent;
 
-  // Intentar usar la API moderna de Clipboard si está disponible
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(texto).then(function() {
-      notificarCopiado(fila);
-    }).catch(function() {
-      copiarFallback(texto, fila);
-    });
-  } else {
-    // Usar método tradicional para entornos HTTP o file://
-    copiarFallback(texto, fila);
-  }
-}
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(texto).then(function() {
+          notificarCopiado(btn);
+        }).catch(function() {
+          copiarFallback(texto, btn);
+        });
+      } else {
+        copiarFallback(texto, btn);
+      }
+    }
 
-function copiarFallback(texto, fila) {
-  const textArea = document.createElement('textarea');
-  textArea.value = texto;
-  // Evitar desplazamiento en pantalla al insertar el elemento
-  textArea.style.position = 'fixed';
-  textArea.style.top = '0';
-  textArea.style.left = '0';
-  textArea.style.opacity = '0';
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
+    function copiarFallback(texto, btn) {
+      const textArea = document.createElement('textarea');
+      textArea.value = texto;
+      textArea.style.position = 'fixed';
+      textArea.style.top = '0';
+      textArea.style.left = '0';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
 
-  try {
-    const exito = document.execCommand('copy');
-    if (exito) notificarCopiado(fila);
-  } catch (err) {
-    console.error('Error al copiar:', err);
-  }
+      try {
+        const exito = document.execCommand('copy');
+        if (exito) notificarCopiado(btn);
+        else alert('No se pudo copiar el texto');
+      } catch (err) {
+        console.error('Error al copiar:', err);
+        alert('Error al copiar al portapapeles');
+      }
 
-  document.body.removeChild(textArea);
-}
+      document.body.removeChild(textArea);
+    }
 
-function notificarCopiado(fila) {
-  // Opcional: feedback visual cambiando el texto del botón temporalmente
-  const btn = event?.target;
-  if (btn) {
-    const textoOriginal = btn.textContent;
-    btn.textContent = '¡Copiado! ✓';
-    setTimeout(function() {
-      btn.textContent = textoOriginal;
-    }, 1500);
-  }
-}
+    function notificarCopiado(btn) {
+      if (btn) {
+        const textoOriginal = btn.textContent;
+        btn.textContent = '¡Copiado! ✓';
+        setTimeout(function() {
+          btn.textContent = textoOriginal;
+        }, 1500);
+      }
+    }
 
     function marcarEnviado(fila, canalElegido, boton) {
       boton.disabled = true;
