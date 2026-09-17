@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ironwall Reservas</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, button { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    button { background-color: #007bff; color: white; border: none; margin-top: 15px; cursor: pointer; border-radius: 4px; }
+    button:hover { background-color: #0056b3; }
+    #resultado { margin-top: 15px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>Ironwall Reservas</h2>
+
+  <div class="card">
+    <h3>Consultar Disponibilidad</h3>
+    <label for="fecha">Fecha:</label>
+    <input type="date" id="fecha">
+
+    <label for="horaInicio">Hora Inicio:</label>
+    <input type="time" id="horaInicio" value="10:00">
+
+    <label for="horaFin">Hora Término:</label>
+    <input type="time" id="horaFin" value="12:00">
+
+    <button onclick="consultarCupos()">Ver Cupos Disponibles</button>
+  </div>
+
+  <div class="card">
+    <h3>Crear Reserva</h3>
+    <label for="clienteId">ID Cliente:</label>
+    <input type="text" id="clienteId" placeholder="Ej: CLI-001">
+
+    <label for="tipoReserva">Tipo:</label>
+    <select id="tipoReserva">
+      <option value="ENTRADA">Entrada General</option>
+      <option value="CLASE">Clase</option>
+    </select>
+
+    <label for="cantidad">Cantidad de personas:</label>
+    <input type="number" id="cantidad" value="1" min="1" max="5">
+
+    <button onclick="realizarReserva()">Confirmar Reserva</button>
+  </div>
+
+  <div id="resultado"></div>
+
+  <script>
+    const API_URL = 'TU_WEB_APP_URL_AQUI'; // Reemplaza por tu URL de Apps Script
+
+    async function consultarCupos() {
+      const fecha = document.getElementById('fecha').value;
+      const horaInicio = document.getElementById('horaInicio').value;
+      const horaFin = document.getElementById('horaFin').value;
+      const resDiv = document.getElementById('resultado');
+
+      if (!fecha) return alert('Selecciona una fecha');
+
+      resDiv.innerText = 'Consultando...';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'ocupacion',
+            fecha: fecha,
+            horaInicio: horaInicio,
+            horaFin: horaFin
+          })
+        });
+
+        const data = await response.json();
+        if (data.ok) {
+          resDiv.innerText = `Ocupación: ${data.ocupacion} | Disponibles: ${data.disponibles} / Capacidad: ${data.capacidad}`;
+        } else {
+          resDiv.innerText = 'Error: ' + data.mensaje;
+        }
+      } catch (err) {
+        resDiv.innerText = 'Error de conexión con el servidor.';
+      }
+    }
+
+    async function realizarReserva() {
+      const clienteId = document.getElementById('clienteId').value;
+      const fecha = document.getElementById('fecha').value;
+      const horaInicio = document.getElementById('horaInicio').value;
+      const horaFin = document.getElementById('horaFin').value;
+      const cantidad = document.getElementById('cantidad').value;
+      const tipoReserva = document.getElementById('tipoReserva').value;
+      const resDiv = document.getElementById('resultado');
+
+      if (!clienteId || !fecha) return alert('Completa los campos obligatorios');
+
+      resDiv.innerText = 'Procesando reserva...';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'crearReserva',
+            clienteId: clienteId,
+            fecha: fecha,
+            horaInicio: horaInicio,
+            horaFin: horaFin,
+            cantidad: Number(cantidad),
+            tipoReserva: tipoReserva,
+            origen: 'WEB'
+          })
+        });
+
+        const data = await response.json();
+        if (data.ok) {
+          resDiv.innerText = `¡Reserva Exitosa! ID: ${data.reservaId} (Disponibles restantes: ${data.disponibles})`;
+        } else {
+          resDiv.innerText = 'No se pudo reservar: ' + data.mensaje;
+        }
+      } catch (err) {
+        resDiv.innerText = 'Error de conexión con el servidor.';
+      }
+    }
+  </script>
+</body>
+</html>
