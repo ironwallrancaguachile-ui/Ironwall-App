@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+
+<title>Ironwall Reservas - Hoy</title>
+
+<style>
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: #f5f5f5;
+  color: #222;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+h1 {
+  margin-bottom: 5px;
+}
+
+.subtitulo {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.topbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+input,
+button {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+button {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  opacity: .9;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.card .numero {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.tabla {
+  background: white;
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+th {
+  background: #fafafa;
+}
+
+.estado {
+  font-weight: bold;
+}
+
+.mensaje {
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.acciones button {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Ironwall Reservas</h1>
+
+<div class="subtitulo">
+Panel operativo del día
+</div>
+
+<div class="topbar">
+
+<input
+  type="date"
+  id="fecha">
+
+<button onclick="cargarHoy()">
+Actualizar
+</button>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+Capacidad
+<div class="numero"
+     id="capacidad">
+-
+</div>
+</div>
+
+<div class="card">
+Reservados
+<div class="numero"
+     id="reservado">
+-
+</div>
+</div>
+
+<div class="card">
+Dentro ahora
+<div class="numero"
+     id="dentro">
+-
+</div>
+</div>
+
+<div class="card">
+Disponibles
+<div class="numero"
+     id="disponibles">
+-
+</div>
+</div>
+
+<div class="card">
+Clases
+<div class="numero"
+     id="clases">
+-
+</div>
+</div>
+
+</div>
+
+
+<div id="mensaje"
+     class="mensaje">
+</div>
+
+
+<div class="tabla">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Hora</th>
+<th>Cliente</th>
+<th>Tipo</th>
+<th>Cantidad</th>
+<th>Estado</th>
+<th>Acciones</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tablaReservas">
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<script>
+
+const API_URL =
+  'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+
+function fechaHoyLocal() {
+
+  const ahora =
+    new Date();
+
+  const year =
+    ahora.getFullYear();
+
+  const month =
+    String(
+      ahora.getMonth() + 1
+    ).padStart(2, '0');
+
+  const day =
+    String(
+      ahora.getDate()
+    ).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+
+document
+  .getElementById('fecha')
+  .value = fechaHoyLocal();
+
+
+async function api(body) {
+
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method: 'POST',
+        body: JSON.stringify(body)
+      }
+    );
+
+  return await response.json();
+}
+
+
+async function cargarHoy() {
+
+  const fecha =
+    document.getElementById(
+      'fecha'
+    ).value;
+
+  if (!fecha) {
+    alert('Selecciona una fecha');
+    return;
+  }
+
+  document.getElementById(
+    'mensaje'
+  ).textContent =
+    'Cargando...';
+
+  try {
+
+    const resultado =
+      await api({
+        action: 'resumenHoy',
+        fecha: fecha
+      });
+
+    if (!resultado.ok) {
+      throw new Error(
+        resultado.mensaje
+      );
+    }
+
+    document.getElementById(
+      'capacidad'
+    ).textContent =
+      resultado.capacidad;
+
+    document.getElementById(
+      'reservado'
+    ).textContent =
+      resultado.reservado;
+
+    document.getElementById(
+      'dentro'
+    ).textContent =
+      resultado.dentro;
+
+    document.getElementById(
+      'disponibles'
+    ).textContent =
+      resultado.disponibles;
+
+    document.getElementById(
+      'clases'
+    ).textContent =
+      resultado.clases.length;
+
+    pintarReservas(
+      resultado.reservas
+    );
+
+    document.getElementById(
+      'mensaje'
+    ).textContent =
+      'Información actualizada';
+
+  } catch (error) {
+
+    document.getElementById(
+      'mensaje'
+    ).textContent =
+      'Error: ' +
+      error.message;
+  }
+}
+
+
+function pintarReservas(
+  reservas
+) {
+
+  const tbody =
+    document.getElementById(
+      'tablaReservas'
+    );
+
+  tbody.innerHTML = '';
+
+  if (!reservas.length) {
+
+    tbody.innerHTML =
+      '<tr><td colspan="6">' +
+      'No hay reservas para este día' +
+      '</td></tr>';
+
+    return;
+  }
+
+
+  reservas.sort((a, b) =>
+    String(a.HoraInicio)
+      .localeCompare(
+        String(b.HoraInicio)
+      )
+  );
+
+
+  reservas.forEach(r => {
+
+    const tr =
+      document.createElement('tr');
+
+    const acciones =
+      document.createElement('td');
+
+    acciones.className =
+      'acciones';
+
+
+    if (
+      r.Estado === 'RESERVADA'
+    ) {
+
+      acciones.innerHTML = `
+        <button
+          onclick="hacerCheckin('${r.ReservaID}')">
+          Check-in
+        </button>
+
+        <button
+          onclick="cancelar('${r.ReservaID}')">
+          Cancelar
+        </button>
+
+        <button
+          onclick="noShow('${r.ReservaID}')">
+          No Show
+        </button>
+      `;
+    }
+
+
+    if (
+      r.Estado === 'CHECKIN'
+    ) {
+
+      acciones.innerHTML = `
+        <button
+          onclick="hacerCheckout('${r.ReservaID}')">
+          Salida
+        </button>
+      `;
+    }
+
+
+    tr.innerHTML = `
+      <td>
+        ${formatearHora(r.HoraInicio)}
+        -
+        ${formatearHora(r.HoraFin)}
+      </td>
+
+      <td>
+        ${r.ClienteID}
+      </td>
+
+      <td>
+        ${r.Tipo}
+      </td>
+
+      <td>
+        ${r.Cantidad}
+      </td>
+
+      <td class="estado">
+        ${r.Estado}
+      </td>
+    `;
+
+    tr.appendChild(acciones);
+
+    tbody.appendChild(tr);
+
+  });
+}
+
+
+function formatearHora(
+  valor
+) {
+
+  if (!valor) return '';
+
+  if (
+    String(valor).includes('T')
+  ) {
+
+    const d =
+      new Date(valor);
+
+    return d.toLocaleTimeString(
+      'es-CL',
+      {
+        hour: '2-digit',
+        minute: '2-digit'
+      }
+    );
+  }
+
+  return String(valor)
+    .substring(0, 5);
+}
+
+
+async function hacerCheckin(
+  reservaId
+) {
+
+  if (
+    !confirm(
+      '¿Confirmar ingreso?'
+    )
+  ) {
+    return;
+  }
+
+  const resultado =
+    await api({
+      action: 'checkin',
+      reservaId: reservaId,
+      usuario: 'STAFF'
+    });
+
+  alert(
+    resultado.mensaje
+  );
+
+  cargarHoy();
+}
+
+
+async function hacerCheckout(
+  reservaId
+) {
+
+  if (
+    !confirm(
+      '¿Registrar salida?'
+    )
+  ) {
+    return;
+  }
+
+  const resultado =
+    await api({
+      action: 'checkout',
+      reservaId: reservaId,
+      usuario: 'STAFF'
+    });
+
+  alert(
+    resultado.mensaje
+  );
+
+  cargarHoy();
+}
+
+
+async function cancelar(
+  reservaId
+) {
+
+  if (
+    !confirm(
+      '¿Cancelar esta reserva?'
+    )
+  ) {
+    return;
+  }
+
+  const resultado =
+    await api({
+      action: 'cancelarReserva',
+      reservaId: reservaId,
+      usuario: 'STAFF'
+    });
+
+  alert(
+    resultado.mensaje
+  );
+
+  cargarHoy();
+}
+
+
+async function noShow(
+  reservaId
+) {
+
+  if (
+    !confirm(
+      '¿Marcar como NO SHOW?'
+    )
+  ) {
+    return;
+  }
+
+  const resultado =
+    await api({
+      action: 'marcarNoShow',
+      reservaId: reservaId,
+      usuario: 'STAFF'
+    });
+
+  alert(
+    resultado.mensaje
+  );
+
+  cargarHoy();
+}
+
+
+cargarHoy();
+
+</script>
+
+</body>
+</html>
