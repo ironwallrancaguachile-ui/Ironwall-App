@@ -5,123 +5,239 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ironwall Reservas</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, select, button { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-    button { background-color: #007bff; color: white; border: none; margin-top: 15px; cursor: pointer; border-radius: 4px; }
-    button:hover { background-color: #0056b3; }
-    #resultado { margin-top: 15px; font-weight: bold; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px 16px 60px; background: #fafafa; color: #222; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    p.sub { color: #666; margin-top: 0; margin-bottom: 14px; font-size: 14px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 4px; }
+    input, select { width: 100%; padding: 12px; font-size: 13px; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
+
+    /* Tarjeta de Disponibilidad / Estado */
+    .resumen-stock { background: #fff8f8; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; transition: background 0.3s, border-color 0.3s; }
+    .resumen-stock.ok { background: #f0fdf4; border-color: #bbf7d0; }
+    .resumen-header { font-size: 12px; font-weight: 700; color: #991b1b; margin-bottom: 6px; }
+    .resumen-stock.ok .resumen-header { color: #166534; }
+    .resumen-lista { display: flex; flex-wrap: wrap; gap: 6px; }
+    
+    /* Chips Informativos */
+    .chip-stock { display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid #fca5a5; border-radius: 16px; padding: 4px 10px; font-size: 12px; }
+    .resumen-stock.ok .chip-stock { border-color: #86efac; }
+    .chip-nombre { color: #374151; font-weight: 500; }
+    .chip-cantidad { background: #ef4444; color: #ffffff; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .resumen-stock.ok .chip-cantidad { background: #22c55e; }
+    .texto-cargando { font-size: 12px; color: #6b7280; }
+
+    /* Grid principal del formulario */
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; align-items: start; }
+    .full-width { grid-column: span 2; }
+    .form-group { display: flex; flex-direction: column; }
+    
+    /* Selectores de tipo de reserva */
+    .tipo-botones { display: flex; gap: 8px; margin-top: 6px; }
+    .tipo-botones button { flex: 1; padding: 12px; border: 2px solid #ccc; border-radius: 8px; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .tipo-botones button.activo-entrada { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
+    .tipo-botones button.activo-clase { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
+
+    button.enviar { width: 100%; margin-top: 24px; padding: 14px; font-size: 15px; font-weight: 600; color: #fff; background: #1a1a1a; border: none; border-radius: 8px; cursor: pointer; }
+    button.enviar:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; font-weight: 600; }
+    #ok { color: #1e824c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
+    .info-subtexto { font-size: 11px; color: #666; margin-top: 4px; display: block; line-height: 1.2; }
+
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
   </style>
 </head>
 <body>
 
-  <h2>Ironwall Reservas</h2>
+  <h1>Ironwall Reservas</h1>
+  <p class="sub">Gestión de cupos y confirmación de accesos</p>
 
-  <div class="card">
-    <h3>Consultar Disponibilidad</h3>
-    <label for="fecha">Fecha:</label>
-    <input type="date" id="fecha">
-
-    <label for="horaInicio">Hora Inicio:</label>
-    <input type="time" id="horaInicio" value="10:00">
-
-    <label for="horaFin">Hora Término:</label>
-    <input type="time" id="horaFin" value="12:00">
-
-    <button onclick="consultarCupos()">Ver Cupos Disponibles</button>
+  <!-- Tarjeta de estado de cupos -->
+  <div id="resumenBox" class="resumen-stock">
+    <div id="resumenHeader" class="resumen-header">ESTADO DE CUPOS</div>
+    <div id="resumenContenido" class="resumen-lista">
+      <span class="texto-cargando">Selecciona fecha y hora para consultar disponibilidad...</span>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Crear Reserva</h3>
-    <label for="clienteId">ID Cliente:</label>
-    <input type="text" id="clienteId" placeholder="Ej: CLI-001">
+  <form id="reservaForm" onsubmit="event.preventDefault(); realizarReserva();">
+    <div class="form-grid">
 
-    <label for="tipoReserva">Tipo:</label>
-    <select id="tipoReserva">
-      <option value="ENTRADA">Entrada General</option>
-      <option value="CLASE">Clase</option>
-    </select>
+      <!-- Tipo de Reserva -->
+      <div class="form-group full-width">
+        <label>Tipo de Reserva</label>
+        <div class="tipo-botones">
+          <button type="button" id="btnEntrada" class="activo-entrada" onclick="seleccionarTipo('ENTRADA')">Entrada General</button>
+          <button type="button" id="btnClase" onclick="seleccionarTipo('CLASE')">Clase</button>
+        </div>
+      </div>
 
-    <label for="cantidad">Cantidad de personas:</label>
-    <input type="number" id="cantidad" value="1" min="1" max="5">
+      <!-- Datos del Cliente -->
+      <div class="form-group full-width">
+        <label for="clienteId">ID Cliente</label>
+        <input type="text" id="clienteId" placeholder="Ej: CLI-001" required>
+        <span class="info-subtexto">Código asignado en el sistema de gestión</span>
+      </div>
 
-    <button onclick="realizarReserva()">Confirmar Reserva</button>
-  </div>
+      <!-- Fecha -->
+      <div class="form-group full-width">
+        <label for="fecha">Fecha</label>
+        <input type="date" id="fecha" onchange="consultarCupos()" required>
+      </div>
 
-  <div id="resultado"></div>
+      <!-- Horarios -->
+      <div class="form-group">
+        <label for="horaInicio">Hora Inicio</label>
+        <input type="time" id="horaInicio" value="10:00" onchange="consultarCupos()" required>
+      </div>
+
+      <div class="form-group">
+        <label for="horaFin">Hora Término</label>
+        <input type="time" id="horaFin" value="12:00" onchange="consultarCupos()" required>
+      </div>
+
+      <!-- Cantidad de personas -->
+      <div class="form-group full-width">
+        <label for="cantidad">Cantidad de Personas</label>
+        <input type="number" id="cantidad" value="1" min="1" max="5" required>
+      </div>
+
+      <!-- Botón de Confirmación -->
+      <div class="full-width">
+        <button type="submit" id="btnEnviar" class="enviar">Confirmar Reserva</button>
+        <div id="ok"></div>
+        <div id="error"></div>
+      </div>
+
+    </div>
+  </form>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec'; // Reemplaza por tu URL de Apps Script
+    const API_URL = 'TU_WEB_APP_URL_AQUI'; // Reemplaza por tu URL de Apps Script (/exec)
+    let tipoSeleccionado = 'ENTRADA';
+
+    // Establecer la fecha de hoy por defecto al cargar
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('fecha').value = hoy;
+      consultarCupos();
+    });
+
+    function seleccionarTipo(tipo) {
+      tipoSeleccionado = tipo;
+      const btnEntrada = document.getElementById('btnEntrada');
+      const btnClase = document.getElementById('btnClase');
+
+      if (tipo === 'ENTRADA') {
+        btnEntrada.className = 'activo-entrada';
+        btnClase.className = '';
+      } else {
+        btnEntrada.className = '';
+        btnClase.className = 'activo-clase';
+      }
+    }
 
     async function consultarCupos() {
       const fecha = document.getElementById('fecha').value;
       const horaInicio = document.getElementById('horaInicio').value;
       const horaFin = document.getElementById('horaFin').value;
-      const resDiv = document.getElementById('resultado');
+      const box = document.getElementById('resumenBox');
+      const header = document.getElementById('resumenHeader');
+      const contenido = document.getElementById('resumenContenido');
 
-      if (!fecha) return alert('Selecciona una fecha');
+      if (!fecha || !horaInicio || !horaFin) return;
 
-      resDiv.innerText = 'Consultando...';
+      contenido.innerHTML = '<span class="texto-cargando">Consultando cupos disponibles...</span>';
 
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'ocupacion',
-            fecha: fecha,
-            horaInicio: horaInicio,
-            horaFin: horaFin
-          })
+        const params = new URLSearchParams({
+          action: 'ocupacion',
+          fecha: fecha,
+          horaInicio: horaInicio,
+          horaFin: horaFin
         });
 
+        const response = await fetch(`${API_URL}?${params.toString()}`);
         const data = await response.json();
+
         if (data.ok) {
-          resDiv.innerText = `Ocupación: ${data.ocupacion} | Disponibles: ${data.disponibles} / Capacidad: ${data.capacidad}`;
+          const hayCupo = data.disponibles > 0;
+          box.className = hayCupo ? 'resumen-stock ok' : 'resumen-stock';
+          header.innerText = hayCupo ? 'DISPONIBILIDAD CONFIRMADA' : 'CUPOS AGOTADOS O LIMITADOS';
+
+          contenido.innerHTML = `
+            <div class="chip-stock">
+              <span class="chip-nombre">Ocupación</span>
+              <span class="chip-cantidad">${data.ocupacion}</span>
+            </div>
+            <div class="chip-stock">
+              <span class="chip-nombre">Disponibles</span>
+              <span class="chip-cantidad">${data.disponibles}</span>
+            </div>
+            <div class="chip-stock">
+              <span class="chip-nombre">Capacidad</span>
+              <span class="chip-cantidad">${data.capacidad}</span>
+            </div>
+          `;
         } else {
-          resDiv.innerText = 'Error: ' + data.mensaje;
+          box.className = 'resumen-stock';
+          header.innerText = 'ERROR EN CONSULTA';
+          contenido.innerHTML = `<span class="texto-cargando">${data.mensaje}</span>`;
         }
       } catch (err) {
-        resDiv.innerText = 'Error de conexión con el servidor.';
+        box.className = 'resumen-stock';
+        header.innerText = 'ERROR DE CONEXIÓN';
+        contenido.innerHTML = '<span class="texto-cargando">No se pudo conectar con el servidor.</span>';
       }
     }
 
     async function realizarReserva() {
-      const clienteId = document.getElementById('clienteId').value;
-      const fecha = document.getElementById('fecha').value;
-      const horaInicio = document.getElementById('horaInicio').value;
-      const horaFin = document.getElementById('horaFin').value;
-      const cantidad = document.getElementById('cantidad').value;
-      const tipoReserva = document.getElementById('tipoReserva').value;
-      const resDiv = document.getElementById('resultado');
+      const btn = document.getElementById('btnEnviar');
+      const divOk = document.getElementById('ok');
+      const divErr = document.getElementById('error');
 
-      if (!clienteId || !fecha) return alert('Completa los campos obligatorios');
+      divOk.style.display = 'none';
+      divErr.style.display = 'none';
+      btn.disabled = true;
+      btn.innerText = 'Procesando...';
 
-      resDiv.innerText = 'Procesando reserva...';
+      const payload = {
+        action: 'crearReserva',
+        clienteId: document.getElementById('clienteId').value,
+        tipoReserva: tipoSeleccionado,
+        fecha: document.getElementById('fecha').value,
+        horaInicio: document.getElementById('horaInicio').value,
+        horaFin: document.getElementById('horaFin').value,
+        cantidad: Number(document.getElementById('cantidad').value),
+        origen: 'WEB'
+      };
 
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          body: JSON.stringify({
-            action: 'crearReserva',
-            clienteId: clienteId,
-            fecha: fecha,
-            horaInicio: horaInicio,
-            horaFin: horaFin,
-            cantidad: Number(cantidad),
-            tipoReserva: tipoReserva,
-            origen: 'WEB'
-          })
+          body: JSON.stringify(payload)
         });
 
         const data = await response.json();
+
         if (data.ok) {
-          resDiv.innerText = `¡Reserva Exitosa! ID: ${data.reservaId} (Disponibles restantes: ${data.disponibles})`;
+          divOk.innerText = `¡Reserva creada exitosamente! ID: ${data.reservaId}`;
+          divOk.style.display = 'block';
+          document.getElementById('clienteId').value = '';
+          consultarCupos();
         } else {
-          resDiv.innerText = 'No se pudo reservar: ' + data.mensaje;
+          divErr.innerText = 'No se pudo completar la reserva: ' + data.mensaje;
+          divErr.style.display = 'block';
         }
       } catch (err) {
-        resDiv.innerText = 'Error de conexión con el servidor.';
+        divErr.innerText = 'Error de conexión con el servidor.';
+        divErr.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Confirmar Reserva';
       }
     }
   </script>
