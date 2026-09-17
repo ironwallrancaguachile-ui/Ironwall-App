@@ -147,11 +147,11 @@
       const box = document.getElementById('resumenBox');
       const header = document.getElementById('resumenHeader');
       const contenido = document.getElementById('resumenContenido');
-
+    
       if (!fecha || !horaInicio || !horaFin) return;
-
+    
       contenido.innerHTML = '<span class="texto-cargando">Consultando cupos disponibles...</span>';
-
+    
       try {
         const params = new URLSearchParams({
           action: 'ocupacion',
@@ -159,35 +159,37 @@
           horaInicio: horaInicio,
           horaFin: horaFin
         });
-
+    
         const response = await fetch(`${API_URL}?${params.toString()}`);
         const data = await response.json();
-
-        if (data.ok) {
-          const hayCupo = data.disponibles > 0;
-          box.className = hayCupo ? 'resumen-stock ok' : 'resumen-stock';
-          header.innerText = hayCupo ? 'DISPONIBILIDAD CONFIRMADA' : 'CUPOS AGOTADOS O LIMITADOS';
-
-          contenido.innerHTML = `
-            <div class="chip-stock">
-              <span class="chip-nombre">Ocupación</span>
-              <span class="chip-cantidad">${data.ocupacion}</span>
-            </div>
-            <div class="chip-stock">
-              <span class="chip-nombre">Disponibles</span>
-              <span class="chip-cantidad">${data.disponibles}</span>
-            </div>
-            <div class="chip-stock">
-              <span class="chip-nombre">Capacidad</span>
-              <span class="chip-cantidad">${data.capacidad}</span>
-            </div>
-          `;
-        } else {
-          box.className = 'resumen-stock';
-          header.innerText = 'ERROR EN CONSULTA';
-          contenido.innerHTML = `<span class="texto-cargando">${data.mensaje}</span>`;
-        }
+    
+        console.log('Respuesta servidor:', data); // Revisa en la consola F12 si hay dudas
+    
+        // Mapeo flexible de propiedades para evitar 'undefined'
+        const ocupacion = data.ocupacion ?? data.Ocupacion ?? data.ocupados ?? 0;
+        const disponibles = data.disponibles ?? data.Disponibles ?? data.cuposDisponibles ?? 0;
+        const capacidad = data.capacidad ?? data.Capacidad ?? data.capacidadMaxima ?? 0;
+    
+        const hayCupo = disponibles > 0;
+        box.className = hayCupo ? 'resumen-stock ok' : 'resumen-stock';
+        header.innerText = hayCupo ? 'DISPONIBILIDAD CONFIRMADA' : 'CUPOS AGOTADOS O LIMITADOS';
+    
+        contenido.innerHTML = `
+          <div class="chip-stock">
+            <span class="chip-nombre">Ocupación</span>
+            <span class="chip-cantidad">${ocupacion}</span>
+          </div>
+          <div class="chip-stock">
+            <span class="chip-nombre">Disponibles</span>
+            <span class="chip-cantidad">${disponibles}</span>
+          </div>
+          <div class="chip-stock">
+            <span class="chip-nombre">Capacidad</span>
+            <span class="chip-cantidad">${capacidad}</span>
+          </div>
+        `;
       } catch (err) {
+        console.error(err);
         box.className = 'resumen-stock';
         header.innerText = 'ERROR DE CONEXIÓN';
         contenido.innerHTML = '<span class="texto-cargando">No se pudo conectar con el servidor.</span>';
