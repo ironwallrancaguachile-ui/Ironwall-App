@@ -121,61 +121,65 @@
   </form>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec'; // Reemplaza por tu URL de Apps Script (/exec)
-    let tipoSeleccionado = 'ENTRADA';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec'; // Reemplaza por tu URL de Apps Script (/exec)
+  let tipoSeleccionado = 'ENTRADA';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('fecha').value = hoy;
-    });
+  document.addEventListener('DOMContentLoaded', () => {
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha').value = hoy;
+  });
 
-    function seleccionarTipo(tipo) {
-      tipoSeleccionado = tipo;
-      const btnEntrada = document.getElementById('btnEntrada');
-      const btnClase = document.getElementById('btnClase');
+  function seleccionarTipo(tipo) {
+    tipoSeleccionado = tipo;
+    const btnEntrada = document.getElementById('btnEntrada');
+    const btnClase = document.getElementById('btnClase');
 
-      if (tipo === 'ENTRADA') {
-        btnEntrada.className = 'activo-entrada';
-        btnClase.className = '';
-      } else {
-        btnEntrada.className = '';
-        btnClase.className = 'activo-clase';
-      }
+    if (tipo === 'ENTRADA') {
+      btnEntrada.className = 'activo-entrada';
+      btnClase.className = '';
+    } else {
+      btnEntrada.className = '';
+      btnClase.className = 'activo-clase';
+    }
+  }
+
+  // PASO 1: Consulta utilizando el mismo método POST que funcionó inicialmente
+  async function consultarCupos() {
+    const fecha = document.getElementById('fecha').value;
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFin = document.getElementById('horaFin').value;
+    const box = document.getElementById('resumenBox');
+    const header = document.getElementById('resumenHeader');
+    const contenido = document.getElementById('resumenContenido');
+    const btnEnviar = document.getElementById('btnEnviar');
+
+    if (!fecha || !horaInicio || !horaFin) {
+      alert('Por favor selecciona fecha, hora de inicio y término');
+      return;
     }
 
-    // PASO 1: Consulta manual directa
-    async function consultarCupos() {
-      const fecha = document.getElementById('fecha').value;
-      const horaInicio = document.getElementById('horaInicio').value;
-      const horaFin = document.getElementById('horaFin').value;
-      const box = document.getElementById('resumenBox');
-      const header = document.getElementById('resumenHeader');
-      const contenido = document.getElementById('resumenContenido');
-      const btnEnviar = document.getElementById('btnEnviar');
+    contenido.innerHTML = '<span class="texto-cargando">Consultando disponibilidad...</span>';
+    btnEnviar.disabled = true;
 
-      if (!fecha || !horaInicio || !horaFin) {
-        alert('Por favor selecciona fecha, hora de inicio y término');
-        return;
-      }
-
-      contenido.innerHTML = '<span class="texto-cargando">Consultando disponibilidad...</span>';
-      btnEnviar.disabled = true;
-
-      try {
-        const params = new URLSearchParams({
+    try {
+      // Petición POST exacta como en la prueba inicial exitosa
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
           action: 'ocupacion',
           fecha: fecha,
           horaInicio: horaInicio,
           horaFin: horaFin
-        });
+        })
+      });
 
-        const response = await fetch(`${API_URL}?${params.toString()}`);
-        const data = await response.json();
+      const data = await response.json();
+      console.log('Respuesta servidor paso 1:', data);
 
-        // Extraer valores soportando cualquier variación de nombres de campo
-        const ocupacion = data.ocupacion ?? data.Ocupacion ?? 0;
-        const disponibles = data.disponibles ?? data.Disponibles ?? 0;
-        const capacidad = data.capacidad ?? data.Capacidad ?? 0;
+      if (data.ok) {
+        const ocupacion = data.ocupacion ?? 0;
+        const disponibles = data.disponibles ?? 0;
+        const capacidad = data.capacidad ?? 0;
 
         if (disponibles > 0) {
           box.className = 'resumen-stock ok';
@@ -201,63 +205,70 @@
             <span class="chip-cantidad">${capacidad}</span>
           </div>
         `;
-      } catch (err) {
-        console.error(err);
+      } else {
         box.className = 'resumen-stock';
-        header.innerText = 'ERROR DE CONEXIÓN';
-        contenido.innerHTML = '<span class="texto-cargando">No se pudo verificar la disponibilidad.</span>';
+        header.innerText = 'ERROR EN LA CONSULTA';
+        contenido.innerHTML = `<span class="texto-cargando">${data.mensaje || 'Respuesta no válida'}</span>`;
         btnEnviar.disabled = true;
       }
+    } catch (err) {
+      console.error(err);
+      box.className = 'resumen-stock';
+      header.innerText = 'ERROR DE CONEXIÓN';
+      contenido.innerHTML = '<span class="texto-cargando">No se pudo verificar la disponibilidad.</span>';
+      btnEnviar.disabled = true;
     }
+  }
 
-    // PASO 2: Confirmación de reserva
-    async function realizarReserva() {
-      const btn = document.getElementById('btnEnviar');
-      const divOk = document.getElementById('ok');
-      const divErr = document.getElementById('error');
+  // PASO 2: Confirmación de reserva
+  async function realizarReserva() {
+    const btn = document.getElementById('btnEnviar');
+    const divOk = document.getElementById('ok');
+    const divErr = document.getElementById('error');
 
-      divOk.style.display = 'none';
-      divErr.style.display = 'none';
-      btn.disabled = true;
-      btn.innerText = 'Procesando reserva...';
+    divOk.style.display = 'none';
+    divErr.style.display = 'none';
+    btn.disabled = true;
+    btn.innerText = 'Procesando reserva...';
 
-      const payload = {
-        action: 'crearReserva',
-        clienteId: document.getElementById('clienteId').value,
-        tipoReserva: tipoSeleccionado,
-        fecha: document.getElementById('fecha').value,
-        horaInicio: document.getElementById('horaInicio').value,
-        horaFin: document.getElementById('horaFin').value,
-        cantidad: Number(document.getElementById('cantidad').value),
-        origen: 'WEB'
-      };
+    const payload = {
+      action: 'crearReserva',
+      clienteId: document.getElementById('clienteId').value,
+      tipoReserva: tipoSeleccionado,
+      fecha: document.getElementById('fecha').value,
+      horaInicio: document.getElementById('horaInicio').value,
+      horaFin: document.getElementById('horaFin').value,
+      cantidad: Number(document.getElementById('cantidad').value),
+      origen: 'WEB'
+    };
 
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.ok) {
-          divOk.innerText = `¡Reserva Exitosa! ID: ${data.reservaId}`;
-          divOk.style.display = 'block';
-          document.getElementById('clienteId').value = '';
-          consultarCupos(); // Revisa cupos actualizados
-        } else {
-          divErr.innerText = 'Error al reservar: ' + (data.mensaje || 'Error desconocido');
-          divErr.style.display = 'block';
-          btn.disabled = false;
-        }
-      } catch (err) {
-        divErr.innerText = 'Error de conexión con el servidor al registrar.';
+      if (data.ok) {
+        divOk.innerText = `¡Reserva Exitosa! ID: ${data.reservaId}`;
+        divOk.style.display = 'block';
+        document.getElementById('clienteId').value = '';
+        consultarCupos(); // Actualiza cupos tras reservar
+      } else {
+        divErr.innerText = 'Error al reservar: ' + (data.mensaje || 'Error desconocido');
         divErr.style.display = 'block';
         btn.disabled = false;
-      } finally {
-        btn.innerText = 'Paso 2: Confirmar Reserva';
       }
+    } catch (err) {
+      divErr.innerText = 'Error de conexión con el servidor al registrar.';
+      divErr.style.display = 'block';
+      btn.disabled = false;
+    } finally {
+      btn.innerText = 'Paso 2: Confirmar Reserva';
     }
-  </script>
+  }
+</script>
+ 
 </body>
 </html>
