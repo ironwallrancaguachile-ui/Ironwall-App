@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1">
+
+<title>Ironwall - Semana</title>
+
+<style>
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.top {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input,
+button {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.semana {
+  display: grid;
+  grid-template-columns:
+    repeat(7, minmax(150px, 1fr));
+
+  gap: 10px;
+
+  overflow-x: auto;
+}
+
+.dia {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  min-height: 350px;
+}
+
+.dia h3 {
+  margin-top: 0;
+}
+
+.bloque {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: #f0f0f0;
+}
+
+.numero {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Semana Ironwall</h1>
+
+<div class="top">
+
+<input
+  type="date"
+  id="fechaInicio">
+
+<button onclick="cargarSemana()">
+Actualizar
+</button>
+
+</div>
+
+<div
+  id="semana"
+  class="semana">
+</div>
+
+</div>
+
+
+<script>
+
+const API_URL =
+  'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+
+async function api(body) {
+
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method: 'POST',
+        body: JSON.stringify(body)
+      }
+    );
+
+  return await response.json();
+}
+
+
+function fechaHoy() {
+
+  const d = new Date();
+
+  return [
+    d.getFullYear(),
+    String(
+      d.getMonth() + 1
+    ).padStart(2,'0'),
+    String(
+      d.getDate()
+    ).padStart(2,'0')
+  ].join('-');
+}
+
+
+document.getElementById(
+  'fechaInicio'
+).value = fechaHoy();
+
+
+async function cargarSemana() {
+
+  const fechaInicio =
+    document.getElementById(
+      'fechaInicio'
+    ).value;
+
+  const resultado =
+    await api({
+
+      action:
+        'resumenSemana',
+
+      fechaInicio:
+        fechaInicio
+
+    });
+
+  if (!resultado.ok) {
+
+    alert(
+      resultado.mensaje
+    );
+
+    return;
+  }
+
+  pintarSemana(
+    resultado.semana
+  );
+}
+
+
+function pintarSemana(
+  dias
+) {
+
+  const contenedor =
+    document.getElementById(
+      'semana'
+    );
+
+  contenedor.innerHTML = '';
+
+  dias.forEach(
+    dia => {
+
+      const div =
+        document.createElement('div');
+
+      div.className =
+        'dia';
+
+      const fecha =
+        new Date(
+          dia.fecha + 'T12:00:00'
+        );
+
+      const nombreDia =
+        fecha.toLocaleDateString(
+          'es-CL',
+          {
+            weekday: 'long'
+          }
+        );
+
+      div.innerHTML = `
+
+        <h3>
+          ${capitalizar(nombreDia)}
+        </h3>
+
+        <small>
+          ${dia.fecha}
+        </small>
+
+        <hr>
+
+        <div>
+          Capacidad
+          <div class="numero">
+            ${dia.capacidad}
+          </div>
+        </div>
+
+        <br>
+
+        <div>
+          Reservados
+          <div class="numero">
+            ${dia.reservado}
+          </div>
+        </div>
+
+        <br>
+
+        <div>
+          Disponibles
+          <div class="numero">
+            ${dia.disponibles}
+          </div>
+        </div>
+
+        <br>
+
+        <div>
+          Clases
+          <div class="numero">
+            ${dia.clases.length}
+          </div>
+        </div>
+
+        <hr>
+
+      `;
+
+
+      dia.reservas
+        .sort(
+          (a,b) =>
+            String(
+              a.HoraInicio
+            ).localeCompare(
+              String(
+                b.HoraInicio
+              )
+            )
+        )
+        .forEach(
+          reserva => {
+
+            const bloque =
+              document.createElement(
+                'div'
+              );
+
+            bloque.className =
+              'bloque';
+
+            bloque.innerHTML = `
+
+              <strong>
+                ${reserva.HoraInicio}
+              </strong>
+
+              <br>
+
+              ${reserva.ClienteID}
+
+              <br>
+
+              ${reserva.Cantidad}
+              personas
+
+              <br>
+
+              ${reserva.Estado}
+
+            `;
+
+            div.appendChild(
+              bloque
+            );
+          }
+        );
+
+
+      contenedor.appendChild(
+        div
+      );
+
+    }
+  );
+}
+
+
+function capitalizar(
+  texto
+) {
+
+  return texto.charAt(0)
+    .toUpperCase() +
+    texto.slice(1);
+}
+
+
+cargarSemana();
+
+</script>
+
+</body>
+
+</html>
