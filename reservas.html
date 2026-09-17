@@ -38,8 +38,12 @@
     .tipo-botones button.activo-entrada { border-color: #1e824c; background: #e8f6ee; color: #1e824c; }
     .tipo-botones button.activo-clase { border-color: #b8860b; background: #fff8e6; color: #b8860b; }
 
-    button.enviar { width: 100%; margin-top: 24px; padding: 14px; font-size: 15px; font-weight: 600; color: #fff; background: #1a1a1a; border: none; border-radius: 8px; cursor: pointer; }
-    button.enviar:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* Botones de acción */
+    button.consultar { width: 100%; margin-top: 10px; padding: 12px; font-size: 14px; font-weight: 600; color: #1a1a1a; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; }
+    button.consultar:hover { background: #d1d5db; }
+    
+    button.enviar { width: 100%; margin-top: 20px; padding: 14px; font-size: 15px; font-weight: 600; color: #fff; background: #1a1a1a; border: none; border-radius: 8px; cursor: pointer; }
+    button.enviar:disabled { opacity: 0.4; cursor: not-allowed; }
     
     #error { color: #c0392b; font-size: 13px; margin-top: 10px; display: none; font-weight: 600; }
     #ok { color: #1e824c; font-size: 14px; margin-top: 10px; display: none; font-weight: 600; }
@@ -57,17 +61,37 @@
 
   <!-- Tarjeta de estado de cupos -->
   <div id="resumenBox" class="resumen-stock">
-    <div id="resumenHeader" class="resumen-header">ESTADO DE CUPOS</div>
+    <div id="resumenHeader" class="resumen-header">PASO 1: CONSULTAR PERIODO</div>
     <div id="resumenContenido" class="resumen-lista">
-      <span class="texto-cargando">Selecciona fecha y hora para consultar disponibilidad...</span>
+      <span class="texto-cargando">Ingresa fecha y horario, luego presiona "Consultar Cupos".</span>
     </div>
   </div>
 
   <form id="reservaForm" onsubmit="event.preventDefault(); realizarReserva();">
     <div class="form-grid">
 
-      <!-- Tipo de Reserva -->
+      <!-- PASO 1: SELECCIÓN DE PERIODO -->
       <div class="form-group full-width">
+        <label for="fecha">Fecha</label>
+        <input type="date" id="fecha" required>
+      </div>
+
+      <div class="form-group">
+        <label for="horaInicio">Hora Inicio</label>
+        <input type="time" id="horaInicio" value="10:00" required>
+      </div>
+
+      <div class="form-group">
+        <label for="horaFin">Hora Término</label>
+        <input type="time" id="horaFin" value="12:00" required>
+      </div>
+
+      <div class="full-width">
+        <button type="button" class="consultar" onclick="consultarCupos()">Paso 1: Consultar Cupos Disponibles</button>
+      </div>
+
+      <!-- PASO 2: DATOS DE LA RESERVA -->
+      <div class="form-group full-width" style="margin-top: 10px;">
         <label>Tipo de Reserva</label>
         <div class="tipo-botones">
           <button type="button" id="btnEntrada" class="activo-entrada" onclick="seleccionarTipo('ENTRADA')">Entrada General</button>
@@ -75,39 +99,20 @@
         </div>
       </div>
 
-      <!-- Datos del Cliente -->
       <div class="form-group full-width">
         <label for="clienteId">ID Cliente</label>
         <input type="text" id="clienteId" placeholder="Ej: CLI-001" required>
         <span class="info-subtexto">Código asignado en el sistema de gestión</span>
       </div>
 
-      <!-- Fecha -->
-      <div class="form-group full-width">
-        <label for="fecha">Fecha</label>
-        <input type="date" id="fecha" onchange="consultarCupos()" required>
-      </div>
-
-      <!-- Horarios -->
-      <div class="form-group">
-        <label for="horaInicio">Hora Inicio</label>
-        <input type="time" id="horaInicio" value="10:00" onchange="consultarCupos()" required>
-      </div>
-
-      <div class="form-group">
-        <label for="horaFin">Hora Término</label>
-        <input type="time" id="horaFin" value="12:00" onchange="consultarCupos()" required>
-      </div>
-
-      <!-- Cantidad de personas -->
       <div class="form-group full-width">
         <label for="cantidad">Cantidad de Personas</label>
         <input type="number" id="cantidad" value="1" min="1" max="5" required>
       </div>
 
-      <!-- Botón de Confirmación -->
+      <!-- Botón Paso 2 (deshabilitado hasta consultar) -->
       <div class="full-width">
-        <button type="submit" id="btnEnviar" class="enviar">Confirmar Reserva</button>
+        <button type="submit" id="btnEnviar" class="enviar" disabled>Paso 2: Confirmar Reserva</button>
         <div id="ok"></div>
         <div id="error"></div>
       </div>
@@ -119,11 +124,9 @@
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec'; // Reemplaza por tu URL de Apps Script (/exec)
     let tipoSeleccionado = 'ENTRADA';
 
-    // Establecer la fecha de hoy por defecto al cargar
     document.addEventListener('DOMContentLoaded', () => {
       const hoy = new Date().toISOString().split('T')[0];
       document.getElementById('fecha').value = hoy;
-      consultarCupos();
     });
 
     function seleccionarTipo(tipo) {
@@ -140,6 +143,7 @@
       }
     }
 
+    // PASO 1: Consulta manual directa
     async function consultarCupos() {
       const fecha = document.getElementById('fecha').value;
       const horaInicio = document.getElementById('horaInicio').value;
@@ -147,11 +151,16 @@
       const box = document.getElementById('resumenBox');
       const header = document.getElementById('resumenHeader');
       const contenido = document.getElementById('resumenContenido');
-    
-      if (!fecha || !horaInicio || !horaFin) return;
-    
-      contenido.innerHTML = '<span class="texto-cargando">Consultando cupos disponibles...</span>';
-    
+      const btnEnviar = document.getElementById('btnEnviar');
+
+      if (!fecha || !horaInicio || !horaFin) {
+        alert('Por favor selecciona fecha, hora de inicio y término');
+        return;
+      }
+
+      contenido.innerHTML = '<span class="texto-cargando">Consultando disponibilidad...</span>';
+      btnEnviar.disabled = true;
+
       try {
         const params = new URLSearchParams({
           action: 'ocupacion',
@@ -159,21 +168,25 @@
           horaInicio: horaInicio,
           horaFin: horaFin
         });
-    
+
         const response = await fetch(`${API_URL}?${params.toString()}`);
         const data = await response.json();
-    
-        console.log('Respuesta servidor:', data); // Revisa en la consola F12 si hay dudas
-    
-        // Mapeo flexible de propiedades para evitar 'undefined'
-        const ocupacion = data.ocupacion ?? data.Ocupacion ?? data.ocupados ?? 0;
-        const disponibles = data.disponibles ?? data.Disponibles ?? data.cuposDisponibles ?? 0;
-        const capacidad = data.capacidad ?? data.Capacidad ?? data.capacidadMaxima ?? 0;
-    
-        const hayCupo = disponibles > 0;
-        box.className = hayCupo ? 'resumen-stock ok' : 'resumen-stock';
-        header.innerText = hayCupo ? 'DISPONIBILIDAD CONFIRMADA' : 'CUPOS AGOTADOS O LIMITADOS';
-    
+
+        // Extraer valores soportando cualquier variación de nombres de campo
+        const ocupacion = data.ocupacion ?? data.Ocupacion ?? 0;
+        const disponibles = data.disponibles ?? data.Disponibles ?? 0;
+        const capacidad = data.capacidad ?? data.Capacidad ?? 0;
+
+        if (disponibles > 0) {
+          box.className = 'resumen-stock ok';
+          header.innerText = 'CUPOS DISPONIBLES EN EL PERIODO';
+          btnEnviar.disabled = false; // Habilita el Paso 2
+        } else {
+          box.className = 'resumen-stock';
+          header.innerText = 'SIN CUPOS EN EL PERIODO';
+          btnEnviar.disabled = true;
+        }
+
         contenido.innerHTML = `
           <div class="chip-stock">
             <span class="chip-nombre">Ocupación</span>
@@ -192,10 +205,12 @@
         console.error(err);
         box.className = 'resumen-stock';
         header.innerText = 'ERROR DE CONEXIÓN';
-        contenido.innerHTML = '<span class="texto-cargando">No se pudo conectar con el servidor.</span>';
+        contenido.innerHTML = '<span class="texto-cargando">No se pudo verificar la disponibilidad.</span>';
+        btnEnviar.disabled = true;
       }
     }
 
+    // PASO 2: Confirmación de reserva
     async function realizarReserva() {
       const btn = document.getElementById('btnEnviar');
       const divOk = document.getElementById('ok');
@@ -204,7 +219,7 @@
       divOk.style.display = 'none';
       divErr.style.display = 'none';
       btn.disabled = true;
-      btn.innerText = 'Procesando...';
+      btn.innerText = 'Procesando reserva...';
 
       const payload = {
         action: 'crearReserva',
@@ -226,20 +241,21 @@
         const data = await response.json();
 
         if (data.ok) {
-          divOk.innerText = `¡Reserva creada exitosamente! ID: ${data.reservaId}`;
+          divOk.innerText = `¡Reserva Exitosa! ID: ${data.reservaId}`;
           divOk.style.display = 'block';
           document.getElementById('clienteId').value = '';
-          consultarCupos();
+          consultarCupos(); // Revisa cupos actualizados
         } else {
-          divErr.innerText = 'No se pudo completar la reserva: ' + data.mensaje;
+          divErr.innerText = 'Error al reservar: ' + (data.mensaje || 'Error desconocido');
           divErr.style.display = 'block';
+          btn.disabled = false;
         }
       } catch (err) {
-        divErr.innerText = 'Error de conexión con el servidor.';
+        divErr.innerText = 'Error de conexión con el servidor al registrar.';
         divErr.style.display = 'block';
-      } finally {
         btn.disabled = false;
-        btn.innerText = 'Confirmar Reserva';
+      } finally {
+        btn.innerText = 'Paso 2: Confirmar Reserva';
       }
     }
   </script>
