@@ -65,11 +65,58 @@ td {
   text-align: left;
 }
 
+.barraNavegacion{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:1200px;
+  margin:0 auto 12px;
+  padding:8px 0;
+}
+
+.btnHome{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 14px;
+  border-radius:10px;
+  background:#fff;
+  border:1px solid #e3e7eb;
+  color:#222;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:600;
+  box-shadow:0 2px 7px rgba(0,0,0,.04);
+}
+
+.btnHome:hover{
+  transform:translateY(-1px);
+  box-shadow:0 5px 12px rgba(0,0,0,.08);
+}
+
+.nombreModulo{
+  font-family:'Archivo Extra Condensed',sans-serif;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:1px;
+  color:#666;
+}
+
 </style>
 
 </head>
 
 <body>
+
+<div class="barraNavegacion">
+  <a href="index.html" class="btnHome">
+    ← Inicio
+  </a>
+  <span class="nombreModulo">
+    Reservas
+  </span>
+
+</div>      
 
 <div class="container">
 
