@@ -512,65 +512,50 @@ function seleccionarTipo(tipo) {
 
   tipoReserva = tipo;
 
-
-  const btnEntrada =
-    document.getElementById('btnEntrada');
-
-  const btnClase =
-    document.getElementById('btnClase');
-
+  const btnEntrada = document.getElementById('btnEntrada');
+  const btnClase = document.getElementById('btnClase');
+  const claseBox = document.getElementById('claseBox');
 
   if (tipo === 'ENTRADA') {
 
     if (btnEntrada) {
-      btnEntrada.className =
-        'activo-entrada';
+      btnEntrada.className = 'tipo activo';
     }
 
     if (btnClase) {
-      btnClase.className = '';
+      btnClase.className = 'tipo';
     }
 
+    if (claseBox) {
+      claseBox.style.display = 'none';
+    }
 
-    /*
-     * Entrada general no necesita
-     * seleccionar una clase.
-     */
-
-    actualizarEstadoBotonReserva();
+    if (cuposConsultados) {
+      actualizarEstadoBotonReserva();
+    }
 
   }
-
 
   else if (tipo === 'CLASE') {
 
     if (btnEntrada) {
-      btnEntrada.className = '';
+      btnEntrada.className = 'tipo';
     }
 
     if (btnClase) {
-      btnClase.className =
-        'activo-clase';
+      btnClase.className = 'tipo activo';
     }
 
-
-    /*
-     * Si ya se había hecho Paso 1,
-     * cargamos inmediatamente las clases
-     * correspondientes a la fecha.
-     */
+    if (claseBox) {
+      claseBox.style.display = 'block';
+    }
 
     if (cuposConsultados) {
-
       cargarClases();
-
     }
 
-
     actualizarEstadoBotonReserva();
-
   }
-
 }
 
 
