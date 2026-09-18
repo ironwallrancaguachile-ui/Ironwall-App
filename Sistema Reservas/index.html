@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ironwall Reservas</title>
+
+<style>
+
+@font-face{
+  font-family:'Archivo Extra Condensed';
+  src:url("fonts/Archivo_ExtraCondensed-Regular.ttf");
+  font-weight:400;
+  font-display:swap;
+}
+
+@font-face{
+  font-family:'Archivo Extra Condensed';
+  src:url("fonts/Archivo_ExtraCondensed-Bold.ttf");
+  font-weight:700;
+  font-display:swap;
+}
+
+@font-face{
+  font-family:Boris;
+  src:url("fonts/BorisBlackBloxx.ttf");
+  font-weight:400;
+  font-display:swap;
+}
+
+@font-face{
+  font-family:'Archivo';
+  src:url("fonts/Archivo-Regular.ttf");
+  font-weight:400;
+  font-display:swap;
+}
+
+@font-face{
+  font-family:'Archivo';
+  src:url("fonts/Archivo-SemiBold.ttf");
+  font-weight:600;
+  font-display:swap;
+}
+
+@font-face{
+  font-family:'Archivo';
+  src:url("fonts/Archivo-Bold.ttf");
+  font-weight:700;
+  font-display:swap;
+}
+
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Archivo',sans-serif;
+}
+
+
+body{
+
+  min-height:100vh;
+
+  background:
+    linear-gradient(
+      180deg,
+      #eef2f7 0%,
+      #f8f9fb 100%
+    );
+
+  padding:0 20px;
+
+  color:#222;
+}
+
+
+header{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  max-width:1200px;
+
+  margin:0 auto;
+
+  padding:20px 25px 10px;
+}
+
+
+.marca{
+
+  display:flex;
+  align-items:center;
+
+  gap:0;
+}
+
+
+header img{
+
+  width:230px;
+  height:auto;
+
+  margin-right:-35px;
+}
+
+
+.tituloMarca{
+
+  display:flex;
+  flex-direction:column;
+}
+
+
+.logoTexto{
+
+  font-family:Boris,sans-serif;
+
+  font-size:34px;
+
+  letter-spacing:2px;
+
+  line-height:.95;
+}
+
+
+.tituloMarca h2{
+
+  font-size:21px;
+
+  font-weight:400;
+
+  letter-spacing:1px;
+}
+
+
+.sub{
+
+  margin-top:2px;
+
+  font-size:13px;
+
+  color:#666;
+}
+
+
+.infoSistema{
+
+  padding-left:22px;
+
+  border-left:2px solid #e5e5e5;
+
+  color:#666;
+
+  font-size:12px;
+
+  line-height:1.6;
+}
+
+
+/* CONTENEDOR */
+
+.contenedor{
+
+  max-width:1200px;
+
+  margin:15px auto 0;
+
+  padding:0 25px;
+}
+
+
+.tituloSeccion{
+
+  margin-bottom:12px;
+
+  font-family:'Archivo Extra Condensed',sans-serif;
+
+  font-size:16px;
+
+  font-weight:700;
+
+  letter-spacing:1px;
+
+  color:#555;
+}
+
+
+/* GRID */
+
+.grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+
+  gap:12px;
+}
+
+
+/* TARJETAS */
+
+.card{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:15px;
+
+  min-height:92px;
+
+  padding:16px;
+
+  background:#fff;
+
+  border:1px solid #e5e9ed;
+
+  border-radius:13px;
+
+  color:#222;
+
+  text-decoration:none;
+
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.04);
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease;
+}
+
+
+.card:hover{
+
+  transform:translateY(-2px);
+
+  border-color:#d0d7de;
+
+  box-shadow:
+    0 7px 18px rgba(0,0,0,.08);
+}
+
+
+.icon{
+
+  width:42px;
+
+  height:42px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  flex-shrink:0;
+
+  border-radius:11px;
+
+  background:#f0f2f4;
+
+  font-size:22px;
+}
+
+
+.card-content{
+
+  display:flex;
+
+  flex-direction:column;
+}
+
+
+.titulo{
+
+  font-size:16px;
+
+  font-weight:700;
+}
+
+
+.desc{
+
+  margin-top:3px;
+
+  font-size:12px;
+
+  line-height:1.35;
+
+  color:#666;
+}
+
+
+/* TARJETA DESTACADA */
+
+.card-principal{
+
+  border-color:#cfd4d9;
+
+  background:#fff;
+}
+
+
+.card-principal .icon{
+
+  background:#222;
+
+  color:#fff;
+}
+
+
+/* PIE */
+
+footer{
+
+  max-width:1200px;
+
+  margin:30px auto 15px;
+
+  text-align:center;
+
+  color:#999;
+
+  font-size:11px;
+
+  letter-spacing:.5px;
+}
+
+
+/* MÓVIL */
+
+@media(max-width:768px){
+
+  body{
+    padding:0 14px;
+  }
+
+  header{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    padding:10px 5px 5px;
+  }
+
+  header img{
+
+    width:170px;
+
+    margin-right:0;
+
+    margin-bottom:-20px;
+  }
+
+  .logoTexto{
+    font-size:24px;
+  }
+
+  .tituloMarca h2{
+    font-size:18px;
+  }
+
+  .infoSistema{
+
+    width:100%;
+
+    margin-top:12px;
+
+    padding:9px 0 0;
+
+    border-left:none;
+
+    border-top:2px solid #e5e5e5;
+  }
+
+  .contenedor{
+    padding:0 5px;
+  }
+
+  .grid{
+
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+
+    gap:8px;
+  }
+
+  .card{
+
+    min-height:85px;
+
+    padding:11px;
+
+    gap:9px;
+  }
+
+  .icon{
+
+    width:34px;
+    height:34px;
+
+    font-size:18px;
+  }
+
+  .titulo{
+    font-size:14px;
+  }
+
+  .desc{
+    font-size:11px;
+  }
+
+}
+
+
+@media(max-width:420px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+  <div class="marca">
+
+    <!-- Cambia por tu logo real -->
+    <img src="logo.png" alt="Ironwall">
+
+    <div class="tituloMarca">
+
+      <div class="logoTexto">
+        IRONWALL
+      </div>
+
+      <h2>Reservas</h2>
+
+      <div class="sub">
+        Gestión de cupos y accesos
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="infoSistema">
+
+    Sistema interno<br>
+    Operación Boulder<br>
+    Rancagua
+
+  </div>
+
+</header>
+
+
+
+<main class="contenedor">
+
+  <div class="tituloSeccion">
+    OPERACIÓN
+  </div>
+
+
+  <div class="grid">
+
+
+    <a href="reservas.html"
+       class="card card-principal">
+
+      <div class="icon">🗓</div>
+
+      <div class="card-content">
+
+        <div class="titulo">
+          Reservas
+        </div>
+
+        <div class="desc">
+          Crear entradas y reservas para clases
+        </div>
+
+      </div>
+
+    </a>
+
+
+
+    <a href="hoy.html"
+       class="card card-principal">
+
+      <div class="icon">👥</div>
+
+      <div class="card-content">
+
+        <div class="titulo">
+          Hoy
+        </div>
+
+        <div class="desc">
+          Operación diaria y control de asistencia
+        </div>
+
+      </div>
+
+    </a>
+
+
+
+    <a href="semana.html"
+       class="card">
+
+      <div class="icon">📊</div>
+
+      <div class="card-content">
+
+        <div class="titulo">
+          Semana
+        </div>
+
+        <div class="desc">
+          Vista semanal de reservas y capacidad
+        </div>
+
+      </div>
+
+    </a>
+
+
+
+    <a href="clases.html"
+       class="card">
+
+      <div class="icon">🧗</div>
+
+      <div class="card-content">
+
+        <div class="titulo">
+          Clases
+        </div>
+
+        <div class="desc">
+          Crear y administrar clases
+        </div>
+
+      </div>
+
+    </a>
+
+
+
+    <a href="checkin.html"
+       class="card">
+
+      <div class="icon">✓</div>
+
+      <div class="card-content">
+
+        <div class="titulo">
+          Check-in manual
+        </div>
+
+        <div class="desc">
+          Buscar una reserva por código
+        </div>
+
+      </div>
+
+    </a>
+
+
+  </div>
+
+</main>
+
+
+
+<footer>
+
+  IRONWALL · SISTEMA DE RESERVAS
+
+</footer>
+
+
+</body>
+
+</html>
