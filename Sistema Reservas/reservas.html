@@ -317,78 +317,296 @@ button {
 
 </div>
 
-
 <script>
 
 const API_URL =
   'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
-let tipoSeleccionado = 'ENTRADA';
-let consultaRealizada = false;
-let disponiblesActuales = 0;
+
+/* =========================================================
+   ESTADO GENERAL
+========================================================= */
+
 let tipoReserva = 'ENTRADA';
+
 let cuposConsultados = false;
+
+let disponiblesActuales = 0;
+
+
+/* =========================================================
+   FECHA LOCAL
+   Evita problemas de zona horaria
+========================================================= */
 
 function fechaHoyLocal() {
 
-  const d =
-    new Date();
+  const d = new Date();
 
   return [
     d.getFullYear(),
-    String(
-      d.getMonth() + 1
-    ).padStart(2, '0'),
-    String(
-      d.getDate()
-    ).padStart(2, '0')
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0')
   ].join('-');
+
 }
 
 
-document
-  .getElementById('fecha')
-  .value =
-  fechaHoyLocal();
+/* =========================================================
+   INICIALIZACIÓN
+========================================================= */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  const fecha =
+    document.getElementById('fecha');
+
+  if (fecha) {
+    fecha.value = fechaHoyLocal();
+  }
+
+
+  /*
+   * Eventos que deben volver a evaluar
+   * si se puede confirmar la reserva.
+   */
+
+  const cliente =
+    document.getElementById('clienteId');
+
+  if (cliente) {
+
+    cliente.addEventListener(
+      'input',
+      actualizarEstadoBotonReserva
+    );
+
+  }
+
+
+  const cantidad =
+    document.getElementById('cantidad');
+
+  if (cantidad) {
+
+    cantidad.addEventListener(
+      'input',
+      actualizarEstadoBotonReserva
+    );
+
+    cantidad.addEventListener(
+      'change',
+      actualizarEstadoBotonReserva
+    );
+
+  }
+
+
+  const clase =
+    document.getElementById('claseId');
+
+  if (clase) {
+
+    clase.addEventListener(
+      'change',
+      seleccionarClase
+    );
+
+  }
+
+
+  /*
+   * Si cambia la fecha, la consulta anterior
+   * deja de ser válida.
+   */
+
+  if (fecha) {
+
+    fecha.addEventListener(
+      'change',
+      invalidarConsulta
+    );
+
+  }
+
+
+  const horaInicio =
+    document.getElementById('horaInicio');
+
+  if (horaInicio) {
+
+    horaInicio.addEventListener(
+      'change',
+      invalidarConsulta
+    );
+
+  }
+
+
+  const horaFin =
+    document.getElementById('horaFin');
+
+  if (horaFin) {
+
+    horaFin.addEventListener(
+      'change',
+      invalidarConsulta
+    );
+
+  }
+
+
+  actualizarEstadoBotonReserva();
+
+});
+
+
+/* =========================================================
+   INVALIDAR CONSULTA
+   Si cambia fecha u horario, hay que volver a consultar.
+========================================================= */
+
+function invalidarConsulta() {
+
+  cuposConsultados = false;
+
+  disponiblesActuales = 0;
+
+  const btn =
+    document.getElementById('btnReservar');
+
+  if (btn) {
+    btn.disabled = true;
+  }
+
+
+  /*
+   * Si estamos trabajando con clases,
+   * también limpiamos la selección anterior.
+   */
+
+  if (tipoReserva === 'CLASE') {
+
+    const select =
+      document.getElementById('claseId');
+
+    if (select) {
+
+      select.value = '';
+
+    }
+
+  }
+
+
+  actualizarEstadoBotonReserva();
+
+}
+
+
+/* =========================================================
+   SELECCIÓN ENTRADA / CLASE
+========================================================= */
 
 function seleccionarTipo(tipo) {
 
-  tipoSeleccionado = tipo;
+  tipoReserva = tipo;
 
-  const btnEntrada = document.getElementById('btnEntrada');
-  const btnClase = document.getElementById('btnClase');
+
+  const btnEntrada =
+    document.getElementById('btnEntrada');
+
+  const btnClase =
+    document.getElementById('btnClase');
+
 
   if (tipo === 'ENTRADA') {
 
-    btnEntrada.className = 'activo-entrada';
-    btnClase.className = '';
+    if (btnEntrada) {
+      btnEntrada.className =
+        'activo-entrada';
+    }
 
-  } else {
+    if (btnClase) {
+      btnClase.className = '';
+    }
 
-    btnEntrada.className = '';
-    btnClase.className = 'activo-clase';
+
+    /*
+     * Entrada general no necesita
+     * seleccionar una clase.
+     */
+
+    actualizarEstadoBotonReserva();
+
   }
 
-  actualizarEstadoBotonReserva();
+
+  else if (tipo === 'CLASE') {
+
+    if (btnEntrada) {
+      btnEntrada.className = '';
+    }
+
+    if (btnClase) {
+      btnClase.className =
+        'activo-clase';
+    }
+
+
+    /*
+     * Si ya se había hecho Paso 1,
+     * cargamos inmediatamente las clases
+     * correspondientes a la fecha.
+     */
+
+    if (cuposConsultados) {
+
+      cargarClases();
+
+    }
+
+
+    actualizarEstadoBotonReserva();
+
+  }
+
 }
 
 
-async function api(
-  body
-) {
+/* =========================================================
+   API
+========================================================= */
+
+async function api(body) {
 
   const response =
     await fetch(
       API_URL,
       {
         method: 'POST',
-        body:
-          JSON.stringify(body)
+        body: JSON.stringify(body)
       }
     );
 
+
+  if (!response.ok) {
+
+    throw new Error(
+      'Error de comunicación con el servidor'
+    );
+
+  }
+
+
   return await response.json();
+
 }
+
+
+/* =========================================================
+   PASO 1 — CONSULTAR CUPOS
+========================================================= */
 
 async function consultarCupos() {
 
@@ -397,17 +615,18 @@ async function consultarCupos() {
       .getElementById('fecha')
       .value;
 
+
   const horaInicio =
     document
-      .getElementById(
-        'horaInicio'
-      ).value;
+      .getElementById('horaInicio')
+      .value;
+
 
   const horaFin =
     document
-      .getElementById(
-        'horaFin'
-      ).value;
+      .getElementById('horaFin')
+      .value;
+
 
   if (
     !fecha ||
@@ -421,7 +640,198 @@ async function consultarCupos() {
     );
 
     return;
+
   }
+
+
+  if (horaFin <= horaInicio) {
+
+    mostrar(
+      'La hora de término debe ser posterior a la hora de inicio',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * Mientras consulta el servidor,
+   * Paso 2 queda bloqueado.
+   */
+
+  cuposConsultados = false;
+
+  disponiblesActuales = 0;
+
+  actualizarEstadoBotonReserva();
+
+
+  try {
+
+    const resultado =
+      await api({
+
+        action: 'ocupacion',
+
+        fecha,
+
+        horaInicio,
+
+        horaFin
+
+      });
+
+
+    if (!resultado.ok) {
+
+      throw new Error(
+        resultado.mensaje
+      );
+
+    }
+
+
+    /*
+     * Mostrar información de capacidad.
+     */
+
+    document
+      .getElementById('ocupacion')
+      .textContent =
+      resultado.ocupacion;
+
+
+    document
+      .getElementById('disponibles')
+      .textContent =
+      resultado.disponibles;
+
+
+    document
+      .getElementById('capacidad')
+      .textContent =
+      resultado.capacidad;
+
+
+    /*
+     * Guardamos el resultado de la consulta.
+     */
+
+    disponiblesActuales =
+      Number(
+        resultado.disponibles || 0
+      );
+
+
+    cuposConsultados =
+      disponiblesActuales > 0;
+
+
+    /*
+     * Si es una reserva de CLASE,
+     * cargamos las clases de esa fecha.
+     */
+
+    if (tipoReserva === 'CLASE') {
+
+      await cargarClases();
+
+    }
+
+
+    actualizarEstadoBotonReserva();
+
+
+    if (resultado.lleno) {
+
+      mostrar(
+        'No hay cupos disponibles para este periodo',
+        'error'
+      );
+
+    }
+
+    else {
+
+      if (tipoReserva === 'CLASE') {
+
+        mostrar(
+          'Cupos disponibles. Selecciona una clase.',
+          'exito'
+        );
+
+      }
+
+      else {
+
+        mostrar(
+          'Cupos disponibles',
+          'exito'
+        );
+
+      }
+
+    }
+
+  }
+
+
+  catch (error) {
+
+    cuposConsultados = false;
+
+    disponiblesActuales = 0;
+
+    actualizarEstadoBotonReserva();
+
+
+    mostrar(
+      'Error: ' + error.message,
+      'error'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CARGAR CLASES DE UNA FECHA
+========================================================= */
+
+async function cargarClases() {
+
+  const fecha =
+    document
+      .getElementById('fecha')
+      .value;
+
+
+  if (!fecha) {
+    return;
+  }
+
+
+  const select =
+    document
+      .getElementById('claseId');
+
+
+  if (!select) {
+    return;
+  }
+
+
+  /*
+   * Mientras se cargan las clases,
+   * dejamos la selección limpia.
+   */
+
+  select.innerHTML =
+    '<option value="">Cargando clases...</option>';
+
 
   try {
 
@@ -429,137 +839,54 @@ async function consultarCupos() {
       await api({
 
         action:
-          'ocupacion',
+          'listarClasesFecha',
 
-        fecha,
+        fecha
 
-        horaInicio,
-
-        horaFin
       });
 
+
+    select.innerHTML =
+      '<option value="">Selecciona una clase</option>';
+
+
     if (!resultado.ok) {
-      throw new Error(
-        resultado.mensaje
-      );
-    }
-
-    document
-      .getElementById(
-        'ocupacion'
-      ).textContent =
-      resultado.ocupacion;
-
-
-    document
-      .getElementById(
-        'disponibles'
-      ).textContent =
-      resultado.disponibles;
-
-
-    document
-      .getElementById(
-        'capacidad'
-      ).textContent =
-      resultado.capacidad;
-
-    cuposConsultados =
-      resultado.disponibles > 0;
-
-    if (
-      tipoReserva ===
-      'CLASE'
-    ) {
-
-      await cargarClases();
-
-      const claseId =
-        document
-          .getElementById(
-            'claseId'
-          ).value;
-
-      if (!claseId) {
-        cuposConsultados =
-          false;
-      }
-    }
-
-    document
-      .getElementById(
-        'btnReservar'
-      ).disabled =
-      !cuposConsultados;
-
-
-    if (
-      resultado.lleno
-    ) {
 
       mostrar(
-        'No hay cupos disponibles para este periodo',
+        resultado.mensaje ||
+        'No se pudieron cargar las clases',
         'error'
       );
 
-    } else {
+      actualizarEstadoBotonReserva();
 
-      mostrar(
-        'Cupos disponibles',
-        'exito'
-      );
+      return;
+
     }
 
-  } catch (error) {
 
-    mostrar(
-      'Error: ' +
-      error.message,
-      'error'
-    );
-  }
-}
-
-async function cargarClases() {
-
-  const fecha =
-    document
-      .getElementById(
-        'fecha'
-      ).value;
-
-  if (!fecha) return;
+    const clases =
+      (resultado.clases || [])
+        .filter(
+          c =>
+            String(c.Estado).trim() ===
+            'ACTIVA'
+        );
 
 
-  const resultado =
-    await api({
+    if (clases.length === 0) {
 
-      action:
-        'listarClasesFecha',
+      select.innerHTML =
+        '<option value="">No hay clases disponibles</option>';
 
-      fecha
-    });
+      actualizarEstadoBotonReserva();
 
-  const select =
-    document
-      .getElementById(
-        'claseId'
-      );
+      return;
 
-  select.innerHTML =
-    '<option value="">Selecciona una clase</option>';
+    }
 
-  if (!resultado.ok) {
-    return;
-  }
 
-  resultado.clases
-    .filter(
-      c =>
-        c.Estado ===
-        'ACTIVA'
-    )
-    .forEach(
+    clases.forEach(
       clase => {
 
         const option =
@@ -567,77 +894,208 @@ async function cargarClases() {
             'option'
           );
 
+
         option.value =
           clase.ClaseID;
+
 
         option.textContent =
           `${clase.Nombre} — ${clase.HoraInicio}-${clase.HoraFin} — ${clase.Capacidad} cupos`;
 
+
         select.appendChild(
           option
         );
+
       }
     );
+
+
+  }
+
+
+  catch (error) {
+
+    select.innerHTML =
+      '<option value="">Error al cargar clases</option>';
+
+
+    mostrar(
+      'Error al cargar clases: ' +
+      error.message,
+      'error'
+    );
+
+  }
+
+
+  actualizarEstadoBotonReserva();
+
 }
+
+
+/* =========================================================
+   SELECCIÓN DE CLASE
+========================================================= */
 
 function seleccionarClase() {
 
-  const claseId =
-    document
-      .getElementById(
-        'claseId'
-      ).value;
+  actualizarEstadoBotonReserva();
 
-  document
-    .getElementById(
-      'btnReservar'
-    ).disabled =
-    !(
-      cuposConsultados &&
-      claseId
-    );
 }
+
+
+/* =========================================================
+   CONTROL CENTRAL DEL BOTÓN PASO 2
+========================================================= */
+
+function actualizarEstadoBotonReserva() {
+
+  const btn =
+    document.getElementById('btnReservar');
+
+
+  if (!btn) {
+    return;
+  }
+
+
+  const clienteElement =
+    document.getElementById('clienteId');
+
+
+  const cantidadElement =
+    document.getElementById('cantidad');
+
+
+  const claseElement =
+    document.getElementById('claseId');
+
+
+  const clienteId =
+    clienteElement
+      ? clienteElement.value.trim()
+      : '';
+
+
+  const cantidad =
+    cantidadElement
+      ? Number(cantidadElement.value)
+      : 0;
+
+
+  /*
+   * Primero verificamos las condiciones
+   * comunes a cualquier reserva.
+   */
+
+  let puedeReservar =
+
+    cuposConsultados &&
+
+    disponiblesActuales >= cantidad &&
+
+    clienteId !== '' &&
+
+    Number.isInteger(cantidad) &&
+
+    cantidad >= 1;
+
+
+  /*
+   * Las reservas de CLASE requieren
+   * obligatoriamente una clase.
+   */
+
+  if (
+    tipoReserva === 'CLASE'
+  ) {
+
+    const claseId =
+      claseElement
+        ? claseElement.value.trim()
+        : '';
+
+
+    if (!claseId) {
+
+      puedeReservar = false;
+
+    }
+
+  }
+
+
+  btn.disabled =
+    !puedeReservar;
+
+}
+
+
+/* =========================================================
+   PASO 2 — CREAR RESERVA
+========================================================= */
 
 async function realizarReserva() {
 
   const clienteId =
     document
-      .getElementById(
-        'clienteId'
-      ).value
+      .getElementById('clienteId')
+      .value
       .trim();
+
 
   const fecha =
     document
-      .getElementById(
-        'fecha'
-      ).value;
+      .getElementById('fecha')
+      .value;
+
 
   const horaInicio =
     document
-      .getElementById(
-        'horaInicio'
-      ).value;
+      .getElementById('horaInicio')
+      .value;
+
 
   const horaFin =
     document
-      .getElementById(
-        'horaFin'
-      ).value;
+      .getElementById('horaFin')
+      .value;
+
 
   const cantidad =
     Number(
       document
-        .getElementById(
-          'cantidad'
-        ).value
+        .getElementById('cantidad')
+        .value
     );
 
-  const claseId =
+
+  const claseElement =
     document
-      .getElementById(
-        'claseId'
-      ).value;
+      .getElementById('claseId');
+
+
+  const claseId =
+    claseElement
+      ? claseElement.value
+      : '';
+
+
+  /*
+   * Validaciones.
+   */
+
+  if (!cuposConsultados) {
+
+    mostrar(
+      'Primero consulta los cupos disponibles',
+      'error'
+    );
+
+    return;
+
+  }
 
 
   if (!clienteId) {
@@ -648,11 +1106,27 @@ async function realizarReserva() {
     );
 
     return;
+
   }
 
+
   if (
-    tipoReserva ===
-    'CLASE' &&
+    !Number.isInteger(cantidad) ||
+    cantidad < 1
+  ) {
+
+    mostrar(
+      'La cantidad debe ser un número válido',
+      'error'
+    );
+
+    return;
+
+  }
+
+
+  if (
+    tipoReserva === 'CLASE' &&
     !claseId
   ) {
 
@@ -662,7 +1136,21 @@ async function realizarReserva() {
     );
 
     return;
+
   }
+
+
+  /*
+   * Evita doble clic / doble reserva.
+   */
+
+  const btn =
+    document
+      .getElementById('btnReservar');
+
+
+  btn.disabled = true;
+
 
   try {
 
@@ -691,19 +1179,33 @@ async function realizarReserva() {
 
         usuario:
           'WEB'
+
       });
 
 
     if (!resultado.ok) {
+
+      /*
+       * Si el servidor rechazó la reserva,
+       * volvemos a permitir el botón solamente
+       * si las condiciones siguen siendo válidas.
+       */
 
       mostrar(
         resultado.mensaje,
         'error'
       );
 
+      actualizarEstadoBotonReserva();
+
       return;
+
     }
 
+
+    /*
+     * Reserva creada.
+     */
 
     mostrar(
       `¡Reserva exitosa! ID: ${resultado.reservaId}`,
@@ -711,24 +1213,44 @@ async function realizarReserva() {
     );
 
 
-    document
-      .getElementById(
-        'btnReservar'
-      ).disabled =
-      true;
+    /*
+     * Bloqueamos temporalmente el botón
+     * para evitar duplicados.
+     */
 
+    btn.disabled = true;
+
+
+    /*
+     * Volvemos a consultar capacidad.
+     * Esto actualiza el número de cupos.
+     */
 
     await consultarCupos();
 
-  } catch (error) {
+
+  }
+
+
+  catch (error) {
 
     mostrar(
       'Error: ' +
       error.message,
       'error'
     );
+
+
+    actualizarEstadoBotonReserva();
+
   }
+
 }
+
+
+/* =========================================================
+   MENSAJES
+========================================================= */
 
 function mostrar(
   texto,
@@ -737,43 +1259,26 @@ function mostrar(
 
   const elemento =
     document
-      .getElementById(
-        'mensaje'
-      );
+      .getElementById('mensaje');
+
+
+  if (!elemento) {
+    return;
+  }
+
 
   elemento.textContent =
     texto;
 
+
   elemento.className =
-    'mensaje ' +
-    tipo;
-}
+    'mensaje ' + tipo;
 
-function actualizarEstadoBotonReserva() {
-
-  const btn = document.getElementById('btnEnviar');
-  const clienteId = document.getElementById('clienteId').value.trim();
-  const cantidad = Number(document.getElementById('cantidad').value);
-
-  const claseSelect = document.getElementById('claseId');
-
-  let claseValida = true;
-
-  if (tipoSeleccionado === 'CLASE') {
-    claseValida = claseSelect && claseSelect.value.trim() !== '';
-  }
-
-  const puedeReservar =
-    consultaRealizada &&
-    disponiblesActuales >= cantidad &&
-    clienteId !== '' &&
-    cantidad >= 1 &&
-    claseValida;
-
-  btn.disabled = !puedeReservar;
 }
 
 </script>
+
+
 
 </body>
 
