@@ -4,17 +4,12 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport"
       content="width=device-width, initial-scale=1">
 
 <title>Ironwall Reservas</title>
-
 <style>
-
-* {
-  box-sizing: border-box;
-}
+* {  box-sizing: border-box;}
 
 body {
   font-family: Arial, sans-serif;
@@ -161,177 +156,162 @@ button {
 
 <h1>Ironwall Reservas</h1>
 
-<div class="subtitulo">
-Gestión de cupos y confirmación de accesos
+<div class="subtitulo">Gestión de cupos y confirmación de accesos</div>
+<div class="card disponibilidad"><div class="titulo-card">CUPOS DISPONIBLES EN EL PERIODO</div>
+      <div class="indicadores">
+            <div class="indicador">
+            Ocupación
+            <span id="ocupacion">-</span>
+            </div>
+      
+            <div class="indicador">
+            Disponibles
+            <span id="disponibles">-</span>
+            </div>
+      
+            <div class="indicador">
+            Capacidad
+            <span id="capacidad">-</span>
+            </div>
+      </div>
 </div>
-
-
-<div class="card disponibilidad">
-
-<div class="titulo-card">
-CUPOS DISPONIBLES EN EL PERIODO
-</div>
-
-<div class="indicadores">
-
-<div class="indicador">
-Ocupación
-<span id="ocupacion">-</span>
-</div>
-
-<div class="indicador">
-Disponibles
-<span id="disponibles">-</span>
-</div>
-
-<div class="indicador">
-Capacidad
-<span id="capacidad">-</span>
-</div>
-
-</div>
-
-</div>
-
 
 <div class="card">
 
-<label>
-Fecha
-</label>
-
-<input
-  id="fecha"
-  type="date">
-
-
-<div class="horas">
-
-<div>
-
-<label>
-Hora Inicio
-</label>
-
-<input
-  id="horaInicio"
-  type="time"
-  value="18:00">
-
-</div>
-
-
-<div>
-
-<label>
-Hora Término
-</label>
-
-<input
-  id="horaFin"
-  type="time"
-  value="20:00">
-
-</div>
-
-</div>
-
-
-<button
-  class="btn btn-consultar"
-  onclick="consultarCupos()">
-
-Paso 1: Consultar Cupos Disponibles
-
-</button>
-
-
-<label>
-Tipo de Reserva
-</label>
-
-<div class="tipos">
-
-<button
-  id="btnEntrada"
-  class="tipo activo"
-  onclick="seleccionarTipo('ENTRADA')">
-
-Entrada General
-
-</button>
-
-<button
-  id="btnClase"
-  class="tipo"
-  onclick="seleccionarTipo('CLASE')">
-
-Clase
-
-</button>
-
-</div>
-
-
-<div id="claseBox">
-
-<label>
-Seleccionar Clase
-</label>
-
-<select id="claseId"
-        onchange="seleccionarClase()">
-
-<option value="">
-Selecciona una clase
-</option>
-
-</select>
-
-</div>
-
-
-<label>
-ID Cliente
-</label>
-
-<input
-  id="clienteId"
-  placeholder="Ej: CLI-001">
-
-
-<small>
-Código asignado en el sistema de gestión
-</small>
-
-
-<label>
-Cantidad de Personas
-</label>
-
-<input
-  id="cantidad"
-  type="number"
-  min="1"
-  max="5"
-  value="1">
-
-
-<button
-  id="btnReservar"
-  class="btn btn-reservar"
-  disabled
-  onclick="realizarReserva()">
-
-Paso 2: Confirmar Reserva
-
-</button>
-
-
-<div
-  id="mensaje"
-  class="mensaje">
-</div>
+      <label>
+      Fecha
+      </label>
+      
+      <input
+        id="fecha"
+        type="date">
+      
+      
+      <div class="horas">
+      
+      <div>
+      
+      <label>
+      Hora Inicio
+      </label>
+      
+      <input
+        id="horaInicio"
+        type="time"
+        value="18:00">
+      
+      </div>
+      
+      
+      <div>
+      
+      <label>
+      Hora Término
+      </label>
+      
+      <input
+        id="horaFin"
+        type="time"
+        value="20:00">
+      
+      </div>
+      
+      </div>
+      
+      
+      <button
+        class="btn btn-consultar"
+        onclick="consultarCupos()">
+      
+      Paso 1: Consultar Cupos Disponibles
+      
+      </button>
+      
+      
+      <label>
+      Tipo de Reserva
+      </label>
+      
+      <div class="tipos">
+      
+      <button
+        id="btnEntrada"
+        class="tipo activo"
+        onclick="seleccionarTipo('ENTRADA')">
+      
+      Entrada General
+      
+      </button>
+      
+      <button
+        id="btnClase"
+        class="tipo"
+        onclick="seleccionarTipo('CLASE')">
+      
+      Clase
+      
+      </button>
+      
+      </div>
+      
+      
+      <div id="claseBox">
+      
+      <label>
+      Seleccionar Clase
+      </label>
+      
+      <select id="claseId"
+              onchange="seleccionarClase()">
+      
+      <option value="">
+      Selecciona una clase
+      </option>
+      
+      </select>
+      
+      </div>
+      
+      
+      <label>
+      ID Cliente
+      </label>
+      
+      <input
+        id="clienteId"
+        placeholder="Ej: CLI-001">
+      
+      
+      <small>
+      Código asignado en el sistema de gestión
+      </small>
+      
+      
+      <label>
+      Cantidad de Personas
+      </label>
+      
+      <input
+        id="cantidad"
+        type="number"
+        min="1"
+        max="5"
+        value="1">
+          
+      <button
+        id="btnReservar"
+        class="btn btn-reservar"
+        disabled
+        onclick="realizarReserva()">
+      
+      Paso 2: Confirmar Reserva
+      
+      </button>
+           
+      <div
+        id="mensaje"
+        class="mensaje">
+      </div>
 
 </div>
 
@@ -343,13 +323,11 @@ Paso 2: Confirmar Reserva
 const API_URL =
   'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
-
-let tipoReserva =
-  'ENTRADA';
-
-let cuposConsultados =
-  false;
-
+let tipoSeleccionado = 'ENTRADA';
+let consultaRealizada = false;
+let disponiblesActuales = 0;
+let tipoReserva = 'ENTRADA';
+let cuposConsultados = false;
 
 function fechaHoyLocal() {
 
@@ -373,56 +351,25 @@ document
   .value =
   fechaHoyLocal();
 
+function seleccionarTipo(tipo) {
 
-function seleccionarTipo(
-  tipo
-) {
+  tipoSeleccionado = tipo;
 
-  tipoReserva =
-    tipo;
+  const btnEntrada = document.getElementById('btnEntrada');
+  const btnClase = document.getElementById('btnClase');
 
-  document
-    .getElementById(
-      'btnEntrada'
-    )
-    .classList.toggle(
-      'activo',
-      tipo === 'ENTRADA'
-    );
+  if (tipo === 'ENTRADA') {
 
-  document
-    .getElementById(
-      'btnClase'
-    )
-    .classList.toggle(
-      'activo',
-      tipo === 'CLASE'
-    );
+    btnEntrada.className = 'activo-entrada';
+    btnClase.className = '';
 
-  const box =
-    document.getElementById(
-      'claseBox'
-    );
+  } else {
 
-  box.style.display =
-    tipo === 'CLASE'
-      ? 'block'
-      : 'none';
-
-  document
-    .getElementById(
-      'btnReservar'
-    ).disabled = true;
-
-  cuposConsultados =
-    false;
-
-  if (
-    tipo === 'CLASE'
-  ) {
-
-    cargarClases();
+    btnEntrada.className = '';
+    btnClase.className = 'activo-clase';
   }
+
+  actualizarEstadoBotonReserva();
 }
 
 
@@ -442,7 +389,6 @@ async function api(
 
   return await response.json();
 }
-
 
 async function consultarCupos() {
 
@@ -492,13 +438,11 @@ async function consultarCupos() {
         horaFin
       });
 
-
     if (!resultado.ok) {
       throw new Error(
         resultado.mensaje
       );
     }
-
 
     document
       .getElementById(
@@ -520,10 +464,8 @@ async function consultarCupos() {
       ).textContent =
       resultado.capacidad;
 
-
     cuposConsultados =
       resultado.disponibles > 0;
-
 
     if (
       tipoReserva ===
@@ -543,7 +485,6 @@ async function consultarCupos() {
           false;
       }
     }
-
 
     document
       .getElementById(
@@ -579,7 +520,6 @@ async function consultarCupos() {
   }
 }
 
-
 async function cargarClases() {
 
   const fecha =
@@ -600,22 +540,18 @@ async function cargarClases() {
       fecha
     });
 
-
   const select =
     document
       .getElementById(
         'claseId'
       );
 
-
   select.innerHTML =
     '<option value="">Selecciona una clase</option>';
-
 
   if (!resultado.ok) {
     return;
   }
-
 
   resultado.clases
     .filter(
@@ -644,7 +580,6 @@ async function cargarClases() {
     );
 }
 
-
 function seleccionarClase() {
 
   const claseId =
@@ -662,7 +597,6 @@ function seleccionarClase() {
       claseId
     );
 }
-
 
 async function realizarReserva() {
 
@@ -716,7 +650,6 @@ async function realizarReserva() {
     return;
   }
 
-
   if (
     tipoReserva ===
     'CLASE' &&
@@ -730,7 +663,6 @@ async function realizarReserva() {
 
     return;
   }
-
 
   try {
 
@@ -798,7 +730,6 @@ async function realizarReserva() {
   }
 }
 
-
 function mostrar(
   texto,
   tipo
@@ -816,6 +747,30 @@ function mostrar(
   elemento.className =
     'mensaje ' +
     tipo;
+}
+
+function actualizarEstadoBotonReserva() {
+
+  const btn = document.getElementById('btnEnviar');
+  const clienteId = document.getElementById('clienteId').value.trim();
+  const cantidad = Number(document.getElementById('cantidad').value);
+
+  const claseSelect = document.getElementById('claseId');
+
+  let claseValida = true;
+
+  if (tipoSeleccionado === 'CLASE') {
+    claseValida = claseSelect && claseSelect.value.trim() !== '';
+  }
+
+  const puedeReservar =
+    consultaRealizada &&
+    disponiblesActuales >= cantidad &&
+    clienteId !== '' &&
+    cantidad >= 1 &&
+    claseValida;
+
+  btn.disabled = !puedeReservar;
 }
 
 </script>
