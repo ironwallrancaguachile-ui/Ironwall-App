@@ -19,7 +19,7 @@ body {
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
 }
 
@@ -33,7 +33,10 @@ body {
 .grid {
   display: grid;
   grid-template-columns:
-    repeat(auto-fit, minmax(180px, 1fr));
+    repeat(
+      auto-fit,
+      minmax(180px,1fr)
+    );
   gap: 10px;
 }
 
@@ -57,7 +60,8 @@ table {
 th,
 td {
   padding: 10px;
-  border-bottom: 1px solid #ddd;
+  border-bottom:
+    1px solid #ddd;
   text-align: left;
 }
 
@@ -76,23 +80,28 @@ td {
 
 <h2>Nueva clase</h2>
 
+
 <div class="grid">
 
 <input
   id="nombre"
   placeholder="Nombre de clase">
 
+
 <input
   id="fecha"
   type="date">
+
 
 <input
   id="horaInicio"
   type="time">
 
+
 <input
   id="horaFin"
   type="time">
+
 
 <input
   id="capacidad"
@@ -100,16 +109,19 @@ td {
   min="1"
   value="8">
 
+
 <input
   id="instructorId"
   placeholder="InstructorID">
 
 </div>
 
-<br>
 
-<button onclick="crearClase()">
+<button
+  onclick="crearClase()">
+
 Crear clase
+
 </button>
 
 </div>
@@ -119,16 +131,22 @@ Crear clase
 
 <h2>Clases del día</h2>
 
+
 <input
   id="fechaConsulta"
   type="date">
 
+
 <button
   onclick="cargarClases()">
+
 Actualizar
+
 </button>
 
+
 <br><br>
+
 
 <table>
 
@@ -164,29 +182,15 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
 
-async function api(body) {
-
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
-        body: JSON.stringify(body)
-      }
-    );
-
-  return await response.json();
-}
-
-
 function fechaHoy() {
 
-  const d = new Date();
+  const d =
+    new Date();
 
   return [
     d.getFullYear(),
     String(
-      d.getMonth() + 1
+      d.getMonth()+1
     ).padStart(2,'0'),
     String(
       d.getDate()
@@ -195,13 +199,34 @@ function fechaHoy() {
 }
 
 
-document.getElementById(
-  'fecha'
-).value = fechaHoy();
+document
+  .getElementById(
+    'fecha'
+  ).value =
+  fechaHoy();
 
-document.getElementById(
-  'fechaConsulta'
-).value = fechaHoy();
+
+document
+  .getElementById(
+    'fechaConsulta'
+  ).value =
+  fechaHoy();
+
+
+async function api(body) {
+
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method: 'POST',
+        body:
+          JSON.stringify(body)
+      }
+    );
+
+  return response.json();
+}
 
 
 async function crearClase() {
@@ -209,47 +234,59 @@ async function crearClase() {
   const resultado =
     await api({
 
-      action: 'crearClase',
+      action:
+        'crearClase',
 
       nombre:
-        document.getElementById(
-          'nombre'
-        ).value,
+        document
+          .getElementById(
+            'nombre'
+          ).value,
 
       fecha:
-        document.getElementById(
-          'fecha'
-        ).value,
+        document
+          .getElementById(
+            'fecha'
+          ).value,
 
       horaInicio:
-        document.getElementById(
-          'horaInicio'
-        ).value,
+        document
+          .getElementById(
+            'horaInicio'
+          ).value,
 
       horaFin:
-        document.getElementById(
-          'horaFin'
-        ).value,
+        document
+          .getElementById(
+            'horaFin'
+          ).value,
 
       capacidad:
-        document.getElementById(
-          'capacidad'
-        ).value,
+        document
+          .getElementById(
+            'capacidad'
+          ).value,
 
       instructorId:
-        document.getElementById(
-          'instructorId'
-        ).value,
+        document
+          .getElementById(
+            'instructorId'
+          ).value,
 
-      usuario: 'STAFF'
-
+      usuario:
+        'STAFF'
     });
+
 
   alert(
     resultado.mensaje
   );
 
-  if (resultado.ok) {
+
+  if (
+    resultado.ok
+  ) {
+
     cargarClases();
   }
 }
@@ -258,9 +295,11 @@ async function crearClase() {
 async function cargarClases() {
 
   const fecha =
-    document.getElementById(
-      'fechaConsulta'
-    ).value;
+    document
+      .getElementById(
+        'fechaConsulta'
+      ).value;
+
 
   const resultado =
     await api({
@@ -268,19 +307,25 @@ async function cargarClases() {
       action:
         'listarClasesFecha',
 
-      fecha: fecha
-
+      fecha
     });
 
+
   const tbody =
-    document.getElementById(
-      'tabla'
-    );
+    document
+      .getElementById(
+        'tabla'
+      );
 
   tbody.innerHTML = '';
 
+
   if (!resultado.ok) {
-    alert(resultado.mensaje);
+
+    alert(
+      resultado.mensaje
+    );
+
     return;
   }
 
@@ -289,7 +334,11 @@ async function cargarClases() {
     clase => {
 
       const tr =
-        document.createElement('tr');
+        document
+          .createElement(
+            'tr'
+          );
+
 
       tr.innerHTML = `
 
@@ -318,20 +367,32 @@ async function cargarClases() {
         <td>
 
           ${
-            clase.Estado === 'ACTIVA'
+            clase.Estado ===
+            'ACTIVA'
+
             ?
+
             `<button
-              onclick="cancelarClase('${clase.ClaseID}')">
+              onclick="
+                cancelarClase(
+                  '${clase.ClaseID}'
+                )
+              ">
               Cancelar
             </button>`
+
             :
+
             ''
           }
 
         </td>
       `;
 
-      tbody.appendChild(tr);
+
+      tbody.appendChild(
+        tr
+      );
     }
   );
 }
@@ -349,22 +410,24 @@ async function cancelarClase(
     return;
   }
 
+
   const resultado =
     await api({
 
       action:
         'cancelarClase',
 
-      claseId:
-        claseId,
+      claseId,
 
       usuario:
         'STAFF'
     });
 
+
   alert(
     resultado.mensaje
   );
+
 
   cargarClases();
 }
