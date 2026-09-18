@@ -20,7 +20,7 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1250px;
   margin: auto;
 }
 
@@ -45,10 +45,11 @@ button {
 .semana {
   display: grid;
   grid-template-columns:
-    repeat(7, minmax(150px, 1fr));
-
+    repeat(
+      7,
+      minmax(160px,1fr)
+    );
   gap: 10px;
-
   overflow-x: auto;
 }
 
@@ -59,20 +60,16 @@ button {
   min-height: 350px;
 }
 
-.dia h3 {
-  margin-top: 0;
-}
-
-.bloque {
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  background: #f0f0f0;
-}
-
 .numero {
   font-size: 22px;
   font-weight: bold;
+}
+
+.reserva {
+  padding: 10px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  margin-top: 8px;
 }
 
 </style>
@@ -85,17 +82,23 @@ button {
 
 <h1>Semana Ironwall</h1>
 
+
 <div class="top">
 
 <input
-  type="date"
-  id="fechaInicio">
+  id="fechaInicio"
+  type="date">
 
-<button onclick="cargarSemana()">
+
+<button
+  onclick="cargarSemana()">
+
 Actualizar
+
 </button>
 
 </div>
+
 
 <div
   id="semana"
@@ -111,29 +114,15 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
 
-async function api(body) {
-
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
-        body: JSON.stringify(body)
-      }
-    );
-
-  return await response.json();
-}
-
-
 function fechaHoy() {
 
-  const d = new Date();
+  const d =
+    new Date();
 
   return [
     d.getFullYear(),
     String(
-      d.getMonth() + 1
+      d.getMonth()+1
     ).padStart(2,'0'),
     String(
       d.getDate()
@@ -142,17 +131,37 @@ function fechaHoy() {
 }
 
 
-document.getElementById(
-  'fechaInicio'
-).value = fechaHoy();
+document
+  .getElementById(
+    'fechaInicio'
+  ).value =
+  fechaHoy();
+
+
+async function api(body) {
+
+  const response =
+    await fetch(
+      API_URL,
+      {
+        method: 'POST',
+        body:
+          JSON.stringify(body)
+      }
+    );
+
+  return response.json();
+}
 
 
 async function cargarSemana() {
 
   const fechaInicio =
-    document.getElementById(
-      'fechaInicio'
-    ).value;
+    document
+      .getElementById(
+        'fechaInicio'
+      ).value;
+
 
   const resultado =
     await api({
@@ -160,10 +169,9 @@ async function cargarSemana() {
       action:
         'resumenSemana',
 
-      fechaInicio:
-        fechaInicio
-
+      fechaInicio
     });
+
 
   if (!resultado.ok) {
 
@@ -173,6 +181,7 @@ async function cargarSemana() {
 
     return;
   }
+
 
   pintarSemana(
     resultado.semana
@@ -185,38 +194,48 @@ function pintarSemana(
 ) {
 
   const contenedor =
-    document.getElementById(
-      'semana'
-    );
+    document
+      .getElementById(
+        'semana'
+      );
 
   contenedor.innerHTML = '';
+
 
   dias.forEach(
     dia => {
 
       const div =
-        document.createElement('div');
+        document
+          .createElement(
+            'div'
+          );
 
       div.className =
         'dia';
 
+
       const fecha =
         new Date(
-          dia.fecha + 'T12:00:00'
+          dia.fecha +
+          'T12:00:00'
         );
 
-      const nombreDia =
+
+      const nombre =
         fecha.toLocaleDateString(
           'es-CL',
           {
-            weekday: 'long'
+            weekday:
+              'long'
           }
         );
+
 
       div.innerHTML = `
 
         <h3>
-          ${capitalizar(nombreDia)}
+          ${capitalizar(nombre)}
         </h3>
 
         <small>
@@ -260,31 +279,29 @@ function pintarSemana(
         </div>
 
         <hr>
-
       `;
 
 
       dia.reservas
         .sort(
           (a,b) =>
-            String(
-              a.HoraInicio
-            ).localeCompare(
-              String(
+            a.HoraInicio
+              .localeCompare(
                 b.HoraInicio
               )
-            )
         )
         .forEach(
           reserva => {
 
             const bloque =
-              document.createElement(
-                'div'
-              );
+              document
+                .createElement(
+                  'div'
+                );
 
             bloque.className =
-              'bloque';
+              'reserva';
+
 
             bloque.innerHTML = `
 
@@ -307,6 +324,7 @@ function pintarSemana(
 
             `;
 
+
             div.appendChild(
               bloque
             );
@@ -317,7 +335,6 @@ function pintarSemana(
       contenedor.appendChild(
         div
       );
-
     }
   );
 }
@@ -327,9 +344,11 @@ function capitalizar(
   texto
 ) {
 
-  return texto.charAt(0)
-    .toUpperCase() +
-    texto.slice(1);
+  return (
+    texto.charAt(0)
+      .toUpperCase() +
+    texto.slice(1)
+  );
 }
 
 
