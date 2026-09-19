@@ -353,32 +353,74 @@ async function crearClase() {
   }
 }
 
-
 async function cargarClases() {
-  const fecha =
-    document
-      .getElementById( 'fechaConsulta' ).value;
-  const resultado =
-    await api({ action:'listarClasesFecha', fecha });
-  const tbody =
-    document
-      .getElementById('tabla' );
-  tbody.innerHTML = '';
-  if (!resultado.ok) {alert(resultado.mensaje ); return; }
-  resultado.clases.forEach(
-    clase => {
-      const tr =
-        document
-          .createElement( 'tr' );
-      tr.innerHTML = ` <td>  ${clase.Nombre}  </td>
-        <td> ${clase.HoraInicio} -   ${clase.HoraFin}  </td>
-        <td> ${clase.Capacidad} </td>
-        <td> ${clase.InstructorID || '-'}  </td>
-        <td> ${clase.Estado} </td>
-        <td> ${clase.Estado === 'ACTIVA' ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` : ''}</td> `;
-      tbody.appendChild(tr );
+  // 1. Obtener la referencia al botón Actualizar
+  const btn = document.querySelector('.btn-secondary');
+  const textoOriginal = btn.innerText;
+
+  // 2. Estado de carga
+  btn.innerText = 'Consultando...';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  btn.style.cursor = 'not-allowed';
+
+  const fecha = document.getElementById('fechaConsulta').value;
+
+  try {
+    const resultado = await api({ action: 'listarClasesFecha', fecha });
+    const tbody = document.getElementById('tabla');
+    tbody.innerHTML = '';
+
+    if (!resultado.ok) {
+      alert(resultado.mensaje || 'Error al obtener clases');
+      return;
     }
-  );
+
+    // Si no hay clases en esa fecha, mostrar un mensaje claro en la tabla
+    if (resultado.clases.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align: center; color: #888; padding: 20px;">
+            No hay clases programadas para esta fecha
+          </td>
+        </tr>`;
+    } else {
+      resultado.clases.forEach(clase => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${clase.Nombre}</td>
+          <td>${clase.HoraInicio} - ${clase.HoraFin}</td>
+          <td>${clase.Capacidad}</td>
+          <td>${clase.InstructorID || '-'}</td>
+          <td>${clase.Estado}</td>
+          <td>
+            ${clase.Estado === 'ACTIVA' 
+              ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` 
+              : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 3. Feedback visual de éxito
+    btn.innerText = '¡Actualizado!';
+    btn.style.backgroundColor = '#dcfce7'; // Verde suave para botón secundario
+    btn.style.color = '#15803d';
+
+  } catch (error) {
+    alert('Error al conectar con el servidor');
+  } finally {
+    // 4. Restaurar botón después de 1.5 segundos
+    setTimeout(() => {
+      btn.innerText = textoOriginal;
+      btn.disabled = false;
+      btn.style.backgroundColor = '#e0e0e0';
+      btn.style.color = '#333333';
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }, 1500);
+  }
 }
 
 async function cancelarClase( claseId) {
