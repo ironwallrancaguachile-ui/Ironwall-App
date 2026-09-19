@@ -294,175 +294,135 @@ button, .btn {
     grid-template-columns: 1fr;
   }
 }
+      /* --- FILA 1: CONSULTA EN UNA SOLA LÍNEA --- */
+.fila-consulta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto; /* Fecha, Hora Inicio, Hora Fin y Botón */
+  gap: 12px;
+  align-items: end; /* Alinea los inputs y el botón por la base */
+}
+
+/* --- FILA 3: CLIENTE, CANTIDAD Y RESERVAR EN UNA SOLA LÍNEA --- */
+.fila-reserva {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto; /* Cliente ancho, Cantidad angosto, Botón */
+  gap: 12px;
+  align-items: end;
+}
+
+/* Ajustes de ancho mínimo para los inputs de tiempo/fecha */
+.fila-consulta input, 
+.fila-reserva input {
+  width: 100%;
+}
+
+/* Ajustes de tamaño y estado del Botón Consultar (estilo botón secundario/actualizar) */
+.btn-consultar {
+  background-color: #e0e0e0;
+  color: #333333;
+  height: 41px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-consultar:hover {
+  background-color: #d0d0d0;
+}
+
+/* Ajuste del Botón Reservar (estilo primario destacado) */
+.btn-reservar {
+  background-color: #191919;
+  color: #ffffff;
+  height: 41px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-top: 0; /* Cancela márgenes verticales para alinearse */
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-reservar:hover {
+  background-color: #333333;
+}
+
+/* Adaptación responsive para pantallas de celular estrechas */
+@media (max-width: 640px) {
+  .fila-consulta, .fila-reserva {
+    grid-template-columns: 1fr; /* Pasa a columna si no cabe en móviles */
+  }
+}
 </style>
 
 
 </head>
 
 <body>
-<a href="index.html" class="btnHome">  ← Inicio </a>
 <div class="container">
+  
+  <!-- BARRA DE NAVEGACIÓN -->
+  <div class="barraNavegacion">
+    <a href="index.html" class="btnHome">
+      <span>← Inicio</span>
+    </a>
+  </div>
 
-<h1>Ironwall Reservas</h1>
+  <h1>Sistema de Reservas</h1>
+  <p class="subtitulo">Consulta disponibilidad y gestiona reservas en línea</p>
 
-<div class="subtitulo">Gestión de cupos y confirmación de accesos</div>
-<div class="card disponibilidad"><div class="titulo-card">CUPOS DISPONIBLES EN EL PERIODO</div>
-      <div class="indicadores">
-            <div class="indicador">
-            Ocupación
-            <span id="ocupacion">-</span>
-            </div>
-      
-            <div class="indicador">
-            Disponibles
-            <span id="disponibles">-</span>
-            </div>
-      
-            <div class="indicador">
-            Capacidad
-            <span id="capacidad">-</span>
-            </div>
-      </div>
-</div>
-
-<div class="card">
-
-      <label>
-      Fecha
-      </label>
-      
-      <input
-        id="fecha"
-        type="date">
-      
-      
-      <div class="horas">
-      
+  <!-- TARJETA 1: CONSULTA DE DISPONIBILIDAD (TODO EN UNA LÍNEA) -->
+  <div class="card">
+    <div class="titulo-card">1. Consulta de Horario</div>
+    <div class="fila-consulta">
       <div>
-      
-      <label>
-      Hora Inicio
-      </label>
-      
-      <input
-        id="horaInicio"
-        type="time"
-        value="18:00">
-      
+        <label>Fecha</label>
+        <input id="fecha" type="date">
       </div>
-      
-      
       <div>
-      
-      <label>
-      Hora Término
-      </label>
-      
-      <input
-        id="horaFin"
-        type="time"
-        value="20:00">
-      
+        <label>Hora Inicio</label>
+        <input id="horaInicio" type="time">
       </div>
-      
+      <div>
+        <label>Hora Fin</label>
+        <input id="horaFin" type="time">
       </div>
-      
-      
-      <button
-        class="btn btn-consultar"
-        onclick="consultarCupos()">
-      
-      Paso 1: Consultar Cupos Disponibles
-      
-      </button>
-      
-      
-      <label>
-      Tipo de Reserva
-      </label>
-      
-      <div class="tipos">
-      
-      <button
-        id="btnEntrada"
-        class="tipo activo"
-        onclick="seleccionarTipo('ENTRADA')">
-      
-      Entrada General
-      
-      </button>
-      
-      <button
-        id="btnClase"
-        class="tipo"
-        onclick="seleccionarTipo('CLASE')">
-      
-      Clase
-      
-      </button>
-      
-      </div>
-      
-      
-      <div id="claseBox">
-      
-      <label>
-      Seleccionar Clase
-      </label>
-      
-      <select id="claseId"
-              onchange="seleccionarClase()">
-      
-      <option value="">
-      Selecciona una clase
-      </option>
-      
-      </select>
-      
-      </div>
-      
-      
-      <label>
-      ID Cliente
-      </label>
-      
-      <input
-        id="clienteId"
-        placeholder="Ej: CLI-001">
-      
-      
-      <small>
-      Código asignado en el sistema de gestión
-      </small>
-      
-      
-      <label>
-      Cantidad de Personas
-      </label>
-      
-      <input
-        id="cantidad"
-        type="number"
-        min="1"
-        max="5"
-        value="1">
-          
-      <button
-        id="btnReservar"
-        class="btn btn-reservar"
-        disabled
-        onclick="realizarReserva()">
-      
-      Paso 2: Confirmar Reserva
-      
-      </button>
-           
-      <div
-        id="mensaje"
-        class="mensaje">
-      </div>
+      <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
+    </div>
+  </div>
 
-</div>
+  <!-- TARJETA 2: TIPO DE RESERVA (ENTRADA / CLASE) -->
+  <div class="card">
+    <div class="titulo-card">2. Tipo de Reserva</div>
+    <div class="tipos">
+      <div class="tipo activo" onclick="seleccionarTipo('ENTRADA')">Entrada Libre</div>
+      <div class="tipo" onclick="seleccionarTipo('CLASE')">Clase Guiada</div>
+    </div>
+  </div>
+
+  <!-- TARJETA 3: DATOS Y BOTÓN RESERVAR (TODO EN UNA LÍNEA) -->
+  <div class="card">
+    <div class="titulo-card">3. Confirmación de Reserva</div>
+    <div class="fila-reserva">
+      <div>
+        <label>Cliente / Nombre</label>
+        <input id="clienteId" placeholder="Ej: Juan Pérez">
+      </div>
+      <div>
+        <label>Cantidad personas</label>
+        <input id="cantidad" type="number" min="1" value="1">
+      </div>
+      <button class="btn-reservar" onclick="realizarReserva()">Reservar</button>
+    </div>
+  </div>
 
 </div>
 
