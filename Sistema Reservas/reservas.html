@@ -683,6 +683,120 @@ async function api(body) {
   if (!response.ok) throw new Error('Error de conexión con el servidor');
   return await response.json();
 }
+
+/* =========================================================
+   1. VALIDAR Y ACCIONAR EL BOTÓN RESERVAR
+========================================================= */
+function actualizarEstadoBotonReserva() {
+  const btnReservar = document.querySelector('.btn-reservar');
+  const cliente = document.getElementById('clienteId')?.value.trim();
+  const cantidad = Number(document.getElementById('cantidad')?.value || 0);
+  const claseSelect = document.getElementById('claseSelect')?.value;
+
+  if (!btnReservar) return;
+
+  // Requisitos obligatorios
+  let esValido = cuposConsultados && cliente !== '' && cantidad > 0 && cantidad <= disponiblesActuales;
+
+  // Si eligió CLASE, también debe seleccionar una clase del desplegable
+  if (tipoReserva === 'CLASE' && !claseSelect) {
+    esValido = false;
+  }
+
+  btnReservar.disabled = !esValido;
+  btnReservar.style.opacity = esValido ? '1' : '0.5';
+  btnReservar.style.cursor = esValido ? 'pointer' : 'not-allowed';
+}
+
+/* =========================================================
+   2. EJECUCIÓN Y ESTADOS DE RESERVA
+========================================================= */
+async function realizarReserva() {
+  const cliente = document.getElementById('clienteId').value.trim();
+  const cantidad = Number(document.getElementById('cantidad').value);
+  const fecha = document.getElementById('fecha').value;
+  const horaInicio = document.getElementById('horaInicio').value;
+  const horaFin = document.getElementById('horaFin').value;
+  const claseId = document.getElementById('claseSelect')?.value;
+
+  // Validaciones preventivas
+  if (!cliente) {
+    mostrarMensaje('Debes ingresar el nombre del cliente.', 'error');
+    return;
+  }
+  if (!cantidad || cantidad <= 0) {
+    mostrarMensaje('La cantidad de personas debe ser al menos 1.', 'error');
+    return;
+  }
+  if (cantidad > disponiblesActuales) {
+    mostrarMensaje(`La cantidad supera los cupos disponibles (${disponiblesActuales}).`, 'error');
+    return;
+  }
+  if (tipoReserva === 'CLASE' && !claseId) {
+    mostrarMensaje('Por favor, selecciona una clase de la lista.', 'error');
+    return;
+  }
+
+  // Estado de Carga en el Botón
+  const btn = document.querySelector('.btn-reservar');
+  const textoOriginal = btn ? btn.innerText : 'Reservar';
+
+  if (btn) {
+    btn.innerText = 'Procesando...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+  }
+
+  try {
+    // Estructura del payload según el tipo
+    const payload = {
+      action: 'reservar',
+      tipo: tipoReserva,
+      cliente,
+      cantidad,
+      fecha,
+      horaInicio,
+      horaFin,
+      ...(tipoReserva === 'CLASE' && { claseId })
+    };
+
+    const respuesta = await api(payload);
+
+    if (!respuesta.ok) {
+      throw new Error(respuesta.mensaje || 'No se pudo completar la reserva.');
+    }
+
+    // Feedback de éxito
+    if (btn) {
+      btn.innerText = '¡Reservado!';
+      btn.style.backgroundColor = '#dcfce7';
+      btn.style.color = '#15803d';
+    }
+
+    mostrarMensaje(`Reserva confirmada con éxito a nombre de ${cliente}.`, 'exito');
+
+    // Limpiar formulario tras 2 segundos
+    setTimeout(() => {
+      document.getElementById('clienteId').value = '';
+      document.getElementById('cantidad').value = '1';
+      
+      // Actualizar cupos para reflejar el descuento
+      consultarDisponibilidad();
+    }, 2000);
+
+  } catch (error) {
+    mostrarMensaje('Error al reservar: ' + error.message, 'error');
+  } finally {
+    setTimeout(() => {
+      if (btn) {
+        btn.innerText = textoOriginal;
+        btn.style.backgroundColor = '#191919';
+        btn.style.color = '#ffffff';
+      }
+      actualizarEstadoBotonReserva();
+    }, 2000);
+  }
+}
 </script>
 
 </body>
