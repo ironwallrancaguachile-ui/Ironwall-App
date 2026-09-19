@@ -298,66 +298,58 @@ async function api(body) {
   return response.json();
 }
 
-
 async function crearClase() {
+  // 1. Obtener la referencia al botón
+  const btn = document.querySelector('.btn-primary');
+  const textoOriginal = btn.innerText;
 
-  const resultado =
-    await api({
+  // 2. Cambiar el botón a estado "En proceso..." y deshabilitarlo
+  btn.innerText = 'Creando...';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  btn.style.cursor = 'not-allowed';
 
-      action:
-        'crearClase',
-
-      nombre:
-        document
-          .getElementById(
-            'nombre'
-          ).value,
-
-      fecha:
-        document
-          .getElementById(
-            'fecha'
-          ).value,
-
-      horaInicio:
-        document
-          .getElementById(
-            'horaInicio'
-          ).value,
-
-      horaFin:
-        document
-          .getElementById(
-            'horaFin'
-          ).value,
-
-      capacidad:
-        document
-          .getElementById(
-            'capacidad'
-          ).value,
-
-      instructorId:
-        document
-          .getElementById(
-            'instructorId'
-          ).value,
-
-      usuario:
-        'STAFF'
+  try {
+    const resultado = await api({
+      action: 'crearClase',
+      nombre: document.getElementById('nombre').value,
+      fecha: document.getElementById('fecha').value,
+      horaInicio: document.getElementById('horaInicio').value,
+      horaFin: document.getElementById('horaFin').value,
+      capacidad: document.getElementById('capacidad').value,
+      instructorId: document.getElementById('instructorId').value,
+      usuario: 'STAFF'
     });
 
+    if (resultado.ok) {
+      // 3. Estado de éxito temporal en el botón
+      btn.innerText = '¡Creada con éxito!';
+      btn.style.backgroundColor = '#16a34a'; // Verde
 
-  alert(
-    resultado.mensaje
-  );
+      // 4. Limpiar los campos del formulario
+      document.getElementById('nombre').value = '';
+      document.getElementById('horaInicio').value = '';
+      document.getElementById('horaFin').value = '';
+      document.getElementById('capacidad').value = '8'; // Valor por defecto
+      document.getElementById('instructorId').value = '';
+      // La fecha se mantiene en hoy para comodidad del usuario
 
-
-  if (
-    resultado.ok
-  ) {
-
-    cargarClases();
+      // 5. Actualizar la tabla
+      cargarClases();
+    } else {
+      alert(resultado.mensaje || 'Error al crear la clase');
+    }
+  } catch (error) {
+    alert('Ocurrió un error de conexión');
+  } finally {
+    // 6. Volver el botón a su estado inicial después de 2 segundos
+    setTimeout(() => {
+      btn.innerText = textoOriginal;
+      btn.disabled = false;
+      btn.style.backgroundColor = '#222222';
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }, 2000);
   }
 }
 
