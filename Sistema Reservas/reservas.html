@@ -9,89 +9,185 @@
 
 <title>Ironwall Reservas</title>
 <style>
-* {  box-sizing: border-box;}
+/* --- FUENTES DEL SISTEMA --- */
+@font-face {
+  font-family: 'Archivo Extra Condensed';
+  src: url("fonts/Archivo_ExtraCondensed-Regular.ttf");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Archivo Extra Condensed';
+  src: url("fonts/Archivo_ExtraCondensed-Bold.ttf");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: Boris;
+  src: url("fonts/BorisBlackBloxx.ttf");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Archivo';
+  src: url("fonts/Archivo-Regular.ttf");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Archivo';
+  src: url("fonts/Archivo-SemiBold.ttf");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Archivo';
+  src: url("fonts/Archivo-Bold.ttf");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* --- RESET Y ESTILOS BASE --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
 body {
-  font-family: Arial, sans-serif;
-  background: #ffffff;
-  margin: 0;
+  background: linear-gradient(180deg, #eef2f7 0%, #f8f9fb 100%);
   color: #222;
+  padding: 24px 20px 60px;
+  min-height: 100vh;
 }
 
 .container {
-  width: min(570px, 94%);
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 25px 0 40px;
+}
+
+/* --- CABECERA Y NAVEGACIÓN --- */
+.barraNavegacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto 16px;
+}
+
+.btnHome {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #222;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  border: 1px solid #e8ecef;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.btnHome:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
 }
 
 h1 {
-  margin: 0 0 5px;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .subtitulo {
   color: #666;
-  margin-bottom: 22px;
+  font-size: 13px;
+  margin-bottom: 20px;
 }
 
+/* --- TARJETAS (CARDS) --- */
 .card {
-  border: 1px solid #ddd;
+  background: #ffffff;
   border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 18px;
-}
-
-.disponibilidad {
-  background: #f0fff5;
-  border-color: #9be8b7;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  border: 1px solid #e8ecef;
 }
 
 .titulo-card {
-  font-weight: bold;
-  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: .5px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
 }
 
+/* --- INDICADORES Y MÉTRICAS COMPACTAS --- */
 .indicadores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.indicador-item {
+  background: #f8f9fa;
+  border: 1px solid #edf0f2;
+  border-radius: 8px;
+  padding: 10px 12px;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
 }
 
-.indicador {
-  border: 1px solid #6bdc96;
-  border-radius: 20px;
-  padding: 7px 12px;
+.indicador-item span {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 2px;
 }
 
-.indicador span {
-  background: #16c96a;
-  color: white;
-  border-radius: 12px;
-  padding: 2px 7px;
-  font-weight: bold;
+.indicador-item strong {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* --- FORMULARIOS Y GRID --- */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  align-items: end;
 }
 
 label {
   display: block;
-  margin: 17px 0 7px;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
 }
 
-input,
-select,
-button {
+input, select {
   width: 100%;
-  padding: 13px;
-  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
   border: 1px solid #ccc;
-  font-size: 15px;
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.horas {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+input:focus, select:focus {
+  outline: none;
+  border-color: #222;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
 }
 
+/* --- TIPOS Y SELECCIONABLES --- */
 .tipos {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -99,8 +195,15 @@ button {
 }
 
 .tipo {
-  background: white;
-  font-weight: bold;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: .2s;
 }
 
 .tipo.activo {
@@ -109,44 +212,90 @@ button {
   color: #b47700;
 }
 
-.btn {
-  margin-top: 18px;
-  font-weight: bold;
+/* --- BOTONES INTERACTIVOS --- */
+button, .btn {
+  width: 100%;
+  height: 41px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
 }
 
 .btn-consultar {
-  background: #e7e9ec;
+  background-color: #e0e0e0;
+  color: #333333;
+}
+
+.btn-consultar:hover {
+  background-color: #d0d0d0;
 }
 
 .btn-reservar {
-  background: #191919;
-  color: white;
+  background-color: #191919;
+  color: #ffffff;
+  margin-top: 18px;
 }
 
-.btn-reservar:disabled {
+.btn-reservar:hover {
+  background-color: #333333;
+}
+
+.btn:disabled, .btn-reservar:disabled {
   opacity: .45;
   cursor: not-allowed;
+  transform: none !important;
 }
 
+.btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+/* --- MENSAJES DE ESTADO --- */
 #claseBox {
   display: none;
 }
 
 .mensaje {
   margin-top: 12px;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 8px;
 }
 
 .exito {
-  color: #008c4a;
+  background: #dcfce7;
+  color: #15803d;
 }
 
 .error {
-  color: #c62828;
+  background: #fee2e2;
+  color: #dc2626;
 }
 
+/* --- RESPONSIVE / MÓVIL --- */
+@media (max-width: 768px) {
+  body {
+    padding: 16px 12px 40px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
+
 
 </head>
 
