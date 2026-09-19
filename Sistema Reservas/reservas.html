@@ -379,43 +379,45 @@ button, .btn {
   <h1>Sistema de Reservas</h1>
   <p class="subtitulo">Consulta disponibilidad y gestiona reservas en línea</p>
 
-  <!-- TARJETA 1: CONSULTA DE DISPONIBILIDAD (TODO EN UNA LÍNEA) -->
-  <div class="card">
-    <div class="titulo-card">1. Consulta de Horario</div>
-    <div class="fila-consulta">
-      <div>
-        <label>Fecha</label>
-        <input id="fecha" type="date">
-      </div>
-      <div>
-        <label>Hora Inicio</label>
-        <input id="horaInicio" type="time">
-      </div>
-      <div>
-        <label>Hora Fin</label>
-        <input id="horaFin" type="time">
-      </div>
-      <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
+<!-- TARJETA 1: CONSULTA DE HORARIO -->
+<div class="card">
+  <div class="titulo-card">1. Consulta de Horario</div>
+  
+  <div class="fila-consulta">
+    <div>
+      <label>Fecha</label>
+      <input id="fecha" type="date">
     </div>
-      <!-- RESULTADOS DE LA CONSULTA (Aparecen aquí abajo) -->
-        <div id="resultadoConsulta" style="display: none; margin-top: 16px; padding-top: 14px; border-top: 1px solid #edf0f2;">
-          <div class="indicadores">
-            <div class="indicador-item">
-              <span>Capacidad Total</span>
-              <strong id="capacidad">0</strong>
-            </div>
-            <div class="indicador-item">
-              <span>Ocupados</span>
-              <strong id="ocupacion">0</strong>
-            </div>
-            <div class="indicador-item">
-              <span>Disponibles</span>
-              <strong id="disponibles" style="color: #15803d;">0</strong>
-            </div>
-          </div>
-          <div id="mensajeEstado" class="mensaje" style="display: none; margin-top: 10px;"></div>
-        </div>
+    <div>
+      <label>Hora Inicio</label>
+      <input id="horaInicio" type="time">
+    </div>
+    <div>
+      <label>Hora Fin</label>
+      <input id="horaFin" type="time">
+    </div>
+    <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
   </div>
+
+  <!-- RESULTADOS DE LA CONSULTA (Aparecen aquí abajo) -->
+  <div id="resultadoConsulta" style="display: none; margin-top: 16px; padding-top: 14px; border-top: 1px solid #edf0f2;">
+    <div class="indicadores">
+      <div class="indicador-item">
+        <span>Capacidad Total</span>
+        <strong id="capacidad">0</strong>
+      </div>
+      <div class="indicador-item">
+        <span>Ocupados</span>
+        <strong id="ocupacion">0</strong>
+      </div>
+      <div class="indicador-item">
+        <span>Disponibles</span>
+        <strong id="disponibles" style="color: #15803d;">0</strong>
+      </div>
+    </div>
+    <div id="mensajeEstado" class="mensaje" style="display: none; margin-top: 10px;"></div>
+  </div>
+</div>
 
   <!-- TARJETA 2: TIPO DE RESERVA (ENTRADA / CLASE) -->
   <div class="card">
