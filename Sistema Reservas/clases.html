@@ -11,16 +11,57 @@
 <title>Ironwall - Clases</title>
 
 <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 24px 16px 60px; background: #f7f7f7; color: #222; }
-    h1 { font-size: 20px; margin: 0 0 4px; }
-    .sub { color: #666; font-size: 12px; margin: 0 0 10px; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-    select, input { width: 100%; padding: 10px; font-size: 12px; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
-    button { width: 100%; padding: 8px; border: 0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  max-width: 1100px; /* Corregido a 1100px para coincidir con container */
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+  background: #f7f7f7;
+  color: #222;
+}
+
+h1 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.sub {
+  color: #666;
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+select, input {
+  width: 100%;
+  padding: 10px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: #222;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
 
 .container {
-  max-width: 1100px;
+  width: 100%;
   margin: auto;
 }
 
@@ -29,55 +70,121 @@
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .grid {
   display: grid;
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(180px,1fr)
-    );
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px; /* Separación con respecto al botón de abajo */
 }
 
+/* --- ESTILOS DE BOTONES --- */
 button {
+  width: 100%;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: bold;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
+/* Botón Principal (Crear / Guardar) */
+.btn-primary {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #444444;
+}
+
+.btn-primary:active {
+  transform: scale(0.99);
+}
+
+/* Botón Secundario (Actualizar / Filtrar) */
+.btn-secondary {
+  background-color: #e0e0e0;
+  color: #333333;
+  margin-top: 8px;
+}
+
+.btn-secondary:hover {
+  background-color: #d0d0d0;
+}
+
+/* Botón Peligro / Cancelar */
+.btn-danger {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 6px 12px;
+  font-size: 12px;
+  width: auto;
+}
+
+.btn-danger:hover {
+  background-color: #fca5a5;
+  color: #991b1b;
+}
+
+/* --- TABLA --- */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
+  margin-top: 12px;
 }
 
-th,
-td {
-  padding: 10px;
-  border-bottom:
-    1px solid #ddd;
+th, td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
   text-align: left;
 }
 
-.barraNavegacion{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  max-width:1200px;
-  margin:0 auto 12px;
-  padding:8px 0;
+th {
+  color: #666;
+  font-weight: 600;
 }
-    .btnHome { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; color: #222; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 3px 12px rgba(0,0,0,.12); transition: .2s; margin-bottom: 10px; }
-    .btnHome:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.15); }
 
+/* --- NAVEGACIÓN --- */
+.barraNavegacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto 16px;
+  padding: 8px 0;
+}
 
-.nombreModulo{
-  font-family:'Archivo Extra Condensed',sans-serif;
-  font-size:15px;
-  font-weight:700;
-  letter-spacing:1px;
-  color:#666;
+.btnHome {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: #222;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  transition: transform .2s, box-shadow .2s;
+}
+
+.btnHome:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+.nombreModulo {
+  font-family: 'Archivo Extra Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #666;
 }
 
 </style>
@@ -97,106 +204,60 @@ td {
 </div>      
 
 <div class="container">
-
 <h1>Clases</h1>
-
-
 <div class="card">
-
 <h1>Nueva clase</h1>
 
-
 <div class="grid">
-
 <input
   id="nombre"
   placeholder="Nombre de clase">
-
-
 <input
   id="fecha"
   type="date">
-
-
 <input
   id="horaInicio"
   type="time">
-
-
 <input
   id="horaFin"
   type="time">
-
-
 <input
   id="capacidad"
   type="number"
   min="1"
   value="8">
-
-
 <input
   id="instructorId"
   placeholder="InstructorID">
-
 </div>
 
-
-<button
-  onclick="crearClase()">
-
-Crear clase
-
-</button>
-
+<button class="btn-primary" onclick="crearClase()">Crear clase</button>
 </div>
 
 <div class="card">
 <h1>Clases del día</h1>
-
-<input
-  id="fechaConsulta"
-  type="date">
-
-
-<button
-  onclick="cargarClases()">
-
-Actualizar
-
-</button>
-
-
+<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
+  <input id="fechaConsulta" type="date" style="max-width: 200px;">
+  <button class="btn-secondary" style="margin: 0; width: auto;" onclick="cargarClases()">Actualizar</button>
+</div>
 <br><br>
-
-
 <table>
-
 <thead>
-
 <tr>
-
 <th>Clase</th>
 <th>Hora</th>
 <th>Capacidad</th>
 <th>Instructor</th>
 <th>Estado</th>
 <th></th>
-
 </tr>
-
 </thead>
-
 <tbody
   id="tabla">
 </tbody>
-
 </table>
-
 </div>
-
 </div>
-
 
 <script>
 
@@ -315,132 +376,39 @@ async function crearClase() {
 
 
 async function cargarClases() {
-
   const fecha =
     document
-      .getElementById(
-        'fechaConsulta'
-      ).value;
-
-
+      .getElementById( 'fechaConsulta' ).value;
   const resultado =
-    await api({
-
-      action:
-        'listarClasesFecha',
-
-      fecha
-    });
-
-
+    await api({ action:'listarClasesFecha', fecha });
   const tbody =
     document
-      .getElementById(
-        'tabla'
-      );
-
+      .getElementById('tabla' );
   tbody.innerHTML = '';
-
-
-  if (!resultado.ok) {
-
-    alert(
-      resultado.mensaje
-    );
-
-    return;
-  }
-
-
+  if (!resultado.ok) {alert(resultado.mensaje ); return; }
   resultado.clases.forEach(
     clase => {
-
       const tr =
         document
-          .createElement(
-            'tr'
-          );
-
-
-      tr.innerHTML = `
-
-        <td>
-          ${clase.Nombre}
-        </td>
-
-        <td>
-          ${clase.HoraInicio}
-          -
-          ${clase.HoraFin}
-        </td>
-
-        <td>
-          ${clase.Capacidad}
-        </td>
-
-        <td>
-          ${clase.InstructorID || '-'}
-        </td>
-
-        <td>
-          ${clase.Estado}
-        </td>
-
-        <td>
-
-          ${
-            clase.Estado ===
-            'ACTIVA'
-
-            ?
-
-            `<button
-              onclick="
-                cancelarClase(
-                  '${clase.ClaseID}'
-                )
-              ">
-              Cancelar
-            </button>`
-
-            :
-
-            ''
-          }
-
-        </td>
-      `;
-
-
-      tbody.appendChild(
-        tr
-      );
+          .createElement( 'tr' );
+      tr.innerHTML = ` <td>  ${clase.Nombre}  </td>
+        <td> ${clase.HoraInicio} -   ${clase.HoraFin}  </td>
+        <td> ${clase.Capacidad} </td>
+        <td> ${clase.InstructorID || '-'}  </td>
+        <td> ${clase.Estado} </td>
+        <td> ${clase.Estado === 'ACTIVA' ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` : ''}</td> `;
+      tbody.appendChild(tr );
     }
   );
 }
 
-
-async function cancelarClase(
-  claseId
-) {
-
-  if (
-    !confirm(
-      '¿Cancelar esta clase?'
-    )
-  ) {
-    return;
-  }
-
-
+async function cancelarClase( claseId) {
+  if (!confirm('¿Cancelar esta clase?') ) { return;}
   const resultado =
     await api({
-
       action:
         'cancelarClase',
-
       claseId,
-
       usuario:
         'STAFF'
     });
