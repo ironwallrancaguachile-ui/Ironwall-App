@@ -297,157 +297,60 @@ async function cargarSemana() {
   );
 }
 
-
-function pintarSemana(
-  dias
-) {
-
-  const contenedor =
-    document
-      .getElementById(
-        'semana'
-      );
-
+function pintarSemana(dias) {
+  const contenedor = document.getElementById('semana');
   contenedor.innerHTML = '';
 
+  dias.forEach(dia => {
+    const div = document.createElement('div');
+    div.className = 'dia';
 
-  dias.forEach(
-    dia => {
+    const fecha = new Date(dia.fecha + 'T12:00:00');
+    const nombre = fecha.toLocaleDateString('es-CL', { weekday: 'long' });
 
-      const div =
-        document
-          .createElement(
-            'div'
-          );
-
-      div.className =
-        'dia';
-
-
-      const fecha =
-        new Date(
-          dia.fecha +
-          'T12:00:00'
-        );
-
-
-      const nombre =
-        fecha.toLocaleDateString(
-          'es-CL',
-          {
-            weekday:
-              'long'
-          }
-        );
-
-
-      div.innerHTML = `
-
-        <h3>
-          ${capitalizar(nombre)}
-        </h3>
-
-        <small>
-          ${dia.fecha}
-        </small>
-
-        <hr>
-
-        <div>
-          Capacidad
-          <div class="numero">
-            ${dia.capacidad}
-          </div>
+    div.innerHTML = `
+      <h3>${capitalizar(nombre)}</h3>
+      <small>${dia.fecha}</small>
+      
+      <!-- Resumen compacto -->
+      <div class="resumen-metrica">
+        <div class="metrica-item">
+          <span>Capacidad</span>
+          <strong>${dia.capacidad}</strong>
         </div>
-
-        <br>
-
-        <div>
-          Reservados
-          <div class="numero">
-            ${dia.reservado}
-          </div>
+        <div class="metrica-item">
+          <span>Reservados</span>
+          <strong>${dia.reservado}</strong>
         </div>
-
-        <br>
-
-        <div>
-          Disponibles
-          <div class="numero">
-            ${dia.disponibles}
-          </div>
+        <div class="metrica-item">
+          <span>Disponibles</span>
+          <strong>${dia.disponibles}</strong>
         </div>
-
-        <br>
-
-        <div>
-          Clases
-          <div class="numero">
-            ${dia.clases.length}
-          </div>
+        <div class="metrica-item">
+          <span>Clases</span>
+          <strong>${dia.clases.length}</strong>
         </div>
+      </div>
+      <hr style="margin-top: 10px;">
+    `;
 
-        <hr>
-      `;
+    dia.reservas
+      .sort((a, b) => a.HoraInicio.localeCompare(b.HoraInicio))
+      .forEach(reserva => {
+        const bloque = document.createElement('div');
+        bloque.className = 'reserva';
+        bloque.innerHTML = `
+          <strong>${reserva.HoraInicio}</strong> <br>
+          ${reserva.ClienteID} <br>
+          ${reserva.Cantidad} personas <br>
+          ${reserva.Estado}
+        `;
+        div.appendChild(bloque);
+      });
 
-
-      dia.reservas
-        .sort(
-          (a,b) =>
-            a.HoraInicio
-              .localeCompare(
-                b.HoraInicio
-              )
-        )
-        .forEach(
-          reserva => {
-
-            const bloque =
-              document
-                .createElement(
-                  'div'
-                );
-
-            bloque.className =
-              'reserva';
-
-
-            bloque.innerHTML = `
-
-              <strong>
-                ${reserva.HoraInicio}
-              </strong>
-
-              <br>
-
-              ${reserva.ClienteID}
-
-              <br>
-
-              ${reserva.Cantidad}
-              personas
-
-              <br>
-
-              ${reserva.Estado}
-
-            `;
-
-
-            div.appendChild(
-              bloque
-            );
-          }
-        );
-
-
-      contenedor.appendChild(
-        div
-      );
-    }
-  );
+    contenedor.appendChild(div);
+  });
 }
-
 
 function capitalizar(
   texto
