@@ -141,7 +141,31 @@
     font-weight: 700;
     float: right;
   }
+/* --- RESUMEN COMPACTO (TAMAÑO MÁS PEQUEÑO) --- */
+.resumen-metrica {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;          /* Espaciado reducido */
+  margin-top: 6px;
+  background: #f8f9fa;
+  padding: 6px 8px;      /* Padding interno reducido */
+  border-radius: 6px;
+  border: 1px solid #edf0f2;
+}
 
+.metrica-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;        /* Texto de la etiqueta más pequeño */
+  color: #666;
+}
+
+.metrica-item strong {
+  font-size: 11px;        /* Valor numérico compacto */
+  color: #111;
+  font-weight: 700;
+}
   /* Bloque/ítem de cada reserva dentro del día */
   .reserva {
     background: #f9f9f9;
@@ -188,32 +212,12 @@
 <body>
 
 <div class="container">
-
-<h1>Semana Ironwall</h1>
-
-
-<div class="top">
-
-<input
-  id="fechaInicio"
-  type="date">
-
-
-<button
-  onclick="cargarSemana()">
-
-Actualizar
-
-</button>
-
-</div>
-
-
-<div
-  id="semana"
-  class="semana">
-</div>
-
+      <h1>Semana Ironwall</h1>
+      <div class="top">
+            <input  id="fechaInicio"  type="date">
+            <button  class="btn-secondary" onclick="cargarSemana()">Actualizar</button>
+      </div>
+      <div  id="semana"  class="semana"></div>
 </div>
 
 
@@ -262,40 +266,51 @@ async function api(body) {
   return response.json();
 }
 
-
 async function cargarSemana() {
+  const btn = document.querySelector('.btn-secondary');
+  const textoOriginal = btn ? btn.innerText : 'Actualizar';
 
-  const fechaInicio =
-    document
-      .getElementById(
-        'fechaInicio'
-      ).value;
-
-
-  const resultado =
-    await api({
-
-      action:
-        'resumenSemana',
-
-      fechaInicio
-    });
-
-
-  if (!resultado.ok) {
-
-    alert(
-      resultado.mensaje
-    );
-
-    return;
+  if (btn) {
+    btn.innerText = 'Consultando...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'not-allowed';
   }
 
+  const fechaInicio = document.getElementById('fechaInicio').value;
 
-  pintarSemana(
-    resultado.semana
-  );
+  try {
+    const resultado = await api({ action: 'resumenSemana', fechaInicio });
+
+    if (!resultado.ok) {
+      alert(resultado.mensaje || 'Error al obtener datos');
+      return;
+    }
+
+    pintarSemana(resultado.semana);
+
+    if (btn) {
+      btn.innerText = '¡Actualizado!';
+      btn.style.backgroundColor = '#dcfce7'; // Verde suave
+      btn.style.color = '#15803d';
+    }
+
+  } catch (error) {
+    alert('Error de conexión al cargar la semana');
+  } finally {
+    if (btn) {
+      setTimeout(() => {
+        btn.innerText = textoOriginal;
+        btn.disabled = false;
+        btn.style.backgroundColor = '#e0e0e0';
+        btn.style.color = '#333333';
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+      }, 1500);
+    }
+  }
 }
+
 
 function pintarSemana(dias) {
   const contenedor = document.getElementById('semana');
