@@ -205,33 +205,20 @@ th {
 
 <div class="container">
 <h1>Clases</h1>
+
 <div class="card">
-<h1>Nueva clase</h1>
-
-<div class="grid">
-<input
-  id="nombre"
-  placeholder="Nombre de clase">
-<input
-  id="fecha"
-  type="date">
-<input
-  id="horaInicio"
-  type="time">
-<input
-  id="horaFin"
-  type="time">
-<input
-  id="capacidad"
-  type="number"
-  min="1"
-  value="8">
-<input
-  id="instructorId"
-  placeholder="InstructorID">
+  <h1>Nueva clase</h1>
+  <div class="grid">
+    <input id="nombre" placeholder="Nombre de clase">
+    <input id="fecha" type="date">
+    <input id="horaInicio" type="time">
+    <input id="horaFin" type="time">
+    <input id="capacidad" type="number" min="1" value="8">
+    <input id="instructorId" placeholder="InstructorID">
+    <!-- El botón ahora va aquí adentro -->
+    <button class="btn-primary" onclick="crearClase()">Crear clase</button>
+  </div>
 </div>
-
-<button class="btn-primary" onclick="crearClase()">Crear clase</button>
 </div>
 
 <div class="card">
