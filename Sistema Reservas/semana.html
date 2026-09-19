@@ -95,21 +95,22 @@
     transform: scale(0.99);
   }
 
-  /* --- ESTRUCTURA DE LA SEMANA (GRID / CARDS) --- */
+  /* --- ESTRUCTURA DE LA SEMANA EN COLUMNAS --- */
   .container {
     max-width: 1250px;
     margin: auto;
   }
 
-  /* Grid para los días de la semana */
-  .grid-semana, .dias-container {
+  /* El contenedor principal de la semana distribuido en columnas horizontalmente */
+  .semana {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Crea las columnas automáticas hacia la derecha */
     gap: 12px;
+    align-items: start;
   }
 
-  /* Tarjeta de cada día */
-  .card-dia {
+  /* Tarjeta individual para cada día */
+  .dia {
     background: #ffffff;
     padding: 16px;
     border-radius: 12px;
@@ -117,33 +118,39 @@
     min-height: 200px;
   }
 
-  .card-dia h3 {
+  .dia h3 {
     font-size: 14px;
     font-weight: 700;
-    margin-bottom: 12px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 4px;
     color: #333;
   }
 
-  /* Bloque/ítem de cada clase dentro del día */
-  .item-clase {
+  .dia small {
+    color: #888;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .dia hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 8px 0;
+  }
+
+  .numero {
+    font-weight: 700;
+    float: right;
+  }
+
+  /* Bloque/ítem de cada reserva dentro del día */
+  .reserva {
     background: #f9f9f9;
-    border-left: 4px solid #222;
+    border-left: 3px solid #222;
     padding: 8px 10px;
     border-radius: 6px;
-    margin-bottom: 8px;
+    margin-top: 8px;
     font-size: 12px;
-  }
-
-  .item-clase .hora {
-    font-weight: 600;
-    color: #666;
-  }
-
-  .item-clase .nombre {
-    font-weight: 700;
-    color: #111;
+    line-height: 1.4;
   }
 
   /* --- NAVEGACIÓN --- */
@@ -175,7 +182,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,.12);
   }
 </style>
-
+      
 </head>
 
 <body>
