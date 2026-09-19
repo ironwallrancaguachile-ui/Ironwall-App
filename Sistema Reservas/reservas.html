@@ -4,8 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Ironwall Reservas</title>
 <style>
@@ -187,6 +186,19 @@ input:focus, select:focus {
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
 }
 
+.horario-preview {
+  display: flex;
+  align-items: center;
+  height: 41px;
+  padding: 0 12px;
+  background: #f4f6f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #111;
+}
+
 /* --- TIPOS Y SELECCIONABLES --- */
 .tipos {
   display: grid;
@@ -280,43 +292,27 @@ button, .btn {
   color: #dc2626;
 }
 
-/* --- RESPONSIVE / MÓVIL --- */
-@media (max-width: 768px) {
-  body {
-    padding: 16px 12px 40px;
-  }
-
-  .card {
-    padding: 16px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-      /* --- FILA 1: CONSULTA EN UNA SOLA LÍNEA --- */
+/* --- LAYOUT FILAS DE CONSULTA Y RESERVA --- */
 .fila-consulta {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr auto; /* Fecha, Hora Inicio, Hora Fin y Botón */
-  gap: 12px;
-  align-items: end; /* Alinea los inputs y el botón por la base */
-}
-
-/* --- FILA 3: CLIENTE, CANTIDAD Y RESERVAR EN UNA SOLA LÍNEA --- */
-.fila-reserva {
-  display: grid;
-  grid-template-columns: 2fr 1fr auto; /* Cliente ancho, Cantidad angosto, Botón */
+  grid-template-columns: 1.2fr 1fr 1fr 1.3fr auto;
   gap: 12px;
   align-items: end;
 }
 
-/* Ajustes de ancho mínimo para los inputs de tiempo/fecha */
+.fila-reserva {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
 .fila-consulta input, 
+.fila-consulta select,
 .fila-reserva input {
   width: 100%;
 }
 
-/* Ajustes de tamaño y estado del Botón Consultar (estilo botón secundario/actualizar) */
 .btn-consultar {
   background-color: #e0e0e0;
   color: #333333;
@@ -335,7 +331,6 @@ button, .btn {
   background-color: #d0d0d0;
 }
 
-/* Ajuste del Botón Reservar (estilo primario destacado) */
 .btn-reservar {
   background-color: #191919;
   color: #ffffff;
@@ -347,7 +342,7 @@ button, .btn {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  margin-top: 0; /* Cancela márgenes verticales para alinearse */
+  margin-top: 0;
   transition: background-color 0.2s, transform 0.1s;
 }
 
@@ -355,14 +350,31 @@ button, .btn {
   background-color: #333333;
 }
 
-/* Adaptación responsive para pantallas de celular estrechas */
+/* ADAPTACIÓN RESPONSIVE */
+@media (max-width: 820px) {
+  .fila-consulta {
+    grid-template-columns: 1fr 1fr;
+  }
+  .fila-consulta .btn-consultar {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 640px) {
+  body {
+    padding: 16px 12px 40px;
+  }
+  .card {
+    padding: 16px;
+  }
   .fila-consulta, .fila-reserva {
-    grid-template-columns: 1fr; /* Pasa a columna si no cabe en móviles */
+    grid-template-columns: 1fr;
+  }
+  .fila-consulta .btn-consultar {
+    grid-column: span 1;
   }
 }
 </style>
-
 
 </head>
 
@@ -390,16 +402,40 @@ button, .btn {
     </div>
     <div>
       <label>Hora Inicio</label>
-      <input id="horaInicio" type="time">
+      <select id="horaInicio" onchange="calcularHorarioResultante()">
+        <option value="08:00">08:00</option>
+        <option value="09:00">09:00</option>
+        <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="12:00">12:00</option>
+        <option value="13:00">13:00</option>
+        <option value="14:00" selected>14:00</option>
+        <option value="15:00">15:00</option>
+        <option value="16:00">16:00</option>
+        <option value="17:00">17:00</option>
+        <option value="18:00">18:00</option>
+        <option value="19:00">19:00</option>
+        <option value="20:00">20:00</option>
+      </select>
     </div>
     <div>
-      <label>Hora Fin</label>
-      <input id="horaFin" type="time">
+      <label>Duración</label>
+      <select id="duracionHoras" onchange="calcularHorarioResultante()">
+        <option value="2" selected>2 horas (normal)</option>
+        <option value="3">3 horas</option>
+        <option value="4">4 horas</option>
+        <option value="5">5 horas</option>
+        <option value="6">6 horas</option>
+      </select>
+    </div>
+    <div>
+      <label>Horario Resultante</label>
+      <div id="horarioResultanteText" class="horario-preview">14:00 - 16:00</div>
     </div>
     <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
   </div>
 
-  <!-- RESULTADOS DE LA CONSULTA (Aparecen aquí abajo) -->
+  <!-- RESULTADOS DE LA CONSULTA -->
   <div id="resultadoConsulta" style="display: none; margin-top: 16px; padding-top: 14px; border-top: 1px solid #edf0f2;">
     <div class="indicadores">
       <div class="indicador-item">
@@ -427,16 +463,15 @@ button, .btn {
     <div class="tipo" onclick="seleccionarTipo('CLASE')">Clase Guiada</div>
   </div>
 
-  <!-- DESPLEGABLE DE CLASES (Se muestra solo cuando tipoReserva === 'CLASE') -->
   <div id="claseBox" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid #edf0f2;">
     <label for="claseSelect">Selecciona la Clase Disponible</label>
-    <select id="claseSelect" onchange="actualizarEstadoBotonReserva()">
+    <select id="claseSelect" onchange="alSeleccionarClase()">
       <option value="">Cargando clases...</option>
     </select>
   </div>
 </div>
 
-  <!-- TARJETA 3: DATOS Y BOTÓN RESERVAR (TODO EN UNA LÍNEA) -->
+  <!-- TARJETA 3: CONFIRMACIÓN -->
   <div class="card">
     <div class="titulo-card">3. Confirmación de Reserva</div>
     <div class="fila-reserva">
@@ -453,6 +488,7 @@ button, .btn {
   </div>
 
 </div>
+
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
@@ -462,6 +498,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7Od
 let tipoReserva = 'ENTRADA';
 let cuposConsultados = false;
 let disponiblesActuales = 0;
+let horaFinCalculada = '16:00';
 
 /* =========================================================
    INICIALIZACIÓN
@@ -483,13 +520,41 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (fecha) fecha.addEventListener('change', invalidarConsulta);
-  const horaInicio = document.getElementById('horaInicio');
-  if (horaInicio) horaInicio.addEventListener('change', invalidarConsulta);
-  const horaFin = document.getElementById('horaFin');
-  if (horaFin) horaFin.addEventListener('change', invalidarConsulta);
 
+  calcularHorarioResultante();
   actualizarEstadoBotonReserva();
 });
+
+/* =========================================================
+   CALCULADORA DE RANGOS DE HORARIO
+========================================================= */
+function calcularHorarioResultante() {
+  const hInicioSelect = document.getElementById('horaInicio');
+  const duracionSelect = document.getElementById('duracionHoras');
+  const previewDiv = document.getElementById('horarioResultanteText');
+
+  if (!hInicioSelect || !duracionSelect) return;
+
+  const hInicioStr = hInicioSelect.value;
+  const duracion = parseInt(duracionSelect.value, 10);
+
+  const partes = hInicioStr.split(':');
+  let horaNum = parseInt(partes[0], 10);
+  let minNum = parseInt(partes[1] || '0', 10);
+
+  let horaFinNum = horaNum + duracion;
+  
+  if (horaFinNum > 24) horaFinNum = 24;
+
+  const hFinStr = `${String(horaFinNum).padStart(2, '0')}:${String(minNum).padStart(2, '0')}`;
+  horaFinCalculada = hFinStr;
+
+  if (previewDiv) {
+    previewDiv.textContent = `${hInicioStr} - ${hFinStr}`;
+  }
+
+  invalidarConsulta();
+}
 
 function invalidarConsulta() {
   cuposConsultados = false;
@@ -500,7 +565,7 @@ function invalidarConsulta() {
 }
 
 /* =========================================================
-   SELECCIÓN DE TIPO
+   SELECCIÓN DE TIPO DE RESERVA
 ========================================================= */
 async function seleccionarTipo(tipo) {
   tipoReserva = tipo;
@@ -519,10 +584,17 @@ async function seleccionarTipo(tipo) {
     claseBox.style.display = (tipo === 'CLASE') ? 'block' : 'none';
   }
 
-  if (tipo === 'CLASE' && cuposConsultados) {
+  if (tipo === 'CLASE') {
     await cargarClases();
+  } else {
+    invalidarConsulta();
   }
 
+  actualizarEstadoBotonReserva();
+}
+
+function alSeleccionarClase() {
+  invalidarConsulta();
   actualizarEstadoBotonReserva();
 }
 
@@ -531,16 +603,20 @@ async function seleccionarTipo(tipo) {
 ========================================================= */
 async function consultarDisponibilidad() {
   const fecha = document.getElementById('fecha').value;
-  const horaInicio = document.getElementById('horaInicio').value;
-  const horaFin = document.getElementById('horaFin').value;
+  let horaInicio = document.getElementById('horaInicio').value;
+  let horaFin = horaFinCalculada;
 
-  if (!fecha || !horaInicio || !horaFin) {
-    mostrarMensaje('Por favor, selecciona Fecha, Hora de Inicio y Hora de Fin.', 'error');
-    return;
+  if (tipoReserva === 'CLASE') {
+    const claseSelect = document.getElementById('claseSelect');
+    const opt = claseSelect ? claseSelect.options[claseSelect.selectedIndex] : null;
+    if (opt && opt.dataset.inicio && opt.dataset.fin) {
+      horaInicio = opt.dataset.inicio;
+      horaFin = opt.dataset.fin;
+    }
   }
 
-  if (horaFin <= horaInicio) {
-    mostrarMensaje('La Hora de Fin debe ser posterior a la Hora de Inicio.', 'error');
+  if (!fecha || !horaInicio || !horaFin) {
+    mostrarMensaje('Por favor, selecciona Fecha y Horario.', 'error');
     return;
   }
 
@@ -574,10 +650,6 @@ async function consultarDisponibilidad() {
 
     disponiblesActuales = Number(resultado.disponibles || 0);
     cuposConsultados = true;
-
-    if (tipoReserva === 'CLASE') {
-      await cargarClases();
-    }
 
     actualizarEstadoBotonReserva();
 
@@ -639,7 +711,6 @@ async function cargarClases() {
     clasesActivas.forEach(clase => {
       const opt = document.createElement('option');
       opt.value = clase.ClaseID;
-      // Guardar horas de la clase en data attributes para auto-ajuste si es necesario
       opt.dataset.inicio = clase.HoraInicio;
       opt.dataset.fin = clase.HoraFin;
       opt.textContent = `${clase.Nombre} (${clase.HoraInicio} - ${clase.HoraFin})`;
@@ -652,80 +723,57 @@ async function cargarClases() {
 }
 
 /* =========================================================
-   3. PROCESAR RESERVA (CORREGIDO)
+   3. PROCESAR RESERVA
 ========================================================= */
 async function realizarReserva() {
   const clienteId = document.getElementById('clienteId').value.trim();
   const cantidad = Number(document.getElementById('cantidad').value || 1);
   const fecha = document.getElementById('fecha').value;
-  const horaInicio = document.getElementById('horaInicio').value;
-  const horaFin = document.getElementById('horaFin').value;
+  
+  let hInicio = document.getElementById('horaInicio').value;
+  let hFin = horaFinCalculada;
+
   const claseSelect = document.getElementById('claseSelect');
   const claseId = claseSelect ? claseSelect.value : '';
 
-  // ---------------------------------------------------------
-  // VALIDACIONES
-  // ---------------------------------------------------------
-
-  if (!fecha || !horaInicio || !horaFin) {
-    mostrarMensaje(
-      'Debes seleccionar fecha, hora de inicio y hora de fin.',
-      'error'
-    );
-    return;
+  if (tipoReserva === 'CLASE' && claseSelect) {
+    const optSeleccionada = claseSelect.options[claseSelect.selectedIndex];
+    if (optSeleccionada && optSeleccionada.dataset.inicio && optSeleccionada.dataset.fin) {
+      hInicio = optSeleccionada.dataset.inicio;
+      hFin = optSeleccionada.dataset.fin;
+    }
   }
 
-  if (horaFin <= horaInicio) {
-    mostrarMensaje(
-      'La hora de fin debe ser posterior a la hora de inicio.',
-      'error'
-    );
+  // VALIDACIONES
+  if (!fecha || !hInicio || !hFin) {
+    mostrarMensaje('Debes seleccionar fecha y rango horario.', 'error');
     return;
   }
 
   if (!clienteId) {
-    mostrarMensaje(
-      'Debes ingresar el nombre o ID del cliente.',
-      'error'
-    );
+    mostrarMensaje('Debes ingresar el nombre o ID del cliente.', 'error');
     return;
   }
 
   if (!cantidad || cantidad < 1) {
-    mostrarMensaje(
-      'La cantidad de personas debe ser al menos 1.',
-      'error'
-    );
+    mostrarMensaje('La cantidad de personas debe ser al menos 1.', 'error');
     return;
   }
 
   if (cantidad > disponiblesActuales) {
-    mostrarMensaje(
-      `Solo quedan ${disponiblesActuales} cupos disponibles.`,
-      'error'
-    );
+    mostrarMensaje(`Solo quedan ${disponiblesActuales} cupos disponibles.`, 'error');
     return;
   }
 
   if (!cuposConsultados) {
-    mostrarMensaje(
-      'Primero debes consultar la disponibilidad.',
-      'error'
-    );
+    mostrarMensaje('Primero debes consultar la disponibilidad.', 'error');
     return;
   }
 
   if (tipoReserva === 'CLASE' && !claseId) {
-    mostrarMensaje(
-      'Por favor selecciona una clase disponible.',
-      'error'
-    );
+    mostrarMensaje('Por favor selecciona una clase disponible.', 'error');
     return;
   }
-
-  // ---------------------------------------------------------
-  // BOTÓN
-  // ---------------------------------------------------------
 
   const btn = document.querySelector('.btn-reservar');
   const textoOriginal = btn ? btn.innerText : 'Reservar';
@@ -737,73 +785,23 @@ async function realizarReserva() {
   }
 
   try {
-
-    // -------------------------------------------------------
-    // HORARIOS DEFINITIVOS
-    // -------------------------------------------------------
-
-    let hInicio = horaInicio;
-    let hFin = horaFin;
-
-    // Si es una clase, usamos el horario REAL de la clase
-    if (tipoReserva === 'CLASE' && claseSelect) {
-
-      const optSeleccionada =
-        claseSelect.options[claseSelect.selectedIndex];
-
-      if (
-        optSeleccionada &&
-        optSeleccionada.dataset.inicio &&
-        optSeleccionada.dataset.fin
-      ) {
-        hInicio = optSeleccionada.dataset.inicio;
-        hFin = optSeleccionada.dataset.fin;
-      }
-    }
-
-    // -------------------------------------------------------
-    // PAYLOAD PARA APPS SCRIPT
-    // -------------------------------------------------------
-
     const payload = {
       action: 'crearReserva',
-
       tipo: tipoReserva,
-
       clienteId: clienteId,
-
       cantidad: cantidad,
-
       fecha: fecha,
-
       horaInicio: hInicio,
-
       horaFin: hFin,
-
       claseId: tipoReserva === 'CLASE' ? claseId : '',
-
       usuario: 'STAFF'
     };
 
-    console.log('Enviando reserva:', payload);
-
-    // -------------------------------------------------------
-    // LLAMADA AL BACKEND
-    // -------------------------------------------------------
-
     const res = await api(payload);
 
-    console.log('Respuesta reserva:', res);
-
     if (!res || !res.ok) {
-      throw new Error(
-        res?.mensaje || 'Error al procesar la reserva.'
-      );
+      throw new Error(res?.mensaje || 'Error al procesar la reserva.');
     }
-
-    // -------------------------------------------------------
-    // ÉXITO
-    // -------------------------------------------------------
 
     if (btn) {
       btn.innerText = '¡Reservado!';
@@ -811,44 +809,23 @@ async function realizarReserva() {
       btn.style.color = '#15803d';
     }
 
-    mostrarMensaje(
-      `Reserva realizada con éxito a nombre de ${clienteId}.`,
-      'exito'
-    );
+    mostrarMensaje(`Reserva realizada con éxito a nombre de ${clienteId}.`, 'exito');
 
-    // Limpiar cliente
     document.getElementById('clienteId').value = '';
 
-    // -------------------------------------------------------
-    // ACTUALIZAR CUPOS
-    // -------------------------------------------------------
-
     setTimeout(async () => {
-
       try {
         await consultarDisponibilidad();
       } catch (e) {
-        console.error(
-          'Error actualizando disponibilidad:',
-          e
-        );
+        console.error('Error actualizando disponibilidad:', e);
       }
-
     }, 800);
 
   } catch (error) {
-
     console.error('Error al reservar:', error);
-
-    mostrarMensaje(
-      'Error al reservar: ' + error.message,
-      'error'
-    );
-
+    mostrarMensaje('Error al reservar: ' + error.message, 'error');
   } finally {
-
     setTimeout(() => {
-
       if (btn) {
         btn.innerText = textoOriginal;
         btn.disabled = false;
@@ -856,12 +833,11 @@ async function realizarReserva() {
         btn.style.color = '#ffffff';
         btn.style.opacity = '1';
       }
-
       actualizarEstadoBotonReserva();
-
     }, 1500);
   }
 }
+
 /* =========================================================
    ESTADO DEL BOTÓN RESERVAR
 ========================================================= */
@@ -885,13 +861,13 @@ function actualizarEstadoBotonReserva() {
 }
 
 /* =========================================================
-   PETICIÓN A LA API (JSON STRINGIFIED RIGUROSO)
+   PETICIÓN A LA API
 ========================================================= */
 async function api(body) {
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
-      'Content-Type': 'text/plain;charset=utf-8' // Compatibilidad estándar Apps Script CORS/doPost
+      'Content-Type': 'text/plain;charset=utf-8'
     },
     body: JSON.stringify(body)
   });
@@ -910,7 +886,5 @@ function mostrarMensaje(texto, tipo) {
 }
 </script>
 
-
 </body>
-
 </html>
