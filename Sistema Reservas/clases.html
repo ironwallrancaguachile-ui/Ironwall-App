@@ -11,12 +11,13 @@
 <title>Ironwall - Clases</title>
 
 <style>
-
-body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  padding: 20px;
-}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 24px 16px 60px; background: #f7f7f7; color: #222; }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .sub { color: #666; font-size: 12px; margin: 0 0 10px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    select, input { width: 100%; padding: 10px; font-size: 12px; border: 1px solid #ccc; border-radius: 8px; background: #fff; }
+    button { width: 100%; padding: 8px; border: 0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
 
 .container {
   max-width: 1100px;
@@ -38,13 +39,6 @@ body {
       minmax(180px,1fr)
     );
   gap: 10px;
-}
-
-input,
-button {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
 }
 
 button {
@@ -73,26 +67,9 @@ td {
   margin:0 auto 12px;
   padding:8px 0;
 }
+    .btnHome { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; color: #222; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 3px 12px rgba(0,0,0,.12); transition: .2s; margin-bottom: 10px; }
+    .btnHome:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.15); }
 
-.btnHome{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  padding:8px 14px;
-  border-radius:10px;
-  background:#fff;
-  border:1px solid #e3e7eb;
-  color:#222;
-  text-decoration:none;
-  font-size:13px;
-  font-weight:600;
-  box-shadow:0 2px 7px rgba(0,0,0,.04);
-}
-
-.btnHome:hover{
-  transform:translateY(-1px);
-  box-shadow:0 5px 12px rgba(0,0,0,.08);
-}
 
 .nombreModulo{
   font-family:'Archivo Extra Condensed',sans-serif;
