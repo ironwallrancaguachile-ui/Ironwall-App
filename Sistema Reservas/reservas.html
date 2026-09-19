@@ -663,15 +663,69 @@ async function realizarReserva() {
   const claseSelect = document.getElementById('claseSelect');
   const claseId = claseSelect ? claseSelect.value : '';
 
+  // ---------------------------------------------------------
+  // VALIDACIONES
+  // ---------------------------------------------------------
+
+  if (!fecha || !horaInicio || !horaFin) {
+    mostrarMensaje(
+      'Debes seleccionar fecha, hora de inicio y hora de fin.',
+      'error'
+    );
+    return;
+  }
+
+  if (horaFin <= horaInicio) {
+    mostrarMensaje(
+      'La hora de fin debe ser posterior a la hora de inicio.',
+      'error'
+    );
+    return;
+  }
+
   if (!clienteId) {
-    mostrarMensaje('Debes ingresar el nombre o ID del cliente.', 'error');
+    mostrarMensaje(
+      'Debes ingresar el nombre o ID del cliente.',
+      'error'
+    );
+    return;
+  }
+
+  if (!cantidad || cantidad < 1) {
+    mostrarMensaje(
+      'La cantidad de personas debe ser al menos 1.',
+      'error'
+    );
+    return;
+  }
+
+  if (cantidad > disponiblesActuales) {
+    mostrarMensaje(
+      `Solo quedan ${disponiblesActuales} cupos disponibles.`,
+      'error'
+    );
+    return;
+  }
+
+  if (!cuposConsultados) {
+    mostrarMensaje(
+      'Primero debes consultar la disponibilidad.',
+      'error'
+    );
     return;
   }
 
   if (tipoReserva === 'CLASE' && !claseId) {
-    mostrarMensaje('Por favor selecciona una clase disponible.', 'error');
+    mostrarMensaje(
+      'Por favor selecciona una clase disponible.',
+      'error'
+    );
     return;
   }
+
+  // ---------------------------------------------------------
+  // BOTÓN
+  // ---------------------------------------------------------
 
   const btn = document.querySelector('.btn-reservar');
   const textoOriginal = btn ? btn.innerText : 'Reservar';
@@ -683,35 +737,73 @@ async function realizarReserva() {
   }
 
   try {
-    // Estructura de payload compatible con la acción backend
-    // Si es tipo CLASE, tomar los horarios correspondientes a la clase elegida
-  let hInicio = horaInicio;
-  let hFin = horaFin;
 
-  if (tipoReserva === 'CLASE' && claseSelect) {
-    const optSeleccionada = claseSelect.options[claseSelect.selectedIndex];
-    if (optSeleccionada && optSeleccionada.dataset.inicio) {
-      hInicio = optSeleccionada.dataset.inicio;
-      hFin = optSeleccionada.dataset.fin;
+    // -------------------------------------------------------
+    // HORARIOS DEFINITIVOS
+    // -------------------------------------------------------
+
+    let hInicio = horaInicio;
+    let hFin = horaFin;
+
+    // Si es una clase, usamos el horario REAL de la clase
+    if (tipoReserva === 'CLASE' && claseSelect) {
+
+      const optSeleccionada =
+        claseSelect.options[claseSelect.selectedIndex];
+
+      if (
+        optSeleccionada &&
+        optSeleccionada.dataset.inicio &&
+        optSeleccionada.dataset.fin
+      ) {
+        hInicio = optSeleccionada.dataset.inicio;
+        hFin = optSeleccionada.dataset.fin;
+      }
     }
-  }
+
+    // -------------------------------------------------------
+    // PAYLOAD PARA APPS SCRIPT
+    // -------------------------------------------------------
+
     const payload = {
-      action: 'reservar',
+      action: 'crearReserva',
+
       tipo: tipoReserva,
-      cliente: clienteId,
+
+      clienteId: clienteId,
+
       cantidad: cantidad,
+
       fecha: fecha,
-      horaInicio: horaInicio,
-      horaFin: horaFin,
+
+      horaInicio: hInicio,
+
+      horaFin: hFin,
+
       claseId: tipoReserva === 'CLASE' ? claseId : '',
+
       usuario: 'STAFF'
     };
 
+    console.log('Enviando reserva:', payload);
+
+    // -------------------------------------------------------
+    // LLAMADA AL BACKEND
+    // -------------------------------------------------------
+
     const res = await api(payload);
 
-    if (!res.ok) {
-      throw new Error(res.mensaje || 'Error al procesar la reserva.');
+    console.log('Respuesta reserva:', res);
+
+    if (!res || !res.ok) {
+      throw new Error(
+        res?.mensaje || 'Error al procesar la reserva.'
+      );
     }
+
+    // -------------------------------------------------------
+    // ÉXITO
+    // -------------------------------------------------------
 
     if (btn) {
       btn.innerText = '¡Reservado!';
@@ -719,17 +811,44 @@ async function realizarReserva() {
       btn.style.color = '#15803d';
     }
 
-    mostrarMensaje(`Reserva realizada con éxito a nombre de ${clienteId}`, 'exito');
+    mostrarMensaje(
+      `Reserva realizada con éxito a nombre de ${clienteId}.`,
+      'exito'
+    );
 
+    // Limpiar cliente
     document.getElementById('clienteId').value = '';
-    setTimeout(() => {
-      consultarDisponibilidad();
-    }, 1500);
+
+    // -------------------------------------------------------
+    // ACTUALIZAR CUPOS
+    // -------------------------------------------------------
+
+    setTimeout(async () => {
+
+      try {
+        await consultarDisponibilidad();
+      } catch (e) {
+        console.error(
+          'Error actualizando disponibilidad:',
+          e
+        );
+      }
+
+    }, 800);
 
   } catch (error) {
-    mostrarMensaje('Error al reservar: ' + error.message, 'error');
+
+    console.error('Error al reservar:', error);
+
+    mostrarMensaje(
+      'Error al reservar: ' + error.message,
+      'error'
+    );
+
   } finally {
+
     setTimeout(() => {
+
       if (btn) {
         btn.innerText = textoOriginal;
         btn.disabled = false;
@@ -737,11 +856,12 @@ async function realizarReserva() {
         btn.style.color = '#ffffff';
         btn.style.opacity = '1';
       }
+
       actualizarEstadoBotonReserva();
-    }, 2000);
+
+    }, 1500);
   }
 }
-
 /* =========================================================
    ESTADO DEL BOTÓN RESERVAR
 ========================================================= */
