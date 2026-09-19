@@ -712,77 +712,69 @@ function actualizarEstadoBotonReserva() {
    2. EJECUCIÓN Y ESTADOS DE RESERVA
 ========================================================= */
 async function realizarReserva() {
-  const cliente = document.getElementById('clienteId').value.trim();
-  const cantidad = Number(document.getElementById('cantidad').value);
+  const clienteId = document.getElementById('clienteId').value.trim();
+  const cantidad = Number(document.getElementById('cantidad').value || 1);
   const fecha = document.getElementById('fecha').value;
   const horaInicio = document.getElementById('horaInicio').value;
   const horaFin = document.getElementById('horaFin').value;
-  const claseId = document.getElementById('claseSelect')?.value;
+  const claseSelect = document.getElementById('claseSelect');
+  const claseId = claseSelect ? claseSelect.value : '';
 
-  // Validaciones preventivas
-  if (!cliente) {
-    mostrarMensaje('Debes ingresar el nombre del cliente.', 'error');
+  // Validaciones locales rápidas
+  if (!clienteId) {
+    mostrarMensaje('Debes ingresar el nombre o ID del cliente.', 'error');
     return;
   }
-  if (!cantidad || cantidad <= 0) {
-    mostrarMensaje('La cantidad de personas debe ser al menos 1.', 'error');
-    return;
-  }
-  if (cantidad > disponiblesActuales) {
-    mostrarMensaje(`La cantidad supera los cupos disponibles (${disponiblesActuales}).`, 'error');
-    return;
-  }
+
   if (tipoReserva === 'CLASE' && !claseId) {
-    mostrarMensaje('Por favor, selecciona una clase de la lista.', 'error');
+    mostrarMensaje('Por favor selecciona una clase disponible.', 'error');
     return;
   }
 
-  // Estado de Carga en el Botón
+  // Elemento del botón y cambio de estado visual
   const btn = document.querySelector('.btn-reservar');
   const textoOriginal = btn ? btn.innerText : 'Reservar';
 
   if (btn) {
-    btn.innerText = 'Procesando...';
+    btn.innerText = 'Reservando...';
     btn.disabled = true;
     btn.style.opacity = '0.7';
   }
 
   try {
-    // Estructura del payload según el tipo
+    // Mantener la estructura EXACTA del payload que aceptaba tu Apps Script
     const payload = {
-      action: 'reservar',
+      action: 'reservar', // Mantiene la acción original
       tipo: tipoReserva,
-      cliente,
-      cantidad,
-      fecha,
-      horaInicio,
-      horaFin,
-      ...(tipoReserva === 'CLASE' && { claseId })
+      cliente: clienteId,
+      cantidad: cantidad,
+      fecha: fecha,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      claseId: claseId,
+      usuario: 'STAFF'
     };
 
-    const respuesta = await api(payload);
+    const res = await api(payload);
 
-    if (!respuesta.ok) {
-      throw new Error(respuesta.mensaje || 'No se pudo completar la reserva.');
+    if (!res.ok) {
+      throw new Error(res.mensaje || 'Error al procesar la reserva.');
     }
 
-    // Feedback de éxito
+    // Feedback visual en el botón
     if (btn) {
-      btn.innerText = '¡Reservado!';
+      btn.innerText = '¡Reservado con éxito!';
       btn.style.backgroundColor = '#dcfce7';
       btn.style.color = '#15803d';
     }
 
-    mostrarMensaje(`Reserva confirmada con éxito a nombre de ${cliente}.`, 'exito');
+    mostrarMensaje(`Reserva realizada con éxito a nombre de ${clienteId}`, 'exito');
 
-    // Limpiar formulario tras 2 segundos
+    // Limpiar campos y refrescar cupos
+    document.getElementById('clienteId').value = '';
     setTimeout(() => {
-      document.getElementById('clienteId').value = '';
-      document.getElementById('cantidad').value = '1';
-      
-      // Actualizar cupos para reflejar el descuento
       consultarDisponibilidad();
-    }, 2000);
+    }, 1500);
 
   } catch (error) {
     mostrarMensaje('Error al reservar: ' + error.message, 'error');
@@ -790,8 +782,10 @@ async function realizarReserva() {
     setTimeout(() => {
       if (btn) {
         btn.innerText = textoOriginal;
+        btn.disabled = false;
         btn.style.backgroundColor = '#191919';
         btn.style.color = '#ffffff';
+        btn.style.opacity = '1';
       }
       actualizarEstadoBotonReserva();
     }, 2000);
