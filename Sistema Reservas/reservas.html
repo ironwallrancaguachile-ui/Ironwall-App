@@ -419,14 +419,22 @@ button, .btn {
   </div>
 </div>
 
-  <!-- TARJETA 2: TIPO DE RESERVA (ENTRADA / CLASE) -->
-  <div class="card">
-    <div class="titulo-card">2. Tipo de Reserva</div>
-    <div class="tipos">
-      <div class="tipo activo" onclick="seleccionarTipo('ENTRADA')">Entrada Libre</div>
-      <div class="tipo" onclick="seleccionarTipo('CLASE')">Clase Guiada</div>
-    </div>
+<!-- TARJETA 2: TIPO DE RESERVA -->
+<div class="card">
+  <div class="titulo-card">2. Tipo de Reserva</div>
+  <div class="tipos">
+    <div class="tipo activo" onclick="seleccionarTipo('ENTRADA')">Entrada Libre</div>
+    <div class="tipo" onclick="seleccionarTipo('CLASE')">Clase Guiada</div>
   </div>
+
+  <!-- DESPLEGABLE DE CLASES (Se muestra solo cuando tipoReserva === 'CLASE') -->
+  <div id="claseBox" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid #edf0f2;">
+    <label for="claseSelect">Selecciona la Clase Disponible</label>
+    <select id="claseSelect" onchange="actualizarEstadoBotonReserva()">
+      <option value="">Cargando clases...</option>
+    </select>
+  </div>
+</div>
 
   <!-- TARJETA 3: DATOS Y BOTÓN RESERVAR (TODO EN UNA LÍNEA) -->
   <div class="card">
@@ -490,10 +498,10 @@ function invalidarConsulta() {
   actualizarEstadoBotonReserva();
 }
 
-/* =========================================================
-   SELECCIÓN ENTRADA / CLASE (CORREGIDO)
+      /* =========================================================
+   1. SELECCIÓN ENTRADA / CLASE
 ========================================================= */
-function seleccionarTipo(tipo) {
+async function seleccionarTipo(tipo) {
   tipoReserva = tipo;
   const opciones = document.querySelectorAll('.tipos .tipo');
 
@@ -510,18 +518,22 @@ function seleccionarTipo(tipo) {
     claseBox.style.display = (tipo === 'CLASE') ? 'block' : 'none';
   }
 
+  // Si selecciona CLASE y ya había consultado fecha/hora, cargar el listado de clases
+  if (tipo === 'CLASE' && cuposConsultados) {
+    await cargarClases();
+  }
+
   actualizarEstadoBotonReserva();
 }
 
 /* =========================================================
-   CONSULTA DE DISPONIBILIDAD CON VALIDACIÓN Y ESTADOS
+   2. CONSULTA DE DISPONIBILIDAD (Con llamada a cargarClases)
 ========================================================= */
 async function consultarDisponibilidad() {
   const fecha = document.getElementById('fecha').value;
   const horaInicio = document.getElementById('horaInicio').value;
   const horaFin = document.getElementById('horaFin').value;
 
-  // 1. Validaciones previas
   if (!fecha || !horaInicio || !horaFin) {
     mostrarMensaje('Por favor, selecciona la Fecha, Hora de Inicio y Hora de Fin.', 'error');
     return;
@@ -532,7 +544,6 @@ async function consultarDisponibilidad() {
     return;
   }
 
-  // 2. Estado de carga en el botón
   const btn = document.querySelector('.btn-consultar');
   const textoOriginal = btn ? btn.innerText : 'Consultar';
 
@@ -550,28 +561,30 @@ async function consultarDisponibilidad() {
       throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
     }
 
-    // 3. Insertar datos en los contadores del HTML
+    // Insertar métricas en los marcadores del HTML
     document.getElementById('capacidad').textContent = resultado.capacidad || 0;
     document.getElementById('ocupacion').textContent = resultado.ocupacion || 0;
     document.getElementById('disponibles').textContent = resultado.disponibles || 0;
 
-    // Mostrar la sección de resultados
     const resBox = document.getElementById('resultadoConsulta');
     if (resBox) resBox.style.display = 'block';
 
-    // Guardar estados globales para el paso de reserva
     disponiblesActuales = Number(resultado.disponibles || 0);
     cuposConsultados = disponiblesActuales > 0;
+
+    // SI EL TIPO SELECCIONADO ES CLASE, CARGAR EL LISTADO DESDE LA API
+    if (tipoReserva === 'CLASE' && cuposConsultados) {
+      await cargarClases();
+    }
+
     actualizarEstadoBotonReserva();
 
-    // 4. Mensaje según disponibilidad
     if (resultado.lleno || disponiblesActuales === 0) {
       mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
     } else {
       mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar con la reserva.`, 'exito');
     }
 
-    // Feedback visual en el botón
     if (btn) {
       btn.innerText = '¡Actualizado!';
       btn.style.backgroundColor = '#dcfce7';
@@ -582,7 +595,6 @@ async function consultarDisponibilidad() {
     mostrarMensaje('Error: ' + error.message, 'error');
     invalidarConsulta();
   } finally {
-    // Restaurar el botón tras 1.5s
     if (btn) {
       setTimeout(() => {
         btn.innerText = textoOriginal;
@@ -593,6 +605,46 @@ async function consultarDisponibilidad() {
         btn.style.cursor = 'pointer';
       }, 1500);
     }
+  }
+}
+
+/* =========================================================
+   3. OBTENER Y POBLAR DESPLEGABLE DE CLASES
+========================================================= */
+async function cargarClases() {
+  const select = document.getElementById('claseSelect');
+  const fecha = document.getElementById('fecha').value;
+
+  if (!select || !fecha) return;
+
+  select.innerHTML = '<option value="">Cargando clases disponibles...</option>';
+
+  try {
+    const res = await api({ action: 'listarClasesFecha', fecha });
+
+    if (!res.ok || !res.clases || res.clases.length === 0) {
+      select.innerHTML = '<option value="">No hay clases programadas para esta fecha</option>';
+      return;
+    }
+
+    // Filtrar solo clases activas
+    const clasesActivas = res.clases.filter(c => c.Estado === 'ACTIVA');
+
+    if (clasesActivas.length === 0) {
+      select.innerHTML = '<option value="">No hay clases activas disponibles</option>';
+      return;
+    }
+
+    select.innerHTML = '<option value="">-- Selecciona una clase --</option>';
+    clasesActivas.forEach(clase => {
+      const opt = document.createElement('option');
+      opt.value = clase.ClaseID;
+      opt.textContent = `${clase.Nombre} (${clase.HoraInicio} - ${clase.HoraFin})`;
+      select.appendChild(opt);
+    });
+
+  } catch (error) {
+    select.innerHTML = '<option value="">Error al cargar clases</option>';
   }
 }
 
