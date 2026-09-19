@@ -684,6 +684,17 @@ async function realizarReserva() {
 
   try {
     // Estructura de payload compatible con la acción backend
+    // Si es tipo CLASE, tomar los horarios correspondientes a la clase elegida
+  let hInicio = horaInicio;
+  let hFin = horaFin;
+
+  if (tipoReserva === 'CLASE' && claseSelect) {
+    const optSeleccionada = claseSelect.options[claseSelect.selectedIndex];
+    if (optSeleccionada && optSeleccionada.dataset.inicio) {
+      hInicio = optSeleccionada.dataset.inicio;
+      hFin = optSeleccionada.dataset.fin;
+    }
+  }
     const payload = {
       action: 'reservar',
       tipo: tipoReserva,
