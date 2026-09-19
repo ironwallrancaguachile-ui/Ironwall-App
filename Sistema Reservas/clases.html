@@ -299,11 +299,25 @@ async function api(body) {
 }
 
 async function crearClase() {
-  // 1. Obtener la referencia al botón
+  // 1. Obtener valores de los campos
+  const nombre = document.getElementById('nombre').value.trim();
+  const fecha = document.getElementById('fecha').value;
+  const horaInicio = document.getElementById('horaInicio').value;
+  const horaFin = document.getElementById('horaFin').value;
+  const capacidad = document.getElementById('capacidad').value;
+  const instructorId = document.getElementById('instructorId').value.trim();
+
+  // 2. Validar que ninguna casilla esté vacía
+  if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
+    alert('Por favor, completa todas las casillas antes de crear la clase.');
+    return; // Se interrumpe la función ANTES de cambiar el estado del botón
+  }
+
+  // 3. Obtener la referencia al botón
   const btn = document.querySelector('.btn-primary');
   const textoOriginal = btn.innerText;
 
-  // 2. Cambiar el botón a estado "En proceso..." y deshabilitarlo
+  // 4. Cambiar estado a "Creando..." y deshabilitar
   btn.innerText = 'Creando...';
   btn.disabled = true;
   btn.style.opacity = '0.7';
@@ -312,37 +326,36 @@ async function crearClase() {
   try {
     const resultado = await api({
       action: 'crearClase',
-      nombre: document.getElementById('nombre').value,
-      fecha: document.getElementById('fecha').value,
-      horaInicio: document.getElementById('horaInicio').value,
-      horaFin: document.getElementById('horaFin').value,
-      capacidad: document.getElementById('capacidad').value,
-      instructorId: document.getElementById('instructorId').value,
+      nombre,
+      fecha,
+      horaInicio,
+      horaFin,
+      capacidad,
+      instructorId,
       usuario: 'STAFF'
     });
 
     if (resultado.ok) {
-      // 3. Estado de éxito temporal en el botón
+      // 5. Estado de éxito temporal
       btn.innerText = '¡Creada con éxito!';
-      btn.style.backgroundColor = '#16a34a'; // Verde
+      btn.style.backgroundColor = '#16a34a';
 
-      // 4. Limpiar los campos del formulario
+      // 6. Limpiar el formulario
       document.getElementById('nombre').value = '';
       document.getElementById('horaInicio').value = '';
       document.getElementById('horaFin').value = '';
-      document.getElementById('capacidad').value = '8'; // Valor por defecto
+      document.getElementById('capacidad').value = '8';
       document.getElementById('instructorId').value = '';
-      // La fecha se mantiene en hoy para comodidad del usuario
 
-      // 5. Actualizar la tabla
+      // 7. Actualizar la lista
       cargarClases();
     } else {
       alert(resultado.mensaje || 'Error al crear la clase');
     }
   } catch (error) {
-    alert('Ocurrió un error de conexión');
+    alert('Ocurrió un error de conexión con el servidor');
   } finally {
-    // 6. Volver el botón a su estado inicial después de 2 segundos
+    // 8. Restaurar el botón siempre (incluso si la API falla o da un error de red)
     setTimeout(() => {
       btn.innerText = textoOriginal;
       btn.disabled = false;
