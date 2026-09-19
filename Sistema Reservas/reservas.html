@@ -397,6 +397,24 @@ button, .btn {
       </div>
       <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
     </div>
+      <!-- RESULTADOS DE LA CONSULTA (Aparecen aquí abajo) -->
+        <div id="resultadoConsulta" style="display: none; margin-top: 16px; padding-top: 14px; border-top: 1px solid #edf0f2;">
+          <div class="indicadores">
+            <div class="indicador-item">
+              <span>Capacidad Total</span>
+              <strong id="capacidad">0</strong>
+            </div>
+            <div class="indicador-item">
+              <span>Ocupados</span>
+              <strong id="ocupacion">0</strong>
+            </div>
+            <div class="indicador-item">
+              <span>Disponibles</span>
+              <strong id="disponibles" style="color: #15803d;">0</strong>
+            </div>
+          </div>
+          <div id="mensajeEstado" class="mensaje" style="display: none; margin-top: 10px;"></div>
+        </div>
   </div>
 
   <!-- TARJETA 2: TIPO DE RESERVA (ENTRADA / CLASE) -->
@@ -501,18 +519,18 @@ async function consultarDisponibilidad() {
   const horaInicio = document.getElementById('horaInicio').value;
   const horaFin = document.getElementById('horaFin').value;
 
-  // 1. REQUERIMIENTOS Y VALIDACIONES
+  // 1. Validaciones previas
   if (!fecha || !horaInicio || !horaFin) {
-    alert('Por favor, selecciona la Fecha, Hora de Inicio y Hora de Fin.');
+    mostrarMensaje('Por favor, selecciona la Fecha, Hora de Inicio y Hora de Fin.', 'error');
     return;
   }
 
   if (horaFin <= horaInicio) {
-    alert('La Hora de Fin debe ser posterior a la Hora de Inicio.');
+    mostrarMensaje('La Hora de Fin debe ser posterior a la Hora de Inicio.', 'error');
     return;
   }
 
-  // 2. ESTADO DE CARGA EN BOTÓN
+  // 2. Estado de carga en el botón
   const btn = document.querySelector('.btn-consultar');
   const textoOriginal = btn ? btn.innerText : 'Consultar';
 
@@ -530,22 +548,39 @@ async function consultarDisponibilidad() {
       throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
     }
 
+    // 3. Insertar datos en los contadores del HTML
+    document.getElementById('capacidad').textContent = resultado.capacidad || 0;
+    document.getElementById('ocupacion').textContent = resultado.ocupacion || 0;
+    document.getElementById('disponibles').textContent = resultado.disponibles || 0;
+
+    // Mostrar la sección de resultados
+    const resBox = document.getElementById('resultadoConsulta');
+    if (resBox) resBox.style.display = 'block';
+
+    // Guardar estados globales para el paso de reserva
     disponiblesActuales = Number(resultado.disponibles || 0);
-    cuposConsultados = true;
+    cuposConsultados = disponiblesActuales > 0;
     actualizarEstadoBotonReserva();
 
-    // 3. FEEDBACK VISUAL DE ÉXITO
+    // 4. Mensaje según disponibilidad
+    if (resultado.lleno || disponiblesActuales === 0) {
+      mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
+    } else {
+      mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar con la reserva.`, 'exito');
+    }
+
+    // Feedback visual en el botón
     if (btn) {
       btn.innerText = '¡Actualizado!';
-      btn.style.backgroundColor = '#dcfce7'; // Verde suave
+      btn.style.backgroundColor = '#dcfce7';
       btn.style.color = '#15803d';
     }
 
   } catch (error) {
-    alert('Error: ' + error.message);
+    mostrarMensaje('Error: ' + error.message, 'error');
     invalidarConsulta();
   } finally {
-    // 4. RESTAURAR BOTÓN EN 1.5s
+    // Restaurar el botón tras 1.5s
     if (btn) {
       setTimeout(() => {
         btn.innerText = textoOriginal;
@@ -559,6 +594,15 @@ async function consultarDisponibilidad() {
   }
 }
 
+/* Función auxiliar para desplegar alertas dentro de la tarjeta */
+function mostrarMensaje(texto, tipo) {
+  const msgDiv = document.getElementById('mensajeEstado');
+  if (!msgDiv) return;
+
+  msgDiv.textContent = texto;
+  msgDiv.className = `mensaje ${tipo}`;
+  msgDiv.style.display = 'block';
+}
 /* =========================================================
    ESTADO Y VALIDACIÓN DEL BOTÓN RESERVAR
 ========================================================= */
