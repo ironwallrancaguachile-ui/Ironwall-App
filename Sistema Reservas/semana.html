@@ -2,391 +2,356 @@
 <html lang="es">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ironwall - Vista Semanal</title>
+  <style>
+    /* --- FUENTES DEL SISTEMA --- */
+    @font-face {
+      font-family: 'Archivo Extra Condensed';
+      src: url("fonts/Archivo_ExtraCondensed-Regular.ttf");
+      font-weight: 400;
+      font-display: swap;
+    }
 
-<meta charset="UTF-8">
+    @font-face {
+      font-family: 'Archivo Extra Condensed';
+      src: url("fonts/Archivo_ExtraCondensed-Bold.ttf");
+      font-weight: 700;
+      font-display: swap;
+    }
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1">
+    @font-face {
+      font-family: Boris;
+      src: url("fonts/BorisBlackBloxx.ttf");
+      font-weight: 400;
+      font-display: swap;
+    }
 
-<title>Ironwall - Semana</title>
-<style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+    @font-face {
+      font-family: 'Archivo';
+      src: url("fonts/Archivo-Regular.ttf");
+      font-weight: 400;
+      font-display: swap;
+    }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-    max-width: 1250px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-    background: #f7f7f7;
-    color: #222;
-  }
+    @font-face {
+      font-family: 'Archivo';
+      src: url("fonts/Archivo-SemiBold.ttf");
+      font-weight: 600;
+      font-display: swap;
+    }
 
-  h1 {
-    font-size: 20px;
-    margin-bottom: 16px;
-  }
+    @font-face {
+      font-family: 'Archivo';
+      src: url("fonts/Archivo-Bold.ttf");
+      font-weight: 700;
+      font-display: swap;
+    }
 
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
+    /* --- RESET Y ESTILOS BASE --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-  /* --- CAMPOS DE ENTRADA --- */
-  input, select {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 13px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
+    body {
+      background: linear-gradient(180deg, #eef2f7 0%, #f8f9fb 100%);
+      color: #222;
+      padding: 24px 20px 60px;
+      min-height: 100vh;
+    }
 
-  input:focus, select:focus {
-    outline: none;
-    border-color: #222;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-  }
+    .container {
+      max-width: 1250px;
+      margin: 0 auto;
+    }
 
-  /* --- CONTENEDOR SUPERIOR Y FILTROS --- */
-  .top {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 20px;
-    background: #ffffff;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  }
+    /* --- CABECERA Y NAVEGACIÓN --- */
+    .barraNavegacion {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 auto 16px;
+    }
 
-  .top input[type="date"] {
-    max-width: 220px;
-  }
+    .btnHome {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #222;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+      border: 1px solid #e8ecef;
+      transition: transform .2s, box-shadow .2s;
+    }
 
-  /* --- BOTONES --- */
-  button, .btn-secondary {
-    padding: 10px 16px;
-    border: 0;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-  }
+    .logo-btn {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      transform: scale(1.8);
+      transform-origin: center;
+    }
 
-  .btn-secondary {
-    background-color: #e0e0e0;
-    color: #333333;
-    width: auto;
-  }
+    .btnHome:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+    }
 
-  .btn-secondary:hover {
-    background-color: #d0d0d0;
-  }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
 
-  .btn-secondary:active {
-    transform: scale(0.99);
-  }
+    .subtitulo {
+      color: #666;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
 
-  /* --- ESTRUCTURA DE LA SEMANA EN COLUMNAS --- */
-  .container {
-    max-width: 1250px;
-    margin: auto;
-  }
+    /* --- TARJETAS --- */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+      border: 1px solid #e8ecef;
+    }
 
-  /* El contenedor principal de la semana distribuido en columnas horizontalmente */
-  .semana {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Crea las columnas automáticas hacia la derecha */
-    gap: 12px;
-    align-items: start;
-  }
+    .titulo-card {
+      font-size: 13px;
+      font-weight: 700;
+      color: #666;
+      letter-spacing: .5px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
 
-  /* Tarjeta individual para cada día */
-  .dia {
-    background: #ffffff;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    min-height: 200px;
-  }
+    /* --- FORMULARIOS Y FILTROS --- */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
 
-  .dia h3 {
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: #333;
-  }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
 
-  .dia small {
-    color: #888;
-    display: block;
-    margin-bottom: 10px;
-  }
+    input,
+    select {
+      width: 100%;
+      height: 41px;
+      padding: 10px 12px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
 
-  .dia hr {
-    border: 0;
-    border-top: 1px solid #eee;
-    margin: 8px 0;
-  }
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #222;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+    }
 
-  .numero {
-    font-weight: 700;
-    float: right;
-  }
+    /* --- BOTONES --- */
+    button,
+    .btn {
+      width: 100%;
+      height: 41px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+    }
 
-/* --- RESUMEN COMPACTO CORREGIDO --- */
-.resumen-metrica {
-  display: flex;
-  flex-direction: column;  /* Alinea los ítems uno debajo de otro */
-  gap: 4px;                /* Espaciado vertical mínimo */
-  margin-top: 8px;
-  background: #f8f9fa;
-  padding: 8px 10px;       /* Padding cómodo dentro de la caja */
-  border-radius: 8px;
-  border: 1px solid #edf0f2;
-  width: 100%;             /* Aprovecha todo el ancho de la tarjeta */
-  box-sizing: border-box;
-}
+    .btn-primary {
+      background-color: #191919;
+      color: #ffffff;
+    }
 
-.metrica-item {
-  display: flex;
-  justify-content: space-between; /* Texto a la izquierda, número a la derecha */
-  align-items: center;
-  font-size: 11px;
-  color: #555;
-}
+    .btn-primary:hover {
+      background-color: #333333;
+    }
 
-.metrica-item strong {
-  font-size: 11px;
-  color: #111;
-  font-weight: 700;
-}
+    .btn-consultar {
+      background-color: #e0e0e0;
+      color: #333333;
+    }
 
-  /* Bloque/ítem de cada reserva dentro del día */
-  .reserva {
-    background: #f9f9f9;
-    border-left: 3px solid #222;
-    padding: 8px 10px;
-    border-radius: 6px;
-    margin-top: 8px;
-    font-size: 12px;
-    line-height: 1.4;
-  }
+    .btn-consultar:hover {
+      background-color: #d0d0d0;
+    }
 
-  /* --- NAVEGACIÓN --- */
-  .barraNavegacion {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0 auto 16px;
-    padding: 8px 0;
-  }
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none !important;
+    }
 
-  .btnHome {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #ffffff;
-    color: #222;
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    transition: transform .2s, box-shadow .2s;
-  }
+    button:active:not(:disabled) {
+      transform: scale(0.99);
+    }
 
-  .btnHome:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,.12);
-  }
-</style>
-      
+    /* --- ESTILOS DE LA VISTA SEMANAL --- */
+    .grid-semana {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .dia-card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .dia-titulo {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 4px;
+      text-align: center;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 12px 40px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-semana {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<a href="index.html" class="btnHome">  ← Inicio </a>
-<div class="container">
-      <h1>Semana Ironwall</h1>
-      <div class="top">
-            <input  id="fechaInicio"  type="date">
-            <button  class="btn-secondary" onclick="cargarSemana()">Actualizar</button>
-      </div>
-      <div  id="semana"  class="semana"></div>
-</div>
+  <div class="container">
+    <!-- NAVEGACIÓN Y CABECERA -->
+    <div class="barraNavegacion">
+      <a href="index.html" class="btnHome">
+        <img src="img/logosn.png" alt="Logo" class="logo-btn">
+        <span>← Inicio</span>
+      </a>
+    </div>
 
+    <h1>Ocupación Semanal</h1>
+    <p class="subtitulo">Selecciona una fecha de inicio para consultar las reservas de la semana</p>
 
-<script>
-
-const API_URL =
-  'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-
-
-function fechaHoy() {
-
-  const d =
-    new Date();
-
-  return [
-    d.getFullYear(),
-    String(
-      d.getMonth()+1
-    ).padStart(2,'0'),
-    String(
-      d.getDate()
-    ).padStart(2,'0')
-  ].join('-');
-}
-
-
-document
-  .getElementById(
-    'fechaInicio'
-  ).value =
-  fechaHoy();
-
-
-async function api(body) {
-
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
-        body:
-          JSON.stringify(body)
-      }
-    );
-
-  return response.json();
-}
-
-async function cargarSemana() {
-  const btn = document.querySelector('.btn-secondary');
-  const textoOriginal = btn ? btn.innerText : 'Actualizar';
-
-  if (btn) {
-    btn.innerText = 'Consultando...';
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-    btn.style.cursor = 'not-allowed';
-  }
-
-  const fechaInicio = document.getElementById('fechaInicio').value;
-
-  try {
-    const resultado = await api({ action: 'resumenSemana', fechaInicio });
-
-    if (!resultado.ok) {
-      alert(resultado.mensaje || 'Error al obtener datos');
-      return;
-    }
-
-    pintarSemana(resultado.semana);
-
-    if (btn) {
-      btn.innerText = '¡Actualizado!';
-      btn.style.backgroundColor = '#dcfce7'; // Verde suave
-      btn.style.color = '#15803d';
-    }
-
-  } catch (error) {
-    alert('Error de conexión al cargar la semana');
-  } finally {
-    if (btn) {
-      setTimeout(() => {
-        btn.innerText = textoOriginal;
-        btn.disabled = false;
-        btn.style.backgroundColor = '#e0e0e0';
-        btn.style.color = '#333333';
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-      }, 1500);
-    }
-  }
-}
-
-
-function pintarSemana(dias) {
-  const contenedor = document.getElementById('semana');
-  contenedor.innerHTML = '';
-
-  dias.forEach(dia => {
-    const div = document.createElement('div');
-    div.className = 'dia';
-
-    const fecha = new Date(dia.fecha + 'T12:00:00');
-    const nombre = fecha.toLocaleDateString('es-CL', { weekday: 'long' });
-
-    div.innerHTML = `
-      <h3>${capitalizar(nombre)}</h3>
-      <small>${dia.fecha}</small>
+    <!-- CARD FILTRO DE FECHA -->
+    <div class="card">
+      <div class="titulo-card">Filtro de Consulta</div>
       
-      <!-- Resumen compacto -->
-      <div class="resumen-metrica">
-        <div class="metrica-item">
-          <span>Capacidad</span>
-          <strong>${dia.capacidad}</strong>
+      <div class="form-grid">
+        <div>
+          <label for="fechaInicio">Fecha de inicio (Lunes)</label>
+          <input type="date" id="fechaInicio">
         </div>
-        <div class="metrica-item">
-          <span>Reservados</span>
-          <strong>${dia.reservado}</strong>
-        </div>
-        <div class="metrica-item">
-          <span>Disponibles</span>
-          <strong>${dia.disponibles}</strong>
-        </div>
-        <div class="metrica-item">
-          <span>Clases</span>
-          <strong>${dia.clases.length}</strong>
+        <div>
+          <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar Vista</button>
         </div>
       </div>
-      <hr style="margin-top: 10px;">
-    `;
+    </div>
 
-    dia.reservas
-      .sort((a, b) => a.HoraInicio.localeCompare(b.HoraInicio))
-      .forEach(reserva => {
-        const bloque = document.createElement('div');
-        bloque.className = 'reserva';
-        bloque.innerHTML = `
-          <strong>${reserva.HoraInicio}</strong> <br>
-          ${reserva.ClienteID} <br>
-          ${reserva.Cantidad} personas <br>
-          ${reserva.Estado}
-        `;
-        div.appendChild(bloque);
+    <!-- CONTENEDOR VISTA SEMANAL -->
+    <div class="card">
+      <div class="titulo-card">Reservas de la Semana</div>
+      <div id="contenedorSemana" class="grid-semana">
+        <!-- Las columnas de cada día se cargan dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+    // Establecer fecha por defecto (hoy) al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('fechaInicio').value = hoy;
+      cargarSemana();
+    });
+
+    async function api(body) {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(body)
       });
+      return response.json();
+    }
 
-    contenedor.appendChild(div);
-  });
-}
+    async function cargarSemana() {
+      const fecha = document.getElementById('fechaInicio').value;
+      const btn = document.getElementById('btnActualizar');
+      const contenedor = document.getElementById('contenedorSemana');
 
-function capitalizar(
-  texto
-) {
+      if (!fecha) return;
 
-  return (
-    texto.charAt(0)
-      .toUpperCase() +
-    texto.slice(1)
-  );
-}
+      btn.disabled = true;
+      btn.innerText = 'Cargando...';
 
-
-cargarSemana();
-
-</script>
-
+      try {
+        const respuesta = await api({ action: 'obtenerSemana', fechaInicio: fecha });
+        
+        // renderizar los días de la semana
+        if (respuesta.ok && respuesta.dias) {
+          contenedor.innerHTML = respuesta.dias.map(d => `
+            <div class="dia-card">
+              <div class="dia-titulo">${d.nombreDia} ${d.fecha}</div>
+              <div class="dia-contenido">
+                ${d.reservas ? d.reservas.map(r => `<div>${r.hora} -${r.cliente}</div>`).join('') : '<small>Sin reservas</small>'}
+              </div>
+            </div>
+          `).join('');
+        } else {
+          contenedor.innerHTML = '<p>No se encontraron datos para la semana seleccionada.</p>';
+        }
+      } catch (error) {
+        contenedor.innerHTML = '<p>Error de conexión al cargar la semana.</p>';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Actualizar Vista';
+      }
+    }
+  </script>
 </body>
 
 </html>
