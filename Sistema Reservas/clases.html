@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ironwall - Clases</title>
+  <title>Ironwall Clases</title>
   <style>
     /* --- FUENTES DEL SISTEMA --- */
     @font-face {
@@ -83,22 +83,14 @@
       border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
       border: 1px solid #e8ecef;
       transition: transform .2s, box-shadow .2s;
     }
 
     .btnHome:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
-    }
-
-    .nombreModulo {
-      font-family: 'Archivo Extra Condensed', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: #666;
+      box-shadow: 0 4px 12px rgba(0,0,0,.12);
     }
 
     h1 {
@@ -132,17 +124,41 @@
       text-transform: uppercase;
     }
 
-    /* --- FORMULARIOS Y GRIDS --- */
+    /* --- INDICADORES Y MÉTRICAS COMPACTAS --- */
+    .indicadores {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .indicador-item {
+      background: #f8f9fa;
+      border: 1px solid #edf0f2;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .indicador-item span {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 2px;
+    }
+
+    .indicador-item strong {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    /* --- FORMULARIOS Y GRID --- */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
       align-items: end;
-    }
-
-    .campo {
-      display: flex;
-      flex-direction: column;
     }
 
     label {
@@ -170,7 +186,7 @@
       box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
     }
 
-    /* --- BOTONES --- */
+    /* --- BOTONES INTERACTIVOS --- */
     button, .btn {
       width: 100%;
       height: 41px;
@@ -186,23 +202,23 @@
       transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
     }
 
-    .btn-primary {
-      background-color: #191919;
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background-color: #333333;
-    }
-
-    .btn-secondary {
+    .btn-consultar {
       background-color: #e0e0e0;
       color: #333333;
-      white-space: nowrap;
     }
 
-    .btn-secondary:hover {
+    .btn-consultar:hover {
       background-color: #d0d0d0;
+    }
+
+    .btn-reservar {
+      background-color: #191919;
+      color: #ffffff;
+      margin-top: 18px;
+    }
+
+    .btn-reservar:hover {
+      background-color: #333333;
     }
 
     .btn-danger {
@@ -212,33 +228,55 @@
       padding: 0 12px;
       font-size: 12px;
       width: auto;
+      border-radius: 6px;
     }
 
     .btn-danger:hover {
       background-color: #fca5a5;
-      color: #991b1b;
     }
 
-    button:disabled {
+    .btn:disabled, .btn-reservar:disabled, button:disabled {
       opacity: .45;
       cursor: not-allowed;
       transform: none !important;
     }
 
-    button:active:not(:disabled) {
+    .btn:active:not(:disabled), button:active:not(:disabled) {
       transform: scale(0.99);
     }
 
-    /* --- LAYOUTS ESPECÍFICOS --- */
+    /* --- MENSAJES DE ESTADO --- */
+    #claseBox {
+      display: none;
+    }
+
+    .mensaje {
+      margin-top: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .exito {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* --- LAYOUT FILAS DE CONSULTA Y TABLA --- */
     .fila-consulta {
       display: flex;
       gap: 12px;
       align-items: end;
-      max-width: 350px;
+      max-width: 380px;
       margin-bottom: 16px;
     }
 
-    /* --- TABLA --- */
     .tabla-container {
       overflow-x: auto;
     }
@@ -269,15 +307,9 @@
       body {
         padding: 16px 12px 40px;
       }
-
       .card {
         padding: 16px;
       }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
       .fila-consulta {
         max-width: 100%;
       }
@@ -289,55 +321,69 @@
   <div class="container">
     <div class="barraNavegacion">
       <a href="index.html" class="btnHome"> ← Inicio </a>
-      <span class="nombreModulo">Reservas</span>
     </div>
 
-    <h1>Clases</h1>
-    <p class="subtitulo">Gestión e inscripción de nuevas clases programadas</p>
+    <h1>Ironwall Clases</h1>
+    <p class="subtitulo">Gestión e inscripción de clases programadas</p>
 
-    <!-- CARD NUEVA CLASE -->
-    <div class="card">
-      <div class="titulo-card">Nueva clase</div>
-      <div class="form-grid">
-        <div class="campo">
-          <label for="nombre">Nombre de clase</label>
-          <input id="nombre" placeholder="Ej: Crossfit">
-        </div>
-        <div class="campo">
-          <label for="fecha">Fecha</label>
-          <input id="fecha" type="date">
-        </div>
-        <div class="campo">
-          <label for="horaInicio">Hora Inicio</label>
-          <input id="horaInicio" type="time">
-        </div>
-        <div class="campo">
-          <label for="horaFin">Hora Fin</label>
-          <input id="horaFin" type="time">
-        </div>
-        <div class="campo">
-          <label for="capacidad">Capacidad</label>
-          <input id="capacidad" type="number" min="1" value="8">
-        </div>
-        <div class="campo">
-          <label for="instructorId">ID Instructor</label>
-          <input id="instructorId" placeholder="Ej: INST-01">
-        </div>
-        <div class="campo">
-          <button class="btn-primary" onclick="crearClase()">Crear clase</button>
-        </div>
+    <!-- INDICADORES -->
+    <div class="indicadores">
+      <div class="indicador-item">
+        <span>Total del Día</span>
+        <strong id="indTotal">0</strong>
+      </div>
+      <div class="indicador-item">
+        <span>Activas</span>
+        <strong id="indActivas">0</strong>
+      </div>
+      <div class="indicador-item">
+        <span>Canceladas</span>
+        <strong id="indCanceladas">0</strong>
       </div>
     </div>
 
-    <!-- CARD CLASES DEL DÍA -->
+    <!-- CARD CREAR CLASE -->
     <div class="card">
-      <div class="titulo-card">Clases del día</div>
+      <div class="titulo-card">Nueva Clase</div>
+      <div class="form-grid">
+        <div>
+          <label for="nombre">Nombre de la clase</label>
+          <input id="nombre" placeholder="Ej: Crossfit">
+        </div>
+        <div>
+          <label for="fecha">Fecha</label>
+          <input id="fecha" type="date">
+        </div>
+        <div>
+          <label for="horaInicio">Hora Inicio</label>
+          <input id="horaInicio" type="time">
+        </div>
+        <div>
+          <label for="horaFin">Hora Fin</label>
+          <input id="horaFin" type="time">
+        </div>
+        <div>
+          <label for="capacidad">Capacidad</label>
+          <input id="capacidad" type="number" min="1" value="8">
+        </div>
+        <div>
+          <label for="instructorId">ID Instructor</label>
+          <input id="instructorId" placeholder="Ej: INST-01">
+        </div>
+      </div>
+      <button class="btn-reservar" id="btnCrear" onclick="crearClase()">Crear Clase</button>
+      <div id="msj" class="mensaje" style="display:none;"></div>
+    </div>
+
+    <!-- CARD CONSULTA Y TABLA -->
+    <div class="card">
+      <div class="titulo-card">Clases del Día</div>
       <div class="fila-consulta">
-        <div class="campo" style="flex: 1;">
+        <div style="flex: 1;">
           <label for="fechaConsulta">Consultar Fecha</label>
           <input id="fechaConsulta" type="date">
         </div>
-        <button class="btn-secondary" style="width: auto;" onclick="cargarClases()">Actualizar</button>
+        <button class="btn-consultar" id="btnConsultar" style="width: auto; padding: 0 20px;" onclick="cargarClases()">Consultar</button>
       </div>
 
       <div class="tabla-container">
@@ -345,14 +391,17 @@
           <thead>
             <tr>
               <th>Clase</th>
-              <th>Hora</th>
+              <th>Horario</th>
               <th>Capacidad</th>
               <th>Instructor</th>
               <th>Estado</th>
-              <th>Acciones</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody id="tabla">
+            <tr>
+              <td colspan="6" style="text-align: center; color: #888; padding: 20px;">Cargando clases...</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -371,8 +420,19 @@
     document.getElementById('fechaConsulta').value = fechaHoy();
 
     async function api(body) {
-      const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(body)
+      });
       return response.json();
+    }
+
+    function mostrarMensaje(texto, esError = false) {
+      const msj = document.getElementById('msj');
+      msj.className = `mensaje ${esError ? 'error' : 'exito'}`;
+      msj.innerText = texto;
+      msj.style.display = 'block';
     }
 
     async function crearClase() {
@@ -382,24 +442,33 @@
       const horaFin = document.getElementById('horaFin').value;
       const capacidad = document.getElementById('capacidad').value;
       const instructorId = document.getElementById('instructorId').value.trim();
+      const msj = document.getElementById('msj');
+
+      msj.style.display = 'none';
 
       if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
-        alert('Por favor, completa todas las casillas antes de crear la clase.');
+        mostrarMensaje('Por favor completa todos los campos.', true);
         return;
       }
 
-      const btn = document.querySelector('.btn-primary');
-      const textoOriginal = btn.innerText;
-
-      btn.innerText = 'Creando...';
+      const btn = document.getElementById('btnCrear');
+      btn.innerText = 'Creando clase...';
       btn.disabled = true;
 
       try {
-        const resultado = await api({ action: 'crearClase', nombre, fecha, horaInicio, horaFin, capacidad, instructorId, usuario: 'STAFF' });
-        if (resultado.ok) {
-          btn.innerText = '¡Creada con éxito!';
-          btn.style.backgroundColor = '#16a34a';
+        const resultado = await api({
+          action: 'crearClase',
+          nombre,
+          fecha,
+          horaInicio,
+          horaFin,
+          capacidad,
+          instructorId,
+          creadoPor: 'STAFF'
+        });
 
+        if (resultado.ok) {
+          mostrarMensaje('¡Clase creada exitosamente!');
           document.getElementById('nombre').value = '';
           document.getElementById('horaInicio').value = '';
           document.getElementById('horaFin').value = '';
@@ -408,27 +477,22 @@
 
           cargarClases();
         } else {
-          alert(resultado.mensaje || 'Error al crear la clase');
+          mostrarMensaje(resultado.mensaje || 'Error en el servidor al crear la clase', true);
         }
       } catch (error) {
-        alert('Ocurrió un error de conexión con el servidor');
+        mostrarMensaje('Error de conexión con el servidor', true);
       } finally {
-        setTimeout(() => {
-          btn.innerText = textoOriginal;
-          btn.disabled = false;
-          btn.style.backgroundColor = '';
-        }, 2000);
+        btn.innerText = 'Crear Clase';
+        btn.disabled = false;
       }
     }
 
     async function cargarClases() {
-      const btn = document.querySelector('.btn-secondary');
-      const textoOriginal = btn.innerText;
-
-      btn.innerText = 'Consultando...';
-      btn.disabled = true;
-
+      const btn = document.getElementById('btnConsultar');
       const fecha = document.getElementById('fechaConsulta').value;
+
+      btn.innerText = 'Buscando...';
+      btn.disabled = true;
 
       try {
         const resultado = await api({ action: 'listarClasesFecha', fecha });
@@ -436,11 +500,20 @@
         tbody.innerHTML = '';
 
         if (!resultado.ok) {
-          alert(resultado.mensaje || 'Error al obtener clases');
+          mostrarMensaje(resultado.mensaje || 'Error al obtener las clases', true);
+          btn.innerText = 'Consultar';
+          btn.disabled = false;
           return;
         }
 
-        if (resultado.clases.length === 0) {
+        const clases = resultado.clases || [];
+        
+        // Actualizar Indicadores
+        document.getElementById('indTotal').innerText = clases.length;
+        document.getElementById('indActivas').innerText = clases.filter(c => c.Estado === 'ACTIVA').length;
+        document.getElementById('indCanceladas').innerText = clases.filter(c => c.Estado === 'CANCELADA').length;
+
+        if (clases.length === 0) {
           tbody.innerHTML = `
             <tr>
               <td colspan="6" style="text-align: center; color: #888; padding: 20px;">
@@ -448,46 +521,47 @@
               </td>
             </tr>`;
         } else {
-          resultado.clases.forEach(clase => {
+          clases.forEach(clase => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td>${clase.Nombre}</td>
+              <td><strong>${clase.Nombre}</strong></td>
               <td>${clase.HoraInicio} - ${clase.HoraFin}</td>
               <td>${clase.Capacidad}</td>
               <td>${clase.InstructorID || '-'}</td>
-              <td>${clase.Estado}</td>
+              <td><span style="font-weight: 600; color: ${clase.Estado === 'ACTIVA' ? '#16a34a' : '#dc2626'}">${clase.Estado}</span></td>
               <td>
-                ${clase.Estado === 'ACTIVA' ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` : ''}
+                ${clase.Estado === 'ACTIVA' ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` : '-'}
               </td>
             `;
             tbody.appendChild(tr);
           });
         }
-
-        btn.innerText = '¡Actualizado!';
-        btn.style.backgroundColor = '#dcfce7';
-        btn.style.color = '#15803d';
       } catch (error) {
-        alert('Error al conectar con el servidor');
+        mostrarMensaje('Error de conexión al cargar la lista', true);
       } finally {
-        setTimeout(() => {
-          btn.innerText = textoOriginal;
-          btn.disabled = false;
-          btn.style.backgroundColor = '';
-          btn.style.color = '';
-        }, 1500);
+        btn.innerText = 'Consultar';
+        btn.disabled = false;
       }
     }
 
     async function cancelarClase(claseId) {
-      if (!confirm('¿Cancelar esta clase?')) {
+      if (!confirm('¿Seguro que deseas cancelar esta clase?')) {
         return;
       }
-      const resultado = await api({ action: 'cancelarClase', claseId, usuario: 'STAFF' });
-      alert(resultado.mensaje);
-      cargarClases();
+
+      try {
+        const resultado = await api({ action: 'cancelarClase', claseId, canceladoPor: 'STAFF' });
+        if (resultado.ok) {
+          cargarClases();
+        } else {
+          alert(resultado.mensaje || 'No se pudo cancelar la clase');
+        }
+      } catch (e) {
+        alert('Error de conexión al intentar cancelar');
+      }
     }
 
+    // Carga inicial
     cargarClases();
   </script>
 </body>
