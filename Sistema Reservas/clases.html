@@ -81,7 +81,7 @@
     .btnHome {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 8px; /* Espacio entre el logo y el texto */
       background: #ffffff;
       color: #222;
       text-decoration: none;
@@ -93,7 +93,16 @@
       border: 1px solid #e8ecef;
       transition: transform .2s, box-shadow .2s;
     }
-
+    
+    /* Control del tamaño del logo dentro del botón */
+    .logo-btn {
+      height: 36px;
+      width: auto; /* Permite que el ancho se ajuste solo */
+      object-fit: contain;
+      transform: scale(1.8); /* Agranda la imagen visualmente un 40% omitiendo sus bordes vacíos */
+      transform-origin: center;
+    }
+    
     .btnHome:hover {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
@@ -361,9 +370,12 @@
 
   <div class="container">
 
-    <!-- NAVEGACIÓN -->
+    <!-- NAVEGACIÓN Y CABECERA -->
     <div class="barraNavegacion">
-      <a href="index.html" class="btnHome">← Inicio</a>
+      <a href="index.html" class="btnHome">
+          <img src="img/logosn.png" alt="Logo" class="logo-btn">
+          <span>←Inicio</span>
+      </a>
     </div>
 
     <h1>Ironwall Clases</h1>
