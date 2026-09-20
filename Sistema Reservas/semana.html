@@ -65,7 +65,7 @@
     }
 
     .container {
-      max-width: 1250px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
@@ -118,7 +118,7 @@
       margin-bottom: 20px;
     }
 
-    /* --- TARJETAS Y CONTENEDORES --- */
+    /* --- TARJETAS --- */
     .card {
       background: #ffffff;
       border-radius: 12px;
@@ -198,6 +198,15 @@
       background-color: #333333;
     }
 
+    .btn-consultar {
+      background-color: #e0e0e0;
+      color: #333333;
+    }
+
+    .btn-consultar:hover {
+      background-color: #d0d0d0;
+    }
+
     button:disabled {
       opacity: .45;
       cursor: not-allowed;
@@ -206,6 +215,25 @@
 
     button:active:not(:disabled) {
       transform: scale(0.99);
+    }
+
+    /* --- MENSAJES --- */
+    .mensaje {
+      margin-top: 14px;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .exito {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
     }
 
     /* --- RESPONSIVE --- */
@@ -236,26 +264,24 @@
     </div>
 
     <h1>Ocupación Semanal</h1>
-    <p class="subtitulo">Selecciona una fecha para actualizar y consultar las reservas de la semana</p>
+    <p class="subtitulo">Selecciona la fecha para consultar la ocupación de la semana</p>
 
     <!-- FILTRO DE FECHA Y BOTÓN ACTUALIZAR -->
     <div class="card">
       <div class="titulo-card">Filtro de Consulta</div>
       <div class="form-grid">
         <div>
-          <label for="fechaSemana">Fecha de Referencia</label>
-          <input type="date" id="fechaSemana">
+          <label for="fechaBase">Fecha de referencia</label>
+          <input type="date" id="fechaBase">
         </div>
         <div>
-          <button class="btn-primary" id="btnActualizar" onclick="actualizarSemana()">Actualizar</button>
+          <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar</button>
         </div>
       </div>
     </div>
 
-    <!-- CONTENEDOR DE TARJETAS DE RESERVAS POR DÍA (INTACTO) -->
-    <div id="contenedorSemana">
-      <!-- Aquí tu script de semana renderiza dinámicamente las tarjetas de días y reservas -->
-    </div>
+    <!-- CONTENEDOR VISTA SEMANAL -->
+    <div id="contenedorSemana"></div>
   </div>
 
   <script>
@@ -263,8 +289,8 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('fechaSemana').value = hoy;
-      actualizarSemana();
+      document.getElementById('fechaBase').value = hoy;
+      cargarSemana();
     });
 
     async function api(body) {
@@ -276,9 +302,10 @@
       return response.json();
     }
 
-    async function actualizarSemana() {
-      const fecha = document.getElementById('fechaSemana').value;
+    async function cargarSemana() {
+      const fecha = document.getElementById('fechaBase').value;
       const btn = document.getElementById('btnActualizar');
+      const contenedor = document.getElementById('contenedorSemana');
 
       if (!fecha) return;
 
@@ -286,13 +313,26 @@
       btn.innerText = 'Cargando...';
 
       try {
-        // Tu llamada para obtener la ocupación de la semana
-        const res = await api({ action: 'obtenerSemana', fecha });
-        if (typeof renderizarTarjetasSemana === 'function') {
-          renderizarTarjetasSemana(res);
+        const respuesta = await api({ action: 'obtenerSemana', fecha });
+        
+        if (respuesta.ok && respuesta.dias) {
+          contenedor.innerHTML = respuesta.dias.map(d => `
+            <div class="card">
+              <div class="titulo-card">${d.nombreDia} ${d.fecha}</div>
+              <div>
+                ${d.reservas && d.reservas.length > 0 ? d.reservas.map(r => `
+                  <div style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                    <strong>${r.hora || ''}</strong> - ${r.cliente \vert{}\vert{} ''} (${r.pista || ''})
+                  </div>
+                `).join('') : '<span style="color:#888; font-size:13px;">Sin reservas</span>'}
+              </div>
+            </div>
+          `).join('');
+        } else {
+          contenedor.innerHTML = '<div class="card"><p style="color:#666;">No se encontraron datos para la semana seleccionada.</p></div>';
         }
-      } catch (err) {
-        console.error("Error al obtener la semana:", err);
+      } catch (error) {
+        contenedor.innerHTML = '<div class="card"><p style="color:#dc2626;">Error de conexión con el servidor.</p></div>';
       } finally {
         btn.disabled = false;
         btn.innerText = 'Actualizar';
