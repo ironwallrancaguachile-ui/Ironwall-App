@@ -409,110 +409,57 @@
 
         <!-- NOMBRE -->
         <div>
-          <label for="nombre">
-            Nombre de la clase
-          </label>
-
-          <input
-            id="nombre"
-            placeholder="Ej: Boulder Inicial">
+          <label for="nombre"> Nombre de la clase </label>
+          <input id="nombre" placeholder="Ej: Boulder Inicial">
         </div>
-
 
         <!-- FECHA -->
         <div>
-          <label for="fecha">
-            Fecha
-          </label>
-
-          <input
-            id="fecha"
-            type="date">
+          <label for="fecha"> Fecha </label>
+          <input id="fecha"  type="date">
         </div>
 
 
         <!-- HORA INICIO -->
         <div>
-          <label for="horaInicio">
-            Hora Inicio
-          </label>
-
+          <label for="horaInicio"> Hora Inicio  </label>
           <select id="horaInicio">
-            <option value="">
-              Selecciona una hora
-            </option>
+            <option value=""> Selecciona una hora </option>
           </select>
         </div>
-
 
         <!-- DURACIÓN -->
         <div>
-          <label for="duracion">
-            Duración
-          </label>
-
+          <label for="duracion">  Duración </label>
           <select id="duracion">
-            <option value="1">
-              1 hora
-            </option>
-
-            <option value="2" selected>
-              2 horas
-            </option>
-
-            <option value="3">
-              3 horas
-            </option>
-
-            <option value="4">
-              4 horas
-            </option>
+            <option value="1"> 1 hora </option>
+            <option value="2" selected> 2 horas </option>
+            <option value="3"> 3 horas  </option>
+            <option value="4"> 4 horas  </option>
           </select>
         </div>
 
-
         <!-- CAPACIDAD -->
         <div>
-          <label for="capacidad">
-            Capacidad
-          </label>
-
-          <input
-            id="capacidad"
-            type="number"
-            min="1"
-            value="8">
+          <label for="capacidad"> Capacidad </label>
+          <input id="capacidad" type="number" min="1" value="8">
         </div>
-
 
         <!-- INSTRUCTOR -->
         <div>
-          <label for="instructorId">
-            ID Instructor
-          </label>
-
-          <input
-            id="instructorId"
-            placeholder="Ej: INST-01">
+          <label for="instructorId"> ID Instructor</label>
+          <input id="instructorId" placeholder="Ej: INST-01">
         </div>
 
       <!-- CREAR -->
-      <button
-        class="btn-reservar"
-        id="btnCrear"
-        onclick="crearClase()">
+      <button class="btn-reservar" id="btnCrear" onclick="crearClase()">
         Crear Clase
       </button>
-
-
+    </div>
       <!-- MENSAJE -->
-      <div
-        id="msj"
-        class="mensaje"
-        style="display:none;">
-      </div>
+      <div  id="msj" class="mensaje"  style="display:none;"> </div>
     </div>
-    </div>
+    
 
 
     <!-- ==================================================
@@ -802,14 +749,14 @@ async function crearClase() {
   const nombre = document.getElementById('nombre').value.trim();
   const fecha = document.getElementById('fecha').value;
   const horaInicio = document.getElementById('horaInicio').value;
-  const horaFin = document.getElementById('horaFin').value;
+  const horaFin = calcularHoraFin();
   const capacidad = document.getElementById('capacidad').value;
   const instructorId = document.getElementById('instructorId').value.trim();
   const btn = document.getElementById('btnCrear');
 
   // Validar antes de deshabilitar
-  if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
-    alert('Por favor completa todos los campos requeridos.');
+if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
+    mostrarMensaje('Por favor completa todos los campos requeridos y verifica el horario.', true);
     return;
   }
 
@@ -833,26 +780,25 @@ async function crearClase() {
 
     if (resultado.ok) {
       // Feedback de éxito
+      mostrarMensaje('¡Clase creada con éxito!');
       btn.innerText = '¡Creada con éxito!';
       btn.style.backgroundColor = '#16a34a';
 
       // Limpiar formulario
       document.getElementById('nombre').value = '';
       document.getElementById('horaInicio').value = '';
-      document.getElementById('horaFin').value = '';
-      document.getElementById('capacidad').value = '8';
       document.getElementById('instructorId').value = '';
+      calcularHoraFin();
 
       // Actualizar la lista
-      cargarClases();
+cargarClases();
     } else {
-      alert('Error al crear clase: ' + (resultado.mensaje || 'Respuesta no válida del servidor'));
+      mostrarMensaje(resultado.mensaje || 'Error del servidor al crear clase.', true);
     }
   } catch (error) {
     console.error(error);
-    alert('Error de conexión con el servidor.');
+    mostrarMensaje('Error de conexión con el servidor.', true);
   } finally {
-    // Restaurar estado original del botón tras 2 segundos
     setTimeout(() => {
       btn.innerText = textoOriginal;
       btn.disabled = false;
