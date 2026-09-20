@@ -369,18 +369,25 @@
     <h1>Ironwall Reservas</h1>
     <p class="subtitulo">Panel operativo del día</p>
 
-    <!-- TARJETA: RESUMEN E INDICADORES -->
+    <!-- TARJETA 1: FILTRO DE FECHA -->
     <div class="card">
-      <div class="titulo-card">Control Diario e Indicadores</div>
-      
-      <div class="indicadores">
-        <div class="indicador-item">
-          <span>Fecha de consulta</span>
-          <div style="display: flex; gap: 8px; margin-top: 4px;">
-            <input id="fecha" type="date">
-            <button class="btn btn-consultar" onclick="cargarHoy()" style="width: auto;">Actualizar</button>
-          </div>
+      <div class="titulo-card">Seleccionar Fecha</div>
+      <div class="fila-consulta">
+        <div style="flex: 1;">
+          <label for="fecha">Fecha de consulta</label>
+          <input id="fecha" type="date">
         </div>
+        <button class="btn btn-consultar" onclick="cargarHoy()" style="width: auto; padding: 0 20px;">
+          Actualizar
+        </button>
+      </div>
+      <div id="mensaje"></div>
+    </div>
+
+    <!-- TARJETA 2: INDICADORES DEL DÍA -->
+    <div class="card">
+      <div class="titulo-card">Resumen e Indicadores</div>
+      <div class="indicadores">
         <div class="indicador-item">
           <span>Capacidad</span>
           <strong id="capacidad">0</strong>
@@ -402,11 +409,9 @@
           <strong id="clases">0</strong>
         </div>
       </div>
-      
-      <div id="mensaje"></div>
     </div>
 
-    <!-- TARJETA: TABLA DE RESERVAS -->
+    <!-- TARJETA 3: TABLA DE RESERVAS -->
     <div class="card">
       <div class="titulo-card">Reservas Programadas</div>
       
@@ -556,6 +561,5 @@
 
     cargarHoy();
   </script>
-</body>                                                                                   
-
+</body>
 </html>
