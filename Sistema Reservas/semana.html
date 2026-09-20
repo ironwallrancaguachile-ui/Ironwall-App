@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ironwall - Vista Semanal</title>
+  <title>Ironwall - Check-in</title>
   <style>
     /* --- FUENTES DEL SISTEMA --- */
     @font-face {
@@ -65,7 +65,7 @@
     }
 
     .container {
-      max-width: 1250px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
@@ -137,7 +137,7 @@
       text-transform: uppercase;
     }
 
-    /* --- FORMULARIOS Y FILTROS --- */
+    /* --- FORMULARIOS --- */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -217,28 +217,23 @@
       transform: scale(0.99);
     }
 
-    /* --- ESTILOS DE LA VISTA SEMANAL --- */
-    .grid-semana {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .dia-card {
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    .dia-titulo {
-      font-size: 14px;
+    /* --- MENSAJES --- */
+    .mensaje {
+      margin-top: 14px;
       font-weight: 700;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #dee2e6;
-      padding-bottom: 4px;
-      text-align: center;
+      font-size: 13px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .exito {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
     }
 
     /* --- RESPONSIVE --- */
@@ -252,10 +247,6 @@
       }
 
       .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .grid-semana {
         grid-template-columns: 1fr;
       }
     }
@@ -273,41 +264,46 @@
     </div>
 
     <h1>Ocupación Semanal</h1>
-    <p class="subtitulo">Selecciona una fecha de inicio para consultar las reservas de la semana</p>
+    <p class="subtitulo">Visualiza las reservas de la semana seleccionada</p>
 
     <!-- CARD FILTRO DE FECHA -->
     <div class="card">
-      <div class="titulo-card">Filtro de Consulta</div>
-      
+      <div class="titulo-card">Seleccionar Semana</div>
       <div class="form-grid">
         <div>
-          <label for="fechaInicio">Fecha de inicio (Lunes)</label>
-          <input type="date" id="fechaInicio">
+          <label for="fechaBase">Fecha de la semana</label>
+          <input type="date" id="fechaBase">
         </div>
         <div>
-          <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar Vista</button>
+          <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar</button>
         </div>
       </div>
     </div>
 
-    <!-- CONTENEDOR VISTA SEMANAL -->
+    <!-- CARD PRINCIPAL DE ACCIONES -->
     <div class="card">
-      <div class="titulo-card">Reservas de la Semana</div>
-      <div id="contenedorSemana" class="grid-semana">
-        <!-- Las columnas de cada día se cargan dinámicamente -->
+      <div class="titulo-card">Registro de Acceso</div>
+      
+      <div style="margin-bottom: 16px;">
+        <label for="reservaId">ID de Reserva</label>
+        <input id="reservaId" placeholder="Ej: RES-XXXXXXXX" style="text-transform: uppercase;">
       </div>
+
+      <div class="form-grid">
+        <div>
+          <button class="btn-primary" id="btnCheckin" onclick="hacerCheckin()">Confirmar ingreso</button>
+        </div>
+        <div>
+          <button class="btn-consultar" id="btnCheckout" onclick="hacerCheckout()">Registrar salida</button>
+        </div>
+      </div>
+
+      <div id="resultado" class="mensaje" style="display: none;"></div>
     </div>
   </div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-
-    // Establecer fecha por defecto (hoy) al cargar la página
-    document.addEventListener('DOMContentLoaded', () => {
-      const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('fechaInicio').value = hoy;
-      cargarSemana();
-    });
 
     async function api(body) {
       const response = await fetch(API_URL, {
@@ -318,37 +314,64 @@
       return response.json();
     }
 
-    async function cargarSemana() {
-      const fecha = document.getElementById('fechaInicio').value;
-      const btn = document.getElementById('btnActualizar');
-      const contenedor = document.getElementById('contenedorSemana');
+    function mostrarMensaje(texto, esError = false) {
+      const resDiv = document.getElementById('resultado');
+      resDiv.className = `mensaje ${esError ? 'error' : 'exito'}`;
+      resDiv.textContent = texto;
+      resDiv.style.display = 'block';
+    }
 
-      if (!fecha) return;
+    async function hacerCheckin() {
+      const reservaId = document.getElementById('reservaId').value.trim();
+      const btn = document.getElementById('btnCheckin');
+
+      if (!reservaId) {
+        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
+        return;
+      }
 
       btn.disabled = true;
-      btn.innerText = 'Cargando...';
+      btn.innerText = 'Procesando...';
 
       try {
-        const respuesta = await api({ action: 'obtenerSemana', fechaInicio: fecha });
-        
-        // renderizar los días de la semana
-        if (respuesta.ok && respuesta.dias) {
-          contenedor.innerHTML = respuesta.dias.map(d => `
-            <div class="dia-card">
-              <div class="dia-titulo">${d.nombreDia} ${d.fecha}</div>
-              <div class="dia-contenido">
-                ${d.reservas ? d.reservas.map(r => `<div>${r.hora} -${r.cliente}</div>`).join('') : '<small>Sin reservas</small>'}
-              </div>
-            </div>
-          `).join('');
+        const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
+        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
+          mostrarMensaje(resultado.mensaje || 'Check-in realizado correctamente.', false);
         } else {
-          contenedor.innerHTML = '<p>No se encontraron datos para la semana seleccionada.</p>';
+          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-in.', true);
         }
       } catch (error) {
-        contenedor.innerHTML = '<p>Error de conexión al cargar la semana.</p>';
+        mostrarMensaje('Error de conexión con el servidor.', true);
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Actualizar Vista';
+        btn.innerText = 'Confirmar ingreso';
+      }
+    }
+
+    async function hacerCheckout() {
+      const reservaId = document.getElementById('reservaId').value.trim();
+      const btn = document.getElementById('btnCheckout');
+
+      if (!reservaId) {
+        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Procesando...';
+
+      try {
+        const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
+        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
+          mostrarMensaje(resultado.mensaje || 'Check-out realizado correctamente.', false);
+        } else {
+          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-out.', true);
+        }
+      } catch (error) {
+        mostrarMensaje('Error de conexión con el servidor.', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Registrar salida';
       }
     }
   </script>
