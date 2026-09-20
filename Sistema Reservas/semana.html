@@ -69,7 +69,7 @@
       margin: 0 auto;
     }
 
-    /* --- CABECERA Y NAVEGACIÓN MODIFICADA --- */
+    /* --- CABECERA Y NAVEGACIÓN --- */
     .barraNavegacion {
       display: flex;
       align-items: center;
@@ -118,7 +118,7 @@
       margin-bottom: 20px;
     }
 
-    /* --- COMPONENTES COMPARTIDOS Y TARJETAS --- */
+    /* --- TARJETAS --- */
     .card {
       background: #ffffff;
       border-radius: 12px;
@@ -137,6 +137,7 @@
       text-transform: uppercase;
     }
 
+    /* --- FORMULARIOS --- */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -152,7 +153,8 @@
       color: #333;
     }
 
-    input, select {
+    input,
+    select {
       width: 100%;
       height: 41px;
       padding: 10px 12px;
@@ -163,13 +165,16 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    input:focus, select:focus {
+    input:focus,
+    select:focus {
       outline: none;
       border-color: #222;
       box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
     }
 
-    button, .btn {
+    /* --- BOTONES --- */
+    button,
+    .btn {
       width: 100%;
       height: 41px;
       padding: 0 16px;
@@ -193,32 +198,13 @@
       background-color: #333333;
     }
 
-    .btn-secondary {
-      background-color: #ffffff;
-      color: #191919;
-      border: 1px solid #dcdcdc;
+    .btn-consultar {
+      background-color: #e0e0e0;
+      color: #333333;
     }
 
-    .btn-secondary:hover {
-      background-color: #f5f5f5;
-    }
-
-    .btn-danger {
-      background-color: #dc2626;
-      color: #ffffff;
-    }
-
-    .btn-danger:hover {
-      background-color: #b91c1c;
-    }
-
-    .btn-success {
-      background-color: #16a34a;
-      color: #ffffff;
-    }
-
-    .btn-success:hover {
-      background-color: #15803d;
+    .btn-consultar:hover {
+      background-color: #d0d0d0;
     }
 
     button:disabled {
@@ -227,114 +213,39 @@
       transform: none !important;
     }
 
-    /* --- ESTILOS ESPECÍFICOS SEMANA ORIGINAL --- */
-    .semana-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(260px, 1fr));
-      gap: 12px;
-      overflow-x: auto;
-      padding-bottom: 12px;
+    button:active:not(:disabled) {
+      transform: scale(0.99);
     }
 
-    .dia-col {
-      background: #fff;
-      border: 1px solid #e8ecef;
-      border-radius: 10px;
+    /* --- MENSAJES --- */
+    .mensaje {
+      margin-top: 14px;
+      font-weight: 700;
+      font-size: 13px;
       padding: 12px;
-      min-width: 260px;
+      border-radius: 8px;
     }
 
-    .dia-header {
-      border-bottom: 2px solid #191919;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
+    .exito {
+      background: #dcfce7;
+      color: #15803d;
     }
 
-    .dia-nombre {
-      font-size: 15px;
-      font-weight: 700;
-      text-transform: uppercase;
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
     }
 
-    .dia-fecha {
-      font-size: 12px;
-      color: #666;
-    }
-
-    .bloque-pista {
-      margin-bottom: 12px;
-      background: #f8f9fb;
-      border-radius: 6px;
-      padding: 8px;
-    }
-
-    .pista-titulo {
-      font-size: 11px;
-      font-weight: 700;
-      color: #666;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .slot-item {
-      padding: 8px;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s;
-    }
-
-    .slot-item.disponible {
-      background: #e6f4ea;
-      color: #137333;
-      border: 1px solid #ceead6;
-    }
-
-    .slot-item.reservado {
-      background: #feefe3;
-      color: #b06000;
-      border: 1px solid #f2994a;
-    }
-
-    .slot-item.fijo {
-      background: #e8f0fe;
-      color: #1a73e8;
-      border: 1px solid #aecbfa;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, .4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .modal-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 24px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
-    }
-
+    /* --- RESPONSIVE --- */
     @media (max-width: 640px) {
       body {
         padding: 16px 12px 40px;
       }
+
       .card {
         padding: 16px;
       }
+
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -344,7 +255,7 @@
 
 <body>
   <div class="container">
-    <!-- NAVEGACIÓN Y CABECERA MODIFICADA -->
+    <!-- NAVEGACIÓN Y CABECERA (BOTÓN INICIO AJUSTADO) -->
     <div class="barraNavegacion">
       <a href="index.html" class="btnHome">
         <img src="img/logosn.png" alt="Logo" class="logo-btn">
@@ -353,43 +264,35 @@
     </div>
 
     <h1>Ocupación Semanal</h1>
-    <p class="subtitulo">Visualización general de la agenda de la semana</p>
+    <p class="subtitulo">Selecciona la fecha para consultar la ocupación de la semana</p>
 
-    <!-- FILTRO MODIFICADO (FECHA + ACTUALIZAR) -->
+    <!-- CARD PRINCIPAL DE FILTROS (FECHA Y BOTÓN ACTUALIZAR AJUSTADOS) -->
     <div class="card">
       <div class="titulo-card">Filtro de Consulta</div>
+
       <div class="form-grid">
         <div>
-          <label for="fechaSemana">Fecha de Referencia</label>
-          <input type="date" id="fechaSemana">
+          <label for="fechaBase">Fecha de referencia</label>
+          <input type="date" id="fechaBase">
         </div>
         <div>
           <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar</button>
         </div>
       </div>
+
+      <div id="resultado" class="mensaje" style="display: none;"></div>
     </div>
 
-    <!-- VISTA MATRIZ SEMANAL ORIGINAL -->
-    <div id="contenedorSemana" class="semana-grid"></div>
-  </div>
-
-  <!-- MODAL DE DETALLE DEL TURNO ORIGINAL -->
-  <div id="modalTurno" class="modal-overlay" style="display: none;">
-    <div class="modal-card">
-      <div id="modalContenido"></div>
-      <div style="margin-top: 16px; display: flex; gap: 8px;">
-        <button class="btn-secondary" onclick="cerrarModal()">Cerrar</button>
-      </div>
-    </div>
+    <!-- CONTENEDOR PARA LAS TARJETAS DE LA SEMANA -->
+    <div id="contenedorSemana"></div>
   </div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-    let datosSemanaActual = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('fechaSemana').value = hoy;
+      document.getElementById('fechaBase').value = hoy;
       cargarSemana();
     });
 
@@ -402,80 +305,52 @@
       return response.json();
     }
 
+    function mostrarMensaje(texto, esError = false) {
+      const resDiv = document.getElementById('resultado');
+      resDiv.className = `mensaje ${esError ? 'error' : 'exito'}`;
+      resDiv.textContent = texto;
+      resDiv.style.display = 'block';
+    }
+
     async function cargarSemana() {
-      const fecha = document.getElementById('fechaSemana').value;
+      const fecha = document.getElementById('fechaBase').value;
       const btn = document.getElementById('btnActualizar');
       const contenedor = document.getElementById('contenedorSemana');
+      const resDiv = document.getElementById('resultado');
 
-      if (!fecha) return;
+      if (!fecha) {
+        mostrarMensaje('Por favor, selecciona una fecha válida.', true);
+        return;
+      }
 
+      resDiv.style.display = 'none';
       btn.disabled = true;
       btn.innerText = 'Cargando...';
 
       try {
         const respuesta = await api({ action: 'obtenerSemana', fecha });
         if (respuesta.ok && respuesta.dias) {
-          datosSemanaActual = respuesta.dias;
-          renderizarSemana(respuesta.dias);
+          contenedor.innerHTML = respuesta.dias.map(d => `
+            <div class="card">
+              <div class="titulo-card">${d.nombreDia || ''} ${d.fecha || ''}</div>
+              <div>
+                ${d.reservas && d.reservas.length > 0 ? d.reservas.map(r => `
+                  <div style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                    <strong>${r.hora || ''}</strong> - ${r.cliente \vert{}\vert{} ''} (${r.pista || ''})
+                  </div>
+                `).join('') : '<span style="color:#888; font-size:13px;">Sin reservas</span>'}
+              </div>
+            </div>
+          `).join('');
         } else {
-          contenedor.innerHTML = '<p style="padding: 16px; color: #666;">No se encontraron datos para la semana seleccionada.</p>';
+          contenedor.innerHTML = '<div class="card"><p style="color:#666;">No se encontraron datos para la semana seleccionada.</p></div>';
         }
       } catch (error) {
-        contenedor.innerHTML = '<p style="padding: 16px; color: #dc2626;">Error al conectar con el servidor.</p>';
+        mostrarMensaje('Error de conexión con el servidor.', true);
       } finally {
         btn.disabled = false;
         btn.innerText = 'Actualizar';
       }
-    }
-
-    function renderizarSemana(dias) {
-      const contenedor = document.getElementById('contenedorSemana');
-      contenedor.innerHTML = dias.map((dia, diaIdx) => `
-        <div class="dia-col">
-          <div class="dia-header">
-            <div class="dia-nombre">${dia.nombreDia || ''}</div>
-            <div class="dia-fecha">${dia.fecha || ''}</div>
-          </div>
-          ${dia.pistas ? Object.keys(dia.pistas).map(pista => `
-            <div class="bloque-pista">
-              <div class="pista-titulo">${pista}</div>${dia.pistas[pista].map((slot, slotIdx) => `
-                <div class="slot-item ${getClaseEstado(slot.estado)}" onclick="abrirTurno(${diaIdx}, '${pista}', ${slotIdx})">
-                  <span>${slot.hora}</span>
-                  <strong>${slot.cliente || 'Disponible'}</strong>
-                </div>
-              `).join('')}
-            </div>
-          `).join('') : ''}
-        </div>
-      `).join('');
-    }
-
-    function getClaseEstado(estado) {
-      if (estado === 'Reservado') return 'reservado';
-      if (estado === 'Fijo') return 'fijo';
-      return 'disponible';
-    }
-
-    function abrirTurno(diaIdx, pista, slotIdx) {
-      const slot = datosSemanaActual[diaIdx].pistas[pista][slotIdx];
-      const modal = document.getElementById('modalTurno');
-      const contenido = document.getElementById('modalContenido');
-
-      contenido.innerHTML = `
-        <h3 style="margin-bottom: 12px;">Detalle del Turno</h3>
-        <p><strong>Día:</strong> ${datosSemanaActual[diaIdx].nombreDia} (${datosSemanaActual[diaIdx].fecha})</p>
-        <p><strong>Pista:</strong> ${pista}</p>
-        <p><strong>Hora:</strong> ${slot.hora}</p>
-        <p><strong>Estado:</strong> ${slot.estado || 'Disponible'}</p>
-        <p><strong>Cliente:</strong> ${slot.cliente || 'N/A'}</p>
-        ${slot.monto ? `<p><strong>Monto:</strong> $${slot.monto}</p>` : ''}
-      `;
-
-      modal.style.display = 'flex';
-    }
-
-    function cerrarModal() {
-      document.getElementById('modalTurno').style.display = 'none';
     }
   </script>
 </body>
