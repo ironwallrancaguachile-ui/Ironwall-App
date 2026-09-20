@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ironwall - Vista Semanal</title>
+  <title>Ironwall - Check-in</title>
   <style>
     /* --- FUENTES DEL SISTEMA --- */
     @font-face {
@@ -255,7 +255,7 @@
 
 <body>
   <div class="container">
-    <!-- NAVEGACIÓN Y CABECERA (BOTÓN INICIO AJUSTADO) -->
+    <!-- NAVEGACIÓN Y CABECERA -->
     <div class="barraNavegacion">
       <a href="index.html" class="btnHome">
         <img src="img/logosn.png" alt="Logo" class="logo-btn">
@@ -263,38 +263,33 @@
       </a>
     </div>
 
-    <h1>Ocupación Semanal</h1>
-    <p class="subtitulo">Selecciona la fecha para consultar la ocupación de la semana</p>
+    <h1>Check-in / Check-out</h1>
+    <p class="subtitulo">Ingresa el ID de la reserva para registrar asistencia o salida</p>
 
-    <!-- CARD PRINCIPAL DE FILTROS (FECHA Y BOTÓN ACTUALIZAR AJUSTADOS) -->
+    <!-- CARD PRINCIPAL DE ACCIONES -->
     <div class="card">
-      <div class="titulo-card">Filtro de Consulta</div>
+      <div class="titulo-card">Registro de Acceso</div>
+      
+      <div style="margin-bottom: 16px;">
+        <label for="reservaId">ID de Reserva</label>
+        <input id="reservaId" placeholder="Ej: RES-XXXXXXXX" style="text-transform: uppercase;">
+      </div>
 
       <div class="form-grid">
         <div>
-          <label for="fechaBase">Fecha de referencia</label>
-          <input type="date" id="fechaBase">
+          <button class="btn-primary" id="btnCheckin" onclick="hacerCheckin()">Confirmar ingreso</button>
         </div>
         <div>
-          <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar</button>
+          <button class="btn-consultar" id="btnCheckout" onclick="hacerCheckout()">Registrar salida</button>
         </div>
       </div>
 
       <div id="resultado" class="mensaje" style="display: none;"></div>
     </div>
-
-    <!-- CONTENEDOR PARA LAS TARJETAS DE LA SEMANA -->
-    <div id="contenedorSemana"></div>
   </div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('fechaBase').value = hoy;
-      cargarSemana();
-    });
 
     async function api(body) {
       const response = await fetch(API_URL, {
@@ -312,44 +307,57 @@
       resDiv.style.display = 'block';
     }
 
-    async function cargarSemana() {
-      const fecha = document.getElementById('fechaBase').value;
-      const btn = document.getElementById('btnActualizar');
-      const contenedor = document.getElementById('contenedorSemana');
-      const resDiv = document.getElementById('resultado');
+    async function hacerCheckin() {
+      const reservaId = document.getElementById('reservaId').value.trim();
+      const btn = document.getElementById('btnCheckin');
 
-      if (!fecha) {
-        mostrarMensaje('Por favor, selecciona una fecha válida.', true);
+      if (!reservaId) {
+        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
         return;
       }
 
-      resDiv.style.display = 'none';
       btn.disabled = true;
-      btn.innerText = 'Cargando...';
+      btn.innerText = 'Procesando...';
 
       try {
-        const respuesta = await api({ action: 'obtenerSemana', fecha });
-        if (respuesta.ok && respuesta.dias) {
-          contenedor.innerHTML = respuesta.dias.map(d => `
-            <div class="card">
-              <div class="titulo-card">${d.nombreDia || ''} ${d.fecha || ''}</div>
-              <div>
-                ${d.reservas && d.reservas.length > 0 ? d.reservas.map(r => `
-                  <div style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
-                    <strong>${r.hora || ''}</strong> - ${r.cliente \vert{}\vert{} ''} (${r.pista || ''})
-                  </div>
-                `).join('') : '<span style="color:#888; font-size:13px;">Sin reservas</span>'}
-              </div>
-            </div>
-          `).join('');
+        const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
+        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
+          mostrarMensaje(resultado.mensaje || 'Check-in realizado correctamente.', false);
         } else {
-          contenedor.innerHTML = '<div class="card"><p style="color:#666;">No se encontraron datos para la semana seleccionada.</p></div>';
+          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-in.', true);
         }
       } catch (error) {
         mostrarMensaje('Error de conexión con el servidor.', true);
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Actualizar';
+        btn.innerText = 'Confirmar ingreso';
+      }
+    }
+
+    async function hacerCheckout() {
+      const reservaId = document.getElementById('reservaId').value.trim();
+      const btn = document.getElementById('btnCheckout');
+
+      if (!reservaId) {
+        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Procesando...';
+
+      try {
+        const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
+        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
+          mostrarMensaje(resultado.mensaje || 'Check-out realizado correctamente.', false);
+        } else {
+          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-out.', true);
+        }
+      } catch (error) {
+        mostrarMensaje('Error de conexión con el servidor.', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Registrar salida';
       }
     }
   </script>
