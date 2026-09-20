@@ -69,7 +69,7 @@
       margin: 0 auto;
     }
 
-    /* --- CABECERA Y NAVEGACIÓN --- */
+    /* --- CABECERA Y NAVEGACIÓN MODIFICADA --- */
     .barraNavegacion {
       display: flex;
       align-items: center;
@@ -118,7 +118,7 @@
       margin-bottom: 20px;
     }
 
-    /* --- TARJETAS Y FILTROS --- */
+    /* --- COMPONENTES COMPARTIDOS Y TARJETAS --- */
     .card {
       background: #ffffff;
       border-radius: 12px;
@@ -193,110 +193,148 @@
       background-color: #333333;
     }
 
+    .btn-secondary {
+      background-color: #ffffff;
+      color: #191919;
+      border: 1px solid #dcdcdc;
+    }
+
+    .btn-secondary:hover {
+      background-color: #f5f5f5;
+    }
+
+    .btn-danger {
+      background-color: #dc2626;
+      color: #ffffff;
+    }
+
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .btn-success {
+      background-color: #16a34a;
+      color: #ffffff;
+    }
+
+    .btn-success:hover {
+      background-color: #15803d;
+    }
+
     button:disabled {
       opacity: .45;
       cursor: not-allowed;
       transform: none !important;
     }
 
-    /* --- TARJETAS SEMANALES (DÍAS Y PISTAS) --- */
-    .dia-card {
+    /* --- ESTILOS ESPECÍFICOS SEMANA ORIGINAL --- */
+    .semana-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(260px, 1fr));
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+
+    .dia-col {
       background: #fff;
-      border-radius: 12px;
       border: 1px solid #e8ecef;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border-radius: 10px;
+      padding: 12px;
+      min-width: 260px;
     }
 
     .dia-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f0f0f0;
-      padding-bottom: 12px;
-      margin-bottom: 14px;
+      border-bottom: 2px solid #191919;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
     }
 
-    .dia-titulo {
-      font-size: 16px;
+    .dia-nombre {
+      font-size: 15px;
       font-weight: 700;
-      color: #111;
-      margin-right: 8px;
+      text-transform: uppercase;
     }
 
     .dia-fecha {
-      font-size: 13px;
-      color: #666;
-      font-weight: 500;
-    }
-
-    .badge-ocupacion {
-      background: #f3f4f6;
-      padding: 4px 10px;
-      border-radius: 20px;
       font-size: 12px;
-      font-weight: 600;
-      color: #4b5563;
+      color: #666;
     }
 
-    .pistas-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 12px;
+    .bloque-pista {
+      margin-bottom: 12px;
+      background: #f8f9fb;
+      border-radius: 6px;
+      padding: 8px;
     }
 
-    .pista-bloque {
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 12px;
-      border: 1px solid #f0f0f0;
-    }
-
-    .pista-nombre {
-      font-size: 13px;
+    .pista-titulo {
+      font-size: 11px;
       font-weight: 700;
-      color: #374151;
-      margin-bottom: 8px;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 6px;
     }
 
-    .reserva-item {
+    .slot-item {
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 0;
-      border-bottom: 1px dashed #e5e7eb;
-      font-size: 12px;
+      transition: background 0.2s;
     }
 
-    .reserva-item:last-child {
-      border-bottom: none;
+    .slot-item.disponible {
+      background: #e6f4ea;
+      color: #137333;
+      border: 1px solid #ceead6;
     }
 
-    .reserva-hora {
-      font-weight: 700;
-      color: #111827;
+    .slot-item.reservado {
+      background: #feefe3;
+      color: #b06000;
+      border: 1px solid #f2994a;
     }
 
-    .reserva-cliente {
-      color: #4b5563;
+    .slot-item.fijo {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border: 1px solid #aecbfa;
     }
 
-    .sin-reservas {
-      font-size: 12px;
-      color: #9ca3af;
-      font-style: italic;
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, .4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .modal-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
     }
 
     @media (max-width: 640px) {
       body {
         padding: 16px 12px 40px;
       }
-
       .card {
         padding: 16px;
       }
-
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -306,7 +344,7 @@
 
 <body>
   <div class="container">
-    <!-- NAVEGACIÓN Y CABECERA -->
+    <!-- NAVEGACIÓN Y CABECERA MODIFICADA -->
     <div class="barraNavegacion">
       <a href="index.html" class="btnHome">
         <img src="img/logosn.png" alt="Logo" class="logo-btn">
@@ -315,15 +353,15 @@
     </div>
 
     <h1>Ocupación Semanal</h1>
-    <p class="subtitulo">Selecciona la fecha para consultar la ocupación de la semana</p>
+    <p class="subtitulo">Visualización general de la agenda de la semana</p>
 
-    <!-- FILTRO DE FECHA Y BOTÓN ACTUALIZAR -->
+    <!-- FILTRO MODIFICADO (FECHA + ACTUALIZAR) -->
     <div class="card">
       <div class="titulo-card">Filtro de Consulta</div>
       <div class="form-grid">
         <div>
-          <label for="fechaBase">Fecha de referencia</label>
-          <input type="date" id="fechaBase">
+          <label for="fechaSemana">Fecha de Referencia</label>
+          <input type="date" id="fechaSemana">
         </div>
         <div>
           <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar</button>
@@ -331,16 +369,27 @@
       </div>
     </div>
 
-    <!-- CONTENEDOR VISTA SEMANAL -->
-    <div id="contenedorSemana"></div>
+    <!-- VISTA MATRIZ SEMANAL ORIGINAL -->
+    <div id="contenedorSemana" class="semana-grid"></div>
+  </div>
+
+  <!-- MODAL DE DETALLE DEL TURNO ORIGINAL -->
+  <div id="modalTurno" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div id="modalContenido"></div>
+      <div style="margin-top: 16px; display: flex; gap: 8px;">
+        <button class="btn-secondary" onclick="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
   </div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+    let datosSemanaActual = null;
 
     document.addEventListener('DOMContentLoaded', () => {
       const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('fechaBase').value = hoy;
+      document.getElementById('fechaSemana').value = hoy;
       cargarSemana();
     });
 
@@ -354,7 +403,7 @@
     }
 
     async function cargarSemana() {
-      const fecha = document.getElementById('fechaBase').value;
+      const fecha = document.getElementById('fechaSemana').value;
       const btn = document.getElementById('btnActualizar');
       const contenedor = document.getElementById('contenedorSemana');
 
@@ -365,40 +414,68 @@
 
       try {
         const respuesta = await api({ action: 'obtenerSemana', fecha });
-        
         if (respuesta.ok && respuesta.dias) {
-          contenedor.innerHTML = respuesta.dias.map(d => `
-            <div class="dia-card">
-              <div class="dia-header">
-                <div>
-                  <span class="dia-titulo">${d.nombreDia || ''}</span>
-                  <span class="dia-fecha">${d.fecha || ''}</span>
-                </div>
-                <span class="badge-ocupacion">${d.totalReservas || 0} reservas</span>
-              </div>
-              <div class="pistas-grid">
-                ${d.pistas ? Object.keys(d.pistas).map(pista => `
-                  <div class="pista-bloque">
-                    <div class="pista-nombre">${pista}</div>${d.pistas[pista].length > 0 ? d.pistas[pista].map(r => `
-                      <div class="reserva-item">
-                        <span class="reserva-hora">${r.hora || ''}</span>
-                        <span class="reserva-cliente">${r.cliente || 'Reservado'}</span>
-                      </div>
-                    `).join('') : '<div class="sin-reservas">Sin reservas</div>'}
-                  </div>
-                `).join('') : '<div class="sin-reservas">No hay información de pistas</div>'}
-              </div>
-            </div>
-          `).join('');
+          datosSemanaActual = respuesta.dias;
+          renderizarSemana(respuesta.dias);
         } else {
-          contenedor.innerHTML = '<div class="card"><p style="color:#666;">No se encontraron datos para la semana seleccionada.</p></div>';
+          contenedor.innerHTML = '<p style="padding: 16px; color: #666;">No se encontraron datos para la semana seleccionada.</p>';
         }
       } catch (error) {
-        contenedor.innerHTML = '<div class="card"><p style="color:#dc2626;">Error de conexión con el servidor.</p></div>';
+        contenedor.innerHTML = '<p style="padding: 16px; color: #dc2626;">Error al conectar con el servidor.</p>';
       } finally {
         btn.disabled = false;
         btn.innerText = 'Actualizar';
       }
+    }
+
+    function renderizarSemana(dias) {
+      const contenedor = document.getElementById('contenedorSemana');
+      contenedor.innerHTML = dias.map((dia, diaIdx) => `
+        <div class="dia-col">
+          <div class="dia-header">
+            <div class="dia-nombre">${dia.nombreDia || ''}</div>
+            <div class="dia-fecha">${dia.fecha || ''}</div>
+          </div>
+          ${dia.pistas ? Object.keys(dia.pistas).map(pista => `
+            <div class="bloque-pista">
+              <div class="pista-titulo">${pista}</div>${dia.pistas[pista].map((slot, slotIdx) => `
+                <div class="slot-item ${getClaseEstado(slot.estado)}" onclick="abrirTurno(${diaIdx}, '${pista}', ${slotIdx})">
+                  <span>${slot.hora}</span>
+                  <strong>${slot.cliente || 'Disponible'}</strong>
+                </div>
+              `).join('')}
+            </div>
+          `).join('') : ''}
+        </div>
+      `).join('');
+    }
+
+    function getClaseEstado(estado) {
+      if (estado === 'Reservado') return 'reservado';
+      if (estado === 'Fijo') return 'fijo';
+      return 'disponible';
+    }
+
+    function abrirTurno(diaIdx, pista, slotIdx) {
+      const slot = datosSemanaActual[diaIdx].pistas[pista][slotIdx];
+      const modal = document.getElementById('modalTurno');
+      const contenido = document.getElementById('modalContenido');
+
+      contenido.innerHTML = `
+        <h3 style="margin-bottom: 12px;">Detalle del Turno</h3>
+        <p><strong>Día:</strong> ${datosSemanaActual[diaIdx].nombreDia} (${datosSemanaActual[diaIdx].fecha})</p>
+        <p><strong>Pista:</strong> ${pista}</p>
+        <p><strong>Hora:</strong> ${slot.hora}</p>
+        <p><strong>Estado:</strong> ${slot.estado || 'Disponible'}</p>
+        <p><strong>Cliente:</strong> ${slot.cliente || 'N/A'}</p>
+        ${slot.monto ? `<p><strong>Monto:</strong> $${slot.monto}</p>` : ''}
+      `;
+
+      modal.style.display = 'flex';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalTurno').style.display = 'none';
     }
   </script>
 </body>
