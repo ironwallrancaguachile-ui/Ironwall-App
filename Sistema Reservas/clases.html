@@ -2,465 +2,494 @@
 <html lang="es">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ironwall - Clases</title>
+  <style>
+    /* --- FUENTES DEL SISTEMA --- */
+    @font-face {
+      font-family: 'Archivo Extra Condensed';
+      src: url("fonts/Archivo_ExtraCondensed-Regular.ttf");
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Archivo Extra Condensed';
+      src: url("fonts/Archivo_ExtraCondensed-Bold.ttf");
+      font-weight: 700;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: Boris;
+      src: url("fonts/BorisBlackBloxx.ttf");
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Archivo';
+      src: url("fonts/Archivo-Regular.ttf");
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Archivo';
+      src: url("fonts/Archivo-SemiBold.ttf");
+      font-weight: 600;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Archivo';
+      src: url("fonts/Archivo-Bold.ttf");
+      font-weight: 700;
+      font-display: swap;
+    }
 
-<meta charset="UTF-8">
+    /* --- RESET Y ESTILOS BASE --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1">
+    body {
+      background: linear-gradient(180deg, #eef2f7 0%, #f8f9fb 100%);
+      color: #222;
+      padding: 24px 20px 60px;
+      min-height: 100vh;
+    }
 
-<title>Ironwall - Clases</title>
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+    /* --- CABECERA Y NAVEGACIÓN --- */
+    .barraNavegacion {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 auto 16px;
+    }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  max-width: 1100px; /* Corregido a 1100px para coincidir con container */
-  margin: 0 auto;
-  padding: 24px 16px 60px;
-  background: #f7f7f7;
-  color: #222;
-}
+    .btnHome {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #222;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+      border: 1px solid #e8ecef;
+      transition: transform .2s, box-shadow .2s;
+    }
 
-h1 {
-  font-size: 20px;
-  margin-bottom: 16px;
-}
+    .btnHome:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+    }
 
-.sub {
-  color: #666;
-  font-size: 12px;
-  margin: 0 0 10px;
-}
+    .nombreModulo {
+      font-family: 'Archivo Extra Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #666;
+    }
 
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
 
-select, input {
-  width: 100%;
-  padding: 10px;
-  font-size: 13px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
+    .subtitulo {
+      color: #666;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
 
-select:focus, input:focus {
-  outline: none;
-  border-color: #222;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-}
+    /* --- TARJETAS (CARDS) --- */
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+      border: 1px solid #e8ecef;
+    }
 
-.container {
-  width: 100%;
-  margin: auto;
-}
+    .titulo-card {
+      font-size: 13px;
+      font-weight: 700;
+      color: #666;
+      letter-spacing: .5px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
 
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
+    /* --- FORMULARIOS Y GRIDS --- */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px; /* Separación con respecto al botón de abajo */
-}
+    .campo {
+      display: flex;
+      flex-direction: column;
+    }
 
-/* --- ESTILOS DE BOTONES --- */
-button {
-  width: 100%;
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-}
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
 
-/* Botón Principal (Crear / Guardar) */
-.btn-primary {
-  background-color: #222222;
-  color: #ffffff;
-}
+    input, select {
+      width: 100%;
+      height: 41px;
+      padding: 10px 12px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
 
-.btn-primary:hover {
-  background-color: #444444;
-}
+    input:focus, select:focus {
+      outline: none;
+      border-color: #222;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+    }
 
-.btn-primary:active {
-  transform: scale(0.99);
-}
+    /* --- BOTONES --- */
+    button, .btn {
+      width: 100%;
+      height: 41px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+    }
 
-/* Botón Secundario (Actualizar / Filtrar) */
-.btn-secondary {
-  background-color: #e0e0e0;
-  color: #333333;
-  margin-top: 8px;
-}
+    .btn-primary {
+      background-color: #191919;
+      color: #ffffff;
+    }
 
-.btn-secondary:hover {
-  background-color: #d0d0d0;
-}
+    .btn-primary:hover {
+      background-color: #333333;
+    }
 
-/* Botón Peligro / Cancelar */
-.btn-danger {
-  background-color: #fee2e2;
-  color: #dc2626;
-  padding: 6px 12px;
-  font-size: 12px;
-  width: auto;
-}
+    .btn-secondary {
+      background-color: #e0e0e0;
+      color: #333333;
+      white-space: nowrap;
+    }
 
-.btn-danger:hover {
-  background-color: #fca5a5;
-  color: #991b1b;
-}
+    .btn-secondary:hover {
+      background-color: #d0d0d0;
+    }
 
-/* --- TABLA --- */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  margin-top: 12px;
-}
+    .btn-danger {
+      background-color: #fee2e2;
+      color: #dc2626;
+      height: 32px;
+      padding: 0 12px;
+      font-size: 12px;
+      width: auto;
+    }
 
-th, td {
-  padding: 12px 10px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-}
+    .btn-danger:hover {
+      background-color: #fca5a5;
+      color: #991b1b;
+    }
 
-th {
-  color: #666;
-  font-weight: 600;
-}
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none !important;
+    }
 
-/* --- NAVEGACIÓN --- */
-.barraNavegacion {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 auto 16px;
-  padding: 8px 0;
-}
+    button:active:not(:disabled) {
+      transform: scale(0.99);
+    }
 
-.btnHome {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  color: #222;
-  text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  transition: transform .2s, box-shadow .2s;
-}
+    /* --- LAYOUTS ESPECÍFICOS --- */
+    .fila-consulta {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      max-width: 350px;
+      margin-bottom: 16px;
+    }
 
-.btnHome:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,.12);
-}
+    /* --- TABLA --- */
+    .tabla-container {
+      overflow-x: auto;
+    }
 
-.nombreModulo {
-  font-family: 'Archivo Extra Condensed', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #666;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
 
-</style>
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #edf0f2;
+      text-align: left;
+    }
 
+    th {
+      color: #666;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ADAPTACIÓN RESPONSIVE */
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 12px 40px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .fila-consulta {
+        max-width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="container">
+    <div class="barraNavegacion">
+      <a href="index.html" class="btnHome"> ← Inicio </a>
+      <span class="nombreModulo">Reservas</span>
+    </div>
 
-<div class="barraNavegacion">
-  <a href="index.html" class="btnHome">
-    ← Inicio
-  </a>
-  <span class="nombreModulo">
-    Reservas
-  </span>
+    <h1>Clases</h1>
+    <p class="subtitulo">Gestión e inscripción de nuevas clases programadas</p>
 
-</div>      
+    <!-- CARD NUEVA CLASE -->
+    <div class="card">
+      <div class="titulo-card">Nueva clase</div>
+      <div class="form-grid">
+        <div class="campo">
+          <label for="nombre">Nombre de clase</label>
+          <input id="nombre" placeholder="Ej: Crossfit">
+        </div>
+        <div class="campo">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" type="date">
+        </div>
+        <div class="campo">
+          <label for="horaInicio">Hora Inicio</label>
+          <input id="horaInicio" type="time">
+        </div>
+        <div class="campo">
+          <label for="horaFin">Hora Fin</label>
+          <input id="horaFin" type="time">
+        </div>
+        <div class="campo">
+          <label for="capacidad">Capacidad</label>
+          <input id="capacidad" type="number" min="1" value="8">
+        </div>
+        <div class="campo">
+          <label for="instructorId">ID Instructor</label>
+          <input id="instructorId" placeholder="Ej: INST-01">
+        </div>
+        <div class="campo">
+          <button class="btn-primary" onclick="crearClase()">Crear clase</button>
+        </div>
+      </div>
+    </div>
 
-<div class="container">
-<h1>Clases</h1>
+    <!-- CARD CLASES DEL DÍA -->
+    <div class="card">
+      <div class="titulo-card">Clases del día</div>
+      <div class="fila-consulta">
+        <div class="campo" style="flex: 1;">
+          <label for="fechaConsulta">Consultar Fecha</label>
+          <input id="fechaConsulta" type="date">
+        </div>
+        <button class="btn-secondary" style="width: auto;" onclick="cargarClases()">Actualizar</button>
+      </div>
 
-<div class="card">
-  <h1>Nueva clase</h1>
-  <div class="grid">
-    <input id="nombre" placeholder="Nombre de clase">
-    <input id="fecha" type="date">
-    <input id="horaInicio" type="time">
-    <input id="horaFin" type="time">
-    <input id="capacidad" type="number" min="1" value="8">
-    <input id="instructorId" placeholder="InstructorID">
-    <!-- El botón ahora va aquí adentro -->
-    <button class="btn-primary" onclick="crearClase()">Crear clase</button>
+      <div class="tabla-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Clase</th>
+              <th>Hora</th>
+              <th>Capacidad</th>
+              <th>Instructor</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla">
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div>
-</div>
 
-<div class="card">
-<h1>Clases del día</h1>
-<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
-  <input id="fechaConsulta" type="date" style="max-width: 200px;">
-  <button class="btn-secondary" style="margin: 0; width: auto;" onclick="cargarClases()">Actualizar</button>
-</div>
-<br><br>
-<table>
-<thead>
-<tr>
-<th>Clase</th>
-<th>Hora</th>
-<th>Capacidad</th>
-<th>Instructor</th>
-<th>Estado</th>
-<th></th>
-</tr>
-</thead>
-<tbody
-  id="tabla">
-</tbody>
-</table>
-</div>
-</div>
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
-<script>
+    function fechaHoy() {
+      const d = new Date();
+      return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+    }
 
-const API_URL =
-  'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+    document.getElementById('fecha').value = fechaHoy();
+    document.getElementById('fechaConsulta').value = fechaHoy();
 
+    async function api(body) {
+      const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
+      return response.json();
+    }
 
-function fechaHoy() {
+    async function crearClase() {
+      const nombre = document.getElementById('nombre').value.trim();
+      const fecha = document.getElementById('fecha').value;
+      const horaInicio = document.getElementById('horaInicio').value;
+      const horaFin = document.getElementById('horaFin').value;
+      const capacidad = document.getElementById('capacidad').value;
+      const instructorId = document.getElementById('instructorId').value.trim();
 
-  const d =
-    new Date();
-
-  return [
-    d.getFullYear(),
-    String(
-      d.getMonth()+1
-    ).padStart(2,'0'),
-    String(
-      d.getDate()
-    ).padStart(2,'0')
-  ].join('-');
-}
-
-
-document
-  .getElementById(
-    'fecha'
-  ).value =
-  fechaHoy();
-
-
-document
-  .getElementById(
-    'fechaConsulta'
-  ).value =
-  fechaHoy();
-
-
-async function api(body) {
-
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
-        body:
-          JSON.stringify(body)
+      if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
+        alert('Por favor, completa todas las casillas antes de crear la clase.');
+        return;
       }
-    );
 
-  return response.json();
-}
+      const btn = document.querySelector('.btn-primary');
+      const textoOriginal = btn.innerText;
 
-async function crearClase() {
-  // 1. Obtener valores de los campos
-  const nombre = document.getElementById('nombre').value.trim();
-  const fecha = document.getElementById('fecha').value;
-  const horaInicio = document.getElementById('horaInicio').value;
-  const horaFin = document.getElementById('horaFin').value;
-  const capacidad = document.getElementById('capacidad').value;
-  const instructorId = document.getElementById('instructorId').value.trim();
+      btn.innerText = 'Creando...';
+      btn.disabled = true;
 
-  // 2. Validar que ninguna casilla esté vacía
-  if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
-    alert('Por favor, completa todas las casillas antes de crear la clase.');
-    return; // Se interrumpe la función ANTES de cambiar el estado del botón
-  }
+      try {
+        const resultado = await api({ action: 'crearClase', nombre, fecha, horaInicio, horaFin, capacidad, instructorId, usuario: 'STAFF' });
+        if (resultado.ok) {
+          btn.innerText = '¡Creada con éxito!';
+          btn.style.backgroundColor = '#16a34a';
 
-  // 3. Obtener la referencia al botón
-  const btn = document.querySelector('.btn-primary');
-  const textoOriginal = btn.innerText;
+          document.getElementById('nombre').value = '';
+          document.getElementById('horaInicio').value = '';
+          document.getElementById('horaFin').value = '';
+          document.getElementById('capacidad').value = '8';
+          document.getElementById('instructorId').value = '';
 
-  // 4. Cambiar estado a "Creando..." y deshabilitar
-  btn.innerText = 'Creando...';
-  btn.disabled = true;
-  btn.style.opacity = '0.7';
-  btn.style.cursor = 'not-allowed';
+          cargarClases();
+        } else {
+          alert(resultado.mensaje || 'Error al crear la clase');
+        }
+      } catch (error) {
+        alert('Ocurrió un error de conexión con el servidor');
+      } finally {
+        setTimeout(() => {
+          btn.innerText = textoOriginal;
+          btn.disabled = false;
+          btn.style.backgroundColor = '';
+        }, 2000);
+      }
+    }
 
-  try {
-    const resultado = await api({
-      action: 'crearClase',
-      nombre,
-      fecha,
-      horaInicio,
-      horaFin,
-      capacidad,
-      instructorId,
-      usuario: 'STAFF'
-    });
+    async function cargarClases() {
+      const btn = document.querySelector('.btn-secondary');
+      const textoOriginal = btn.innerText;
 
-    if (resultado.ok) {
-      // 5. Estado de éxito temporal
-      btn.innerText = '¡Creada con éxito!';
-      btn.style.backgroundColor = '#16a34a';
+      btn.innerText = 'Consultando...';
+      btn.disabled = true;
 
-      // 6. Limpiar el formulario
-      document.getElementById('nombre').value = '';
-      document.getElementById('horaInicio').value = '';
-      document.getElementById('horaFin').value = '';
-      document.getElementById('capacidad').value = '8';
-      document.getElementById('instructorId').value = '';
+      const fecha = document.getElementById('fechaConsulta').value;
 
-      // 7. Actualizar la lista
+      try {
+        const resultado = await api({ action: 'listarClasesFecha', fecha });
+        const tbody = document.getElementById('tabla');
+        tbody.innerHTML = '';
+
+        if (!resultado.ok) {
+          alert(resultado.mensaje || 'Error al obtener clases');
+          return;
+        }
+
+        if (resultado.clases.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" style="text-align: center; color: #888; padding: 20px;">
+                No hay clases programadas para esta fecha
+              </td>
+            </tr>`;
+        } else {
+          resultado.clases.forEach(clase => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${clase.Nombre}</td>
+              <td>${clase.HoraInicio} - ${clase.HoraFin}</td>
+              <td>${clase.Capacidad}</td>
+              <td>${clase.InstructorID || '-'}</td>
+              <td>${clase.Estado}</td>
+              <td>
+                ${clase.Estado === 'ACTIVA' ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` : ''}
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+
+        btn.innerText = '¡Actualizado!';
+        btn.style.backgroundColor = '#dcfce7';
+        btn.style.color = '#15803d';
+      } catch (error) {
+        alert('Error al conectar con el servidor');
+      } finally {
+        setTimeout(() => {
+          btn.innerText = textoOriginal;
+          btn.disabled = false;
+          btn.style.backgroundColor = '';
+          btn.style.color = '';
+        }, 1500);
+      }
+    }
+
+    async function cancelarClase(claseId) {
+      if (!confirm('¿Cancelar esta clase?')) {
+        return;
+      }
+      const resultado = await api({ action: 'cancelarClase', claseId, usuario: 'STAFF' });
+      alert(resultado.mensaje);
       cargarClases();
-    } else {
-      alert(resultado.mensaje || 'Error al crear la clase');
-    }
-  } catch (error) {
-    alert('Ocurrió un error de conexión con el servidor');
-  } finally {
-    // 8. Restaurar el botón siempre (incluso si la API falla o da un error de red)
-    setTimeout(() => {
-      btn.innerText = textoOriginal;
-      btn.disabled = false;
-      btn.style.backgroundColor = '#222222';
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-    }, 2000);
-  }
-}
-
-async function cargarClases() {
-  // 1. Obtener la referencia al botón Actualizar
-  const btn = document.querySelector('.btn-secondary');
-  const textoOriginal = btn.innerText;
-
-  // 2. Estado de carga
-  btn.innerText = 'Consultando...';
-  btn.disabled = true;
-  btn.style.opacity = '0.7';
-  btn.style.cursor = 'not-allowed';
-
-  const fecha = document.getElementById('fechaConsulta').value;
-
-  try {
-    const resultado = await api({ action: 'listarClasesFecha', fecha });
-    const tbody = document.getElementById('tabla');
-    tbody.innerHTML = '';
-
-    if (!resultado.ok) {
-      alert(resultado.mensaje || 'Error al obtener clases');
-      return;
     }
 
-    // Si no hay clases en esa fecha, mostrar un mensaje claro en la tabla
-    if (resultado.clases.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" style="text-align: center; color: #888; padding: 20px;">
-            No hay clases programadas para esta fecha
-          </td>
-        </tr>`;
-    } else {
-      resultado.clases.forEach(clase => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${clase.Nombre}</td>
-          <td>${clase.HoraInicio} - ${clase.HoraFin}</td>
-          <td>${clase.Capacidad}</td>
-          <td>${clase.InstructorID || '-'}</td>
-          <td>${clase.Estado}</td>
-          <td>
-            ${clase.Estado === 'ACTIVA' 
-              ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` 
-              : ''}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // 3. Feedback visual de éxito
-    btn.innerText = '¡Actualizado!';
-    btn.style.backgroundColor = '#dcfce7'; // Verde suave para botón secundario
-    btn.style.color = '#15803d';
-
-  } catch (error) {
-    alert('Error al conectar con el servidor');
-  } finally {
-    // 4. Restaurar botón después de 1.5 segundos
-    setTimeout(() => {
-      btn.innerText = textoOriginal;
-      btn.disabled = false;
-      btn.style.backgroundColor = '#e0e0e0';
-      btn.style.color = '#333333';
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-    }, 1500);
-  }
-}
-
-async function cancelarClase( claseId) {
-  if (!confirm('¿Cancelar esta clase?') ) { return;}
-  const resultado =
-    await api({
-      action:
-        'cancelarClase',
-      claseId,
-      usuario:
-        'STAFF'
-    });
-
-
-  alert(
-    resultado.mensaje
-  );
-
-
-  cargarClases();
-}
-
-
-cargarClases();
-
-</script>
-
+    cargarClases();
+  </script>
 </body>
 
 </html>
