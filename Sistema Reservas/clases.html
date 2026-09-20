@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ironwall Clases</title>
+
   <style>
     /* --- FUENTES DEL SISTEMA --- */
     @font-face {
@@ -13,30 +14,35 @@
       font-weight: 400;
       font-display: swap;
     }
+
     @font-face {
       font-family: 'Archivo Extra Condensed';
       src: url("fonts/Archivo_ExtraCondensed-Bold.ttf");
       font-weight: 700;
       font-display: swap;
     }
+
     @font-face {
       font-family: Boris;
       src: url("fonts/BorisBlackBloxx.ttf");
       font-weight: 400;
       font-display: swap;
     }
+
     @font-face {
       font-family: 'Archivo';
       src: url("fonts/Archivo-Regular.ttf");
       font-weight: 400;
       font-display: swap;
     }
+
     @font-face {
       font-family: 'Archivo';
       src: url("fonts/Archivo-SemiBold.ttf");
       font-weight: 600;
       font-display: swap;
     }
+
     @font-face {
       font-family: 'Archivo';
       src: url("fonts/Archivo-Bold.ttf");
@@ -83,14 +89,14 @@
       border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
       border: 1px solid #e8ecef;
       transition: transform .2s, box-shadow .2s;
     }
 
     .btnHome:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,.12);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
     }
 
     h1 {
@@ -105,7 +111,7 @@
       margin-bottom: 20px;
     }
 
-    /* --- TARJETAS (CARDS) --- */
+    /* --- TARJETAS --- */
     .card {
       background: #ffffff;
       border-radius: 12px;
@@ -124,7 +130,7 @@
       text-transform: uppercase;
     }
 
-    /* --- INDICADORES Y MÉTRICAS COMPACTAS --- */
+    /* --- INDICADORES --- */
     .indicadores {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -153,7 +159,7 @@
       color: #111;
     }
 
-    /* --- FORMULARIOS Y GRID --- */
+    /* --- FORMULARIOS --- */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -169,7 +175,8 @@
       color: #333;
     }
 
-    input, select {
+    input,
+    select {
       width: 100%;
       height: 41px;
       padding: 10px 12px;
@@ -180,14 +187,41 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    input:focus, select:focus {
+    input:focus,
+    select:focus {
       outline: none;
       border-color: #222;
       box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
     }
 
-    /* --- BOTONES INTERACTIVOS --- */
-    button, .btn {
+    /* --- HORARIO CALCULADO --- */
+    .horario-calculado {
+      margin-top: 12px;
+      padding: 11px 13px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      color: #333;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .horario-calculado.activo {
+      background: #eef6ff;
+      border-color: #d5e7f8;
+      color: #222;
+    }
+
+    .horario-calculado.error-horario {
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: #dc2626;
+    }
+
+    /* --- BOTONES --- */
+    button,
+    .btn {
       width: 100%;
       height: 41px;
       padding: 0 16px;
@@ -235,21 +269,20 @@
       background-color: #fca5a5;
     }
 
-    .btn:disabled, .btn-reservar:disabled, button:disabled {
+    .btn:disabled,
+    .btn-reservar:disabled,
+    button:disabled {
       opacity: .45;
       cursor: not-allowed;
       transform: none !important;
     }
 
-    .btn:active:not(:disabled), button:active:not(:disabled) {
+    .btn:active:not(:disabled),
+    button:active:not(:disabled) {
       transform: scale(0.99);
     }
 
-    /* --- MENSAJES DE ESTADO --- */
-    #claseBox {
-      display: none;
-    }
-
+    /* --- MENSAJES --- */
     .mensaje {
       margin-top: 12px;
       font-weight: 700;
@@ -268,7 +301,7 @@
       color: #dc2626;
     }
 
-    /* --- LAYOUT FILAS DE CONSULTA Y TABLA --- */
+    /* --- CONSULTA Y TABLA --- */
     .fila-consulta {
       display: flex;
       gap: 12px;
@@ -288,7 +321,8 @@
       margin-top: 8px;
     }
 
-    th, td {
+    th,
+    td {
       padding: 12px 10px;
       border-bottom: 1px solid #edf0f2;
       text-align: left;
@@ -302,93 +336,239 @@
       letter-spacing: 0.5px;
     }
 
-    /* ADAPTACIÓN RESPONSIVE */
+    /* --- RESPONSIVE --- */
     @media (max-width: 640px) {
       body {
         padding: 16px 12px 40px;
       }
+
       .card {
         padding: 16px;
       }
+
       .fila-consulta {
         max-width: 100%;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 
 <body>
+
   <div class="container">
+
+    <!-- NAVEGACIÓN -->
     <div class="barraNavegacion">
-      <a href="index.html" class="btnHome"> ← Inicio </a>
+      <a href="index.html" class="btnHome">← Inicio</a>
     </div>
 
     <h1>Ironwall Clases</h1>
-    <p class="subtitulo">Gestión e inscripción de clases programadas</p>
+    <p class="subtitulo">
+      Gestión e inscripción de clases programadas
+    </p>
 
-    <!-- INDICADORES -->
+    <!-- ==================================================
+         INDICADORES
+    ================================================== -->
+
     <div class="indicadores">
+
       <div class="indicador-item">
         <span>Total del Día</span>
         <strong id="indTotal">0</strong>
       </div>
+
       <div class="indicador-item">
         <span>Activas</span>
         <strong id="indActivas">0</strong>
       </div>
+
       <div class="indicador-item">
         <span>Canceladas</span>
         <strong id="indCanceladas">0</strong>
       </div>
+
     </div>
 
-    <!-- CARD CREAR CLASE -->
+
+    <!-- ==================================================
+         CREAR CLASE
+    ================================================== -->
+
     <div class="card">
-      <div class="titulo-card">Nueva Clase</div>
+
+      <div class="titulo-card">
+        Nueva Clase
+      </div>
+
       <div class="form-grid">
+
+        <!-- NOMBRE -->
         <div>
-          <label for="nombre">Nombre de la clase</label>
-          <input id="nombre" placeholder="Ej: Crossfit">
+          <label for="nombre">
+            Nombre de la clase
+          </label>
+
+          <input
+            id="nombre"
+            placeholder="Ej: Boulder Inicial">
         </div>
+
+
+        <!-- FECHA -->
         <div>
-          <label for="fecha">Fecha</label>
-          <input id="fecha" type="date">
+          <label for="fecha">
+            Fecha
+          </label>
+
+          <input
+            id="fecha"
+            type="date">
         </div>
+
+
+        <!-- HORA INICIO -->
         <div>
-          <label for="horaInicio">Hora Inicio</label>
-          <input id="horaInicio" type="time">
+          <label for="horaInicio">
+            Hora Inicio
+          </label>
+
+          <select id="horaInicio">
+            <option value="">
+              Selecciona una hora
+            </option>
+          </select>
         </div>
+
+
+        <!-- DURACIÓN -->
         <div>
-          <label for="horaFin">Hora Fin</label>
-          <input id="horaFin" type="time">
+          <label for="duracion">
+            Duración
+          </label>
+
+          <select id="duracion">
+            <option value="1">
+              1 hora
+            </option>
+
+            <option value="2" selected>
+              2 horas
+            </option>
+
+            <option value="3">
+              3 horas
+            </option>
+
+            <option value="4">
+              4 horas
+            </option>
+          </select>
         </div>
+
+
+        <!-- CAPACIDAD -->
         <div>
-          <label for="capacidad">Capacidad</label>
-          <input id="capacidad" type="number" min="1" value="8">
+          <label for="capacidad">
+            Capacidad
+          </label>
+
+          <input
+            id="capacidad"
+            type="number"
+            min="1"
+            value="8">
         </div>
+
+
+        <!-- INSTRUCTOR -->
         <div>
-          <label for="instructorId">ID Instructor</label>
-          <input id="instructorId" placeholder="Ej: INST-01">
+          <label for="instructorId">
+            ID Instructor
+          </label>
+
+          <input
+            id="instructorId"
+            placeholder="Ej: INST-01">
         </div>
+
       </div>
-      <button class="btn-reservar" id="btnCrear" onclick="crearClase()">Crear Clase</button>
-      <div id="msj" class="mensaje" style="display:none;"></div>
+
+
+      <!-- HORARIO CALCULADO -->
+      <div
+        id="horarioCalculado"
+        class="horario-calculado">
+        Selecciona hora de inicio y duración
+      </div>
+
+
+      <!-- CREAR -->
+      <button
+        class="btn-reservar"
+        id="btnCrear"
+        onclick="crearClase()">
+        Crear Clase
+      </button>
+
+
+      <!-- MENSAJE -->
+      <div
+        id="msj"
+        class="mensaje"
+        style="display:none;">
+      </div>
+
     </div>
 
-    <!-- CARD CONSULTA Y TABLA -->
+
+    <!-- ==================================================
+         CONSULTAR CLASES
+    ================================================== -->
+
     <div class="card">
-      <div class="titulo-card">Clases del Día</div>
-      <div class="fila-consulta">
-        <div style="flex: 1;">
-          <label for="fechaConsulta">Consultar Fecha</label>
-          <input id="fechaConsulta" type="date">
-        </div>
-        <button class="btn-consultar" id="btnConsultar" style="width: auto; padding: 0 20px;" onclick="cargarClases()">Consultar</button>
+
+      <div class="titulo-card">
+        Clases del Día
       </div>
+
+      <div class="fila-consulta">
+
+        <div style="flex: 1;">
+
+          <label for="fechaConsulta">
+            Consultar Fecha
+          </label>
+
+          <input
+            id="fechaConsulta"
+            type="date">
+
+        </div>
+
+        <button
+          class="btn-consultar"
+          id="btnConsultar"
+          style="width:auto; padding:0 20px;"
+          onclick="cargarClases()">
+          Consultar
+        </button>
+
+      </div>
+
+
+      <!-- TABLA -->
 
       <div class="tabla-container">
+
         <table>
+
           <thead>
+
             <tr>
               <th>Clase</th>
               <th>Horario</th>
@@ -397,173 +577,780 @@
               <th>Estado</th>
               <th>Acción</th>
             </tr>
+
           </thead>
+
           <tbody id="tabla">
+
             <tr>
-              <td colspan="6" style="text-align: center; color: #888; padding: 20px;">Cargando clases...</td>
+
+              <td
+                colspan="6"
+                style="
+                  text-align:center;
+                  color:#888;
+                  padding:20px;
+                ">
+                Cargando clases...
+              </td>
+
             </tr>
+
           </tbody>
+
         </table>
+
       </div>
+
     </div>
+
   </div>
 
+
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+    /* ==================================================
+       CONFIGURACIÓN
+    ================================================== */
+
+    const API_URL =
+      'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+
+    /* ==================================================
+       FECHA LOCAL
+    ================================================== */
 
     function fechaHoy() {
+
       const d = new Date();
-      return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+
+      return [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, '0'),
+        String(d.getDate()).padStart(2, '0')
+      ].join('-');
+
     }
 
-    document.getElementById('fecha').value = fechaHoy();
-    document.getElementById('fechaConsulta').value = fechaHoy();
+
+    /* ==================================================
+       API
+    ================================================== */
 
     async function api(body) {
+
       const response = await fetch(API_URL, {
+
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+
+        headers: {
+          'Content-Type':
+            'text/plain;charset=utf-8'
+        },
+
         body: JSON.stringify(body)
+
       });
+
       return response.json();
+
     }
 
-    function mostrarMensaje(texto, esError = false) {
-      const msj = document.getElementById('msj');
-      msj.className = `mensaje ${esError ? 'error' : 'exito'}`;
+
+    /* ==================================================
+       MENSAJES
+    ================================================== */
+
+    function mostrarMensaje(
+      texto,
+      esError = false
+    ) {
+
+      const msj =
+        document.getElementById('msj');
+
+      msj.className =
+        `mensaje ${esError ? 'error' : 'exito'}`;
+
       msj.innerText = texto;
+
       msj.style.display = 'block';
+
     }
+
+
+    /* ==================================================
+       GENERAR HORAS
+       Solo horas completas.
+    ================================================== */
+
+    function generarHoras() {
+
+      const select =
+        document.getElementById('horaInicio');
+
+      select.innerHTML = `
+        <option value="">
+          Selecciona una hora
+        </option>
+      `;
+
+      for (let hora = 0; hora < 24; hora++) {
+
+        const valor =
+          String(hora).padStart(2, '0') + ':00';
+
+        const option =
+          document.createElement('option');
+
+        option.value = valor;
+        option.textContent = valor;
+
+        select.appendChild(option);
+
+      }
+
+    }
+
+
+    /* ==================================================
+       CALCULAR HORA FIN
+    ================================================== */
+
+    function calcularHoraFin() {
+
+      const horaInicio =
+        document.getElementById('horaInicio').value;
+
+      const duracion =
+        Number(
+          document.getElementById('duracion').value
+        );
+
+      const box =
+        document.getElementById('horarioCalculado');
+
+
+      if (!horaInicio || !duracion) {
+
+        box.className =
+          'horario-calculado';
+
+        box.innerText =
+          'Selecciona hora de inicio y duración';
+
+        return null;
+
+      }
+
+
+      const partes =
+        horaInicio.split(':');
+
+      const hora =
+        Number(partes[0]);
+
+      const minutos =
+        Number(partes[1]);
+
+
+      const inicioMinutos =
+        hora * 60 + minutos;
+
+      const finMinutos =
+        inicioMinutos +
+        duracion * 60;
+
+
+      /*
+       * No permitimos que una clase
+       * termine al día siguiente.
+       */
+
+      if (finMinutos > 24 * 60) {
+
+        box.className =
+          'horario-calculado error-horario';
+
+        box.innerText =
+          'La duración seleccionada supera las 24:00. Elige una hora de inicio anterior.';
+
+        return null;
+
+      }
+
+
+      const finHora =
+        Math.floor(finMinutos / 60);
+
+      const finMinuto =
+        finMinutos % 60;
+
+
+      const horaFin =
+        String(finHora).padStart(2, '0') +
+        ':' +
+        String(finMinuto).padStart(2, '0');
+
+
+      box.className =
+        'horario-calculado activo';
+
+      box.innerText =
+        `Horario de la clase: ${horaInicio} – ${horaFin}`;
+
+
+      return horaFin;
+
+    }
+
+
+    /* ==================================================
+       CREAR CLASE
+    ================================================== */
 
     async function crearClase() {
-      const nombre = document.getElementById('nombre').value.trim();
-      const fecha = document.getElementById('fecha').value;
-      const horaInicio = document.getElementById('horaInicio').value;
-      const horaFin = document.getElementById('horaFin').value;
-      const capacidad = document.getElementById('capacidad').value;
-      const instructorId = document.getElementById('instructorId').value.trim();
-      const msj = document.getElementById('msj');
+
+      const nombre =
+        document.getElementById('nombre')
+          .value
+          .trim();
+
+      const fecha =
+        document.getElementById('fecha')
+          .value;
+
+      const horaInicio =
+        document.getElementById('horaInicio')
+          .value;
+
+      const duracion =
+        Number(
+          document.getElementById('duracion')
+            .value
+        );
+
+      const capacidad =
+        document.getElementById('capacidad')
+          .value;
+
+      const instructorId =
+        document.getElementById('instructorId')
+          .value
+          .trim();
+
+      const msj =
+        document.getElementById('msj');
+
 
       msj.style.display = 'none';
 
-      if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
-        mostrarMensaje('Por favor completa todos los campos.', true);
+
+      /* -----------------------------------------------
+         VALIDACIÓN
+      ------------------------------------------------ */
+
+      if (
+        !nombre ||
+        !fecha ||
+        !horaInicio ||
+        !duracion ||
+        !capacidad ||
+        !instructorId
+      ) {
+
+        mostrarMensaje(
+          'Por favor completa todos los campos.',
+          true
+        );
+
         return;
+
       }
 
-      const btn = document.getElementById('btnCrear');
-      btn.innerText = 'Creando clase...';
+
+      /* -----------------------------------------------
+         CALCULAR HORA FIN
+      ------------------------------------------------ */
+
+      const horaFin =
+        calcularHoraFin();
+
+
+      if (!horaFin) {
+
+        mostrarMensaje(
+          'Revisa la hora de inicio y la duración.',
+          true
+        );
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------------
+         BOTÓN
+      ------------------------------------------------ */
+
+      const btn =
+        document.getElementById('btnCrear');
+
+      btn.innerText =
+        'Creando clase...';
+
       btn.disabled = true;
 
+
       try {
-        const resultado = await api({
-          action: 'crearClase',
-          nombre,
-          fecha,
-          horaInicio,
-          horaFin,
-          capacidad,
-          instructorId,
-          creadoPor: 'STAFF'
-        });
+
+        /* ---------------------------------------------
+           LLAMADA AL BACKEND
+           Se mantienen exactamente las mismas
+           variables que espera Backend.gs.
+        ---------------------------------------------- */
+
+        const resultado =
+          await api({
+
+            action: 'crearClase',
+
+            nombre,
+
+            fecha,
+
+            horaInicio,
+
+            horaFin,
+
+            capacidad,
+
+            instructorId,
+
+            creadoPor: 'STAFF'
+
+          });
+
+
+        /* ---------------------------------------------
+           ÉXITO
+        ---------------------------------------------- */
 
         if (resultado.ok) {
-          mostrarMensaje('¡Clase creada exitosamente!');
-          document.getElementById('nombre').value = '';
-          document.getElementById('horaInicio').value = '';
-          document.getElementById('horaFin').value = '';
-          document.getElementById('capacidad').value = '8';
-          document.getElementById('instructorId').value = '';
+
+          mostrarMensaje(
+            '¡Clase creada exitosamente!'
+          );
+
+
+          /* -------------------------------------------
+             LIMPIAR FORMULARIO
+          -------------------------------------------- */
+
+          document.getElementById('nombre')
+            .value = '';
+
+          document.getElementById('horaInicio')
+            .value = '';
+
+          document.getElementById('duracion')
+            .value = '2';
+
+          document.getElementById('capacidad')
+            .value = '8';
+
+          document.getElementById('instructorId')
+            .value = '';
+
+
+          /* -------------------------------------------
+             RESTABLECER HORARIO
+          -------------------------------------------- */
+
+          const horario =
+            document.getElementById(
+              'horarioCalculado'
+            );
+
+          horario.className =
+            'horario-calculado';
+
+          horario.innerText =
+            'Selecciona hora de inicio y duración';
+
+
+          /* -------------------------------------------
+             ACTUALIZAR LISTADO
+          -------------------------------------------- */
 
           cargarClases();
+
         } else {
-          mostrarMensaje(resultado.mensaje || 'Error en el servidor al crear la clase', true);
+
+          mostrarMensaje(
+            resultado.mensaje ||
+            'Error en el servidor al crear la clase',
+            true
+          );
+
         }
+
       } catch (error) {
-        mostrarMensaje('Error de conexión con el servidor', true);
+
+        console.error(error);
+
+        mostrarMensaje(
+          'Error de conexión con el servidor',
+          true
+        );
+
       } finally {
-        btn.innerText = 'Crear Clase';
-        btn.disabled = false;
+
+        btn.innerText =
+          'Crear Clase';
+
+        btn.disabled =
+          false;
+
       }
+
     }
+
+
+    /* ==================================================
+       CARGAR CLASES
+    ================================================== */
 
     async function cargarClases() {
-      const btn = document.getElementById('btnConsultar');
-      const fecha = document.getElementById('fechaConsulta').value;
 
-      btn.innerText = 'Buscando...';
-      btn.disabled = true;
+      const btn =
+        document.getElementById(
+          'btnConsultar'
+        );
+
+      const fecha =
+        document.getElementById(
+          'fechaConsulta'
+        ).value;
+
+
+      btn.innerText =
+        'Buscando...';
+
+      btn.disabled =
+        true;
+
 
       try {
-        const resultado = await api({ action: 'listarClasesFecha', fecha });
-        const tbody = document.getElementById('tabla');
+
+        const resultado =
+          await api({
+
+            action:
+              'listarClasesFecha',
+
+            fecha
+
+          });
+
+
+        const tbody =
+          document.getElementById(
+            'tabla'
+          );
+
         tbody.innerHTML = '';
 
+
+        /* ---------------------------------------------
+           ERROR
+        ---------------------------------------------- */
+
         if (!resultado.ok) {
-          mostrarMensaje(resultado.mensaje || 'Error al obtener las clases', true);
-          btn.innerText = 'Consultar';
-          btn.disabled = false;
+
+          mostrarMensaje(
+            resultado.mensaje ||
+            'Error al obtener las clases',
+            true
+          );
+
           return;
+
         }
 
-        const clases = resultado.clases || [];
-        
-        // Actualizar Indicadores
-        document.getElementById('indTotal').innerText = clases.length;
-        document.getElementById('indActivas').innerText = clases.filter(c => c.Estado === 'ACTIVA').length;
-        document.getElementById('indCanceladas').innerText = clases.filter(c => c.Estado === 'CANCELADA').length;
+
+        const clases =
+          resultado.clases || [];
+
+
+        /* ---------------------------------------------
+           INDICADORES
+        ---------------------------------------------- */
+
+        document.getElementById(
+          'indTotal'
+        ).innerText =
+          clases.length;
+
+
+        document.getElementById(
+          'indActivas'
+        ).innerText =
+          clases.filter(
+            c => c.Estado === 'ACTIVA'
+          ).length;
+
+
+        document.getElementById(
+          'indCanceladas'
+        ).innerText =
+          clases.filter(
+            c => c.Estado === 'CANCELADA'
+          ).length;
+
+
+        /* ---------------------------------------------
+           SIN CLASES
+        ---------------------------------------------- */
 
         if (clases.length === 0) {
+
           tbody.innerHTML = `
+
             <tr>
-              <td colspan="6" style="text-align: center; color: #888; padding: 20px;">
+
+              <td
+                colspan="6"
+                style="
+                  text-align:center;
+                  color:#888;
+                  padding:20px;
+                ">
+
                 No hay clases programadas para esta fecha
+
               </td>
-            </tr>`;
-        } else {
-          clases.forEach(clase => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td><strong>${clase.Nombre}</strong></td>
-              <td>${clase.HoraInicio} - ${clase.HoraFin}</td>
-              <td>${clase.Capacidad}</td>
-              <td>${clase.InstructorID || '-'}</td>
-              <td><span style="font-weight: 600; color: ${clase.Estado === 'ACTIVA' ? '#16a34a' : '#dc2626'}">${clase.Estado}</span></td>
-              <td>
-                ${clase.Estado === 'ACTIVA' ? `<button class="btn-danger" onclick="cancelarClase('${clase.ClaseID}')">Cancelar</button>` : '-'}
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
+
+            </tr>
+
+          `;
+
+          return;
+
         }
+
+
+        /* ---------------------------------------------
+           MOSTRAR CLASES
+        ---------------------------------------------- */
+
+        clases.forEach(clase => {
+
+          const tr =
+            document.createElement('tr');
+
+
+          const colorEstado =
+            clase.Estado === 'ACTIVA'
+              ? '#16a34a'
+              : '#dc2626';
+
+
+          tr.innerHTML = `
+
+            <td>
+              <strong>
+                ${clase.Nombre}
+              </strong>
+            </td>
+
+            <td>
+              ${clase.HoraInicio}
+              -
+              ${clase.HoraFin}
+            </td>
+
+            <td>
+              ${clase.Capacidad}
+            </td>
+
+            <td>
+              ${clase.InstructorID || '-'}
+            </td>
+
+            <td>
+
+              <span
+                style="
+                  font-weight:600;
+                  color:${colorEstado};
+                ">
+
+                ${clase.Estado}
+
+              </span>
+
+            </td>
+
+            <td>
+
+              ${
+                clase.Estado === 'ACTIVA'
+
+                  ? `
+
+                    <button
+                      class="btn-danger"
+                      onclick="
+                        cancelarClase(
+                          '${clase.ClaseID}'
+                        )
+                      ">
+
+                      Cancelar
+
+                    </button>
+
+                  `
+
+                  : '-'
+              }
+
+            </td>
+
+          `;
+
+
+          tbody.appendChild(tr);
+
+        });
+
+
       } catch (error) {
-        mostrarMensaje('Error de conexión al cargar la lista', true);
+
+        console.error(error);
+
+        mostrarMensaje(
+          'Error de conexión al cargar la lista',
+          true
+        );
+
       } finally {
-        btn.innerText = 'Consultar';
-        btn.disabled = false;
+
+        btn.innerText =
+          'Consultar';
+
+        btn.disabled =
+          false;
+
       }
+
     }
 
-    async function cancelarClase(claseId) {
-      if (!confirm('¿Seguro que deseas cancelar esta clase?')) {
+
+    /* ==================================================
+       CANCELAR CLASE
+    ================================================== */
+
+    async function cancelarClase(
+      claseId
+    ) {
+
+      if (
+        !confirm(
+          '¿Seguro que deseas cancelar esta clase?'
+        )
+      ) {
+
         return;
+
       }
+
 
       try {
-        const resultado = await api({ action: 'cancelarClase', claseId, canceladoPor: 'STAFF' });
+
+        const resultado =
+          await api({
+
+            action:
+              'cancelarClase',
+
+            claseId,
+
+            canceladoPor:
+              'STAFF'
+
+          });
+
+
         if (resultado.ok) {
+
           cargarClases();
+
         } else {
-          alert(resultado.mensaje || 'No se pudo cancelar la clase');
+
+          alert(
+            resultado.mensaje ||
+            'No se pudo cancelar la clase'
+          );
+
         }
+
       } catch (e) {
-        alert('Error de conexión al intentar cancelar');
+
+        console.error(e);
+
+        alert(
+          'Error de conexión al intentar cancelar'
+        );
+
       }
+
     }
 
-    // Carga inicial
+
+    /* ==================================================
+       EVENTOS DE HORARIO
+    ================================================== */
+
+    document
+      .getElementById('horaInicio')
+      .addEventListener(
+        'change',
+        calcularHoraFin
+      );
+
+
+    document
+      .getElementById('duracion')
+      .addEventListener(
+        'change',
+        calcularHoraFin
+      );
+
+
+    /* ==================================================
+       INICIALIZACIÓN
+    ================================================== */
+
+    document.getElementById('fecha')
+      .value = fechaHoy();
+
+    document.getElementById('fechaConsulta')
+      .value = fechaHoy();
+
+
+    generarHoras();
+
+
+    calcularHoraFin();
+
+
     cargarClases();
+
   </script>
+
 </body>
 
 </html>
