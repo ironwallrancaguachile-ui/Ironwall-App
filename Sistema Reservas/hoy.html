@@ -284,6 +284,30 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
+    /* Estilos para los badges de estado */
+.badge-estado {
+  font-weight: 600;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.estado-reservada {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.estado-checkin {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.estado-cancelada, .estado-noshow {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
 
     /* --- RESPONSIVE --- */
     @media (max-width: 820px) {
@@ -465,12 +489,18 @@
           `;
         }
 
+        // Obtener clase según estado
+        let claseEstado = 'estado-reservada';
+        if (reserva.Estado === 'CHECKIN') claseEstado = 'estado-checkin';
+        if (reserva.Estado === 'CANCELADA') claseEstado = 'estado-cancelada';
+        if (reserva.Estado === 'NOSHOW' || reserva.Estado === 'NO SHOW') claseEstado = 'estado-noshow';
+
         tr.innerHTML = `
           <td><strong>${reserva.HoraInicio} - ${reserva.HoraFin}</strong></td>
           <td>${reserva.ClienteID}</td>
           <td>${reserva.Tipo}</td>
           <td>${reserva.Cantidad}</td>
-          <td><span style="font-weight: 600; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f3f4f6;">${reserva.Estado}</span></td>
+          <td><span class="badge-estado ${claseEstado}">${reserva.Estado}</span></td>
           <td>${acciones}</td>
         `;
 
