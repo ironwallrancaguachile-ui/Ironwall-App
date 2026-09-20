@@ -94,9 +94,11 @@
     
     /* Control del tamaño del logo dentro del botón */
     .logo-btn {
-      width: 28px;      /* Ancho máximo del logo */
-      height: 28px;     /* Alto máximo del logo */
-      object-fit: contain; /* Mantiene la proporción de la imagen */
+      height: 32px;
+      width: auto; /* Permite que el ancho se ajuste solo */
+      object-fit: contain;
+      transform: scale(1.4); /* Agranda la imagen visualmente un 40% omitiendo sus bordes vacíos */
+      transform-origin: center;
     }
     
     .btnHome:hover {
