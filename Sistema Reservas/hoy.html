@@ -360,435 +360,202 @@
 </head>
 
 <body>
-      <div class="container">
-          <!-- NAVEGACIÓN -->
-          <div class="barraNavegacion">
-            <a href="index.html" class="btnHome">← Inicio</a>
-          </div>
-          <h1>Ironwall Reservas</h1>
-            <p class="subtitulo" >Panel operativo del día</p>
+  <div class="container">
+    <!-- NAVEGACIÓN Y CABECERA -->
+    <div class="barraNavegacion">
+      <a href="index.html" class="btnHome">← Inicio</a>
+    </div>
+    
+    <h1>Ironwall Reservas</h1>
+    <p class="subtitulo">Panel operativo del día</p>
 
-            <!-- ==================================================
-               INDICADORES
-          ================================================== -->
-            <div class="indicadores">
-             <div class="indicador-item">
-                  <input id="fecha" type="date">
-                  <button onclick="cargarHoy()">Actualizar</button>
-             </div>
-             <div class="indicador-item">
-                  <span>Capacidad</span>
-                    <strong id="capacidad">0</strong>
-             </div>
-             <div class="indicador-item">
-                  <span>Reservados</span>
-                  <strong id="reservado">0</strong>
-             </div>
-             <div class="indicador-item">
-                  <span>Dentro ahora</span>
-                  <strong id="dentro">0</strong>
-             </div>
-             <div class="indicador-item">
-                  <span>Disponibles</span>
-                  <strong id="disponibles">0</strong>
-             </div>
-             <div class="indicador-item">
-                  <span>Clases</span>
-                  <strong id="clases">0</strong>
-             </div>
-            </div>
-            <div id="mensaje"></div>
-            <div class="tabla">
-                  <table>
-                        <thead>
-                              <tr>
-                                    <th>Hora</th>
-                                    <th>Cliente</th>
-                                    <th>Tipo</th>
-                                    <th>Cantidad</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                              </tr>
-                        </thead>
-                        <tbody  id="tablaReservas"></tbody>
-                  </table>
-            </div>
+    <!-- TARJETA: RESUMEN E INDICADORES -->
+    <div class="card">
+      <div class="titulo-card">Control Diario e Indicadores</div>
       
-
-<script>
-
-const API_URL =
-  'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-
-
-function fechaHoy() {
-
-  const d =
-    new Date();
-
-  return [
-    d.getFullYear(),
-    String(
-      d.getMonth()+1
-    ).padStart(2,'0'),
-    String(
-      d.getDate()
-    ).padStart(2,'0')
-  ].join('-');
-}
-
-
-document
-  .getElementById(
-    'fecha'
-  ).value =
-  fechaHoy();
-
-
-async function api(body) {
-
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
-        body:
-          JSON.stringify(body)
-      }
-    );
-
-  return response.json();
-}
-
-
-async function cargarHoy() {
-
-  const fecha =
-    document
-      .getElementById(
-        'fecha'
-      ).value;
-
-  const resultado =
-    await api({
-
-      action:
-        'resumenHoy',
-
-      fecha
-    });
-
-
-  if (!resultado.ok) {
-
-    document
-      .getElementById(
-        'mensaje'
-      ).textContent =
-      resultado.mensaje;
-
-    return;
-  }
-
-
-  document
-    .getElementById(
-      'capacidad'
-    ).textContent =
-    resultado.capacidad;
-
-
-  document
-    .getElementById(
-      'reservado'
-    ).textContent =
-    resultado.reservado;
-
-
-  document
-    .getElementById(
-      'dentro'
-    ).textContent =
-    resultado.dentro;
-
-
-  document
-    .getElementById(
-      'disponibles'
-    ).textContent =
-    resultado.disponibles;
-
-
-  document
-    .getElementById(
-      'clases'
-    ).textContent =
-    resultado.clases.length;
-
-
-  pintarReservas(
-    resultado.reservas
-  );
-}
-
-
-function pintarReservas(
-  reservas
-) {
-
-  const tbody =
-    document
-      .getElementById(
-        'tablaReservas'
-      );
-
-  tbody.innerHTML = '';
-
-
-  if (!reservas.length) {
-
-    tbody.innerHTML =
-      '<tr>' +
-      '<td colspan="6">' +
-      'No hay reservas para este día' +
-      '</td>' +
-      '</tr>';
-
-    return;
-  }
-
-
-  reservas.sort(
-    (a,b) =>
-      a.HoraInicio
-        .localeCompare(
-          b.HoraInicio
-        )
-  );
-
-
-  reservas.forEach(
-    reserva => {
-
-      const tr =
-        document.createElement(
-          'tr'
-        );
-
-
-      let acciones = '';
-
-
-      if (
-        reserva.Estado ===
-        'RESERVADA'
-      ) {
-
-        acciones = `
-
-          <button
-            onclick="checkin('${reserva.ReservaID}')">
-            Check-in
-          </button>
-
-          <button
-            onclick="cancelar('${reserva.ReservaID}')">
-            Cancelar
-          </button>
-
-          <button
-            onclick="noShow('${reserva.ReservaID}')">
-            No Show
-          </button>
-        `;
-      }
-
-
-      if (
-        reserva.Estado ===
-        'CHECKIN'
-      ) {
-
-        acciones = `
-
-          <button
-            onclick="checkout('${reserva.ReservaID}')">
-            Salida
-          </button>
-        `;
-      }
-
-
-      tr.innerHTML = `
-
-        <td>
-          ${reserva.HoraInicio}
-          -
-          ${reserva.HoraFin}
-        </td>
-
-        <td>
-          ${reserva.ClienteID}
-        </td>
-
-        <td>
-          ${reserva.Tipo}
-        </td>
-
-        <td>
-          ${reserva.Cantidad}
-        </td>
-
-        <td>
-          ${reserva.Estado}
-        </td>
-
-        <td class="acciones">
-          ${acciones}
-        </td>
-      `;
-
-
-      tbody.appendChild(
-        tr
-      );
+      <div class="indicadores">
+        <div class="indicador-item">
+          <span>Fecha de consulta</span>
+          <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <input id="fecha" type="date">
+            <button class="btn btn-consultar" onclick="cargarHoy()" style="width: auto;">Actualizar</button>
+          </div>
+        </div>
+        <div class="indicador-item">
+          <span>Capacidad</span>
+          <strong id="capacidad">0</strong>
+        </div>
+        <div class="indicador-item">
+          <span>Reservados</span>
+          <strong id="reservado">0</strong>
+        </div>
+        <div class="indicador-item">
+          <span>Dentro ahora</span>
+          <strong id="dentro">0</strong>
+        </div>
+        <div class="indicador-item">
+          <span>Disponibles</span>
+          <strong id="disponibles">0</strong>
+        </div>
+        <div class="indicador-item">
+          <span>Clases</span>
+          <strong id="clases">0</strong>
+        </div>
+      </div>
+      
+      <div id="mensaje"></div>
+    </div>
+
+    <!-- TARJETA: TABLA DE RESERVAS -->
+    <div class="card">
+      <div class="titulo-card">Reservas Programadas</div>
+      
+      <div class="tabla-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Cliente</th>
+              <th>Tipo</th>
+              <th>Cantidad</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaReservas"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL =
+      'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+    function fechaHoy() {
+      const d = new Date();
+      return [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, '0'),
+        String(d.getDate()).padStart(2, '0')
+      ].join('-');
     }
-  );
-}
 
+    document.getElementById('fecha').value = fechaHoy();
 
-async function checkin(
-  reservaId
-) {
+    async function api(body) {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      return response.json();
+    }
 
-  if (
-    !confirm(
-      '¿Confirmar ingreso?'
-    )
-  ) return;
+    async function cargarHoy() {
+      const fecha = document.getElementById('fecha').value;
+      const mensajeEl = document.getElementById('mensaje');
+      mensajeEl.textContent = '';
+      mensajeEl.className = 'mensaje';
 
+      const resultado = await api({
+        action: 'resumenHoy',
+        fecha
+      });
 
-  const resultado =
-    await api({
+      if (!resultado.ok) {
+        mensajeEl.textContent = resultado.mensaje;
+        mensajeEl.className = 'mensaje error';
+        return;
+      }
 
-      action:
-        'checkin',
+      document.getElementById('capacidad').textContent = resultado.capacidad;
+      document.getElementById('reservado').textContent = resultado.reservado;
+      document.getElementById('dentro').textContent = resultado.dentro;
+      document.getElementById('disponibles').textContent = resultado.disponibles;
+      document.getElementById('clases').textContent = resultado.clases.length;
 
-      reservaId,
+      pintarReservas(resultado.reservas);
+    }
 
-      usuario:
-        'STAFF'
-    });
+    function pintarReservas(reservas) {
+      const tbody = document.getElementById('tablaReservas');
+      tbody.innerHTML = '';
 
+      if (!reservas.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: #666; padding: 24px;">
+              No hay reservas para este día
+            </td>
+          </tr>`;
+        return;
+      }
 
-  alert(
-    resultado.mensaje
-  );
+      reservas.sort((a, b) => a.HoraInicio.localeCompare(b.HoraInicio));
 
-  cargarHoy();
-}
+      reservas.forEach(reserva => {
+        const tr = document.createElement('tr');
+        let acciones = '';
 
+        if (reserva.Estado === 'RESERVADA') {
+          acciones = `
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="checkin('${reserva.ReservaID}')">Check-in</button>
+              <button class="btn btn-danger" onclick="cancelar('${reserva.ReservaID}')">Cancelar</button>
+              <button class="btn btn-danger" style="background-color: #f3f4f6; color: #4b5563;" onclick="noShow('${reserva.ReservaID}')">No Show</button>
+            </div>
+          `;
+        }
 
-async function checkout(
-  reservaId
-) {
+        if (reserva.Estado === 'CHECKIN') {
+          acciones = `
+            <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="checkout('${reserva.ReservaID}')">Salida</button>
+          `;
+        }
 
-  if (
-    !confirm(
-      '¿Registrar salida?'
-    )
-  ) return;
+        tr.innerHTML = `
+          <td><strong>${reserva.HoraInicio} - ${reserva.HoraFin}</strong></td>
+          <td>${reserva.ClienteID}</td>
+          <td>${reserva.Tipo}</td>
+          <td>${reserva.Cantidad}</td>
+          <td><span style="font-weight: 600; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f3f4f6;">${reserva.Estado}</span></td>
+          <td>${acciones}</td>
+        `;
 
+        tbody.appendChild(tr);
+      });
+    }
 
-  const resultado =
-    await api({
+    async function checkin(reservaId) {
+      if (!confirm('¿Confirmar ingreso?')) return;
+      const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
+      alert(resultado.mensaje);
+      cargarHoy();
+    }
 
-      action:
-        'checkout',
+    async function checkout(reservaId) {
+      if (!confirm('¿Registrar salida?')) return;
+      const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
+      alert(resultado.mensaje);
+      cargarHoy();
+    }
 
-      reservaId,
+    async function cancelar(reservaId) {
+      if (!confirm('¿Cancelar esta reserva?')) return;
+      const resultado = await api({ action: 'cancelarReserva', reservaId, usuario: 'STAFF' });
+      alert(resultado.mensaje);
+      cargarHoy();
+    }
 
-      usuario:
-        'STAFF'
-    });
+    async function noShow(reservaId) {
+      if (!confirm('¿Marcar esta reserva como NO SHOW?')) return;
+      const resultado = await api({ action: 'marcarNoShow', reservaId, usuario: 'STAFF' });
+      alert(resultado.mensaje);
+      cargarHoy();
+    }
 
-
-  alert(
-    resultado.mensaje
-  );
-
-  cargarHoy();
-}
-
-
-async function cancelar(
-  reservaId
-) {
-
-  if (
-    !confirm(
-      '¿Cancelar esta reserva?'
-    )
-  ) return;
-
-
-  const resultado =
-    await api({
-
-      action:
-        'cancelarReserva',
-
-      reservaId,
-
-      usuario:
-        'STAFF'
-    });
-
-
-  alert(
-    resultado.mensaje
-  );
-
-  cargarHoy();
-}
-
-
-async function noShow(
-  reservaId
-) {
-
-  if (
-    !confirm(
-      '¿Marcar esta reserva como NO SHOW?'
-    )
-  ) return;
-
-
-  const resultado =
-    await api({
-
-      action:
-        'marcarNoShow',
-
-      reservaId,
-
-      usuario:
-        'STAFF'
-    });
-
-
-  alert(
-    resultado.mensaje
-  );
-
-  cargarHoy();
-}
-
-
-cargarHoy();
-
-</script>
-
-</body>
+    cargarHoy();
+  </script>
+</body>                                                                                   
 
 </html>
