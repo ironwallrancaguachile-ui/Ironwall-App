@@ -360,109 +360,60 @@
 </head>
 
 <body>
-<a href="index.html" class="btnHome">  ← Inicio </a>
-<div class="container">
+      <div class="container">
+          <!-- NAVEGACIÓN -->
+          <div class="barraNavegacion">
+            <a href="index.html" class="btnHome">← Inicio</a>
+          </div>
+          <h1>Ironwall Reservas</h1>
+            <p class="subtitulo" >Panel operativo del día</p>
 
-<h1>Ironwall Reservas</h1>
+            <!-- ==================================================
+               INDICADORES
+                  <div class="indicador-item">
+        <span>Total del Día</span>
+        <strong id="indTotal">0</strong>
+      </div>
+          ================================================== -->
+            <div class="indicadores">
+             <div class="indicador-item">
+                  <input id="fecha" type="date">
+                  <button onclick="cargarHoy()">Actualizar</button>
+             </div>
+            <div class="indicador-item">
+                  <span>Capacidad</span>
+                    <strong id="capacidad">0</strong>
 
-<p>
-Panel operativo del día
-</p>
-
-
-<div class="top">
-
-<input
-  id="fecha"
-  type="date">
-
-<button onclick="cargarHoy()">
-Actualizar
-</button>
-
-</div>
-
-
-<div class="cards">
-
-<div class="card">
-Capacidad
-<div
-  class="numero"
-  id="capacidad">
--
-</div>
-</div>
-
-<div class="card">
-Reservados
-<div
-  class="numero"
-  id="reservado">
--
-</div>
-</div>
-
-<div class="card">
-Dentro ahora
-<div
-  class="numero"
-  id="dentro">
--
-</div>
-</div>
-
-<div class="card">
-Disponibles
-<div
-  class="numero"
-  id="disponibles">
--
-</div>
-</div>
-
-<div class="card">
-Clases
-<div
-  class="numero"
-  id="clases">
--
-</div>
-</div>
-
-</div>
-
-
-<div id="mensaje"></div>
-
-
-<div class="tabla">
-
-<table>
-
-<thead>
-
-<tr>
-<th>Hora</th>
-<th>Cliente</th>
-<th>Tipo</th>
-<th>Cantidad</th>
-<th>Estado</th>
-<th>Acciones</th>
-</tr>
-
-</thead>
-
-<tbody
-  id="tablaReservas">
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
+                  <div class="card">Reservados
+                        <div class="numero"  id="reservado">-</div>
+                  </div>
+                  <div class="card">Dentro ahora
+                        <div  class="numero"  id="dentro">-</div>
+                  </div>
+                  <div class="card">Disponibles
+                        <div  class="numero"  id="disponibles">-</div>
+                  </div>
+                  <div class="card">Clases
+                        <div  class="numero"  id="clases">-</div>
+                  </div>
+            </div>
+            <div id="mensaje"></div>
+            <div class="tabla">
+                  <table>
+                        <thead>
+                              <tr>
+                                    <th>Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                              </tr>
+                        </thead>
+                        <tbody  id="tablaReservas"></tbody>
+                  </table>
+            </div>
+      </div>
 
 <script>
 
