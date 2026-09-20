@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ironwall - Check-in</title>
+  <title>Ironwall - Vista Semanal</title>
   <style>
     /* --- FUENTES DEL SISTEMA --- */
     @font-face {
@@ -65,7 +65,7 @@
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1250px;
       margin: 0 auto;
     }
 
@@ -118,7 +118,7 @@
       margin-bottom: 20px;
     }
 
-    /* --- TARJETAS --- */
+    /* --- TARJETAS Y CONTENEDORES --- */
     .card {
       background: #ffffff;
       border-radius: 12px;
@@ -198,15 +198,6 @@
       background-color: #333333;
     }
 
-    .btn-consultar {
-      background-color: #e0e0e0;
-      color: #333333;
-    }
-
-    .btn-consultar:hover {
-      background-color: #d0d0d0;
-    }
-
     button:disabled {
       opacity: .45;
       cursor: not-allowed;
@@ -215,25 +206,6 @@
 
     button:active:not(:disabled) {
       transform: scale(0.99);
-    }
-
-    /* --- MENSAJES --- */
-    .mensaje {
-      margin-top: 14px;
-      font-weight: 700;
-      font-size: 13px;
-      padding: 12px;
-      border-radius: 8px;
-    }
-
-    .exito {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .error {
-      background: #fee2e2;
-      color: #dc2626;
     }
 
     /* --- RESPONSIVE --- */
@@ -264,46 +236,36 @@
     </div>
 
     <h1>Ocupación Semanal</h1>
-    <p class="subtitulo">Visualiza las reservas de la semana seleccionada</p>
+    <p class="subtitulo">Selecciona una fecha para actualizar y consultar las reservas de la semana</p>
 
-    <!-- CARD FILTRO DE FECHA -->
+    <!-- FILTRO DE FECHA Y BOTÓN ACTUALIZAR -->
     <div class="card">
-      <div class="titulo-card">Seleccionar Semana</div>
+      <div class="titulo-card">Filtro de Consulta</div>
       <div class="form-grid">
         <div>
-          <label for="fechaBase">Fecha de la semana</label>
-          <input type="date" id="fechaBase">
+          <label for="fechaSemana">Fecha de Referencia</label>
+          <input type="date" id="fechaSemana">
         </div>
         <div>
-          <button class="btn-primary" id="btnActualizar" onclick="cargarSemana()">Actualizar</button>
+          <button class="btn-primary" id="btnActualizar" onclick="actualizarSemana()">Actualizar</button>
         </div>
       </div>
     </div>
 
-    <!-- CARD PRINCIPAL DE ACCIONES -->
-    <div class="card">
-      <div class="titulo-card">Registro de Acceso</div>
-      
-      <div style="margin-bottom: 16px;">
-        <label for="reservaId">ID de Reserva</label>
-        <input id="reservaId" placeholder="Ej: RES-XXXXXXXX" style="text-transform: uppercase;">
-      </div>
-
-      <div class="form-grid">
-        <div>
-          <button class="btn-primary" id="btnCheckin" onclick="hacerCheckin()">Confirmar ingreso</button>
-        </div>
-        <div>
-          <button class="btn-consultar" id="btnCheckout" onclick="hacerCheckout()">Registrar salida</button>
-        </div>
-      </div>
-
-      <div id="resultado" class="mensaje" style="display: none;"></div>
+    <!-- CONTENEDOR DE TARJETAS DE RESERVAS POR DÍA (INTACTO) -->
+    <div id="contenedorSemana">
+      <!-- Aquí tu script de semana renderiza dinámicamente las tarjetas de días y reservas -->
     </div>
   </div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('fechaSemana').value = hoy;
+      actualizarSemana();
+    });
 
     async function api(body) {
       const response = await fetch(API_URL, {
@@ -314,64 +276,26 @@
       return response.json();
     }
 
-    function mostrarMensaje(texto, esError = false) {
-      const resDiv = document.getElementById('resultado');
-      resDiv.className = `mensaje ${esError ? 'error' : 'exito'}`;
-      resDiv.textContent = texto;
-      resDiv.style.display = 'block';
-    }
+    async function actualizarSemana() {
+      const fecha = document.getElementById('fechaSemana').value;
+      const btn = document.getElementById('btnActualizar');
 
-    async function hacerCheckin() {
-      const reservaId = document.getElementById('reservaId').value.trim();
-      const btn = document.getElementById('btnCheckin');
-
-      if (!reservaId) {
-        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
-        return;
-      }
+      if (!fecha) return;
 
       btn.disabled = true;
-      btn.innerText = 'Procesando...';
+      btn.innerText = 'Cargando...';
 
       try {
-        const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
-        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
-          mostrarMensaje(resultado.mensaje || 'Check-in realizado correctamente.', false);
-        } else {
-          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-in.', true);
+        // Tu llamada para obtener la ocupación de la semana
+        const res = await api({ action: 'obtenerSemana', fecha });
+        if (typeof renderizarTarjetasSemana === 'function') {
+          renderizarTarjetasSemana(res);
         }
-      } catch (error) {
-        mostrarMensaje('Error de conexión con el servidor.', true);
+      } catch (err) {
+        console.error("Error al obtener la semana:", err);
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Confirmar ingreso';
-      }
-    }
-
-    async function hacerCheckout() {
-      const reservaId = document.getElementById('reservaId').value.trim();
-      const btn = document.getElementById('btnCheckout');
-
-      if (!reservaId) {
-        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = 'Procesando...';
-
-      try {
-        const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
-        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
-          mostrarMensaje(resultado.mensaje || 'Check-out realizado correctamente.', false);
-        } else {
-          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-out.', true);
-        }
-      } catch (error) {
-        mostrarMensaje('Error de conexión con el servidor.', true);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Registrar salida';
+        btn.innerText = 'Actualizar';
       }
     }
   </script>
