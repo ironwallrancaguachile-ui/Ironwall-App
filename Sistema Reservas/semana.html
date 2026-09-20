@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ironwall - Check-in</title>
+  <title>Ironwall - Semana</title>
   <style>
     /* --- FUENTES DEL SISTEMA --- */
     @font-face {
@@ -51,9 +51,9 @@
 
     /* --- RESET Y ESTILOS BASE --- */
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
       font-family: 'Archivo', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
@@ -62,11 +62,13 @@
       color: #222;
       padding: 24px 20px 60px;
       min-height: 100vh;
+      max-width: 1250px;
+      margin: 0 auto;
     }
 
     .container {
-      max-width: 1100px;
-      margin: 0 auto;
+      max-width: 1250px;
+      margin: auto;
     }
 
     /* --- CABECERA Y NAVEGACIÓN --- */
@@ -109,40 +111,7 @@
     h1 {
       font-size: 22px;
       font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .subtitulo {
-      color: #666;
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
-
-    /* --- TARJETAS --- */
-    .card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
-      border: 1px solid #e8ecef;
-    }
-
-    .titulo-card {
-      font-size: 13px;
-      font-weight: 700;
-      color: #666;
-      letter-spacing: .5px;
-      margin-bottom: 14px;
-      text-transform: uppercase;
-    }
-
-    /* --- FORMULARIOS --- */
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      align-items: end;
+      margin-bottom: 16px;
     }
 
     label {
@@ -153,8 +122,8 @@
       color: #333;
     }
 
-    input,
-    select {
+    /* --- CAMPOS DE ENTRADA --- */
+    input, select {
       width: 100%;
       height: 41px;
       padding: 10px 12px;
@@ -165,16 +134,28 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    input:focus,
-    select:focus {
+    input:focus, select:focus {
       outline: none;
       border-color: #222;
       box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
     }
 
+    /* --- CONTENEDOR SUPERIOR Y FILTROS --- */
+    .top {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 20px;
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e8ecef;
+    }
+
     /* --- BOTONES --- */
-    button,
-    .btn {
+    button, .btn-secondary {
       width: 100%;
       height: 41px;
       padding: 0 16px;
@@ -186,67 +167,109 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+      transition: background-color 0.2s, transform 0.1s;
     }
 
-    .btn-primary {
-      background-color: #191919;
-      color: #ffffff;
-    }
-
-    .btn-primary:hover {
-      background-color: #333333;
-    }
-
-    .btn-consultar {
+    .btn-secondary {
       background-color: #e0e0e0;
       color: #333333;
     }
 
-    .btn-consultar:hover {
+    .btn-secondary:hover {
       background-color: #d0d0d0;
     }
 
-    button:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    button:active:not(:disabled) {
+    .btn-secondary:active {
       transform: scale(0.99);
     }
 
-    /* --- MENSAJES --- */
-    .mensaje {
-      margin-top: 14px;
+    /* --- ESTRUCTURA DE LA SEMANA EN COLUMNAS --- */
+    .semana {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+
+    /* Tarjeta individual para cada día */
+    .dia {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e8ecef;
+      min-height: 200px;
+    }
+
+    .dia h3 {
+      font-size: 14px;
       font-weight: 700;
-      font-size: 13px;
-      padding: 12px;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .dia small {
+      color: #888;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .dia hr {
+      border: 0;
+      border-top: 1px solid #eee;
+      margin: 8px 0;
+    }
+
+    .numero {
+      font-weight: 700;
+      float: right;
+    }
+
+    /* --- RESUMEN COMPACTO CORREGIDO --- */
+    .resumen-metrica {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+      background: #f8f9fa;
+      padding: 8px 10px;
       border-radius: 8px;
+      border: 1px solid #edf0f2;
+      width: 100%;
+      box-sizing: border-box;
     }
 
-    .exito {
-      background: #dcfce7;
-      color: #15803d;
+    .metrica-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #555;
     }
 
-    .error {
-      background: #fee2e2;
-      color: #dc2626;
+    .metrica-item strong {
+      font-size: 11px;
+      color: #111;
+      font-weight: 700;
     }
 
-    /* --- RESPONSIVE --- */
+    /* Bloque/ítem de cada reserva dentro del día */
+    .reserva {
+      background: #f9f9f9;
+      border-left: 3px solid #222;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* RESPONSIVE */
     @media (max-width: 640px) {
       body {
         padding: 16px 12px 40px;
       }
-
-      .card {
-        padding: 16px;
-      }
-
-      .form-grid {
+      .top {
         grid-template-columns: 1fr;
       }
     }
@@ -254,8 +277,9 @@
 </head>
 
 <body>
+
   <div class="container">
-    <!-- NAVEGACIÓN Y CABECERA -->
+    <!-- NAVEGACIÓN CON LOGO E INICIO -->
     <div class="barraNavegacion">
       <a href="index.html" class="btnHome">
         <img src="img/logosn.png" alt="Logo" class="logo-btn">
@@ -263,104 +287,157 @@
       </a>
     </div>
 
-    <h1>Check-in / Check-out</h1>
-    <p class="subtitulo">Ingresa el ID de la reserva para registrar asistencia o salida</p>
+    <h1>Semana Ironwall</h1>
 
-    <!-- CARD PRINCIPAL DE ACCIONES -->
-    <div class="card">
-      <div class="titulo-card">Registro de Acceso</div>
-      
-      <div style="margin-bottom: 16px;">
-        <label for="reservaId">ID de Reserva</label>
-        <input id="reservaId" placeholder="Ej: RES-XXXXXXXX" style="text-transform: uppercase;">
+    <!-- FILTROS (FECHA CON LABEL Y BOTÓN ACTUALIZAR) -->
+    <div class="top">
+      <div>
+        <label for="fechaInicio">Fecha de inicio</label>
+        <input id="fechaInicio" type="date">
       </div>
-
-      <div class="form-grid">
-        <div>
-          <button class="btn-primary" id="btnCheckin" onclick="hacerCheckin()">Confirmar ingreso</button>
-        </div>
-        <div>
-          <button class="btn-consultar" id="btnCheckout" onclick="hacerCheckout()">Registrar salida</button>
-        </div>
+      <div>
+        <button class="btn-secondary" onclick="cargarSemana()">Actualizar</button>
       </div>
-
-      <div id="resultado" class="mensaje" style="display: none;"></div>
     </div>
+
+    <div id="semana" class="semana"></div>
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+    const API_URL =
+      'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
+
+    function fechaHoy() {
+      const d = new Date();
+      return [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, '0'),
+        String(d.getDate()).padStart(2, '0')
+      ].join('-');
+    }
+
+    document.getElementById('fechaInicio').value = fechaHoy();
 
     async function api(body) {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(body)
-      });
+      const response = await fetch(
+        API_URL,
+        {
+          method: 'POST',
+          body: JSON.stringify(body)
+        }
+      );
       return response.json();
     }
 
-    function mostrarMensaje(texto, esError = false) {
-      const resDiv = document.getElementById('resultado');
-      resDiv.className = `mensaje ${esError ? 'error' : 'exito'}`;
-      resDiv.textContent = texto;
-      resDiv.style.display = 'block';
-    }
+    async function cargarSemana() {
+      const btn = document.querySelector('.btn-secondary');
+      const textoOriginal = btn ? btn.innerText : 'Actualizar';
 
-    async function hacerCheckin() {
-      const reservaId = document.getElementById('reservaId').value.trim();
-      const btn = document.getElementById('btnCheckin');
-
-      if (!reservaId) {
-        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
-        return;
+      if (btn) {
+        btn.innerText = 'Consultando...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'not-allowed';
       }
 
-      btn.disabled = true;
-      btn.innerText = 'Procesando...';
+      const fechaInicio = document.getElementById('fechaInicio').value;
 
       try {
-        const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
-        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
-          mostrarMensaje(resultado.mensaje || 'Check-in realizado correctamente.', false);
-        } else {
-          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-in.', true);
+        const resultado = await api({ action: 'resumenSemana', fechaInicio });
+
+        if (!resultado.ok) {
+          alert(resultado.mensaje || 'Error al obtener datos');
+          return;
         }
+
+        pintarSemana(resultado.semana);
+
+        if (btn) {
+          btn.innerText = '¡Actualizado!';
+          btn.style.backgroundColor = '#dcfce7'; // Verde suave
+          btn.style.color = '#15803d';
+        }
+
       } catch (error) {
-        mostrarMensaje('Error de conexión con el servidor.', true);
+        alert('Error de conexión al cargar la semana');
       } finally {
-        btn.disabled = false;
-        btn.innerText = 'Confirmar ingreso';
+        if (btn) {
+          setTimeout(() => {
+            btn.innerText = textoOriginal;
+            btn.disabled = false;
+            btn.style.backgroundColor = '#e0e0e0';
+            btn.style.color = '#333333';
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+          }, 1500);
+        }
       }
     }
 
-    async function hacerCheckout() {
-      const reservaId = document.getElementById('reservaId').value.trim();
-      const btn = document.getElementById('btnCheckout');
+    function pintarSemana(dias) {
+      const contenedor = document.getElementById('semana');
+      contenedor.innerHTML = '';
 
-      if (!reservaId) {
-        mostrarMensaje('Por favor, ingresa un ID de reserva válido.', true);
-        return;
-      }
+      dias.forEach(dia => {
+        const div = document.createElement('div');
+        div.className = 'dia';
 
-      btn.disabled = true;
-      btn.innerText = 'Procesando...';
+        const fecha = new Date(dia.fecha + 'T12:00:00');
+        const nombre = fecha.toLocaleDateString('es-CL', { weekday: 'long' });
 
-      try {
-        const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
-        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
-          mostrarMensaje(resultado.mensaje || 'Check-out realizado correctamente.', false);
-        } else {
-          mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-out.', true);
-        }
-      } catch (error) {
-        mostrarMensaje('Error de conexión con el servidor.', true);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Registrar salida';
-      }
+        div.innerHTML = `
+          <h3>${capitalizar(nombre)}</h3>
+          <small>${dia.fecha}</small>
+          
+          <!-- Resumen compacto -->
+          <div class="resumen-metrica">
+            <div class="metrica-item">
+              <span>Capacidad</span>
+              <strong>${dia.capacidad}</strong>
+            </div>
+            <div class="metrica-item">
+              <span>Reservados</span>
+              <strong>${dia.reservado}</strong>
+            </div>
+            <div class="metrica-item">
+              <span>Disponibles</span>
+              <strong>${dia.disponibles}</strong>
+            </div>
+            <div class="metrica-item">
+              <span>Clases</span>
+              <strong>${dia.clases.length}</strong>
+            </div>
+          </div>
+          <hr style="margin-top: 10px;">
+        `;
+
+        dia.reservas
+          .sort((a, b) => a.HoraInicio.localeCompare(b.HoraInicio))
+          .forEach(reserva => {
+            const bloque = document.createElement('div');
+            bloque.className = 'reserva';
+            bloque.innerHTML = `
+              <strong>${reserva.HoraInicio}</strong> <br>
+              ${reserva.ClienteID} <br>
+              ${reserva.Cantidad} personas <br>
+              ${reserva.Estado}
+            `;
+            div.appendChild(bloque);
+          });
+
+        contenedor.appendChild(div);
+      });
     }
+
+    function capitalizar(texto) {
+      return (
+        texto.charAt(0).toUpperCase() + texto.slice(1)
+      );
+    }
+
+    cargarSemana();
   </script>
+
 </body>
 
 </html>
