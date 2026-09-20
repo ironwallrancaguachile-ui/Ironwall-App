@@ -798,213 +798,68 @@
     /* ==================================================
        CREAR CLASE
     ================================================== */
-
-    async function crearClase() {
-
-      const nombre =
-        document.getElementById('nombre')
-          .value
-          .trim();
-
-      const fecha =
-        document.getElementById('fecha')
-          .value;
-
-      const horaInicio =
-        document.getElementById('horaInicio')
-          .value;
-
-      const duracion =
-        Number(
-          document.getElementById('duracion')
-            .value
-        );
-
-      const capacidad =
-        document.getElementById('capacidad')
-          .value;
-
-      const instructorId =
-        document.getElementById('instructorId')
-          .value
-          .trim();
-
-      const msj =
-        document.getElementById('msj');
-
-
-      msj.style.display = 'none';
-
-
-      /* -----------------------------------------------
-         VALIDACIÓN
-      ------------------------------------------------ */
-
-      if (
-        !nombre ||
-        !fecha ||
-        !horaInicio ||
-        !duracion ||
-        !capacidad ||
-        !instructorId
-      ) {
-
-        mostrarMensaje(
-          'Por favor completa todos los campos.',
-          true
-        );
-
-        return;
-
-      }
-
-
-      /* -----------------------------------------------
-         CALCULAR HORA FIN
-      ------------------------------------------------ */
-
-      const horaFin =
-        calcularHoraFin();
-
-
-      if (!horaFin) {
-
-        mostrarMensaje(
-          'Revisa la hora de inicio y la duración.',
-          true
-        );
-
-        return;
-
-      }
-
-
-      /* -----------------------------------------------
-         BOTÓN
-      ------------------------------------------------ */
-
-      const btn =
-        document.getElementById('btnCrear');
-
-      btn.innerText =
-        'Creando clase...';
-
-      btn.disabled = true;
-
-
-      try {
-
-        /* ---------------------------------------------
-           LLAMADA AL BACKEND
-           Se mantienen exactamente las mismas
-           variables que espera Backend.gs.
-        ---------------------------------------------- */
-
-        const resultado =
-          await api({
-
-            action: 'crearClase',
-
-            nombre,
-
-            fecha,
-
-            horaInicio,
-
-            horaFin,
-
-            capacidad,
-
-            instructorId,
-
-            creadoPor: 'STAFF'
-
-          });
-
-
-        /* ---------------------------------------------
-           ÉXITO
-        ---------------------------------------------- */
-
-        if (resultado.ok) {
-
-          mostrarMensaje(
-            '¡Clase creada exitosamente!'
-          );
-
-
-          /* -------------------------------------------
-             LIMPIAR FORMULARIO
-          -------------------------------------------- */
-
-          document.getElementById('nombre')
-            .value = '';
-
-          document.getElementById('horaInicio')
-            .value = '';
-
-          document.getElementById('duracion')
-            .value = '2';
-
-          document.getElementById('capacidad')
-            .value = '8';
-
-          document.getElementById('instructorId')
-            .value = '';
-
-
-          /* -------------------------------------------
-             RESTABLECER HORARIO
-          -------------------------------------------- */
-
-          const horario =
-            document.getElementById(
-              'horarioCalculado'
-            );
-
-          horario.className =
-            'horario-calculado';
-
-          horario.innerText =
-            'Selecciona hora de inicio y duración';
-
-
-          /* -------------------------------------------
-             ACTUALIZAR LISTADO
-          -------------------------------------------- */
-
-          cargarClases();
-
-        } else {
-
-          mostrarMensaje(
-            resultado.mensaje ||
-            'Error en el servidor al crear la clase',
-            true
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-        mostrarMensaje(
-          'Error de conexión con el servidor',
-          true
-        );
-
-      } finally {
-
-        btn.innerText =
-          'Crear Clase';
-
-        btn.disabled =
-          false;
-
-      }
-
+async function crearClase() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const fecha = document.getElementById('fecha').value;
+  const horaInicio = document.getElementById('horaInicio').value;
+  const horaFin = document.getElementById('horaFin').value;
+  const capacidad = document.getElementById('capacidad').value;
+  const instructorId = document.getElementById('instructorId').value.trim();
+  const btn = document.getElementById('btnCrear');
+
+  // Validar antes de deshabilitar
+  if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
+    alert('Por favor completa todos los campos requeridos.');
+    return;
+  }
+
+  // 1. ESTADO EN PROGRESO (Bloquear botón y actualizar texto)
+  const textoOriginal = btn.innerText;
+  btn.innerText = 'Creando clase...';
+  btn.disabled = true;
+
+  try {
+    const resultado = await api({
+      action: 'crearClase',
+      nombre: nombre,
+      fecha: fecha,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      capacidad: Number(capacidad),
+      instructorId: instructorId,
+      usuario: 'STAFF',   // Prueba 'usuario' o 'creadoPor' según lo que reciba tu Apps Script
+      creadoPor: 'STAFF'
+    });
+
+    if (resultado.ok) {
+      // Feedback de éxito
+      btn.innerText = '¡Creada con éxito!';
+      btn.style.backgroundColor = '#16a34a';
+
+      // Limpiar formulario
+      document.getElementById('nombre').value = '';
+      document.getElementById('horaInicio').value = '';
+      document.getElementById('horaFin').value = '';
+      document.getElementById('capacidad').value = '8';
+      document.getElementById('instructorId').value = '';
+
+      // Actualizar la lista
+      cargarClases();
+    } else {
+      alert('Error al crear clase: ' + (resultado.mensaje || 'Respuesta no válida del servidor'));
     }
+  } catch (error) {
+    console.error(error);
+    alert('Error de conexión con el servidor.');
+  } finally {
+    // Restaurar estado original del botón tras 2 segundos
+    setTimeout(() => {
+      btn.innerText = textoOriginal;
+      btn.disabled = false;
+      btn.style.backgroundColor = '';
+    }, 2000);
+  }
+}
 
 
     /* ==================================================
