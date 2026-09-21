@@ -483,16 +483,7 @@
           }
           return;
         }
-          
-console.log('VERSION HTML: suma-cantidad');
-console.table((resultado.reservas || []).map(r => ({
-  id: r.ReservaID,
-  estado: r.Estado,
-  cantidad: r.Cantidad,
-  tipoDeCantidad: typeof r.Cantidad
-})));
-console.log('reservado del backend:', resultado.reservado, '| disponibles del backend:', resultado.disponibles);
-          
+                   
         const lista = resultado.reservas || [];
         const capacidad = Number(resultado.capacidad) || 0;
         
