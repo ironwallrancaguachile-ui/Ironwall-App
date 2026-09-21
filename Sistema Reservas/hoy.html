@@ -431,13 +431,24 @@
 
     document.getElementById('fecha').value = fechaHoy();
 
-    async function api(body) {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(body)
-      });
-      return response.json();
+    // Función api mejorada con reintentos para soportar el "cold start" de Google Apps Script
+    async function api(body, reintentos = 2) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+        return await response.json();
+      } catch (error) {
+        if (reintentos > 0) {
+          // Si la primera llamada falla por timeout de servidor, espera 1.5s y reintenta
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          return api(body, reintentos - 1);
+        }
+        throw error;
+      }
     }
+
     async function cargarHoy() {
       const fecha = document.getElementById('fecha').value;
       const mensajeEl = document.getElementById('mensaje');
@@ -505,7 +516,7 @@
         }
       }
     }
-   
+
     function pintarReservas(reservas) {
       const tbody = document.getElementById('tablaReservas');
       tbody.innerHTML = '';
