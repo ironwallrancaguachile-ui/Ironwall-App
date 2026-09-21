@@ -482,17 +482,24 @@
           }
           return;
         }
-              // En tu función de renderizado en hoy.html:
-        /*document.getElementById('cant-capacidad').innerText   = respuesta.capacidad;   // Ej: 30
-        document.getElementById('cant-reservados').innerText  = respuesta.reservado;   // Ej: 7 (personas sin entrar)
-        document.getElementById('cant-dentro').innerText      = respuesta.dentro;      // Ej: 3 (personas dentro)
-        document.getElementById('cant-disponibles').innerText = respuesta.disponibles; // Ej: 20 (30 - 7 - 3)  */
-          
-        document.getElementById('capacidad').textContent = resultado.capacidad || 0;
-        document.getElementById('reservado').textContent = resultado.reservado || 0;
-        document.getElementById('dentro').textContent = resultado.dentro || 0;
-        document.getElementById('disponibles').textContent = resultado.disponibles || 0;
-        document.getElementById('clases').textContent = resultado.clases ? resultado.clases.length : 0;
+        
+        const lista = resultado.reservas || [];
+        const capacidad = Number(resultado.capacidad) || 0;
+        
+        const sumarPersonas = (estados) =>
+          lista
+            .filter(r => estados.includes(r.Estado))
+            .reduce((total, r) => total + (Number(r.Cantidad) || 0), 0);
+        
+        const reservado = sumarPersonas(['RESERVADA']);
+        const dentro = sumarPersonas(['CHECKIN']);
+        const disponibles = Math.max(capacidad - reservado - dentro, 0);
+        
+        document.getElementById('capacidad').textContent = capacidad;
+        document.getElementById('reservado').textContent = reservado;
+        document.getElementById('dentro').textContent = dentro;
+        document.getElementById('disponibles').textContent = disponibles;
+        document.getElementById('clases').textContent = (resultado.clases || []).length;
 
         pintarReservas(resultado.reservas || []);
 
