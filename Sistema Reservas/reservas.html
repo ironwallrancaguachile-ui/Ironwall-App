@@ -74,26 +74,30 @@ body {
   margin: 0 auto 16px;
 }
 
-.btnHome {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  color: #222;
-  text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  border: 1px solid #e8ecef;
-  transition: transform .2s, box-shadow .2s;
-}
-
-.btnHome:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,.12);
-}
+  .btnHome {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px; /* Espacio entre el logo y el texto */
+      background: #ffffff;
+      color: #222;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+      border: 1px solid #e8ecef;
+      transition: transform .2s, box-shadow .2s;
+    }
+    
+    /* Control del tamaño del logo dentro del botón */
+    .logo-btn {
+      height: 36px;
+      width: auto; /* Permite que el ancho se ajuste solo */
+      object-fit: contain;
+      transform: scale(1.8); /* Agranda la imagen visualmente un 40% omitiendo sus bordes vacíos */
+      transform-origin: center;
+    }
 
 h1 {
   font-size: 22px;
@@ -381,12 +385,13 @@ button, .btn {
 <body>
 <div class="container">
   
-  <!-- BARRA DE NAVEGACIÓN -->
-  <div class="barraNavegacion">
-    <a href="index.html" class="btnHome">
-      <span>← Inicio</span>
-    </a>
-  </div>
+<!-- BARRA DE NAVEGACIÓN -->
+    <div class="barraNavegacion">
+      <a href="index.html" class="btnHome">
+          <img src="img/logosn.png" alt="Logo" class="logo-btn">
+          <span>←Inicio</span>
+      </a>
+    </div>
 
   <h1>Sistema de Reservas</h1>
   <p class="subtitulo">Consulta disponibilidad y gestiona reservas en línea</p>
