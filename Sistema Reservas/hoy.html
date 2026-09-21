@@ -294,29 +294,29 @@
       letter-spacing: 0.5px;
     }
     /* Estilos para los badges de estado */
-.badge-estado {
-  font-weight: 600;
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  display: inline-block;
-  text-transform: uppercase;
-}
+    .badge-estado {
+      font-weight: 600;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      text-transform: uppercase;
+    }
 
-.estado-reservada {
-  background-color: #fef3c7;
-  color: #92400e;
-}
+    .estado-reservada {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
 
-.estado-checkin {
-  background-color: #dcfce7;
-  color: #15803d;
-}
+    .estado-checkin {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
 
-.estado-cancelada, .estado-noshow {
-  background-color: #fee2e2;
-  color: #dc2626;
-}
+    .estado-cancelada, .estado-noshow {
+      background-color: #fee2e2;
+      color: #dc2626;
+    }
 
     /* --- RESPONSIVE --- */
     @media (max-width: 820px) {
@@ -445,24 +445,56 @@
       mensajeEl.textContent = '';
       mensajeEl.className = 'mensaje';
 
-      const resultado = await api({
-        action: 'resumenHoy',
-        fecha
-      });
+      const btn = document.querySelector('.fila-consulta .btn-consultar');
+      const textoOriginal = btn ? btn.innerText : 'Actualizar';
 
-      if (!resultado.ok) {
-        mensajeEl.textContent = resultado.mensaje;
-        mensajeEl.className = 'mensaje error';
-        return;
+      if (btn) {
+        btn.innerText = 'Consultando...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'not-allowed';
       }
 
-      document.getElementById('capacidad').textContent = resultado.capacidad;
-      document.getElementById('reservado').textContent = resultado.reservado;
-      document.getElementById('dentro').textContent = resultado.dentro;
-      document.getElementById('disponibles').textContent = resultado.disponibles;
-      document.getElementById('clases').textContent = resultado.clases.length;
+      try {
+        const resultado = await api({
+          action: 'resumenHoy',
+          fecha
+        });
 
-      pintarReservas(resultado.reservas);
+        if (!resultado.ok) {
+          mensajeEl.textContent = resultado.mensaje;
+          mensajeEl.className = 'mensaje error';
+          return;
+        }
+
+        document.getElementById('capacidad').textContent = resultado.capacidad;
+        document.getElementById('reservado').textContent = resultado.reservado;
+        document.getElementById('dentro').textContent = resultado.dentro;
+        document.getElementById('disponibles').textContent = resultado.disponibles;
+        document.getElementById('clases').textContent = resultado.clases.length;
+
+        pintarReservas(resultado.reservas);
+
+        if (btn) {
+          btn.innerText = '¡Actualizado!';
+          btn.style.backgroundColor = '#dcfce7';
+          btn.style.color = '#15803d';
+        }
+      } catch (error) {
+        mensajeEl.textContent = 'Error al conectar con el servidor';
+        mensajeEl.className = 'mensaje error';
+      } finally {
+        if (btn) {
+          setTimeout(() => {
+            btn.innerText = textoOriginal;
+            btn.disabled = false;
+            btn.style.backgroundColor = '#e0e0e0';
+            btn.style.color = '#333333';
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+          }, 1500);
+        }
+      }
     }
 
     function pintarReservas(reservas) {
