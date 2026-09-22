@@ -101,9 +101,7 @@
     /* --- DISPOSICIÓN EN FILA DE TARJETAS SUPERIORES --- */
     .grid-superior {
       display: block;
-      gap: 20px;
       margin-bottom: 20px;
-      align-items: stretch;
     }
     /* --- TARJETAS --- */
 
@@ -574,28 +572,32 @@
 
     }
 
-
-    /* ==================================================
-       API
+/* ==================================================
+       API (Versión estable)
     ================================================== */
 
     async function api(body) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
 
-      const response = await fetch(API_URL, {
+        const texto = await response.text();
 
-        method: 'POST',
-
-        headers: {
-          'Content-Type':
-            'text/plain;charset=utf-8'
-        },
-
-        body: JSON.stringify(body)
-
-      });
-
-      return response.json();
-
+        try {
+          return JSON.parse(texto);
+        } catch (e) {
+          console.error("Respuesta no-JSON recibida:", texto);
+          return {
+            ok: false,
+            mensaje: "Error de respuesta del servidor (formato no válido)."
+          };
+        }
+      } catch (error) {
+        console.error("Error de conexión:", error);
+        throw error;
+      }
     }
 
 
