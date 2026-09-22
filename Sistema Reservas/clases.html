@@ -330,6 +330,65 @@
       letter-spacing: 0.5px;
     }
 
+    /* --- REPETICIÓN DE CLASE --- */
+    .panel-repeticion {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      border: 1px solid #e8ecef;
+    }
+
+    .titulo-repeticion {
+      font-size: 12px;
+      font-weight: 700;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 12px;
+    }
+
+    .repeticion-grid {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .dias-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 1px;
+    }
+
+    .dias-grid label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0;
+      padding: 7px 9px;
+      border: 1px solid #d9dde1;
+      border-radius: 7px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .dias-grid input {
+      width: auto;
+      height: auto;
+      margin: 0;
+    }
+
+    .ayuda-repeticion {
+      margin-top: 10px;
+      color: #777;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
     /* --- RESPONSIVE --- */
     @media (max-width: 640px) {
       body {
@@ -450,10 +509,56 @@
           <input id="instructorId" placeholder="Ej: INST-01">
         </div>
         
-      <!-- HORARIO CALCULADO (este era el que faltaba) -->
+              <!-- REPETICIÓN -->
+        <div>
+          <label for="repetirClase"> Repetir clase </label>
+          <select id="repetirClase">
+            <option value="NO" selected>No repetir</option>
+            <option value="SI">Repetir semanalmente</option>
+          </select>
+        </div>
+
+<!-- HORARIO CALCULADO (este era el que faltaba) -->
       <div id="horarioCalculado" class="horario-calculado">
         Selecciona hora de inicio y duración
       </div>
+      <!-- CONFIGURACIÓN DE REPETICIÓN -->
+      <div id="panelRepeticion" class="panel-repeticion" style="display:none;">
+        <div class="titulo-repeticion">Repetición semanal</div>
+
+        <div class="repeticion-grid">
+          <div>
+            <label for="semanasRepeticion">Durante</label>
+            <select id="semanasRepeticion">
+              <option value="2">2 semanas</option>
+              <option value="3">3 semanas</option>
+              <option value="4" selected>4 semanas</option>
+              <option value="5">5 semanas</option>
+              <option value="6">6 semanas</option>
+              <option value="8">8 semanas</option>
+              <option value="12">12 semanas</option>
+            </select>
+          </div>
+
+          <div class="dias-repeticion">
+            <label>Días</label>
+            <div class="dias-grid">
+              <label><input type="checkbox" class="dia-repeticion" value="1"> Lun</label>
+              <label><input type="checkbox" class="dia-repeticion" value="2"> Mar</label>
+              <label><input type="checkbox" class="dia-repeticion" value="3"> Mié</label>
+              <label><input type="checkbox" class="dia-repeticion" value="4"> Jue</label>
+              <label><input type="checkbox" class="dia-repeticion" value="5"> Vie</label>
+              <label><input type="checkbox" class="dia-repeticion" value="6"> Sáb</label>
+              <label><input type="checkbox" class="dia-repeticion" value="0"> Dom</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="ayuda-repeticion">
+          Se crearán las clases en las fechas seleccionadas, manteniendo el mismo horario, capacidad e instructor.
+        </div>
+      </div>
+
       <!-- CREAR -->
       <button class="btn-reservar" id="btnCrear" onclick="crearClase()">
         Crear Clase
@@ -752,67 +857,226 @@
     /* ==================================================
        CREAR CLASE
     ================================================== */
-async function crearClase() {
-  const nombre = document.getElementById('nombre').value.trim();
-  const fecha = document.getElementById('fecha').value;
-  const horaInicio = document.getElementById('horaInicio').value;
-  const horaFin = calcularHoraFin();
-  const capacidad = document.getElementById('capacidad').value;
-  const instructorId = document.getElementById('instructorId').value.trim();
-  const btn = document.getElementById('btnCrear');
 
-  // Validar antes de deshabilitar
-if (!nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId) {
-    mostrarMensaje('Por favor completa todos los campos requeridos y verifica el horario.', true);
-    return;
-  }
-
-  // 1. ESTADO EN PROGRESO (Bloquear botón y actualizar texto)
-  const textoOriginal = btn.innerText;
-  btn.innerText = 'Creando clase...';
-  btn.disabled = true;
-
-  try {
-    const resultado = await api({
-      action: 'crearClase',
-      nombre: nombre,
-      fecha: fecha,
-      horaInicio: horaInicio,
-      horaFin: horaFin,
-      capacidad: Number(capacidad),
-      instructorId: instructorId,
-      usuario: 'STAFF',   // Prueba 'usuario' o 'creadoPor' según lo que reciba tu Apps Script
-      creadoPor: 'STAFF'
-    });
-
-    if (resultado.ok) {
-      // Feedback de éxito
-      mostrarMensaje('¡Clase creada con éxito!');
-      btn.innerText = '¡Creada con éxito!';
-      btn.style.backgroundColor = '#16a34a';
-
-      // Limpiar formulario
-      document.getElementById('nombre').value = '';
-      document.getElementById('horaInicio').value = '';
-      document.getElementById('instructorId').value = '';
-      calcularHoraFin();
-
-      // Actualizar la lista
-cargarClases();
-    } else {
-      mostrarMensaje(resultado.mensaje || 'Error del servidor al crear clase.', true);
+    function obtenerDiasRepeticion() {
+      return Array.from(
+        document.querySelectorAll('.dia-repeticion:checked')
+      ).map(el => Number(el.value));
     }
-  } catch (error) {
-    console.error(error);
-    mostrarMensaje('Error de conexión con el servidor.', true);
-  } finally {
-    setTimeout(() => {
-      btn.innerText = textoOriginal;
-      btn.disabled = false;
-      btn.style.backgroundColor = '';
-    }, 2000);
-  }
-}
+
+    function generarFechasRepeticion(fechaInicio, semanas, diasSeleccionados) {
+      const fechas = [];
+      const inicio = new Date(fechaInicio + 'T12:00:00');
+
+      if (isNaN(inicio.getTime())) return fechas;
+
+      const dias = diasSeleccionados.length
+        ? diasSeleccionados
+        : [inicio.getDay()];
+
+      const totalDias = Math.max(1, Number(semanas)) * 7;
+
+      for (let i = 0; i < totalDias; i++) {
+        const fecha = new Date(inicio);
+        fecha.setDate(inicio.getDate() + i);
+
+        if (dias.includes(fecha.getDay())) {
+          fechas.push([
+            fecha.getFullYear(),
+            String(fecha.getMonth() + 1).padStart(2, '0'),
+            String(fecha.getDate()).padStart(2, '0')
+          ].join('-'));
+        }
+      }
+
+      return fechas;
+    }
+
+    function seleccionarDiaInicialSiEsNecesario() {
+      const checks =
+        document.querySelectorAll('.dia-repeticion:checked');
+
+      if (checks.length > 0) return;
+
+      const fecha =
+        document.getElementById('fecha').value;
+
+      if (!fecha) return;
+
+      const d =
+        new Date(fecha + 'T12:00:00');
+
+      const check =
+        document.querySelector(
+          `.dia-repeticion[value="${d.getDay()}"]`
+        );
+
+      if (check) check.checked = true;
+    }
+
+    function actualizarPanelRepeticion() {
+      const repetir =
+        document.getElementById('repetirClase').value === 'SI';
+
+      document.getElementById('panelRepeticion').style.display =
+        repetir ? 'block' : 'none';
+
+      if (repetir) seleccionarDiaInicialSiEsNecesario();
+    }
+
+    async function crearClase() {
+      const nombre =
+        document.getElementById('nombre').value.trim();
+
+      const fecha =
+        document.getElementById('fecha').value;
+
+      const horaInicio =
+        document.getElementById('horaInicio').value;
+
+      const horaFin =
+        calcularHoraFin();
+
+      const capacidad =
+        document.getElementById('capacidad').value;
+
+      const instructorId =
+        document.getElementById('instructorId').value.trim();
+
+      const repetir =
+        document.getElementById('repetirClase').value === 'SI';
+
+      const btn =
+        document.getElementById('btnCrear');
+
+      if (
+        !nombre ||
+        !fecha ||
+        !horaInicio ||
+        !horaFin ||
+        !capacidad ||
+        !instructorId
+      ) {
+        mostrarMensaje(
+          'Por favor completa todos los campos requeridos y verifica el horario.',
+          true
+        );
+        return;
+      }
+
+      let fechas = [fecha];
+
+      if (repetir) {
+        seleccionarDiaInicialSiEsNecesario();
+
+        const dias = obtenerDiasRepeticion();
+
+        const semanas =
+          Number(
+            document.getElementById('semanasRepeticion').value
+          );
+
+        fechas =
+          generarFechasRepeticion(
+            fecha,
+            semanas,
+            dias
+          );
+
+        if (!fechas.length) {
+          mostrarMensaje(
+            'No se encontraron fechas para crear las clases.',
+            true
+          );
+          return;
+        }
+      }
+
+      const textoOriginal = btn.innerText;
+
+      btn.innerText =
+        repetir
+          ? 'Creando clases...'
+          : 'Creando clase...';
+
+      btn.disabled = true;
+
+      try {
+        const resultado =
+          await api({
+            action:
+              repetir
+                ? 'crearClases'
+                : 'crearClase',
+
+            nombre,
+            fecha: fechas[0],
+            fechas: repetir ? fechas : undefined,
+            horaInicio,
+            horaFin,
+            capacidad: Number(capacidad),
+            instructorId,
+            usuario: 'STAFF',
+            creadoPor: 'STAFF'
+          });
+
+        if (resultado.ok) {
+          const cantidadCreadas =
+            Number(
+              resultado.cantidadCreadas ||
+              (repetir ? fechas.length : 1)
+            );
+
+          mostrarMensaje(
+            repetir
+              ? `${cantidadCreadas} clases creadas correctamente.`
+              : '¡Clase creada con éxito!'
+          );
+
+          btn.innerText =
+            repetir
+              ? `${cantidadCreadas} clases creadas`
+              : '¡Creada con éxito!';
+
+          btn.style.backgroundColor = '#16a34a';
+
+          document.getElementById('nombre').value = '';
+          document.getElementById('horaInicio').value = '';
+          document.getElementById('instructorId').value = '';
+
+          document.getElementById('repetirClase').value = 'NO';
+          document.getElementById('panelRepeticion').style.display = 'none';
+
+          document
+            .querySelectorAll('.dia-repeticion')
+            .forEach(el => el.checked = false);
+
+          calcularHoraFin();
+          cargarClases();
+
+        } else {
+          mostrarMensaje(
+            resultado.mensaje ||
+            'Error del servidor al crear clase.',
+            true
+          );
+        }
+
+      } catch (error) {
+        console.error(error);
+        mostrarMensaje(
+          'Error de conexión con el servidor.',
+          true
+        );
+
+      } finally {
+        setTimeout(() => {
+          btn.innerText = textoOriginal;
+          btn.disabled = false;
+          btn.style.backgroundColor = '';
+        }, 2000);
+      }
+    }
 
 
     /* ==================================================
@@ -1105,6 +1369,35 @@ cargarClases();
       }
 
     }
+
+
+    /* ==================================================
+       EVENTOS DE REPETICIÓN
+    ================================================== */
+
+    document
+      .getElementById('repetirClase')
+      .addEventListener(
+        'change',
+        actualizarPanelRepeticion
+      );
+
+    document
+      .getElementById('fecha')
+      .addEventListener(
+        'change',
+        () => {
+          if (
+            document.getElementById('repetirClase').value === 'SI'
+          ) {
+            document
+              .querySelectorAll('.dia-repeticion')
+              .forEach(el => el.checked = false);
+
+            seleccionarDiaInicialSiEsNecesario();
+          }
+        }
+      );
 
 
     /* ==================================================
