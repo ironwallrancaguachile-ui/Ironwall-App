@@ -98,8 +98,16 @@
       font-size: 13px;
       margin-bottom: 20px;
     }
-
+    /* --- DISPOSICIÓN EN FILA DE TARJETAS SUPERIORES --- */
+    .grid-superior {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+      align-items: stretch;
+    }
     /* --- TARJETAS --- */
+
     .card {
       background: #ffffff;
       border-radius: 12px;
@@ -366,6 +374,7 @@
          INDICADORES
     ================================================== -->
       <!-- TARJETA 2: INDICADORES DEL DÍA -->
+    <div class="grid-superior">
       <div class="card">
         <div class="titulo-card">Resumen del Día</div>
         <div class="indicadores">
@@ -383,8 +392,7 @@
           </div>
         </div>
       </div>
-
-
+     </div>
 
     <!-- ==================================================
          CREAR CLASE
