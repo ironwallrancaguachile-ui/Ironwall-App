@@ -851,21 +851,30 @@ function actualizarEstadoBotonReserva() {
    PETICIÓN A LA API
 ========================================================= */
 async function api(body, reintentos = 2) {
+  // Crear un controlador de cancelación con timeout de 8 segundos
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: controller.signal
     });
     
+    clearTimeout(timeoutId); // Limpiar el timer si respondió a tiempo
+    
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP status: ${response.status}`);
     }
     
     return await response.json();
   } catch (error) {
+    clearTimeout(timeoutId);
+
     if (reintentos > 0) {
-      // Si ocurre un error 404 de redirección o red, espera 1.2 segundos y reintenta
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      // Si fue cancelado por timeout o fallo de red, esperar 1.5s y reintentar
+      await new Promise(resolve => setTimeout(resolve, 1500));
       return api(body, reintentos - 1);
     }
     throw error;
