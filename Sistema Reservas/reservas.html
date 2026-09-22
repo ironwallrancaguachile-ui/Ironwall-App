@@ -850,17 +850,26 @@ function actualizarEstadoBotonReserva() {
 /* =========================================================
    PETICIÓN A LA API
 ========================================================= */
-async function api(body) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!response.ok) throw new Error('Error de conexión con el servidor');
-  return await response.json();
+async function api(body, reintentos = 2) {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    if (reintentos > 0) {
+      // Si ocurre un error 404 de redirección o red, espera 1.2 segundos y reintenta
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      return api(body, reintentos - 1);
+    }
+    throw error;
+  }
 }
 
 function mostrarMensaje(texto, tipo) {
