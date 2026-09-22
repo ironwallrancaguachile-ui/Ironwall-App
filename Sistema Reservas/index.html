@@ -42,6 +42,7 @@ align-items:center;
 max-width:1450px;
 margin:0 auto 5px auto;
 padding:10px 35px;
+position: relative; /* Necesario para ubicar elementos secundarios */
 }
 
 .marca{
@@ -91,6 +92,35 @@ font-size:13px;
 letter-spacing:.5px;
 }
 
+.header-derecha {
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+.btn-config {
+display:flex;
+align-items:center;
+justify-content:center;
+width:42px;
+height:42px;
+background:white;
+border-radius:10px;
+color:#222;
+font-size:20px;
+text-decoration:none;
+box-shadow:0 2px 8px rgba(0,0,0,.04);
+border: 1px solid #e8ecef;
+transition:.2s;
+}
+
+.btn-config:hover {
+transform:translateY(-2px);
+box-shadow:0 6px 16px rgba(0,0,0,.08);
+border-color:#d0d7de;
+color:#000;
+}
+
 .infoSistema{
 text-align:left;
 font-size:12px;
@@ -98,7 +128,7 @@ color:#666;
 line-height:1.6;
 padding-left:25px;
 border-left:2px solid #e5e5e5;
-min-width:250px;
+min-width:200px;
 font-variant-numeric: tabular-nums;
 }
 
@@ -187,15 +217,21 @@ letter-spacing:.5px;
     width: 100%;
     text-align: left;
   }
+
+  .header-derecha {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 12px;
+  }
   
   /* LOGO MÁS PEQUEÑO (180px) */
   header img {
-    width: 180px !important; /* <-- REDUCIDO DE 240px A 180px */
+    width: 180px !important;
     max-width: 100%;
     height: auto;
     margin-right: 0;
     margin-top: -10px;
-    margin-bottom: -30px; /* <--*/
+    margin-bottom: -30px;
     transform: none;
     display: block;
   }
@@ -205,11 +241,10 @@ letter-spacing:.5px;
     width: 100%;
     padding-left: 10px !important;
     margin-top: -10px;
-    margin-bottom: -30px; /* <--*/
-    margin-left: -20px; /* <--*/
+    margin-bottom: -30px;
+    margin-left: -20px;
   }
   
-  /* MANTENIMIENTO RIGUROSO DE VALORES EN AMBAS ORIENTACIONES */
   .logoTexto {
     font-size: 23px !important;
     letter-spacing: 1px;
@@ -232,7 +267,6 @@ letter-spacing:.5px;
   }
   
   .infoSistema {
-    margin-top: 12px;
     border-left: none;
     border-top: 2px solid #e5e5e5;
     padding-top: 10px;
@@ -278,17 +312,22 @@ letter-spacing:.5px;
     align-items: center !important;
     margin: 0 auto 10px auto !important;
   }
-  /* Coloca la marca en horizontal y pasa el logo a la DERECHA del texto */
+  
   .marca {
-    flex-direction: row !important; /* Título a la der, Logo a la izq */
+    flex-direction: row !important;
     justify-content: center;
     align-items: center;
     gap: 15px;
   }
 
+  .header-derecha {
+    width: auto !important;
+    margin-top: 0 !important;
+  }
+
   header img {
-    margin: 0 !important; /* Elimina márgenes negativos verticales en horizontal */
-    width: 150px !important; /* Tamaño aún más compacto para no forzar scroll */
+    margin: 0 !important;
+    width: 150px !important;
   }
 
   .tituloMarca {
@@ -296,6 +335,7 @@ letter-spacing:.5px;
     padding-left: 0 !important;
     margin-top: 0 !important;
   }
+
   .infoSistema {
     border-left: 2px solid #e5e5e5;
     border-top: none;
@@ -304,7 +344,7 @@ letter-spacing:.5px;
   }
 
   .grid {
-    grid-template-columns: repeat(5, 1fr) !important; /* 4 columnas para aprovechar el ancho */
+    grid-template-columns: repeat(5, 1fr) !important;
   }
 }
 </style>
@@ -325,12 +365,16 @@ letter-spacing:.5px;
       </div>
     </div>  
 
-  <div class="infoSistema">
+  <div class="header-derecha">
+    <div class="infoSistema">
+      Sistema interno<br>
+      Operación Boulder<br>
+      Rancagua
+    </div>
 
-    Sistema interno<br>
-    Operación Boulder<br>
-    Rancagua
-
+    <a href="config.html" class="btn-config" title="Configuración">
+      ⚙️
+    </a>
   </div>
 
 </header>
