@@ -486,7 +486,8 @@ let tipoReserva = 'ENTRADA';
 let cuposConsultados = false;
 let disponiblesActuales = 0;
 let horaFinCalculada = '16:00';
-
+let consultaIdActual = 0;
+let consultaEnCurso = false;
 /* =========================================================
    INICIALIZACIÓN
 ========================================================= */
@@ -542,14 +543,31 @@ function calcularHorarioResultante() {
 
   invalidarConsulta();
 }
-
+/* =========================================================
+   INVALIDAR CONSULTA
+========================================================= */
 function invalidarConsulta() {
+
+  /*
+   * Invalidamos cualquier consulta anterior.
+   */
+  consultaIdActual++;
+
+  consultaEnCurso = false;
+
   cuposConsultados = false;
   disponiblesActuales = 0;
-  const resBox = document.getElementById('resultadoConsulta');
-  if (resBox) resBox.style.display = 'none';
+
+  const resultado =
+    document.getElementById('resultadoConsulta');
+
+  if (resultado) {
+    resultado.style.display = 'none';
+  }
+
   actualizarEstadoBotonReserva();
 }
+  
 
 /* =========================================================
    SELECCIÓN DE TIPO DE RESERVA
@@ -589,13 +607,20 @@ function alSeleccionarClase() {
    1. CONSULTAR DISPONIBILIDAD
 ========================================================= */
 async function consultarDisponibilidad() {
+
   const fecha = document.getElementById('fecha').value;
+
   let horaInicio = document.getElementById('horaInicio').value;
   let horaFin = horaFinCalculada;
 
   if (tipoReserva === 'CLASE') {
+
     const claseSelect = document.getElementById('claseSelect');
-    const opt = claseSelect ? claseSelect.options[claseSelect.selectedIndex] : null;
+
+    const opt = claseSelect
+      ? claseSelect.options[claseSelect.selectedIndex]
+      : null;
+
     if (opt && opt.dataset.inicio && opt.dataset.fin) {
       horaInicio = opt.dataset.inicio;
       horaFin = opt.dataset.fin;
@@ -603,20 +628,36 @@ async function consultarDisponibilidad() {
   }
 
   if (!fecha || !horaInicio || !horaFin) {
-    mostrarMensaje('Por favor, selecciona Fecha y Horario.', 'error');
+    mostrarMensaje(
+      'Por favor, selecciona Fecha y Horario.',
+      'error'
+    );
     return;
   }
 
+  /*
+   * Cada nueva consulta invalida automáticamente
+   * cualquier consulta anterior.
+   */
+  const miConsultaId = ++consultaIdActual;
+
+  consultaEnCurso = true;
+
   const btn = document.querySelector('.btn-consultar');
-  const textoOriginal = btn ? btn.innerText : 'Consultar';
+
+  const textoOriginal = btn
+    ? btn.innerText
+    : 'Consultar';
 
   if (btn) {
     btn.innerText = 'Consultando...';
     btn.disabled = true;
     btn.style.opacity = '0.7';
+    btn.style.cursor = 'not-allowed';
   }
 
   try {
+
     const resultado = await api({
       action: 'ocupacion',
       fecha: fecha,
@@ -624,46 +665,116 @@ async function consultarDisponibilidad() {
       horaFin: horaFin
     });
 
-    if (!resultado.ok) {
-      throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
+    /*
+     * Si mientras esperábamos se hizo otra consulta,
+     * esta respuesta ya quedó obsoleta.
+     */
+    if (miConsultaId !== consultaIdActual) {
+      return;
     }
 
-    document.getElementById('capacidad').textContent = resultado.capacidad || 0;
-    document.getElementById('ocupacion').textContent = resultado.ocupacion || 0;
-    document.getElementById('disponibles').textContent = resultado.disponibles || 0;
+    if (!resultado.ok) {
+      throw new Error(
+        resultado.mensaje ||
+        'Error al obtener disponibilidad'
+      );
+    }
 
-    const resBox = document.getElementById('resultadoConsulta');
-    if (resBox) resBox.style.display = 'block';
+    document.getElementById('capacidad').textContent =
+      resultado.capacidad || 0;
 
-    disponiblesActuales = Number(resultado.disponibles || 0);
+    document.getElementById('ocupacion').textContent =
+      resultado.ocupacion || 0;
+
+    document.getElementById('disponibles').textContent =
+      resultado.disponibles || 0;
+
+    const resBox =
+      document.getElementById('resultadoConsulta');
+
+    if (resBox) {
+      resBox.style.display = 'block';
+    }
+
+    disponiblesActuales =
+      Number(resultado.disponibles || 0);
+
     cuposConsultados = true;
 
     actualizarEstadoBotonReserva();
 
-    if (resultado.lleno || disponiblesActuales === 0) {
-      mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
+    if (
+      resultado.lleno ||
+      disponiblesActuales === 0
+    ) {
+
+      mostrarMensaje(
+        'No hay cupos disponibles para este horario.',
+        'error'
+      );
+
     } else {
-      mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`, 'exito');
+
+      mostrarMensaje(
+        `¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`,
+        'exito'
+      );
     }
 
     if (btn) {
+
       btn.innerText = '¡Actualizado!';
       btn.style.backgroundColor = '#dcfce7';
       btn.style.color = '#15803d';
     }
 
   } catch (error) {
-    mostrarMensaje('Error: ' + error.message, 'error');
+
+    /*
+     * Si ya existe una consulta más nueva,
+     * ignoramos también este error.
+     */
+    if (miConsultaId !== consultaIdActual) {
+      return;
+    }
+
+    mostrarMensaje(
+      'Error: ' + error.message,
+      'error'
+    );
+
     invalidarConsulta();
+
   } finally {
-    if (btn) {
-      setTimeout(() => {
-        btn.innerText = textoOriginal;
-        btn.disabled = false;
-        btn.style.backgroundColor = '#e0e0e0';
-        btn.style.color = '#333333';
-        btn.style.opacity = '1';
-      }, 1500);
+
+    /*
+     * Solo la consulta vigente puede liberar el botón.
+     */
+    if (miConsultaId === consultaIdActual) {
+
+      consultaEnCurso = false;
+
+      if (btn) {
+
+        setTimeout(() => {
+
+          /*
+           * Puede haber aparecido otra consulta
+           * durante estos 1500 ms.
+           */
+          if (miConsultaId !== consultaIdActual) {
+            return;
+          }
+
+          btn.innerText = textoOriginal;
+          btn.disabled = false;
+          btn.style.backgroundColor = '#e0e0e0';
+          btn.style.color = '#333333';
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+
+        }, 1500);
+      }
     }
   }
 }
@@ -849,11 +960,16 @@ function actualizarEstadoBotonReserva() {
 
 /* =========================================================
    PETICIÓN A LA API
+   - Una sola petición
+   - Timeout controlado
+   - Sin reintentos automáticos
 ========================================================= */
-async function api(body, reintentos = 2) {
-  // Crear un controlador de cancelación con timeout de 15 segundos
+
+async function api(body, opciones = {}) {
+  const timeout = opciones.timeout || 15000;
+
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
     const response = await fetch(API_URL, {
@@ -861,23 +977,23 @@ async function api(body, reintentos = 2) {
       body: JSON.stringify(body),
       signal: controller.signal
     });
-    
-    clearTimeout(timeoutId); // Limpiar el timer si respondió a tiempo
-    
-    if (!response.ok) {
-      throw new Error(`HTTP status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    clearTimeout(timeoutId);
 
-    if (reintentos > 0) {
-      // Si fue cancelado por timeout o fallo de red, esperar 1.5s y reintentar
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      return api(body, reintentos - 1);
+    if (!response.ok) {
+      throw new Error(`Error HTTP ${response.status}`);
     }
+
+    return await response.json();
+
+  } catch (error) {
+
+    if (error.name === 'AbortError') {
+      throw new Error('La consulta tardó demasiado. Intenta nuevamente.');
+    }
+
     throw error;
+
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
