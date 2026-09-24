@@ -563,22 +563,22 @@
         const tr = document.createElement('tr');
         let acciones = '';
 
-        if (reserva.Estado === 'RESERVADA') {
+          if (reserva.Estado === 'RESERVADA') {
           acciones = `
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="ejecutarAccion('checkin', '${reserva.ReservaID}')">Check-in</button>
-              <button class="btn btn-danger" onclick="ejecutarAccion('cancelarReserva', '${reserva.ReservaID}')">Cancelar</button>
-              <button class="btn btn-danger" style="background-color: #f3f4f6; color: #4b5563;" onclick="ejecutarAccion('marcarNoShow', '${reserva.ReservaID}')">No Show</button>
+              <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="ejecutarAccion('checkin', '${reserva.ReservaID}', this)">Check-in</button>
+              <button class="btn btn-danger" onclick="ejecutarAccion('cancelarReserva', '${reserva.ReservaID}', this)">Cancelar</button>
+              <button class="btn btn-danger" style="background-color: #f3f4f6; color: #4b5563;" onclick="ejecutarAccion('marcarNoShow', '${reserva.ReservaID}', this)">No Show</button>
             </div>
           `;
         }
 
         if (reserva.Estado === 'CHECKIN') {
           acciones = `
-            <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="ejecutarAccion('checkout', '${reserva.ReservaID}')">Salida</button>
+            <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="ejecutarAccion('checkout', '${reserva.ReservaID}', this)">Salida</button>
           `;
         }
-
+          
         let claseEstado = 'estado-reservada';
         if (reserva.Estado === 'CHECKIN') claseEstado = 'estado-checkin';
         if (reserva.Estado === 'CANCELADA') claseEstado = 'estado-cancelada';
@@ -598,25 +598,54 @@
     }
 
     // Función unificada para ejecutar acciones de estado
-    async function ejecutarAccion(actionName, reservaId) {
+    // Variable para prevenir ejecuciones simultáneas de acciones
+    let accionEnCurso = false;
+    
+    async function ejecutarAccion(actionName, reservaId, elementoBtn) {
+      if (accionEnCurso) return; // Evita clics múltiples o accidentales
+    
       const confirmaciones = {
         checkin: '¿Confirmar ingreso?',
         checkout: '¿Registrar salida?',
         cancelarReserva: '¿Cancelar esta reserva?',
         marcarNoShow: '¿Marcar esta reserva como NO SHOW?'
       };
-
+    
       if (!confirm(confirmaciones[actionName] || '¿Confirmar acción?')) return;
-
+    
+      accionEnCurso = true;
+    
+      // Feedback visual en la interfaz: deshabilitar el botón presionado
+      if (elementoBtn) {
+        elementoBtn.disabled = true;
+        elementoBtn.innerText = 'Procesando...';
+        elementoBtn.style.opacity = '0.5';
+      }
+    
       try {
         const resultado = await api({ action: actionName, reservaId, usuario: 'STAFF' });
-        alert(resultado.mensaje);
+        
         if (resultado.ok) {
-          cargarHoy();
+          // Pequeña pausa de 500ms para asegurar la consistencia de datos en el servidor
+          await new Promise(resolve => setTimeout(resolve, 500));
+          await cargarHoy();
+        } else {
+          alert(resultado.mensaje || 'No se pudo completar la acción.');
+          if (elementoBtn) {
+            elementoBtn.disabled = false;
+            elementoBtn.innerText = 'Reintentar';
+            elementoBtn.style.opacity = '1';
+          }
         }
       } catch (error) {
         console.error(error);
         alert('Error de conexión al procesar la solicitud.');
+        if (elementoBtn) {
+          elementoBtn.disabled = false;
+          elementoBtn.style.opacity = '1';
+        }
+      } finally {
+        accionEnCurso = false;
       }
     }
 
