@@ -399,7 +399,9 @@
   <script>
     const API_URL =
       'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-
+    let consultaIdActual = 0;
+    let consultaEnCurso = false;
+      
     function fechaHoy() {
       const d = new Date();
       return [
@@ -410,102 +412,197 @@
     }
 
     document.getElementById('fecha').value = fechaHoy();
+    document.getElementById('fecha').addEventListener('change', () => {
 
-    // Función api mejorada con reintentos para soportar el "cold start" de Google Apps Script
-    async function api(body, reintentos = 2) {
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(body)
-        });
-        return await response.json();
-      } catch (error) {
-        if (reintentos > 0) {
-          // Si la primera llamada falla por timeout de servidor, espera 1.5s y reintenta
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          return api(body, reintentos - 1);
-        }
-        throw error;
-      }
-    }
-
-    async function cargarHoy() {
-      const fecha = document.getElementById('fecha').value;
+      /*
+       * Invalidamos cualquier consulta anterior.
+       */
+      consultaIdActual++;
+      consultaEnCurso = false;
+      /*
+       * Limpiamos el resultado anterior para no
+       * mostrar datos de otra fecha como si fueran actuales.
+       */
+      document.getElementById('capacidad').textContent = '0';
+      document.getElementById('reservado').textContent = '0';
+      document.getElementById('dentro').textContent = '0';
+      document.getElementById('disponibles').textContent = '0';
+      document.getElementById('clases').textContent = '0';
+      document.getElementById('tablaReservas').innerHTML = `
+        <tr>
+          <td colspan="6"
+              style="text-align:center; color:#666; padding:24px;">
+            Presiona "Actualizar" para consultar esta fecha
+          </td>
+        </tr>
+      `;
+    
       const mensajeEl = document.getElementById('mensaje');
       mensajeEl.textContent = '';
       mensajeEl.className = 'mensaje';
+    });
 
+    // Función api mejorada con reintentos para soportar el "cold start" de Google Apps Script
+    async function api(body) {
+      const controller = new AbortController();
+    
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 15000);
+    
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+    
+        const texto = await response.text();
+    
+        try {
+          return JSON.parse(texto);
+        } catch (e) {
+          console.error('Respuesta no-JSON recibida:', texto);
+    
+          return {
+            ok: false,
+            mensaje: 'Error de respuesta del servidor.'
+          };
+        }
+    
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+      
+    async function cargarHoy() {
+    
+      const fecha = document.getElementById('fecha').value;
+      const mensajeEl = document.getElementById('mensaje');
       const btn = document.querySelector('.fila-consulta button');
+      const miConsultaId = ++consultaIdActual;
+    
+      consultaEnCurso = true;
+      mensajeEl.textContent = '';
+      mensajeEl.className = 'mensaje';
+    
       const textoOriginal = btn ? btn.innerText : 'Actualizar';
-
-        
+    
       if (btn) {
         btn.innerText = 'Consultando...';
         btn.disabled = true;
         btn.style.opacity = '0.7';
         btn.style.cursor = 'not-allowed';
       }
-
-      try {
+    
+      try {  
         const resultado = await api({
           action: 'resumenHoy',
           fecha
-        });
-
-        if (!resultado || !resultado.ok) {
-          mensajeEl.textContent = resultado?.mensaje || 'Error al obtener datos';
-          mensajeEl.className = 'mensaje error';
-          if (btn) {
-            btn.innerText = 'Error';
-            btn.style.backgroundColor = '#fee2e2';
-            btn.style.color = '#dc2626';
-          }
+        }); 
+        /*
+         * Si mientras esperábamos se lanzó
+         * otra consulta, esta respuesta ya no sirve.
+         */
+        if (miConsultaId !== consultaIdActual) {
           return;
         }
-                   
+    
+        if (!resultado || !resultado.ok) {
+    
+          mensajeEl.textContent =
+            resultado?.mensaje || 'Error al obtener datos';
+    
+          mensajeEl.className = 'mensaje error';
+    
+          return;
+        }
+    
         const lista = resultado.reservas || [];
-        const capacidad = Number(resultado.capacidad) || 0;
-        
+        const capacidad = Number(resultado.capacidad) || 0;    
         const sumarPersonas = (estados) =>
           lista
             .filter(r => estados.includes(r.Estado))
-            .reduce((total, r) => total + (Number(r.Cantidad) || 0), 0);
-        
-        const reservado = sumarPersonas(['RESERVADA']);
-        const dentro = sumarPersonas(['CHECKIN']);
-        const disponibles = Math.max(capacidad - reservado - dentro, 0);
-        
-        document.getElementById('capacidad').textContent = capacidad;
-        document.getElementById('reservado').textContent = reservado;
-        document.getElementById('dentro').textContent = dentro;
-        document.getElementById('disponibles').textContent = disponibles;
-        document.getElementById('clases').textContent = (resultado.clases || []).length;
-
-        pintarReservas(resultado.reservas || []);
-
-        if (btn) {
-          btn.innerText = '¡Actualizado!';
-          btn.style.backgroundColor = '#dcfce7';
-          btn.style.color = '#15803d';
-        }
+            .reduce(
+              (total, r) =>
+                total + (Number(r.Cantidad) || 0),
+              0
+            );
+    
+        const reservado =
+          sumarPersonas(['RESERVADA']);   
+        const dentro =
+          sumarPersonas(['CHECKIN']);    
+        const disponibles =
+          Math.max(
+            capacidad - reservado - dentro,
+            0
+          );
+    
+        document.getElementById('capacidad').textContent = capacidad;    
+        document.getElementById('reservado').textContent =  reservado;    
+        document.getElementById('dentro').textContent =  dentro; 
+        document.getElementById('disponibles').textContent =   disponibles; 
+        document.getElementById('clases').textContent =  (resultado.clases || []).length;
+    
+        pintarReservas(lista);
+    
+        if (btn) { btn.innerText = '¡Actualizado!'; btn.style.backgroundColor = '#dcfce7'; btn.style.color = '#15803d'; }
+    
       } catch (error) {
-        mensajeEl.textContent = 'Error al conectar con el servidor';
+    
+        /*
+         * Ignorar errores de una consulta antigua.
+         */
+        if (miConsultaId !== consultaIdActual) { return; }
+    
+        console.error('Error cargarHoy:', error);
+    
+        mensajeEl.textContent =
+          error.name === 'AbortError'
+            ? 'La consulta tardó demasiado. Intenta nuevamente.'
+            : 'Error al conectar con el servidor';
+    
         mensajeEl.className = 'mensaje error';
+    
         if (btn) {
           btn.innerText = 'Error';
           btn.style.backgroundColor = '#fee2e2';
           btn.style.color = '#dc2626';
         }
+    
       } finally {
+    
+        if (miConsultaId !== consultaIdActual) {
+          return;
+        }
+    
+        consultaEnCurso = false;
+    
         if (btn) {
+    
           setTimeout(() => {
+    
+            /*
+             * No modificar el botón si durante
+             * estos 1.5 segundos comenzó otra consulta.
+             */
+            if (miConsultaId !== consultaIdActual) {
+              return;
+            }
+    
             btn.innerText = textoOriginal;
             btn.disabled = false;
             btn.style.backgroundColor = '#e0e0e0';
             btn.style.color = '#333333';
             btn.style.opacity = '1';
             btn.style.cursor = 'pointer';
-          }, 1500);
+    
+          }, 1000);
         }
       }
     }
@@ -566,6 +663,56 @@
     }
 
     async function checkin(reservaId) {
+
+  if (!confirm('¿Confirmar ingreso?')) return;
+
+  try {
+
+    const resultado = await api({
+      action: 'checkin',
+      reservaId,
+      usuario: 'STAFF'
+    });
+
+    alert(resultado.mensaje);
+
+    if (resultado.ok) {
+      await cargarHoy();
+    }
+
+  } catch (error) {
+
+    console.error(error);
+    alert('Error de conexión al registrar el ingreso.');
+
+  }
+}
+
+async function checkout(reservaId) {
+  if (!confirm('¿Registrar salida?')) return;
+  try {
+    const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
+    alert(resultado.mensaje);
+    if (resultado.ok) { await cargarHoy(); }
+  } catch (error) { console.error(error); alert('Error de conexión al registrar la salida.'); }
+}
+
+async function cancelar(reservaId) {
+  if (!confirm('¿Cancelar esta reserva?')) return;
+  try { const resultado = await api({ action: 'cancelarReserva', reservaId, usuario: 'STAFF' });
+    alert(resultado.mensaje);
+    if (resultado.ok) { await cargarHoy(); }
+  } catch (error) { console.error(error); alert('Error de conexión al cancelar la reserva.'); }
+}
+
+async function noShow(reservaId) {
+  if (!confirm('¿Marcar esta reserva como NO SHOW?')) return;
+  try { const resultado = await api({ action: 'marcarNoShow', reservaId, usuario: 'STAFF' });
+    alert(resultado.mensaje);
+    if (resultado.ok) { await cargarHoy();}
+  } catch (error) {console.error(error); alert('Error de conexión al marcar NO SHOW.'); }
+}
+   /* async function checkin(reservaId) {
       if (!confirm('¿Confirmar ingreso?')) return;
       const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
       alert(resultado.mensaje);
@@ -591,7 +738,7 @@
       const resultado = await api({ action: 'marcarNoShow', reservaId, usuario: 'STAFF' });
       alert(resultado.mensaje);
       cargarHoy();
-    }
+    }*/
 
     cargarHoy();
   </script>
