@@ -452,7 +452,53 @@
         </div>
       </div>
      </div>
-
+    <!-- ==================================================
+         CONSULTAR CLASES
+    ================================================== -->
+    <div class="card">
+      <div class="titulo-card">  Clases del Día  </div>
+      <div class="fila-consulta">
+        <div style="flex: 1;">
+          <label for="fechaConsulta">  Consultar Fecha  </label>
+          <input  id="fechaConsulta"   type="date">
+        </div>
+        <button
+          class="btn-consultar"
+          id="btnConsultar"
+          style="width:auto; padding:0 20px;"
+          onclick="cargarClases()">
+          Consultar
+        </button>
+      </div>
+      <!-- TABLA -->
+      <div class="tabla-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Clase</th>
+              <th>Horario</th>
+              <th>Capacidad</th>
+              <th>Instructor</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tabla">
+            <tr>
+              <td
+                colspan="6"
+                style="
+                  text-align:center;
+                  color:#888;
+                  padding:20px;
+                ">
+                Cargando clases...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
     <!-- ==================================================
          CREAR CLASE
     ================================================== -->
@@ -568,85 +614,6 @@
       <div  id="msj" class="mensaje"  style="display:none;"> </div>
     </div>
     
-
-
-    <!-- ==================================================
-         CONSULTAR CLASES
-    ================================================== -->
-
-    <div class="card">
-
-      <div class="titulo-card">
-        Clases del Día
-      </div>
-
-      <div class="fila-consulta">
-
-        <div style="flex: 1;">
-
-          <label for="fechaConsulta">
-            Consultar Fecha
-          </label>
-
-          <input
-            id="fechaConsulta"
-            type="date">
-
-        </div>
-
-        <button
-          class="btn-consultar"
-          id="btnConsultar"
-          style="width:auto; padding:0 20px;"
-          onclick="cargarClases()">
-          Consultar
-        </button>
-
-      </div>
-
-
-      <!-- TABLA -->
-
-      <div class="tabla-container">
-
-        <table>
-
-          <thead>
-
-            <tr>
-              <th>Clase</th>
-              <th>Horario</th>
-              <th>Capacidad</th>
-              <th>Instructor</th>
-              <th>Estado</th>
-              <th>Acción</th>
-            </tr>
-
-          </thead>
-
-          <tbody id="tabla">
-
-            <tr>
-
-              <td
-                colspan="6"
-                style="
-                  text-align:center;
-                  color:#888;
-                  padding:20px;
-                ">
-                Cargando clases...
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
 
   </div>
 
