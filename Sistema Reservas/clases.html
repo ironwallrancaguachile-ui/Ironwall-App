@@ -659,74 +659,46 @@
 
     const API_URL =
       'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-
+    let consultaIdActual = 0;
+    let consultaEnCurso = false;
 
     /* ==================================================
        FECHA LOCAL
     ================================================== */
 
     function fechaHoy() {
-
       const d = new Date();
-
       return [
         d.getFullYear(),
         String(d.getMonth() + 1).padStart(2, '0'),
         String(d.getDate()).padStart(2, '0')
       ].join('-');
-
     }
 
 /* ==================================================
        API (Versión estable)
     ================================================== */
 
-    async function api(body) {
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(body)
-        });
-
-        const texto = await response.text();
-
-        try {
-          return JSON.parse(texto);
-        } catch (e) {
-          console.error("Respuesta no-JSON recibida:", texto);
-          return {
-            ok: false,
-            mensaje: "Error de respuesta del servidor (formato no válido)."
-          };
-        }
-      } catch (error) {
-        console.error("Error de conexión:", error);
-        throw error;
-      }
-    }
-
-
+async function api(body) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {controller.abort();}, 15000);
+  try {const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body), signal: controller.signal});
+    if (!response.ok) { throw new Error(`HTTP ${response.status}`); }
+    const texto = await response.text();
+    try { return JSON.parse(texto); } catch (e) { console.error('Respuesta no-JSON recibida:', texto );
+      return { ok: false, mensaje: 'Error de respuesta del servidor.' };  }
+  } finally { clearTimeout(timeoutId); }
+}
     /* ==================================================
        MENSAJES
     ================================================== */
 
-    function mostrarMensaje(
-      texto,
-      esError = false
-    ) {
-
-      const msj =
-        document.getElementById('msj');
-
-      msj.className =
-        `mensaje ${esError ? 'error' : 'exito'}`;
-
+    function mostrarMensaje(  texto,  esError = false ) {
+      const msj =    document.getElementById('msj');
+      msj.className = `mensaje ${esError ? 'error' : 'exito'}`;
       msj.innerText = texto;
-
       msj.style.display = 'block';
-
     }
-
 
     /* ==================================================
        GENERAR HORAS
@@ -735,32 +707,16 @@
 
     function generarHoras() {
 
-      const select =
-        document.getElementById('horaInicio');
-
-      select.innerHTML = `
-        <option value="">
-          Selecciona una hora
-        </option>
-      `;
-
+      const select = document.getElementById('horaInicio');
+      select.innerHTML = ` <option value="">  Selecciona una hora   </option> `;
       for (let hora = 0; hora < 24; hora++) {
-
-        const valor =
-          String(hora).padStart(2, '0') + ':00';
-
-        const option =
-          document.createElement('option');
-
+        const valor =  String(hora).padStart(2, '0') + ':00';
+        const option =  document.createElement('option');
         option.value = valor;
         option.textContent = valor;
-
         select.appendChild(option);
-
       }
-
     }
-
 
     /* ==================================================
        CALCULAR HORA FIN
@@ -768,56 +724,26 @@
 
     function calcularHoraFin() {
 
-      const horaInicio =
-        document.getElementById('horaInicio').value;
-
-      const duracion =
-        Number(
-          document.getElementById('duracion').value
-        );
-
-      const box =
-        document.getElementById('horarioCalculado');
-
-
+      const horaInicio =  document.getElementById('horaInicio').value;
+      const duracion = Number( document.getElementById('duracion').value );
+      const box = document.getElementById('horarioCalculado');
       if (!horaInicio || !duracion) {
-
-        box.className =
-          'horario-calculado';
-
-        box.innerText =
-          'Selecciona hora de inicio y duración';
-
+        box.className =  'horario-calculado';
+        box.innerText = 'Selecciona hora de inicio y duración';
         return null;
-
       }
 
-
-      const partes =
-        horaInicio.split(':');
-
-      const hora =
-        Number(partes[0]);
-
-      const minutos =
-        Number(partes[1]);
-
-
-      const inicioMinutos =
-        hora * 60 + minutos;
-
-      const finMinutos =
-        inicioMinutos +
-        duracion * 60;
-
+      const partes = horaInicio.split(':');
+      const hora = Number(partes[0]);
+      const minutos =  Number(partes[1]);
+      const inicioMinutos = hora * 60 + minutos;
+      const finMinutos =  inicioMinutos +  duracion * 60;
 
       /*
        * No permitimos que una clase
        * termine al día siguiente.
        */
-
       if (finMinutos > 24 * 60) {
-
         box.className =
           'horario-calculado error-horario';
 
@@ -828,29 +754,12 @@
 
       }
 
-
-      const finHora =
-        Math.floor(finMinutos / 60);
-
-      const finMinuto =
-        finMinutos % 60;
-
-
-      const horaFin =
-        String(finHora).padStart(2, '0') +
-        ':' +
-        String(finMinuto).padStart(2, '0');
-
-
-      box.className =
-        'horario-calculado activo';
-
-      box.innerText =
-        `Horario de la clase: ${horaInicio} – ${horaFin}`;
-
-
+      const finHora =  Math.floor(finMinutos / 60);
+      const finMinuto =   finMinutos % 60;
+      const horaFin =   String(finHora).padStart(2, '0') + ':' +  String(finMinuto).padStart(2, '0');
+      box.className =   'horario-calculado activo';
+      box.innerText =   `Horario de la clase: ${horaInicio} – ${horaFin}`;
       return horaFin;
-
     }
 
 
@@ -925,67 +834,28 @@
     }
 
     async function crearClase() {
-      const nombre =
-        document.getElementById('nombre').value.trim();
+      const nombre =  document.getElementById('nombre').value.trim();
+      const fecha =  document.getElementById('fecha').value;
+      const horaInicio =  document.getElementById('horaInicio').value;
+      const horaFin = calcularHoraFin();
+      const capacidad =  document.getElementById('capacidad').value;
+      const instructorId =  document.getElementById('instructorId').value.trim();
+      const repetir =  document.getElementById('repetirClase').value === 'SI';
+      const btn =  document.getElementById('btnCrear');
 
-      const fecha =
-        document.getElementById('fecha').value;
-
-      const horaInicio =
-        document.getElementById('horaInicio').value;
-
-      const horaFin =
-        calcularHoraFin();
-
-      const capacidad =
-        document.getElementById('capacidad').value;
-
-      const instructorId =
-        document.getElementById('instructorId').value.trim();
-
-      const repetir =
-        document.getElementById('repetirClase').value === 'SI';
-
-      const btn =
-        document.getElementById('btnCrear');
-
-      if (
-        !nombre ||
-        !fecha ||
-        !horaInicio ||
-        !horaFin ||
-        !capacidad ||
-        !instructorId
-      ) {
-        mostrarMensaje(
-          'Por favor completa todos los campos requeridos y verifica el horario.',
+      if ( !nombre || !fecha || !horaInicio || !horaFin || !capacidad || !instructorId ) {
+        mostrarMensaje( 'Por favor completa todos los campos requeridos y verifica el horario.',
           true
         );
         return;
       }
-
       let fechas = [fecha];
-
-      if (repetir) {
-        seleccionarDiaInicialSiEsNecesario();
-
+      if (repetir) {  seleccionarDiaInicialSiEsNecesario();
         const dias = obtenerDiasRepeticion();
-
-        const semanas =
-          Number(
-            document.getElementById('semanasRepeticion').value
-          );
-
-        fechas =
-          generarFechasRepeticion(
-            fecha,
-            semanas,
-            dias
-          );
-
+        const semanas = Number(document.getElementById('semanasRepeticion').value  );
+        fechas = generarFechasRepeticion(fecha, semanas, dias );
         if (!fechas.length) {
-          mostrarMensaje(
-            'No se encontraron fechas para crear las clases.',
+          mostrarMensaje( 'No se encontraron fechas para crear las clases.',
             true
           );
           return;
@@ -1043,14 +913,9 @@
           document.getElementById('nombre').value = '';
           document.getElementById('horaInicio').value = '';
           document.getElementById('instructorId').value = '';
-
           document.getElementById('repetirClase').value = 'NO';
           document.getElementById('panelRepeticion').style.display = 'none';
-
-          document
-            .querySelectorAll('.dia-repeticion')
-            .forEach(el => el.checked = false);
-
+          document.querySelectorAll('.dia-repeticion').forEach(el => el.checked = false);
           calcularHoraFin();
           cargarClases();
 
@@ -1082,105 +947,52 @@
     /* ==================================================
        CARGAR CLASES
     ================================================== */
-
     async function cargarClases() {
-
-      const btn =
-        document.getElementById(
-          'btnConsultar'
-        );
-
-      const fecha =
-        document.getElementById(
-          'fechaConsulta'
-        ).value;
-
-
-      btn.innerText =
-        'Buscando...';
-
-      btn.disabled =
-        true;
-
-
-      try {
-
-        const resultado =
-          await api({
-
-            action:
-              'listarClasesFecha',
-
-            fecha
-
-          });
-
-
-        const tbody =
-          document.getElementById(
-            'tabla'
-          );
-
+    
+      const btn =        document.getElementById('btnConsultar');
+      const fecha =        document.getElementById('fechaConsulta').value;
+      /*
+       * Cada consulta recibe un número único.
+       * Solo la última consulta puede modificar la pantalla.
+       */
+      const miConsultaId =        ++consultaIdActual;
+      consultaEnCurso = true;
+    
+      btn.innerText = 'Buscando...';
+      btn.disabled = true;
+    
+      try {  const resultado =  await api({   action: 'listarClasesFecha',  fecha   });
+    
+        /*
+         * Si ya existe una consulta más nueva,
+         * ignoramos completamente esta respuesta.
+         */
+        if (miConsultaId !== consultaIdActual) {          return;        }
+         const tbody =   document.getElementById('tabla');
         tbody.innerHTML = '';
-
-
-        /* ---------------------------------------------
-           ERROR
-        ---------------------------------------------- */
-
-        if (!resultado.ok) {
-
-          mostrarMensaje(
-            resultado.mensaje ||
-            'Error al obtener las clases',
-            true
-          );
-
+        if (!resultado || !resultado.ok) {
+          mostrarMensaje(  resultado?.mensaje ||    'Error al obtener las clases',   true  );
           return;
-
         }
-
-
-        const clases =
-          resultado.clases || [];
-
-
-        /* ---------------------------------------------
-           INDICADORES
-        ---------------------------------------------- */
-
-        document.getElementById(
-          'indTotal'
-        ).innerText =
-          clases.length;
-
-
-        document.getElementById(
-          'indActivas'
-        ).innerText =
-          clases.filter(
-            c => c.Estado === 'ACTIVA'
-          ).length;
-
-
-        document.getElementById(
-          'indCanceladas'
-        ).innerText =
-          clases.filter(
-            c => c.Estado === 'CANCELADA'
-          ).length;
-
-
-        /* ---------------------------------------------
-           SIN CLASES
-        ---------------------------------------------- */
-
+    
+        const clases =  resultado.clases || [];
+    
+        /*
+         * INDICADORES
+         */
+        document.getElementById('indTotal').innerText = clases.length;
+        document.getElementById('indActivas').innerText = clases.filter(
+            c => c.Estado === 'ACTIVA' ).length;
+        document.getElementById('indCanceladas').innerText =  clases.filter(
+            c => c.Estado === 'CANCELADA' ).length;
+    
+        /*
+         * SIN CLASES
+         */
         if (clases.length === 0) {
-
+    
           tbody.innerHTML = `
-
             <tr>
-
               <td
                 colspan="6"
                 style="
@@ -1188,79 +1000,70 @@
                   color:#888;
                   padding:20px;
                 ">
-
                 No hay clases programadas para esta fecha
-
               </td>
-
             </tr>
-
           `;
-
+    
           return;
-
         }
-
-
-        /* ---------------------------------------------
-           MOSTRAR CLASES
-        ---------------------------------------------- */
-
+    
+        /*
+         * MOSTRAR CLASES
+         */
         clases.forEach(clase => {
-
+    
           const tr =
             document.createElement('tr');
-
-
+    
           const colorEstado =
             clase.Estado === 'ACTIVA'
               ? '#16a34a'
               : '#dc2626';
-
-
+    
           tr.innerHTML = `
-
+    
             <td>
               <strong>
                 ${clase.Nombre}
               </strong>
             </td>
-
+    
             <td>
               ${clase.HoraInicio}
               -
               ${clase.HoraFin}
             </td>
-
+    
             <td>
               ${clase.Capacidad}
             </td>
-
+    
             <td>
               ${clase.InstructorID || '-'}
             </td>
-
+    
             <td>
-
+    
               <span
                 style="
                   font-weight:600;
                   color:${colorEstado};
                 ">
-
+    
                 ${clase.Estado}
-
+    
               </span>
-
+    
             </td>
-
+    
             <td>
-
+    
               ${
                 clase.Estado === 'ACTIVA'
-
+    
                   ? `
-
+    
                     <button
                       class="btn-danger"
                       onclick="
@@ -1268,108 +1071,104 @@
                           '${clase.ClaseID}'
                         )
                       ">
-
+    
                       Cancelar
-
+    
                     </button>
-
+    
                   `
-
+    
                   : '-'
               }
-
+    
             </td>
-
+    
           `;
-
-
+    
           tbody.appendChild(tr);
-
+    
         });
-
-
+    
       } catch (error) {
-
-        console.error(error);
-
+    
+        /*
+         * Ignorar errores de consultas antiguas.
+         */
+        if (miConsultaId !== consultaIdActual) {
+          return;
+        }
+    
+        console.error(
+          'Error cargarClases:',
+          error
+        );
+    
         mostrarMensaje(
-          'Error de conexión al cargar la lista',
+          error.name === 'AbortError'
+            ? 'La consulta tardó demasiado. Intenta nuevamente.'
+            : 'Error de conexión al cargar la lista',
           true
         );
-
+    
       } finally {
-
-        btn.innerText =
-          'Consultar';
-
-        btn.disabled =
-          false;
-
+    
+        if (miConsultaId !== consultaIdActual) {
+          return;
+        }
+        consultaEnCurso = false;
+        btn.innerText = 'Consultar';
+        btn.disabled = false;
       }
-
     }
 
 
     /* ==================================================
        CANCELAR CLASE
     ================================================== */
+  async function cancelarClase(claseId) {
 
-    async function cancelarClase(
-      claseId
+    if (
+      !confirm(
+        '¿Seguro que deseas cancelar esta clase?'
+      )
     ) {
-
-      if (
-        !confirm(
-          '¿Seguro que deseas cancelar esta clase?'
-        )
-      ) {
-
-        return;
-
-      }
-
-
-      try {
-
-        const resultado =
-          await api({
-
-            action:
-              'cancelarClase',
-
-            claseId,
-
-            canceladoPor:
-              'STAFF'
-
-          });
-
-
-        if (resultado.ok) {
-
-          cargarClases();
-
-        } else {
-
-          alert(
-            resultado.mensaje ||
-            'No se pudo cancelar la clase'
-          );
-
-        }
-
-      } catch (e) {
-
-        console.error(e);
-
-        alert(
-          'Error de conexión al intentar cancelar'
-        );
-
-      }
-
+      return;
     }
-
+  
+    try {
+  
+      const resultado =
+        await api({
+          action: 'cancelarClase',
+          claseId,
+          canceladoPor: 'STAFF'
+        });
+  
+      if (resultado.ok) {
+  
+        await cargarClases();
+  
+      } else {
+  
+        alert(
+          resultado.mensaje ||
+          'No se pudo cancelar la clase'
+        );
+  
+      }
+  
+    } catch (e) {
+  
+      console.error(e);
+  
+      alert(
+        e.name === 'AbortError'
+          ? 'La operación tardó demasiado. Intenta nuevamente.'
+          : 'Error de conexión al intentar cancelar'
+      );
+  
+    }
+  }
 
     /* ==================================================
        EVENTOS DE REPETICIÓN
@@ -1398,7 +1197,50 @@
           }
         }
       );
-
+    
+      document
+        .getElementById('fechaConsulta')
+        .addEventListener('change', () => {
+      
+          /*
+           * Invalidar cualquier consulta anterior.
+           */
+          consultaIdActual++;
+      
+          consultaEnCurso = false;
+      
+          /*
+           * Limpiar indicadores.
+           */
+          document.getElementById('indTotal').innerText = '0';
+          document.getElementById('indActivas').innerText = '0';
+          document.getElementById('indCanceladas').innerText = '0';
+      
+          /*
+           * Limpiar tabla para evitar mostrar
+           * clases de la fecha anterior.
+           */
+          document.getElementById('tabla').innerHTML = `
+            <tr>
+              <td
+                colspan="6"
+                style="
+                  text-align:center;
+                  color:#888;
+                  padding:20px;
+                ">
+                Presiona "Consultar" para cargar esta fecha
+              </td>
+            </tr>
+          `;
+      
+          const msj =
+            document.getElementById('msj');
+      
+          msj.style.display = 'none';
+          msj.innerText = '';
+      
+        });
 
     /* ==================================================
        EVENTOS DE HORARIO
@@ -1424,19 +1266,10 @@
        INICIALIZACIÓN
     ================================================== */
 
-    document.getElementById('fecha')
-      .value = fechaHoy();
-
-    document.getElementById('fechaConsulta')
-      .value = fechaHoy();
-
-
+    document.getElementById('fecha') .value = fechaHoy();
+    document.getElementById('fechaConsulta') .value = fechaHoy();
     generarHoras();
-
-
     calcularHoraFin();
-
-
     cargarClases();
 
   </script>
