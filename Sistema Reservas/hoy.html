@@ -395,8 +395,7 @@
       </div>
     </div>
   </div>
-
-  <script>
+<script>
     const API_URL =
       'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
     let consultaIdActual = 0;
@@ -413,16 +412,9 @@
 
     document.getElementById('fecha').value = fechaHoy();
     document.getElementById('fecha').addEventListener('change', () => {
-
-      /*
-       * Invalidamos cualquier consulta anterior.
-       */
       consultaIdActual++;
       consultaEnCurso = false;
-      /*
-       * Limpiamos el resultado anterior para no
-       * mostrar datos de otra fecha como si fueran actuales.
-       */
+
       document.getElementById('capacidad').textContent = '0';
       document.getElementById('reservado').textContent = '0';
       document.getElementById('dentro').textContent = '0';
@@ -430,8 +422,7 @@
       document.getElementById('clases').textContent = '0';
       document.getElementById('tablaReservas').innerHTML = `
         <tr>
-          <td colspan="6"
-              style="text-align:center; color:#666; padding:24px;">
+          <td colspan="6" style="text-align:center; color:#666; padding:24px;">
             Presiona "Actualizar" para consultar esta fecha
           </td>
         </tr>
@@ -442,13 +433,10 @@
       mensajeEl.className = 'mensaje';
     });
 
-    // Función api mejorada con reintentos para soportar el "cold start" de Google Apps Script
-    async function api(body) {
+    // Función API con timeout configurable y manejo limpio de aborto
+    async function api(body, timeoutMs = 20000) {
       const controller = new AbortController();
-    
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, 15000);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     
       try {
         const response = await fetch(API_URL, {
@@ -467,20 +455,20 @@
           return JSON.parse(texto);
         } catch (e) {
           console.error('Respuesta no-JSON recibida:', texto);
-    
-          return {
-            ok: false,
-            mensaje: 'Error de respuesta del servidor.'
-          };
+          return { ok: false, mensaje: 'Error de respuesta del servidor.' };
         }
     
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          return { ok: false, esAborto: true, mensaje: 'La solicitud tardó demasiado tiempo en responder.' };
+        }
+        throw error;
       } finally {
         clearTimeout(timeoutId);
       }
     }
       
     async function cargarHoy() {
-    
       const fecha = document.getElementById('fecha').value;
       const mensajeEl = document.getElementById('mensaje');
       const btn = document.querySelector('.fila-consulta button');
@@ -500,25 +488,13 @@
       }
     
       try {  
-        const resultado = await api({
-          action: 'resumenHoy',
-          fecha
-        }); 
-        /*
-         * Si mientras esperábamos se lanzó
-         * otra consulta, esta respuesta ya no sirve.
-         */
-        if (miConsultaId !== consultaIdActual) {
-          return;
-        }
+        const resultado = await api({ action: 'resumenHoy', fecha }); 
+        
+        if (miConsultaId !== consultaIdActual) return;
     
         if (!resultado || !resultado.ok) {
-    
-          mensajeEl.textContent =
-            resultado?.mensaje || 'Error al obtener datos';
-    
+          mensajeEl.textContent = resultado?.mensaje || 'Error al obtener datos';
           mensajeEl.className = 'mensaje error';
-    
           return;
         }
     
@@ -530,22 +506,17 @@
         document.getElementById('clases').textContent = (resultado.clases || []).length;        
         pintarReservas(lista);
     
-        if (btn) { btn.innerText = '¡Actualizado!'; btn.style.backgroundColor = '#dcfce7'; btn.style.color = '#15803d'; }
+        if (btn) { 
+          btn.innerText = '¡Actualizado!'; 
+          btn.style.backgroundColor = '#dcfce7'; 
+          btn.style.color = '#15803d'; 
+        }
     
       } catch (error) {
-    
-        /*
-         * Ignorar errores de una consulta antigua.
-         */
-        if (miConsultaId !== consultaIdActual) { return; }
+        if (miConsultaId !== consultaIdActual) return;
     
         console.error('Error cargarHoy:', error);
-    
-        mensajeEl.textContent =
-          error.name === 'AbortError'
-            ? 'La consulta tardó demasiado. Intenta nuevamente.'
-            : 'Error al conectar con el servidor';
-    
+        mensajeEl.textContent = 'Error al conectar con el servidor';
         mensajeEl.className = 'mensaje error';
     
         if (btn) {
@@ -553,34 +524,20 @@
           btn.style.backgroundColor = '#fee2e2';
           btn.style.color = '#dc2626';
         }
-    
       } finally {
-    
-        if (miConsultaId !== consultaIdActual) {
-          return;
-        }
+        if (miConsultaId !== consultaIdActual) return;
     
         consultaEnCurso = false;
     
         if (btn) {
-    
           setTimeout(() => {
-    
-            /*
-             * No modificar el botón si durante
-             * estos 1.5 segundos comenzó otra consulta.
-             */
-            if (miConsultaId !== consultaIdActual) {
-              return;
-            }
-    
+            if (miConsultaId !== consultaIdActual) return;
             btn.innerText = textoOriginal;
             btn.disabled = false;
             btn.style.backgroundColor = '#e0e0e0';
             btn.style.color = '#333333';
             btn.style.opacity = '1';
             btn.style.cursor = 'pointer';
-    
           }, 1000);
         }
       }
@@ -609,20 +566,19 @@
         if (reserva.Estado === 'RESERVADA') {
           acciones = `
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="checkin('${reserva.ReservaID}')">Check-in</button>
-              <button class="btn btn-danger" onclick="cancelar('${reserva.ReservaID}')">Cancelar</button>
-              <button class="btn btn-danger" style="background-color: #f3f4f6; color: #4b5563;" onclick="noShow('${reserva.ReservaID}')">No Show</button>
+              <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="ejecutarAccion('checkin', '${reserva.ReservaID}')">Check-in</button>
+              <button class="btn btn-danger" onclick="ejecutarAccion('cancelarReserva', '${reserva.ReservaID}')">Cancelar</button>
+              <button class="btn btn-danger" style="background-color: #f3f4f6; color: #4b5563;" onclick="ejecutarAccion('marcarNoShow', '${reserva.ReservaID}')">No Show</button>
             </div>
           `;
         }
 
         if (reserva.Estado === 'CHECKIN') {
           acciones = `
-            <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="checkout('${reserva.ReservaID}')">Salida</button>
+            <button class="btn btn-consultar" style="height: 32px; padding: 0 10px; font-size: 12px; width: auto;" onclick="ejecutarAccion('checkout', '${reserva.ReservaID}')">Salida</button>
           `;
         }
 
-        // Obtener clase según estado
         let claseEstado = 'estado-reservada';
         if (reserva.Estado === 'CHECKIN') claseEstado = 'estado-checkin';
         if (reserva.Estado === 'CANCELADA') claseEstado = 'estado-cancelada';
@@ -641,75 +597,31 @@
       });
     }
 
-async function checkin(reservaId) {
-      if (!confirm('¿Confirmar ingreso?')) return;
-          // Invalidar cualquier consulta anterior
-          consultaIdActual++;
-      try { const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF'  });
-         alert(resultado.mensaje);
-        if (resultado.ok) { await cargarHoy(); }
-      } catch (error) {console.error(error); alert('Error de conexión al registrar el ingreso.'); }
-}
+    // Función unificada para ejecutar acciones de estado
+    async function ejecutarAccion(actionName, reservaId) {
+      const confirmaciones = {
+        checkin: '¿Confirmar ingreso?',
+        checkout: '¿Registrar salida?',
+        cancelarReserva: '¿Cancelar esta reserva?',
+        marcarNoShow: '¿Marcar esta reserva como NO SHOW?'
+      };
 
-async function checkout(reservaId) {
-  if (!confirm('¿Registrar salida?')) return;
-        // Invalidar cualquier consulta anterior
-        consultaIdActual++;
-  try {
-    const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
-    alert(resultado.mensaje);
-    if (resultado.ok) { await cargarHoy(); }
-  } catch (error) { console.error(error); alert('Error de conexión al registrar la salida.'); }
-}
+      if (!confirm(confirmaciones[actionName] || '¿Confirmar acción?')) return;
 
-async function cancelar(reservaId) {
-  if (!confirm('¿Cancelar esta reserva?')) return;
-        // Invalidar cualquier consulta anterior
-         consultaIdActual++;
-  try { const resultado = await api({ action: 'cancelarReserva', reservaId, usuario: 'STAFF' });
-    alert(resultado.mensaje);
-    if (resultado.ok) { await cargarHoy(); }
-  } catch (error) { console.error(error); alert('Error de conexión al cancelar la reserva.'); }
-}
-
-async function noShow(reservaId) {
-  if (!confirm('¿Marcar esta reserva como NO SHOW?')) return;
-        // Invalidar cualquier consulta anterior
-        consultaIdActual++;
-  try { const resultado = await api({ action: 'marcarNoShow', reservaId, usuario: 'STAFF' });
-    alert(resultado.mensaje);
-    if (resultado.ok) { await cargarHoy();}
-  } catch (error) {console.error(error); alert('Error de conexión al marcar NO SHOW.'); }
-}
-   /* async function checkin(reservaId) {
-      if (!confirm('¿Confirmar ingreso?')) return;
-      const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
-      alert(resultado.mensaje);
-      cargarHoy();
+      try {
+        const resultado = await api({ action: actionName, reservaId, usuario: 'STAFF' });
+        alert(resultado.mensaje);
+        if (resultado.ok) {
+          cargarHoy();
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Error de conexión al procesar la solicitud.');
+      }
     }
-
-    async function checkout(reservaId) {
-      if (!confirm('¿Registrar salida?')) return;
-      const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
-      alert(resultado.mensaje);
-      cargarHoy();
-    }
-
-    async function cancelar(reservaId) {
-      if (!confirm('¿Cancelar esta reserva?')) return;
-      const resultado = await api({ action: 'cancelarReserva', reservaId, usuario: 'STAFF' });
-      alert(resultado.mensaje);
-      cargarHoy();
-    }
-
-    async function noShow(reservaId) {
-      if (!confirm('¿Marcar esta reserva como NO SHOW?')) return;
-      const resultado = await api({ action: 'marcarNoShow', reservaId, usuario: 'STAFF' });
-      alert(resultado.mensaje);
-      cargarHoy();
-    }*/
 
     cargarHoy();
-  </script>
+</script>
+
 </body>
 </html>
