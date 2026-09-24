@@ -507,8 +507,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cantidad.addEventListener('change', actualizarEstadoBotonReserva);
   }
 
-  if (fecha) fecha.addEventListener('change', invalidarConsulta);
-
+  /*if (fecha) fecha.addEventListener('change', invalidarConsulta);*/
+  if (fecha) {fecha.addEventListener('change', async () => {invalidarConsulta();
+    if (tipoReserva === 'CLASE') {await cargarClases();} });}
+  
   calcularHorarioResultante();
   actualizarEstadoBotonReserva();
 });
@@ -548,51 +550,79 @@ function calcularHorarioResultante() {
 ========================================================= */
 function invalidarConsulta() {
 
-  /*
-   * Invalidamos cualquier consulta anterior.
-   */
+  // Hace que cualquier respuesta anterior
+  // quede automáticamente obsoleta.
   consultaIdActual++;
-
   consultaEnCurso = false;
-
   cuposConsultados = false;
   disponiblesActuales = 0;
-
-  const resultado =
+  const resBox =
     document.getElementById('resultadoConsulta');
-
-  if (resultado) {
-    resultado.style.display = 'none';
+  if (resBox) {
+    resBox.style.display = 'none';
   }
-
+  const msg =
+    document.getElementById('mensajeEstado');
+  if (msg) {
+    msg.style.display = 'none';
+    msg.textContent = '';
+  }
   actualizarEstadoBotonReserva();
 }
-  
-
 /* =========================================================
    SELECCIÓN DE TIPO DE RESERVA
 ========================================================= */
 async function seleccionarTipo(tipo) {
+
+  // Primero invalidamos cualquier consulta anterior.
+  invalidarConsulta();
+
   tipoReserva = tipo;
-  const opciones = document.querySelectorAll('.tipos .tipo');
+
+  const opciones =
+    document.querySelectorAll('.tipos .tipo');
 
   opciones.forEach(el => {
-    if (el.textContent.toUpperCase().includes(tipo)) {
+
+    if (
+      el.textContent
+        .toUpperCase()
+        .includes(tipo)
+    ) {
       el.classList.add('activo');
     } else {
       el.classList.remove('activo');
     }
+
   });
 
-  const claseBox = document.getElementById('claseBox');
+  const claseBox =
+    document.getElementById('claseBox');
+
   if (claseBox) {
-    claseBox.style.display = (tipo === 'CLASE') ? 'block' : 'none';
+    claseBox.style.display =
+      tipo === 'CLASE'
+        ? 'block'
+        : 'none';
   }
 
-  if (tipo === 'CLASE') {
+  const claseSelect =
+    document.getElementById('claseSelect');
+
+  if (tipo === 'ENTRADA') {
+
+    if (claseSelect) {
+      claseSelect.value = '';
+    }
+
+  } else if (tipo === 'CLASE') {
+
+    if (claseSelect) {
+      claseSelect.innerHTML =
+        '<option value="">Cargando clases disponibles...</option>';
+    }
+
     await cargarClases();
-  } else {
-    invalidarConsulta();
   }
 
   actualizarEstadoBotonReserva();
@@ -608,89 +638,129 @@ function alSeleccionarClase() {
 ========================================================= */
 async function consultarDisponibilidad() {
 
-  const fecha = document.getElementById('fecha').value;
+  const fecha =
+    document.getElementById('fecha').value;
 
-  let horaInicio = document.getElementById('horaInicio').value;
-  let horaFin = horaFinCalculada;
+  let horaInicio =
+    document.getElementById('horaInicio').value;
 
+  let horaFin =
+    horaFinCalculada;
+
+  /*
+   * Si es una clase, el horario real
+   * viene determinado por la clase.
+   */
   if (tipoReserva === 'CLASE') {
 
-    const claseSelect = document.getElementById('claseSelect');
+    const claseSelect =
+      document.getElementById('claseSelect');
 
-    const opt = claseSelect
-      ? claseSelect.options[claseSelect.selectedIndex]
-      : null;
+    const opt =
+      claseSelect
+        ? claseSelect.options[
+            claseSelect.selectedIndex
+          ]
+        : null;
 
-    if (opt && opt.dataset.inicio && opt.dataset.fin) {
+    if (
+      opt &&
+      opt.dataset.inicio &&
+      opt.dataset.fin
+    ) {
       horaInicio = opt.dataset.inicio;
       horaFin = opt.dataset.fin;
     }
   }
 
   if (!fecha || !horaInicio || !horaFin) {
+
     mostrarMensaje(
       'Por favor, selecciona Fecha y Horario.',
       'error'
     );
+
     return;
   }
 
   /*
-   * Cada nueva consulta invalida automáticamente
-   * cualquier consulta anterior.
+   * Cada consulta recibe un ID único.
+   * Si mientras esperamos llega otra consulta,
+   * la respuesta antigua será ignorada.
    */
-  const miConsultaId = ++consultaIdActual;
+  const miConsultaId =
+    ++consultaIdActual;
 
   consultaEnCurso = true;
 
-  const btn = document.querySelector('.btn-consultar');
+  const btn =
+    document.querySelector('.btn-consultar');
 
-  const textoOriginal = btn
-    ? btn.innerText
-    : 'Consultar';
+  const textoOriginal =
+    btn
+      ? btn.innerText
+      : 'Consultar';
 
   if (btn) {
-    btn.innerText = 'Consultando...';
+
+    btn.innerText =
+      'Consultando...';
+
     btn.disabled = true;
+
     btn.style.opacity = '0.7';
-    btn.style.cursor = 'not-allowed';
+
+    btn.style.cursor =
+      'not-allowed';
   }
 
   try {
 
-    const resultado = await api({
-      action: 'ocupacion',
-      fecha: fecha,
-      horaInicio: horaInicio,
-      horaFin: horaFin
-    });
+    const resultado =
+      await api({
+        action: 'ocupacion',
+        fecha,
+        horaInicio,
+        horaFin
+      });
 
     /*
-     * Si mientras esperábamos se hizo otra consulta,
-     * esta respuesta ya quedó obsoleta.
+     * Si ya existe una consulta más nueva,
+     * esta respuesta ya no sirve.
      */
-    if (miConsultaId !== consultaIdActual) {
+    if (
+      miConsultaId !== consultaIdActual
+    ) {
       return;
     }
 
     if (!resultado.ok) {
+
       throw new Error(
         resultado.mensaje ||
         'Error al obtener disponibilidad'
       );
     }
 
-    document.getElementById('capacidad').textContent =
+    document.getElementById(
+      'capacidad'
+    ).textContent =
       resultado.capacidad || 0;
 
-    document.getElementById('ocupacion').textContent =
+    document.getElementById(
+      'ocupacion'
+    ).textContent =
       resultado.ocupacion || 0;
 
-    document.getElementById('disponibles').textContent =
+    document.getElementById(
+      'disponibles'
+    ).textContent =
       resultado.disponibles || 0;
 
     const resBox =
-      document.getElementById('resultadoConsulta');
+      document.getElementById(
+        'resultadoConsulta'
+      );
 
     if (resBox) {
       resBox.style.display = 'block';
@@ -723,18 +793,21 @@ async function consultarDisponibilidad() {
 
     if (btn) {
 
-      btn.innerText = '¡Actualizado!';
-      btn.style.backgroundColor = '#dcfce7';
-      btn.style.color = '#15803d';
+      btn.innerText =
+        '¡Actualizado!';
+
+      btn.style.backgroundColor =
+        '#dcfce7';
+
+      btn.style.color =
+        '#15803d';
     }
 
   } catch (error) {
 
-    /*
-     * Si ya existe una consulta más nueva,
-     * ignoramos también este error.
-     */
-    if (miConsultaId !== consultaIdActual) {
+    if (
+      miConsultaId !== consultaIdActual
+    ) {
       return;
     }
 
@@ -747,10 +820,9 @@ async function consultarDisponibilidad() {
 
   } finally {
 
-    /*
-     * Solo la consulta vigente puede liberar el botón.
-     */
-    if (miConsultaId === consultaIdActual) {
+    if (
+      miConsultaId === consultaIdActual
+    ) {
 
       consultaEnCurso = false;
 
@@ -758,22 +830,29 @@ async function consultarDisponibilidad() {
 
         setTimeout(() => {
 
-          /*
-           * Puede haber aparecido otra consulta
-           * durante estos 1500 ms.
-           */
-          if (miConsultaId !== consultaIdActual) {
+          if (
+            miConsultaId !== consultaIdActual
+          ) {
             return;
           }
 
-          btn.innerText = textoOriginal;
-          btn.disabled = false;
-          btn.style.backgroundColor = '#e0e0e0';
-          btn.style.color = '#333333';
-          btn.style.opacity = '1';
-          btn.style.cursor = 'pointer';
+          btn.innerText =
+            textoOriginal;
 
-        }, 1500);
+          btn.disabled = false;
+
+          btn.style.backgroundColor =
+            '#e0e0e0';
+
+          btn.style.color =
+            '#333333';
+
+          btn.style.opacity = '1';
+
+          btn.style.cursor =
+            'pointer';
+
+        }, 1000);
       }
     }
   }
@@ -900,6 +979,47 @@ async function realizarReserva() {
     if (!res || !res.ok) {
       throw new Error(res?.mensaje || 'Error al procesar la reserva.');
     }
+    /*
+     * El backend ya devuelve la ocupación
+     * y disponibilidad después de crear la reserva.
+     *
+     * No necesitamos hacer otra consulta a Sheets.
+     */
+    if (
+      typeof res.capacidad !== 'undefined' &&
+      typeof res.ocupacion !== 'undefined' &&
+      typeof res.disponibles !== 'undefined'
+    ) {
+    
+      document.getElementById(
+        'capacidad'
+      ).textContent =
+        res.capacidad;
+    
+      document.getElementById(
+        'ocupacion'
+      ).textContent =
+        res.ocupacion;
+    
+      document.getElementById(
+        'disponibles'
+      ).textContent =
+        res.disponibles;
+    
+      disponiblesActuales =
+        Number(res.disponibles);
+    
+      const resBox =
+        document.getElementById(
+          'resultadoConsulta'
+        );
+    
+      if (resBox) {
+        resBox.style.display = 'block';
+      }
+    
+      cuposConsultados = true;
+    }
 
     if (btn) {
       btn.innerText = '¡Reservado!';
@@ -911,13 +1031,13 @@ async function realizarReserva() {
 
     document.getElementById('clienteId').value = '';
 
-    setTimeout(async () => {
+    /*setTimeout(async () => {
       try {
         await consultarDisponibilidad();
       } catch (e) {
         console.error('Error actualizando disponibilidad:', e);
       }
-    }, 800);
+    }, 800);*/
 
   } catch (error) {
     console.error('Error al reservar:', error);
