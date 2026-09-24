@@ -488,6 +488,8 @@ let disponiblesActuales = 0;
 let horaFinCalculada = '16:00';
 let consultaIdActual = 0;
 let consultaEnCurso = false;
+let controladorConsulta = null;
+let controladorClases = null;
 /* =========================================================
    INICIALIZACIÓN
 ========================================================= */
@@ -549,24 +551,31 @@ function calcularHorarioResultante() {
    INVALIDAR CONSULTA
 ========================================================= */
 function invalidarConsulta() {
-
-  // Hace que cualquier respuesta anterior
-  // quede automáticamente obsoleta.
-  consultaIdActual++;
-  consultaEnCurso = false;
+  // Cancela de verdad cualquier consulta pendiente
+  if (controladorConsulta) {
+    controladorConsulta.abort();
+    controladorConsulta = null;
+  }
   cuposConsultados = false;
   disponiblesActuales = 0;
-  const resBox =
-    document.getElementById('resultadoConsulta');
-  if (resBox) {
-    resBox.style.display = 'none';
+
+  const resBox = document.getElementById('resultadoConsulta');
+  if (resBox) resBox.style.display = 'none';
+
+  const msg = document.getElementById('mensajeEstado');
+  if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+
+  // Restaura el botón YA, sin esperar a que resuelva ninguna promesa vieja
+  const btn = document.querySelector('.btn-consultar');
+  if (btn) {
+    btn.innerText = 'Consultar';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.backgroundColor = '#e0e0e0';
+    btn.style.color = '#333333';
+    btn.style.cursor = 'pointer';
   }
-  const msg =
-    document.getElementById('mensajeEstado');
-  if (msg) {
-    msg.style.display = 'none';
-    msg.textContent = '';
-  }
+
   actualizarEstadoBotonReserva();
 }
 /* =========================================================
@@ -637,222 +646,79 @@ function alSeleccionarClase() {
    1. CONSULTAR DISPONIBILIDAD
 ========================================================= */
 async function consultarDisponibilidad() {
+  const fecha = document.getElementById('fecha').value;
+  let horaInicio = document.getElementById('horaInicio').value;
+  let horaFin = horaFinCalculada;
 
-  const fecha =
-    document.getElementById('fecha').value;
-
-  let horaInicio =
-    document.getElementById('horaInicio').value;
-
-  let horaFin =
-    horaFinCalculada;
-
-  /*
-   * Si es una clase, el horario real
-   * viene determinado por la clase.
-   */
   if (tipoReserva === 'CLASE') {
-
-    const claseSelect =
-      document.getElementById('claseSelect');
-
-    const opt =
-      claseSelect
-        ? claseSelect.options[
-            claseSelect.selectedIndex
-          ]
-        : null;
-
-    if (
-      opt &&
-      opt.dataset.inicio &&
-      opt.dataset.fin
-    ) {
+    const claseSelect = document.getElementById('claseSelect');
+    const opt = claseSelect ? claseSelect.options[claseSelect.selectedIndex] : null;
+    if (opt && opt.dataset.inicio && opt.dataset.fin) {
       horaInicio = opt.dataset.inicio;
       horaFin = opt.dataset.fin;
     }
   }
 
   if (!fecha || !horaInicio || !horaFin) {
-
-    mostrarMensaje(
-      'Por favor, selecciona Fecha y Horario.',
-      'error'
-    );
-
+    mostrarMensaje('Por favor, selecciona Fecha y Horario.', 'error');
     return;
   }
 
-  /*
-   * Cada consulta recibe un ID único.
-   * Si mientras esperamos llega otra consulta,
-   * la respuesta antigua será ignorada.
-   */
-  const miConsultaId =
-    ++consultaIdActual;
+  // Cancela cualquier consulta anterior antes de lanzar esta
+  if (controladorConsulta) controladorConsulta.abort();
+  const miControlador = new AbortController();
+  controladorConsulta = miControlador;
 
-  consultaEnCurso = true;
-
-  const btn =
-    document.querySelector('.btn-consultar');
-
-  const textoOriginal =
-    btn
-      ? btn.innerText
-      : 'Consultar';
-
+  const btn = document.querySelector('.btn-consultar');
   if (btn) {
-
-    btn.innerText =
-      'Consultando...';
-
+    btn.innerText = 'Consultando...';
     btn.disabled = true;
-
     btn.style.opacity = '0.7';
-
-    btn.style.cursor =
-      'not-allowed';
+    btn.style.cursor = 'not-allowed';
   }
 
   try {
+    const resultado = await api(
+      { action: 'ocupacion', fecha, horaInicio, horaFin },
+      { signal: miControlador.signal }
+    );
 
-    const resultado =
-      await api({
-        action: 'ocupacion',
-        fecha,
-        horaInicio,
-        horaFin
-      });
+    if (controladorConsulta !== miControlador) return; // fue reemplazada, ignorar
 
-    /*
-     * Si ya existe una consulta más nueva,
-     * esta respuesta ya no sirve.
-     */
-    if (
-      miConsultaId !== consultaIdActual
-    ) {
-      return;
-    }
+    if (!resultado.ok) throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
 
-    if (!resultado.ok) {
+    document.getElementById('capacidad').textContent = resultado.capacidad || 0;
+    document.getElementById('ocupacion').textContent = resultado.ocupacion || 0;
+    document.getElementById('disponibles').textContent = resultado.disponibles || 0;
 
-      throw new Error(
-        resultado.mensaje ||
-        'Error al obtener disponibilidad'
-      );
-    }
+    const resBox = document.getElementById('resultadoConsulta');
+    if (resBox) resBox.style.display = 'block';
 
-    document.getElementById(
-      'capacidad'
-    ).textContent =
-      resultado.capacidad || 0;
-
-    document.getElementById(
-      'ocupacion'
-    ).textContent =
-      resultado.ocupacion || 0;
-
-    document.getElementById(
-      'disponibles'
-    ).textContent =
-      resultado.disponibles || 0;
-
-    const resBox =
-      document.getElementById(
-        'resultadoConsulta'
-      );
-
-    if (resBox) {
-      resBox.style.display = 'block';
-    }
-
-    disponiblesActuales =
-      Number(resultado.disponibles || 0);
-
+    disponiblesActuales = Number(resultado.disponibles || 0);
     cuposConsultados = true;
-
     actualizarEstadoBotonReserva();
 
-    if (
-      resultado.lleno ||
-      disponiblesActuales === 0
-    ) {
-
-      mostrarMensaje(
-        'No hay cupos disponibles para este horario.',
-        'error'
-      );
-
+    if (resultado.lleno || disponiblesActuales === 0) {
+      mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
     } else {
-
-      mostrarMensaje(
-        `¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`,
-        'exito'
-      );
-    }
-
-    if (btn) {
-
-      btn.innerText =
-        '¡Actualizado!';
-
-      btn.style.backgroundColor =
-        '#dcfce7';
-
-      btn.style.color =
-        '#15803d';
+      mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`, 'exito');
     }
 
   } catch (error) {
-
-    if (
-      miConsultaId !== consultaIdActual
-    ) {
-      return;
-    }
-
-    mostrarMensaje(
-      'Error: ' + error.message,
-      'error'
-    );
-
-    invalidarConsulta();
-
+    if (error.name === 'AbortError') return; // cancelada a propósito, no es un error real
+    if (controladorConsulta !== miControlador) return;
+    mostrarMensaje('Error: ' + error.message, 'error');
+    cuposConsultados = false;
   } finally {
-
-    if (
-      miConsultaId === consultaIdActual
-    ) {
-
-      consultaEnCurso = false;
-
+    if (controladorConsulta === miControlador) {
+      controladorConsulta = null;
       if (btn) {
-
-        setTimeout(() => {
-
-          if (
-            miConsultaId !== consultaIdActual
-          ) {
-            return;
-          }
-
-          btn.innerText =
-            textoOriginal;
-
-          btn.disabled = false;
-
-          btn.style.backgroundColor =
-            '#e0e0e0';
-
-          btn.style.color =
-            '#333333';
-
-          btn.style.opacity = '1';
-
-          btn.style.cursor =
-            'pointer';
-
-        }, 1000);
+        btn.innerText = 'Consultar';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.backgroundColor = '#e0e0e0';
+        btn.style.color = '#333333';
+        btn.style.cursor = 'pointer';
       }
     }
   }
@@ -1035,14 +901,6 @@ async function realizarReserva() {
 
     document.getElementById('clienteId').value = '';
 
-    /*setTimeout(async () => {
-      try {
-        await consultarDisponibilidad();
-      } catch (e) {
-        console.error('Error actualizando disponibilidad:', e);
-      }
-    }, 800);*/
-
   } catch (error) {
     console.error('Error al reservar:', error);
     mostrarMensaje('Error al reservar: ' + error.message, 'error');
@@ -1089,8 +947,6 @@ function actualizarEstadoBotonReserva() {
    - Sin reintentos automáticos
 ========================================================= */
 // Reemplaza consultaIdActual por esto:
-let controladorConsulta = null;
-let controladorClases = null;
 
 async function api(body, opciones = {}) {
   const timeout = opciones.timeout || 15000;
@@ -1113,114 +969,6 @@ async function api(body, opciones = {}) {
     throw error;
   } finally {
     clearTimeout(timeoutId);
-  }
-}
-
-function invalidarConsulta() {
-  // Cancela de verdad cualquier consulta pendiente
-  if (controladorConsulta) {
-    controladorConsulta.abort();
-    controladorConsulta = null;
-  }
-  cuposConsultados = false;
-  disponiblesActuales = 0;
-
-  const resBox = document.getElementById('resultadoConsulta');
-  if (resBox) resBox.style.display = 'none';
-
-  const msg = document.getElementById('mensajeEstado');
-  if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
-
-  // Restaura el botón YA, sin esperar a que resuelva ninguna promesa vieja
-  const btn = document.querySelector('.btn-consultar');
-  if (btn) {
-    btn.innerText = 'Consultar';
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    btn.style.backgroundColor = '#e0e0e0';
-    btn.style.color = '#333333';
-    btn.style.cursor = 'pointer';
-  }
-
-  actualizarEstadoBotonReserva();
-}
-
-async function consultarDisponibilidad() {
-  const fecha = document.getElementById('fecha').value;
-  let horaInicio = document.getElementById('horaInicio').value;
-  let horaFin = horaFinCalculada;
-
-  if (tipoReserva === 'CLASE') {
-    const claseSelect = document.getElementById('claseSelect');
-    const opt = claseSelect ? claseSelect.options[claseSelect.selectedIndex] : null;
-    if (opt && opt.dataset.inicio && opt.dataset.fin) {
-      horaInicio = opt.dataset.inicio;
-      horaFin = opt.dataset.fin;
-    }
-  }
-
-  if (!fecha || !horaInicio || !horaFin) {
-    mostrarMensaje('Por favor, selecciona Fecha y Horario.', 'error');
-    return;
-  }
-
-  // Cancela cualquier consulta anterior antes de lanzar esta
-  if (controladorConsulta) controladorConsulta.abort();
-  const miControlador = new AbortController();
-  controladorConsulta = miControlador;
-
-  const btn = document.querySelector('.btn-consultar');
-  if (btn) {
-    btn.innerText = 'Consultando...';
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-    btn.style.cursor = 'not-allowed';
-  }
-
-  try {
-    const resultado = await api(
-      { action: 'ocupacion', fecha, horaInicio, horaFin },
-      { signal: miControlador.signal }
-    );
-
-    if (controladorConsulta !== miControlador) return; // fue reemplazada, ignorar
-
-    if (!resultado.ok) throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
-
-    document.getElementById('capacidad').textContent = resultado.capacidad || 0;
-    document.getElementById('ocupacion').textContent = resultado.ocupacion || 0;
-    document.getElementById('disponibles').textContent = resultado.disponibles || 0;
-
-    const resBox = document.getElementById('resultadoConsulta');
-    if (resBox) resBox.style.display = 'block';
-
-    disponiblesActuales = Number(resultado.disponibles || 0);
-    cuposConsultados = true;
-    actualizarEstadoBotonReserva();
-
-    if (resultado.lleno || disponiblesActuales === 0) {
-      mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
-    } else {
-      mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`, 'exito');
-    }
-
-  } catch (error) {
-    if (error.name === 'AbortError') return; // cancelada a propósito, no es un error real
-    if (controladorConsulta !== miControlador) return;
-    mostrarMensaje('Error: ' + error.message, 'error');
-    cuposConsultados = false;
-  } finally {
-    if (controladorConsulta === miControlador) {
-      controladorConsulta = null;
-      if (btn) {
-        btn.innerText = 'Consultar';
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.backgroundColor = '#e0e0e0';
-        btn.style.color = '#333333';
-        btn.style.cursor = 'pointer';
-      }
-    }
   }
 }
 
