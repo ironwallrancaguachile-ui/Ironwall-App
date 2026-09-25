@@ -140,13 +140,6 @@ h1 {
 }
 
 /* --- FORMULARIOS Y GRID --- */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  align-items: end;
-}
-
 label {
   display: block;
   font-size: 12px;
@@ -195,12 +188,20 @@ input:focus, select:focus {
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 10px;
+  padding: 14px 10px;
   text-align: center;
   font-weight: 700;
   font-size: 13px;
   cursor: pointer;
   transition: .2s;
+}
+
+.tipo small {
+  display: block;
+  font-weight: 500;
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
 }
 
 .tipo.activo {
@@ -209,9 +210,50 @@ input:focus, select:focus {
   color: #b47700;
 }
 
+.tipo.activo small {
+  color: #b47700;
+}
+
+/* --- SEPARADOR DE FECHA (compartida por ambos paneles) --- */
+.fila-fecha {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf0f2;
+  max-width: 260px;
+}
+
+/* --- PANELES POR TIPO DE RESERVA --- */
+.panel-tipo {
+  display: none;
+}
+
+.panel-tipo.activo {
+  display: block;
+}
+
+.badge-panel {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.badge-entrada {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.badge-clase {
+  background: #fff8e6;
+  color: #b47700;
+}
+
 /* --- BOTONES INTERACTIVOS --- */
 button, .btn {
-  width: 100%;
   height: 41px;
   padding: 0 16px;
   border: 0;
@@ -228,6 +270,7 @@ button, .btn {
 .btn-consultar {
   background-color: #e0e0e0;
   color: #333333;
+  white-space: nowrap;
 }
 
 .btn-consultar:hover {
@@ -237,7 +280,8 @@ button, .btn {
 .btn-reservar {
   background-color: #191919;
   color: #ffffff;
-  margin-top: 18px;
+  width: 100%;
+  white-space: nowrap;
 }
 
 .btn-reservar:hover {
@@ -255,10 +299,6 @@ button, .btn {
 }
 
 /* --- MENSAJES DE ESTADO --- */
-#claseBox {
-  display: none;
-}
-
 .mensaje {
   margin-top: 12px;
   font-weight: 700;
@@ -277,10 +317,17 @@ button, .btn {
   color: #dc2626;
 }
 
-/* --- LAYOUT FILAS DE CONSULTA Y RESERVA --- */
-.fila-consulta {
+/* --- LAYOUT FILAS --- */
+.fila-entrada {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr 1.3fr auto;
+  grid-template-columns: 1fr 1fr 1.3fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.fila-clase {
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: 12px;
   align-items: end;
 }
@@ -292,56 +339,24 @@ button, .btn {
   align-items: end;
 }
 
-.fila-consulta input,
-.fila-consulta select,
-.fila-reserva input {
-  width: 100%;
-}
-
-.btn-consultar {
-  background-color: #e0e0e0;
-  color: #333333;
-  height: 41px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.2s, transform 0.1s;
-}
-
-.btn-consultar:hover {
-  background-color: #d0d0d0;
-}
-
-.btn-reservar {
-  background-color: #191919;
-  color: #ffffff;
-  height: 41px;
-  padding: 0 24px;
-  border: 0;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  margin-top: 0;
-  transition: background-color 0.2s, transform 0.1s;
-}
-
-.btn-reservar:hover {
-  background-color: #333333;
+/* --- RESULTADOS COMPARTIDOS --- */
+.resultado-box {
+  display: none;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #edf0f2;
 }
 
 /* ADAPTACIÓN RESPONSIVE */
 @media (max-width: 820px) {
-  .fila-consulta {
+  .fila-entrada {
     grid-template-columns: 1fr 1fr;
   }
-  .fila-consulta .btn-consultar {
+  .fila-entrada .btn-consultar {
     grid-column: span 2;
+  }
+  .fila-clase {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -352,10 +367,10 @@ button, .btn {
   .card {
     padding: 16px;
   }
-  .fila-consulta, .fila-reserva {
+  .fila-entrada, .fila-reserva {
     grid-template-columns: 1fr;
   }
-  .fila-consulta .btn-consultar {
+  .fila-entrada .btn-consultar {
     grid-column: span 1;
   }
 }
@@ -377,55 +392,92 @@ button, .btn {
   <h1>Sistema de Reservas</h1>
   <p class="subtitulo">Consulta disponibilidad y gestiona reservas en línea</p>
 
-<!-- TARJETA 1: CONSULTA DE HORARIO -->
+<!-- TARJETA 1: TIPO DE RESERVA -->
 <div class="card">
-  <div class="titulo-card">1. Consulta de Horario</div>
+  <div class="titulo-card">1. Tipo de Reserva</div>
+  <div class="tipos">
+    <div class="tipo activo" onclick="seleccionarTipo('ENTRADA')">
+      Entrada Libre
+      <small>Aforo general del recinto</small>
+    </div>
+    <div class="tipo" onclick="seleccionarTipo('CLASE')">
+      Clase Guiada
+      <small>Cupo específico de la clase</small>
+    </div>
+  </div>
+</div>
 
-  <div class="fila-consulta">
-    <div>
-      <label>Fecha</label>
-      <input id="fecha" type="date">
-    </div>
-    <div>
-      <label>Hora Inicio</label>
-      <select id="horaInicio" onchange="calcularHorarioResultante()">
-        <option value="08:00">08:00</option>
-        <option value="09:00">09:00</option>
-        <option value="10:00">10:00</option>
-        <option value="11:00">11:00</option>
-        <option value="12:00">12:00</option>
-        <option value="13:00">13:00</option>
-        <option value="14:00" selected>14:00</option>
-        <option value="15:00">15:00</option>
-        <option value="16:00">16:00</option>
-        <option value="17:00">17:00</option>
-        <option value="18:00">18:00</option>
-        <option value="19:00">19:00</option>
-        <option value="20:00">20:00</option>
-      </select>
-    </div>
-    <div>
-      <label>Duración</label>
-      <select id="duracionHoras" onchange="calcularHorarioResultante()">
-        <option value="2" selected>2 horas (normal)</option>
-        <option value="3">3 horas</option>
-        <option value="4">4 horas</option>
-        <option value="5">5 horas</option>
-        <option value="6">6 horas</option>
-      </select>
-    </div>
-    <div>
-      <label>Horario Resultante</label>
-      <div id="horarioResultanteText" class="horario-preview">14:00 - 16:00</div>
-    </div>
-    <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
+<!-- TARJETA 2: FECHA Y HORARIO -->
+<div class="card">
+  <div class="titulo-card">2. Fecha y Horario</div>
+
+  <div class="fila-fecha">
+    <label>Fecha</label>
+    <input id="fecha" type="date">
   </div>
 
-  <!-- RESULTADOS DE LA CONSULTA -->
-  <div id="resultadoConsulta" style="display: none; margin-top: 16px; padding-top: 14px; border-top: 1px solid #edf0f2;">
+  <!-- PANEL ENTRADA LIBRE -->
+  <div id="panelEntrada" class="panel-tipo activo">
+    <span class="badge-panel badge-entrada">Entrada Libre</span>
+    <div class="fila-entrada">
+      <div>
+        <label>Hora Inicio</label>
+        <select id="horaInicio" onchange="calcularHorarioResultante()">
+          <option value="08:00">08:00</option>
+          <option value="09:00">09:00</option>
+          <option value="10:00">10:00</option>
+          <option value="11:00">11:00</option>
+          <option value="12:00">12:00</option>
+          <option value="13:00">13:00</option>
+          <option value="14:00" selected>14:00</option>
+          <option value="15:00">15:00</option>
+          <option value="16:00">16:00</option>
+          <option value="17:00">17:00</option>
+          <option value="18:00">18:00</option>
+          <option value="19:00">19:00</option>
+          <option value="20:00">20:00</option>
+        </select>
+      </div>
+      <div>
+        <label>Duración</label>
+        <select id="duracionHoras" onchange="calcularHorarioResultante()">
+          <option value="2" selected>2 horas (normal)</option>
+          <option value="3">3 horas</option>
+          <option value="4">4 horas</option>
+          <option value="5">5 horas</option>
+          <option value="6">6 horas</option>
+        </select>
+      </div>
+      <div>
+        <label>Horario Resultante</label>
+        <div id="horarioResultanteText" class="horario-preview">14:00 - 16:00</div>
+      </div>
+      <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
+    </div>
+  </div>
+
+  <!-- PANEL CLASE GUIADA -->
+  <div id="panelClase" class="panel-tipo">
+    <span class="badge-panel badge-clase">Clase Guiada</span>
+    <div class="fila-clase">
+      <div>
+        <label for="claseSelect">Selecciona la Clase Disponible</label>
+        <select id="claseSelect" onchange="alSeleccionarClase()">
+          <option value="">Cargando clases...</option>
+        </select>
+      </div>
+      <button class="btn-consultar" onclick="consultarDisponibilidad()">Actualizar cupos</button>
+    </div>
+    <p style="font-size:12px; color:#888; margin-top:8px;">
+      Al elegir una clase se consulta automáticamente su cupo disponible.
+    </p>
+  </div>
+
+  <!-- RESULTADOS DE LA CONSULTA (compartidos por ambos paneles) -->
+  <div id="resultadoConsulta" class="resultado-box">
     <div class="indicadores">
       <div class="indicador-item">
-        <span>Capacidad Total</span>
+        <span>Capacidad</span>
         <strong id="capacidad">0</strong>
       </div>
       <div class="indicador-item">
@@ -438,22 +490,6 @@ button, .btn {
       </div>
     </div>
     <div id="mensajeEstado" class="mensaje" style="display: none; margin-top: 10px;"></div>
-  </div>
-</div>
-
-<!-- TARJETA 2: TIPO DE RESERVA -->
-<div class="card">
-  <div class="titulo-card">2. Tipo de Reserva</div>
-  <div class="tipos">
-    <div class="tipo activo" onclick="seleccionarTipo('ENTRADA')">Entrada Libre</div>
-    <div class="tipo" onclick="seleccionarTipo('CLASE')">Clase Guiada</div>
-  </div>
-
-  <div id="claseBox" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid #edf0f2;">
-    <label for="claseSelect">Selecciona la Clase Disponible</label>
-    <select id="claseSelect" onchange="alSeleccionarClase()">
-      <option value="">Cargando clases...</option>
-    </select>
   </div>
 </div>
 
@@ -530,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================================================
-   CALCULADORA DE RANGOS DE HORARIO
+   CALCULADORA DE RANGOS DE HORARIO (Entrada Libre)
 ========================================================= */
 function calcularHorarioResultante() {
   const hInicioSelect = document.getElementById('horaInicio');
@@ -592,18 +628,17 @@ function rangosCoinciden(a, b) {
 }
 
 /* =========================================================
-   RESET DEL BOTÓN CONSULTAR (inmediato, sin depender de timeouts)
+   RESET DE BOTONES CONSULTAR (inmediato, sin depender de timeouts)
 ========================================================= */
-function resetBotonConsultar() {
-  const btn = document.querySelector('.btn-consultar');
-  if (btn) {
-    btn.innerText = 'Consultar';
+function resetBotonesConsultar() {
+  document.querySelectorAll('.btn-consultar').forEach(btn => {
     btn.disabled = false;
     btn.style.opacity = '1';
     btn.style.backgroundColor = '#e0e0e0';
     btn.style.color = '#333333';
     btn.style.cursor = 'pointer';
-  }
+    btn.innerText = btn.closest('#panelClase') ? 'Actualizar cupos' : 'Consultar';
+  });
 }
 
 /* =========================================================
@@ -630,8 +665,8 @@ function invalidarConsulta() {
     msg.textContent = '';
   }
 
-  // Clave: resetear el botón Consultar YA, sin esperar ningún timeout viejo
-  resetBotonConsultar();
+  // Clave: resetear los botones Consultar YA, sin esperar ningún timeout viejo
+  resetBotonesConsultar();
 
   actualizarEstadoBotonReserva();
 }
@@ -645,7 +680,6 @@ async function seleccionarTipo(tipo) {
   tipoReserva = tipo;
 
   const opciones = document.querySelectorAll('.tipos .tipo');
-
   opciones.forEach(el => {
     if (el.textContent.toUpperCase().includes(tipo)) {
       el.classList.add('activo');
@@ -654,18 +688,17 @@ async function seleccionarTipo(tipo) {
     }
   });
 
-  const claseBox = document.getElementById('claseBox');
-  if (claseBox) {
-    claseBox.style.display = tipo === 'CLASE' ? 'block' : 'none';
-  }
-
+  const panelEntrada = document.getElementById('panelEntrada');
+  const panelClase = document.getElementById('panelClase');
   const claseSelect = document.getElementById('claseSelect');
 
   if (tipo === 'ENTRADA') {
-    if (claseSelect) {
-      claseSelect.value = '';
-    }
+    if (panelEntrada) panelEntrada.classList.add('activo');
+    if (panelClase) panelClase.classList.remove('activo');
+    if (claseSelect) claseSelect.value = '';
   } else if (tipo === 'CLASE') {
+    if (panelEntrada) panelEntrada.classList.remove('activo');
+    if (panelClase) panelClase.classList.add('activo');
     if (claseSelect) {
       claseSelect.innerHTML = '<option value="">Cargando clases disponibles...</option>';
     }
@@ -722,14 +755,15 @@ async function consultarDisponibilidad() {
   const miControlador = new AbortController();
   controladorConsulta = miControlador;
 
-  const btn = document.querySelector('.btn-consultar');
-  const textoOriginal = btn ? 'Consultar' : 'Consultar';
+  const btnActivo = document.querySelector(
+    tipoReserva === 'CLASE' ? '#panelClase .btn-consultar' : '#panelEntrada .btn-consultar'
+  );
 
-  if (btn) {
-    btn.innerText = 'Consultando...';
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-    btn.style.cursor = 'not-allowed';
+  if (btnActivo) {
+    btnActivo.innerText = 'Consultando...';
+    btnActivo.disabled = true;
+    btnActivo.style.opacity = '0.7';
+    btnActivo.style.cursor = 'not-allowed';
   }
 
   try {
@@ -772,15 +806,20 @@ async function consultarDisponibilidad() {
     actualizarEstadoBotonReserva();
 
     if (resultado.lleno || disponiblesActuales === 0) {
-      mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
+      mostrarMensaje(
+        tipoReserva === 'CLASE'
+          ? 'No hay cupos disponibles para esta clase.'
+          : 'No hay cupos disponibles para este horario.',
+        'error'
+      );
     } else {
       mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`, 'exito');
     }
 
-    if (btn) {
-      btn.innerText = '¡Actualizado!';
-      btn.style.backgroundColor = '#dcfce7';
-      btn.style.color = '#15803d';
+    if (btnActivo) {
+      btnActivo.innerText = '¡Actualizado!';
+      btnActivo.style.backgroundColor = '#dcfce7';
+      btnActivo.style.color = '#15803d';
     }
 
   } catch (error) {
@@ -801,7 +840,7 @@ async function consultarDisponibilidad() {
     // Reseteo inmediato del botón, ya no depende de comparar IDs tras un timeout.
     if (controladorConsulta === miControlador) {
       controladorConsulta = null;
-      resetBotonConsultar();
+      resetBotonesConsultar();
     }
   }
 }
@@ -961,8 +1000,6 @@ async function realizarReserva() {
       document.getElementById('disponibles').textContent = res.disponibles;
 
       disponiblesActuales = Number(res.disponibles);
-      // Nota: esta actualización sigue correspondiendo al mismo rango
-      // que se acaba de reservar (rangoConsultado no cambia aquí).
 
       const resBox = document.getElementById('resultadoConsulta');
       if (resBox) {
