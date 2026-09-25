@@ -548,6 +548,21 @@ function calcularHorarioResultante() {
   invalidarConsulta();
 }
 /* =========================================================
+   RESET CONSULTAR
+========================================================= */
+
+function resetBotonConsultar() {
+  const btn = document.querySelector('.btn-consultar');
+  if (btn) {
+    btn.innerText = 'Consultar';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.backgroundColor = '#e0e0e0';
+    btn.style.color = '#333333';
+    btn.style.cursor = 'pointer';
+  }
+}
+/* =========================================================
    INVALIDAR CONSULTA
 ========================================================= */
 function invalidarConsulta() {
