@@ -59,7 +59,7 @@ body {
   .btnHome {
       display: inline-flex;
       align-items: center;
-      gap: 8px; /* Espacio entre el logo y el texto */
+      gap: 8px;
       background: #ffffff;
       color: #222;
       text-decoration: none;
@@ -71,13 +71,12 @@ body {
       border: 1px solid #e8ecef;
       transition: transform .2s, box-shadow .2s;
     }
-    
-    /* Control del tamaño del logo dentro del botón */
+
     .logo-btn {
       height: 36px;
-      width: auto; /* Permite que el ancho se ajuste solo */
+      width: auto;
       object-fit: contain;
-      transform: scale(1.8); /* Agranda la imagen visualmente un 40% omitiendo sus bordes vacíos */
+      transform: scale(1.8);
       transform-origin: center;
     }
 
@@ -293,7 +292,7 @@ button, .btn {
   align-items: end;
 }
 
-.fila-consulta input, 
+.fila-consulta input,
 .fila-consulta select,
 .fila-reserva input {
   width: 100%;
@@ -366,7 +365,7 @@ button, .btn {
 
 <body>
 <div class="container">
-  
+
 <!-- BARRA DE NAVEGACIÓN -->
     <div class="barraNavegacion">
       <a href="index.html" class="btnHome">
@@ -381,7 +380,7 @@ button, .btn {
 <!-- TARJETA 1: CONSULTA DE HORARIO -->
 <div class="card">
   <div class="titulo-card">1. Consulta de Horario</div>
-  
+
   <div class="fila-consulta">
     <div>
       <label>Fecha</label>
@@ -486,10 +485,18 @@ let tipoReserva = 'ENTRADA';
 let cuposConsultados = false;
 let disponiblesActuales = 0;
 let horaFinCalculada = '16:00';
-let consultaIdActual = 0;
-let consultaEnCurso = false;
+
+// Controladores de concurrencia: uno por "canal" de peticiones.
+// Cuando se lanza una petición nueva de un canal, se cancela
+// de verdad la anterior de ese mismo canal (no solo se ignora).
 let controladorConsulta = null;
 let controladorClases = null;
+
+// "Sello" de qué rango exacto fue el que arrojó disponiblesActuales.
+// Sirve para que el botón Reservar solo se habilite si el rango
+// vigente (tipo + horario + claseId) coincide con el consultado.
+let rangoConsultado = null;
+
 /* =========================================================
    INICIALIZACIÓN
 ========================================================= */
@@ -509,10 +516,15 @@ document.addEventListener('DOMContentLoaded', () => {
     cantidad.addEventListener('change', actualizarEstadoBotonReserva);
   }
 
-  /*if (fecha) fecha.addEventListener('change', invalidarConsulta);*/
-  if (fecha) {fecha.addEventListener('change', async () => {invalidarConsulta();
-    if (tipoReserva === 'CLASE') {await cargarClases();} });}
-  
+  if (fecha) {
+    fecha.addEventListener('change', async () => {
+      invalidarConsulta();
+      if (tipoReserva === 'CLASE') {
+        await cargarClases();
+      }
+    });
+  }
+
   calcularHorarioResultante();
   actualizarEstadoBotonReserva();
 });
@@ -535,7 +547,7 @@ function calcularHorarioResultante() {
   let minNum = parseInt(partes[1] || '0', 10);
 
   let horaFinNum = horaNum + duracion;
-  
+
   if (horaFinNum > 24) horaFinNum = 24;
 
   const hFinStr = `${String(horaFinNum).padStart(2, '0')}:${String(minNum).padStart(2, '0')}`;
@@ -547,10 +559,41 @@ function calcularHorarioResultante() {
 
   invalidarConsulta();
 }
-/* =========================================================
-   RESET CONSULTAR
-========================================================= */
 
+/* =========================================================
+   RANGO VIGENTE Y COMPARACIÓN (para habilitar Reservar)
+========================================================= */
+function obtenerRangoVigente() {
+  let horaInicio = document.getElementById('horaInicio').value;
+  let horaFin = horaFinCalculada;
+  let claseId = '';
+
+  if (tipoReserva === 'CLASE') {
+    const claseSelect = document.getElementById('claseSelect');
+    const opt = claseSelect ? claseSelect.options[claseSelect.selectedIndex] : null;
+    if (opt && opt.dataset.inicio && opt.dataset.fin && claseSelect.value) {
+      horaInicio = opt.dataset.inicio;
+      horaFin = opt.dataset.fin;
+      claseId = claseSelect.value;
+    } else {
+      return null; // no hay clase seleccionada todavía
+    }
+  }
+
+  return { tipo: tipoReserva, horaInicio, horaFin, claseId };
+}
+
+function rangosCoinciden(a, b) {
+  if (!a || !b) return false;
+  return a.tipo === b.tipo &&
+         a.horaInicio === b.horaInicio &&
+         a.horaFin === b.horaFin &&
+         a.claseId === b.claseId;
+}
+
+/* =========================================================
+   RESET DEL BOTÓN CONSULTAR (inmediato, sin depender de timeouts)
+========================================================= */
 function resetBotonConsultar() {
   const btn = document.querySelector('.btn-consultar');
   if (btn) {
@@ -562,99 +605,86 @@ function resetBotonConsultar() {
     btn.style.cursor = 'pointer';
   }
 }
+
 /* =========================================================
    INVALIDAR CONSULTA
 ========================================================= */
 function invalidarConsulta() {
-  // Cancela de verdad cualquier consulta pendiente
+  // Cancela DE VERDAD cualquier consulta pendiente (no solo la ignora)
   if (controladorConsulta) {
     controladorConsulta.abort();
     controladorConsulta = null;
   }
+
   cuposConsultados = false;
+  rangoConsultado = null;
   disponiblesActuales = 0;
 
   const resBox = document.getElementById('resultadoConsulta');
-  if (resBox) resBox.style.display = 'none';
-
-  const msg = document.getElementById('mensajeEstado');
-  if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
-
-  // Restaura el botón YA, sin esperar a que resuelva ninguna promesa vieja
-  const btn = document.querySelector('.btn-consultar');
-  if (btn) {
-    btn.innerText = 'Consultar';
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    btn.style.backgroundColor = '#e0e0e0';
-    btn.style.color = '#333333';
-    btn.style.cursor = 'pointer';
+  if (resBox) {
+    resBox.style.display = 'none';
   }
+  const msg = document.getElementById('mensajeEstado');
+  if (msg) {
+    msg.style.display = 'none';
+    msg.textContent = '';
+  }
+
+  // Clave: resetear el botón Consultar YA, sin esperar ningún timeout viejo
+  resetBotonConsultar();
 
   actualizarEstadoBotonReserva();
 }
+
 /* =========================================================
    SELECCIÓN DE TIPO DE RESERVA
 ========================================================= */
 async function seleccionarTipo(tipo) {
-
-  // Primero invalidamos cualquier consulta anterior.
   invalidarConsulta();
 
   tipoReserva = tipo;
 
-  const opciones =
-    document.querySelectorAll('.tipos .tipo');
+  const opciones = document.querySelectorAll('.tipos .tipo');
 
   opciones.forEach(el => {
-
-    if (
-      el.textContent
-        .toUpperCase()
-        .includes(tipo)
-    ) {
+    if (el.textContent.toUpperCase().includes(tipo)) {
       el.classList.add('activo');
     } else {
       el.classList.remove('activo');
     }
-
   });
 
-  const claseBox =
-    document.getElementById('claseBox');
-
+  const claseBox = document.getElementById('claseBox');
   if (claseBox) {
-    claseBox.style.display =
-      tipo === 'CLASE'
-        ? 'block'
-        : 'none';
+    claseBox.style.display = tipo === 'CLASE' ? 'block' : 'none';
   }
 
-  const claseSelect =
-    document.getElementById('claseSelect');
+  const claseSelect = document.getElementById('claseSelect');
 
   if (tipo === 'ENTRADA') {
-
     if (claseSelect) {
       claseSelect.value = '';
     }
-
   } else if (tipo === 'CLASE') {
-
     if (claseSelect) {
-      claseSelect.innerHTML =
-        '<option value="">Cargando clases disponibles...</option>';
+      claseSelect.innerHTML = '<option value="">Cargando clases disponibles...</option>';
     }
-
     await cargarClases();
   }
 
   actualizarEstadoBotonReserva();
 }
 
-function alSeleccionarClase() {
+async function alSeleccionarClase() {
+  // Cambiar de clase invalida cualquier consulta anterior (rango distinto)
   invalidarConsulta();
   actualizarEstadoBotonReserva();
+
+  const claseSelect = document.getElementById('claseSelect');
+  if (claseSelect && claseSelect.value) {
+    // Auto-consulta: apenas se elige una clase, se consulta su cupo específico
+    await consultarDisponibilidad();
+  }
 }
 
 /* =========================================================
@@ -669,7 +699,8 @@ async function consultarDisponibilidad() {
   if (tipoReserva === 'CLASE') {
     const claseSelect = document.getElementById('claseSelect');
     const opt = claseSelect ? claseSelect.options[claseSelect.selectedIndex] : null;
-    if (opt && opt.dataset.inicio && opt.dataset.fin) {
+
+    if (opt && opt.dataset.inicio && opt.dataset.fin && claseSelect.value) {
       horaInicio = opt.dataset.inicio;
       horaFin = opt.dataset.fin;
       claseId = claseSelect.value;
@@ -684,77 +715,96 @@ async function consultarDisponibilidad() {
     return;
   }
 
-  if (controladorConsulta) controladorConsulta.abort();
+  // Cancela cualquier consulta anterior en vuelo antes de lanzar esta
+  if (controladorConsulta) {
+    controladorConsulta.abort();
+  }
   const miControlador = new AbortController();
   controladorConsulta = miControlador;
 
   const btn = document.querySelector('.btn-consultar');
-  if (btn) { btn.innerText = 'Consultando...'; btn.disabled = true; btn.style.opacity = '0.7'; btn.style.cursor = 'not-allowed'; }
+  const textoOriginal = btn ? 'Consultar' : 'Consultar';
+
+  if (btn) {
+    btn.innerText = 'Consultando...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'not-allowed';
+  }
 
   try {
-    const payload = { action: 'ocupacion', fecha, horaInicio, horaFin };
-    if (tipoReserva === 'CLASE') payload.claseId = claseId;
+    const payload = {
+      action: 'ocupacion',
+      fecha,
+      horaInicio,
+      horaFin
+    };
+    if (tipoReserva === 'CLASE') {
+      payload.claseId = claseId;
+    }
 
     const resultado = await api(payload, { signal: miControlador.signal });
 
-    if (controladorConsulta !== miControlador) return;
-    if (!resultado.ok) throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
+    // Si ya existe una consulta más nueva en curso, esta respuesta ya no sirve.
+    if (controladorConsulta !== miControlador) {
+      return;
+    }
+
+    if (!resultado.ok) {
+      throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
+    }
 
     document.getElementById('capacidad').textContent = resultado.capacidad || 0;
     document.getElementById('ocupacion').textContent = resultado.ocupacion || 0;
     document.getElementById('disponibles').textContent = resultado.disponibles || 0;
-    document.getElementById('resultadoConsulta').style.display = 'block';
+
+    const resBox = document.getElementById('resultadoConsulta');
+    if (resBox) {
+      resBox.style.display = 'block';
+    }
 
     disponiblesActuales = Number(resultado.disponibles || 0);
     cuposConsultados = true;
-    rangoConsultado = obtenerRangoVigente(); // el "sello" que vimos antes, ahora incluye claseId
+    // Sello: guardamos exactamente qué rango (tipo + horario + claseId)
+    // produjo este resultado, para validar luego en actualizarEstadoBotonReserva.
+    rangoConsultado = obtenerRangoVigente();
+
     actualizarEstadoBotonReserva();
 
-    mostrarMensaje(
-      resultado.lleno || disponiblesActuales === 0
-        ? 'No hay cupos disponibles para esta clase/horario.'
-        : `¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`,
-      resultado.lleno || disponiblesActuales === 0 ? 'error' : 'exito'
-    );
-  } catch (error) {
-    if (error.name === 'AbortError') return;
-    if (controladorConsulta !== miControlador) return;
-    mostrarMensaje('Error: ' + error.message, 'error');
-    cuposConsultados = false;
-  } finally {
-    if (controladorConsulta === miControlador) {
-      controladorConsulta = null;
-      resetBotonConsultar();
-    }
-  }
-}
-  
-/**
     if (resultado.lleno || disponiblesActuales === 0) {
       mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
     } else {
       mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`, 'exito');
     }
 
+    if (btn) {
+      btn.innerText = '¡Actualizado!';
+      btn.style.backgroundColor = '#dcfce7';
+      btn.style.color = '#15803d';
+    }
+
   } catch (error) {
-    if (error.name === 'AbortError') return; // cancelada a propósito, no es un error real
-    if (controladorConsulta !== miControlador) return;
+    if (error.name === 'AbortError') {
+      // Cancelación intencional (se lanzó otra consulta más nueva): no es un error real
+      return;
+    }
+    if (controladorConsulta !== miControlador) {
+      return;
+    }
+
     mostrarMensaje('Error: ' + error.message, 'error');
     cuposConsultados = false;
+    rangoConsultado = null;
+    actualizarEstadoBotonReserva();
+
   } finally {
+    // Reseteo inmediato del botón, ya no depende de comparar IDs tras un timeout.
     if (controladorConsulta === miControlador) {
       controladorConsulta = null;
-      if (btn) {
-        btn.innerText = 'Consultar';
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        btn.style.backgroundColor = '#e0e0e0';
-        btn.style.color = '#333333';
-        btn.style.cursor = 'pointer';
-      }
+      resetBotonConsultar();
     }
   }
-}*/
+}
 
 /* =========================================================
    2. CARGAR CLASES
@@ -762,27 +812,37 @@ async function consultarDisponibilidad() {
 async function cargarClases() {
   const select = document.getElementById('claseSelect');
   const fecha = document.getElementById('fecha').value;
+
   if (!select || !fecha) return;
 
-  if (controladorClases) controladorClases.abort();
+  // Cancela cualquier carga de clases anterior en vuelo
+  if (controladorClases) {
+    controladorClases.abort();
+  }
   const miControlador = new AbortController();
   controladorClases = miControlador;
 
   select.innerHTML = '<option value="">Cargando clases disponibles...</option>';
 
   try {
-    const res = await api({ action: 'listarClasesFecha', fecha }, { signal: miControlador.signal });
-    if (controladorClases !== miControlador) return;
+    const res = await api({ action: 'listarClasesFecha', fecha: fecha }, { signal: miControlador.signal });
+
+    if (controladorClases !== miControlador) {
+      return; // esta respuesta ya quedó obsoleta
+    }
 
     if (!res.ok || !res.clases || res.clases.length === 0) {
       select.innerHTML = '<option value="">No hay clases programadas para esta fecha</option>';
       return;
     }
+
     const clasesActivas = res.clases.filter(c => c.Estado === 'ACTIVA');
+
     if (clasesActivas.length === 0) {
       select.innerHTML = '<option value="">No hay clases activas disponibles</option>';
       return;
     }
+
     select.innerHTML = '<option value="">-- Selecciona una clase --</option>';
     clasesActivas.forEach(clase => {
       const opt = document.createElement('option');
@@ -792,12 +852,19 @@ async function cargarClases() {
       opt.textContent = `${clase.Nombre} (${clase.HoraInicio} - ${clase.HoraFin})`;
       select.appendChild(opt);
     });
+
   } catch (error) {
-    if (error.name === 'AbortError') return;
-    if (controladorClases !== miControlador) return;
+    if (error.name === 'AbortError') {
+      return;
+    }
+    if (controladorClases !== miControlador) {
+      return;
+    }
     select.innerHTML = '<option value="">Error al cargar clases</option>';
   } finally {
-    if (controladorClases === miControlador) controladorClases = null;
+    if (controladorClases === miControlador) {
+      controladorClases = null;
+    }
   }
 }
 
@@ -808,7 +875,7 @@ async function realizarReserva() {
   const clienteId = document.getElementById('clienteId').value.trim();
   const cantidad = Number(document.getElementById('cantidad').value || 1);
   const fecha = document.getElementById('fecha').value;
-  
+
   let hInicio = document.getElementById('horaInicio').value;
   let hFin = horaFinCalculada;
 
@@ -839,18 +906,19 @@ async function realizarReserva() {
     return;
   }
 
-  if (cantidad > disponiblesActuales) {
-    mostrarMensaje(`Solo quedan ${disponiblesActuales} cupos disponibles.`, 'error');
-    return;
-  }
-
-  if (!cuposConsultados) {
-    mostrarMensaje('Primero debes consultar la disponibilidad.', 'error');
-    return;
-  }
-
   if (tipoReserva === 'CLASE' && !claseId) {
     mostrarMensaje('Por favor selecciona una clase disponible.', 'error');
+    return;
+  }
+
+  const rangoVigente = obtenerRangoVigente();
+  if (!cuposConsultados || !rangosCoinciden(rangoConsultado, rangoVigente)) {
+    mostrarMensaje('Debes consultar la disponibilidad de este horario/clase antes de reservar.', 'error');
+    return;
+  }
+
+  if (cantidad > disponiblesActuales) {
+    mostrarMensaje(`Solo quedan ${disponiblesActuales} cupos disponibles.`, 'error');
     return;
   }
 
@@ -881,45 +949,26 @@ async function realizarReserva() {
     if (!res || !res.ok) {
       throw new Error(res?.mensaje || 'Error al procesar la reserva.');
     }
-    /*
-     * El backend ya devuelve la ocupación
-     * y disponibilidad después de crear la reserva.
-     *
-     * No necesitamos hacer otra consulta a Sheets.
-     */
+
+    // El backend ya devuelve la ocupación y disponibilidad tras crear la reserva.
     if (
       typeof res.capacidad !== 'undefined' &&
       typeof res.ocupacion !== 'undefined' &&
       typeof res.disponibles !== 'undefined'
     ) {
-    
-      document.getElementById(
-        'capacidad'
-      ).textContent =
-        res.capacidad;
-    
-      document.getElementById(
-        'ocupacion'
-      ).textContent =
-        res.ocupacion;
-    
-      document.getElementById(
-        'disponibles'
-      ).textContent =
-        res.disponibles;
-    
-      disponiblesActuales =
-        Number(res.disponibles);
-    
-      const resBox =
-        document.getElementById(
-          'resultadoConsulta'
-        );
-    
+      document.getElementById('capacidad').textContent = res.capacidad;
+      document.getElementById('ocupacion').textContent = res.ocupacion;
+      document.getElementById('disponibles').textContent = res.disponibles;
+
+      disponiblesActuales = Number(res.disponibles);
+      // Nota: esta actualización sigue correspondiendo al mismo rango
+      // que se acaba de reservar (rangoConsultado no cambia aquí).
+
+      const resBox = document.getElementById('resultadoConsulta');
       if (resBox) {
         resBox.style.display = 'block';
       }
-    
+
       cuposConsultados = true;
     }
 
@@ -957,14 +1006,16 @@ function actualizarEstadoBotonReserva() {
   const btnReservar = document.querySelector('.btn-reservar');
   const cliente = document.getElementById('clienteId')?.value.trim();
   const cantidad = Number(document.getElementById('cantidad')?.value || 0);
-  const claseSelect = document.getElementById('claseSelect')?.value;
 
   if (!btnReservar) return;
 
-  let esValido = cuposConsultados && cliente !== '' && cantidad > 0 && cantidad <= disponiblesActuales;
+  const rangoVigente = obtenerRangoVigente();
+  const coincide = rangosCoinciden(rangoConsultado, rangoVigente);
 
-  if (tipoReserva === 'CLASE' && !claseSelect) {
-    esValido = false;
+  let esValido = cuposConsultados && coincide && cliente !== '' && cantidad > 0 && cantidad <= disponiblesActuales;
+
+  if (tipoReserva === 'CLASE' && !rangoVigente) {
+    esValido = false; // aún no hay clase seleccionada
   }
 
   btnReservar.disabled = !esValido;
@@ -974,30 +1025,45 @@ function actualizarEstadoBotonReserva() {
 
 /* =========================================================
    PETICIÓN A LA API
-   - Una sola petición
+   - Cancelable mediante signal (AbortController)
    - Timeout controlado
    - Sin reintentos automáticos
 ========================================================= */
-// Reemplaza consultaIdActual por esto:
 
 async function api(body, opciones = {}) {
   const timeout = opciones.timeout || 15000;
+
   const controller = new AbortController();
+
+  // Si nos pasan un signal externo (del canal de consulta/clases),
+  // lo encadenamos: al abortar el externo, abortamos también esta fetch.
   if (opciones.signal) {
-    if (opciones.signal.aborted) controller.abort();
-    else opciones.signal.addEventListener('abort', () => controller.abort());
+    if (opciones.signal.aborted) {
+      controller.abort();
+    } else {
+      opciones.signal.addEventListener('abort', () => controller.abort());
+    }
   }
+
   const timeoutId = setTimeout(() => controller.abort(), timeout);
+
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
       body: JSON.stringify(body),
       signal: controller.signal
     });
-    if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP ${response.status}`);
+    }
+
     return await response.json();
+
   } catch (error) {
-    if (error.name === 'AbortError') throw error;
+    if (error.name === 'AbortError') {
+      throw error;
+    }
     throw error;
   } finally {
     clearTimeout(timeoutId);
