@@ -139,7 +139,7 @@ h1 {
   color: #111;
 }
 
-/* --- FORMULARIOS Y GRID --- */
+/* --- FORMULARIOS --- */
 label {
   display: block;
   font-size: 12px;
@@ -175,6 +175,7 @@ input:focus, select:focus {
   font-weight: 700;
   font-size: 14px;
   color: #111;
+  white-space: nowrap;
 }
 
 /* --- TIPOS Y SELECCIONABLES --- */
@@ -214,48 +215,39 @@ input:focus, select:focus {
   color: #b47700;
 }
 
-/* --- SEPARADOR DE FECHA (compartida por ambos paneles) --- */
-.fila-fecha {
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #edf0f2;
-  max-width: 260px;
+/* --- FILA HORIZONTAL ÚNICA (Fecha + campos dinámicos + botón) --- */
+.fila-horizontal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
 }
 
-/* --- PANELES POR TIPO DE RESERVA --- */
-.panel-tipo {
-  display: none;
+.campo {
+  flex: 1 1 130px;
+  min-width: 0;
 }
 
-.panel-tipo.activo {
-  display: block;
+.campo-fecha {
+  flex: 1 1 150px;
 }
 
-.badge-panel {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .4px;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 6px;
-  margin-bottom: 12px;
+.campo-clase {
+  flex: 2 1 240px;
 }
 
-.badge-entrada {
-  background: #eef2ff;
-  color: #4338ca;
+.campo-boton {
+  flex: 0 0 auto;
 }
 
-.badge-clase {
-  background: #fff8e6;
-  color: #b47700;
+.campo-oculto {
+  display: none !important;
 }
 
 /* --- BOTONES INTERACTIVOS --- */
 button, .btn {
   height: 41px;
-  padding: 0 16px;
+  padding: 0 20px;
   border: 0;
   border-radius: 8px;
   font-size: 14px;
@@ -264,13 +256,13 @@ button, .btn {
   display: flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
   transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
 }
 
 .btn-consultar {
   background-color: #e0e0e0;
   color: #333333;
-  white-space: nowrap;
 }
 
 .btn-consultar:hover {
@@ -281,7 +273,6 @@ button, .btn {
   background-color: #191919;
   color: #ffffff;
   width: 100%;
-  white-space: nowrap;
 }
 
 .btn-reservar:hover {
@@ -317,21 +308,7 @@ button, .btn {
   color: #dc2626;
 }
 
-/* --- LAYOUT FILAS --- */
-.fila-entrada {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1.3fr auto;
-  gap: 12px;
-  align-items: end;
-}
-
-.fila-clase {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: end;
-}
-
+/* --- FILA RESERVA --- */
 .fila-reserva {
   display: grid;
   grid-template-columns: 2fr 1fr auto;
@@ -348,18 +325,6 @@ button, .btn {
 }
 
 /* ADAPTACIÓN RESPONSIVE */
-@media (max-width: 820px) {
-  .fila-entrada {
-    grid-template-columns: 1fr 1fr;
-  }
-  .fila-entrada .btn-consultar {
-    grid-column: span 2;
-  }
-  .fila-clase {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 640px) {
   body {
     padding: 16px 12px 40px;
@@ -367,11 +332,17 @@ button, .btn {
   .card {
     padding: 16px;
   }
-  .fila-entrada, .fila-reserva {
-    grid-template-columns: 1fr;
+  .fila-horizontal {
+    flex-direction: column;
+    align-items: stretch;
   }
-  .fila-entrada .btn-consultar {
-    grid-column: span 1;
+  .fila-horizontal .campo,
+  .fila-horizontal .campo-boton {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .fila-reserva {
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -407,73 +378,64 @@ button, .btn {
   </div>
 </div>
 
-<!-- TARJETA 2: FECHA Y HORARIO -->
+<!-- TARJETA 2: FECHA Y HORARIO (todo en una sola fila horizontal) -->
 <div class="card">
   <div class="titulo-card">2. Fecha y Horario</div>
 
-  <div class="fila-fecha">
-    <label>Fecha</label>
-    <input id="fecha" type="date">
-  </div>
+  <div class="fila-horizontal">
+    <div class="campo campo-fecha">
+      <label>Fecha</label>
+      <input id="fecha" type="date">
+    </div>
 
-  <!-- PANEL ENTRADA LIBRE -->
-  <div id="panelEntrada" class="panel-tipo activo">
-    <span class="badge-panel badge-entrada">Entrada Libre</span>
-    <div class="fila-entrada">
-      <div>
-        <label>Hora Inicio</label>
-        <select id="horaInicio" onchange="calcularHorarioResultante()">
-          <option value="08:00">08:00</option>
-          <option value="09:00">09:00</option>
-          <option value="10:00">10:00</option>
-          <option value="11:00">11:00</option>
-          <option value="12:00">12:00</option>
-          <option value="13:00">13:00</option>
-          <option value="14:00" selected>14:00</option>
-          <option value="15:00">15:00</option>
-          <option value="16:00">16:00</option>
-          <option value="17:00">17:00</option>
-          <option value="18:00">18:00</option>
-          <option value="19:00">19:00</option>
-          <option value="20:00">20:00</option>
-        </select>
-      </div>
-      <div>
-        <label>Duración</label>
-        <select id="duracionHoras" onchange="calcularHorarioResultante()">
-          <option value="2" selected>2 horas (normal)</option>
-          <option value="3">3 horas</option>
-          <option value="4">4 horas</option>
-          <option value="5">5 horas</option>
-          <option value="6">6 horas</option>
-        </select>
-      </div>
-      <div>
-        <label>Horario Resultante</label>
-        <div id="horarioResultanteText" class="horario-preview">14:00 - 16:00</div>
-      </div>
+    <!-- Campos de ENTRADA LIBRE -->
+    <div class="campo" id="campoHoraInicio">
+      <label>Hora Inicio</label>
+      <select id="horaInicio" onchange="calcularHorarioResultante()">
+        <option value="08:00">08:00</option>
+        <option value="09:00">09:00</option>
+        <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="12:00">12:00</option>
+        <option value="13:00">13:00</option>
+        <option value="14:00" selected>14:00</option>
+        <option value="15:00">15:00</option>
+        <option value="16:00">16:00</option>
+        <option value="17:00">17:00</option>
+        <option value="18:00">18:00</option>
+        <option value="19:00">19:00</option>
+        <option value="20:00">20:00</option>
+      </select>
+    </div>
+    <div class="campo" id="campoDuracion">
+      <label>Duración</label>
+      <select id="duracionHoras" onchange="calcularHorarioResultante()">
+        <option value="2" selected>2 horas (normal)</option>
+        <option value="3">3 horas</option>
+        <option value="4">4 horas</option>
+        <option value="5">5 horas</option>
+        <option value="6">6 horas</option>
+      </select>
+    </div>
+    <div class="campo" id="campoHorarioResultante">
+      <label>Horario Resultante</label>
+      <div id="horarioResultanteText" class="horario-preview">14:00 - 16:00</div>
+    </div>
+
+    <!-- Campo de CLASE GUIADA (oculto por defecto) -->
+    <div class="campo campo-clase campo-oculto" id="campoClase">
+      <label for="claseSelect">Clase Disponible</label>
+      <select id="claseSelect" onchange="alSeleccionarClase()">
+        <option value="">Cargando clases...</option>
+      </select>
+    </div>
+
+    <div class="campo campo-boton">
       <button class="btn-consultar" onclick="consultarDisponibilidad()">Consultar</button>
     </div>
   </div>
 
-  <!-- PANEL CLASE GUIADA -->
-  <div id="panelClase" class="panel-tipo">
-    <span class="badge-panel badge-clase">Clase Guiada</span>
-    <div class="fila-clase">
-      <div>
-        <label for="claseSelect">Selecciona la Clase Disponible</label>
-        <select id="claseSelect" onchange="alSeleccionarClase()">
-          <option value="">Cargando clases...</option>
-        </select>
-      </div>
-      <button class="btn-consultar" onclick="consultarDisponibilidad()">Actualizar cupos</button>
-    </div>
-    <p style="font-size:12px; color:#888; margin-top:8px;">
-      Al elegir una clase se consulta automáticamente su cupo disponible.
-    </p>
-  </div>
-
-  <!-- RESULTADOS DE LA CONSULTA (compartidos por ambos paneles) -->
+  <!-- RESULTADOS DE LA CONSULTA -->
   <div id="resultadoConsulta" class="resultado-box">
     <div class="indicadores">
       <div class="indicador-item">
@@ -628,17 +590,18 @@ function rangosCoinciden(a, b) {
 }
 
 /* =========================================================
-   RESET DE BOTONES CONSULTAR (inmediato, sin depender de timeouts)
+   RESET DEL BOTÓN CONSULTAR (inmediato, sin depender de timeouts)
 ========================================================= */
-function resetBotonesConsultar() {
-  document.querySelectorAll('.btn-consultar').forEach(btn => {
+function resetBotonConsultar() {
+  const btn = document.querySelector('.btn-consultar');
+  if (btn) {
+    btn.innerText = 'Consultar';
     btn.disabled = false;
     btn.style.opacity = '1';
     btn.style.backgroundColor = '#e0e0e0';
     btn.style.color = '#333333';
     btn.style.cursor = 'pointer';
-    btn.innerText = btn.closest('#panelClase') ? 'Actualizar cupos' : 'Consultar';
-  });
+  }
 }
 
 /* =========================================================
@@ -665,8 +628,8 @@ function invalidarConsulta() {
     msg.textContent = '';
   }
 
-  // Clave: resetear los botones Consultar YA, sin esperar ningún timeout viejo
-  resetBotonesConsultar();
+  // Clave: resetear el botón Consultar YA, sin esperar ningún timeout viejo
+  resetBotonConsultar();
 
   actualizarEstadoBotonReserva();
 }
@@ -688,17 +651,21 @@ async function seleccionarTipo(tipo) {
     }
   });
 
-  const panelEntrada = document.getElementById('panelEntrada');
-  const panelClase = document.getElementById('panelClase');
+  const camposEntrada = [
+    document.getElementById('campoHoraInicio'),
+    document.getElementById('campoDuracion'),
+    document.getElementById('campoHorarioResultante')
+  ];
+  const campoClase = document.getElementById('campoClase');
   const claseSelect = document.getElementById('claseSelect');
 
   if (tipo === 'ENTRADA') {
-    if (panelEntrada) panelEntrada.classList.add('activo');
-    if (panelClase) panelClase.classList.remove('activo');
+    camposEntrada.forEach(el => el && el.classList.remove('campo-oculto'));
+    if (campoClase) campoClase.classList.add('campo-oculto');
     if (claseSelect) claseSelect.value = '';
   } else if (tipo === 'CLASE') {
-    if (panelEntrada) panelEntrada.classList.remove('activo');
-    if (panelClase) panelClase.classList.add('activo');
+    camposEntrada.forEach(el => el && el.classList.add('campo-oculto'));
+    if (campoClase) campoClase.classList.remove('campo-oculto');
     if (claseSelect) {
       claseSelect.innerHTML = '<option value="">Cargando clases disponibles...</option>';
     }
@@ -755,15 +722,13 @@ async function consultarDisponibilidad() {
   const miControlador = new AbortController();
   controladorConsulta = miControlador;
 
-  const btnActivo = document.querySelector(
-    tipoReserva === 'CLASE' ? '#panelClase .btn-consultar' : '#panelEntrada .btn-consultar'
-  );
+  const btn = document.querySelector('.btn-consultar');
 
-  if (btnActivo) {
-    btnActivo.innerText = 'Consultando...';
-    btnActivo.disabled = true;
-    btnActivo.style.opacity = '0.7';
-    btnActivo.style.cursor = 'not-allowed';
+  if (btn) {
+    btn.innerText = 'Consultando...';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'not-allowed';
   }
 
   try {
@@ -816,10 +781,10 @@ async function consultarDisponibilidad() {
       mostrarMensaje(`¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`, 'exito');
     }
 
-    if (btnActivo) {
-      btnActivo.innerText = '¡Actualizado!';
-      btnActivo.style.backgroundColor = '#dcfce7';
-      btnActivo.style.color = '#15803d';
+    if (btn) {
+      btn.innerText = '¡Actualizado!';
+      btn.style.backgroundColor = '#dcfce7';
+      btn.style.color = '#15803d';
     }
 
   } catch (error) {
@@ -840,7 +805,7 @@ async function consultarDisponibilidad() {
     // Reseteo inmediato del botón, ya no depende de comparar IDs tras un timeout.
     if (controladorConsulta === miControlador) {
       controladorConsulta = null;
-      resetBotonesConsultar();
+      resetBotonConsultar();
     }
   }
 }
