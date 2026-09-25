@@ -398,9 +398,20 @@
 <script>
     const API_URL =
       'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-    let consultaIdActual = 0;
-    let consultaEnCurso = false;
-      
+
+    /* =========================================================
+       ESTADO GENERAL
+    ========================================================= */
+    // Controlador de concurrencia para la carga de la tabla/resumen.
+    // Al lanzar una nueva carga se cancela de verdad la anterior
+    // (no solo se ignora su respuesta), igual que en reservas.html.
+    let controladorCarga = null;
+
+    // Bloqueo simple para evitar doble clic en botones de fila
+    // (checkin/checkout/cancelar/no-show). No es un problema de
+    // cancelación, es solo evitar disparar la misma acción 2 veces.
+    let accionEnCurso = false;
+
     function fechaHoy() {
       const d = new Date();
       return [
@@ -411,9 +422,15 @@
     }
 
     document.getElementById('fecha').value = fechaHoy();
+
     document.getElementById('fecha').addEventListener('change', () => {
-      consultaIdActual++;
-      consultaEnCurso = false;
+      // Cancela de verdad cualquier carga en vuelo, no solo la ignora
+      if (controladorCarga) {
+        controladorCarga.abort();
+        controladorCarga = null;
+      }
+
+      resetBotonActualizar();
 
       document.getElementById('capacidad').textContent = '0';
       document.getElementById('reservado').textContent = '0';
@@ -427,117 +444,151 @@
           </td>
         </tr>
       `;
-    
+
       const mensajeEl = document.getElementById('mensaje');
       mensajeEl.textContent = '';
       mensajeEl.className = 'mensaje';
     });
 
-    // Función API con timeout configurable y manejo limpio de aborto
-    async function api(body, timeoutMs = 20000) {
+    /* =========================================================
+       RESET DEL BOTÓN ACTUALIZAR (inmediato, sin depender de timeouts)
+    ========================================================= */
+    function resetBotonActualizar() {
+      const btn = document.querySelector('.fila-consulta button');
+      if (btn) {
+        btn.innerText = 'Actualizar';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.backgroundColor = '#e0e0e0';
+        btn.style.color = '#333333';
+        btn.style.cursor = 'pointer';
+      }
+    }
+
+    // Función API con timeout configurable, cancelable via signal externo
+    async function api(body, opciones = {}) {
+      const timeoutMs = opciones.timeout || 20000;
       const controller = new AbortController();
+
+      // Encadena el signal externo (del canal de carga) con el propio timeout
+      if (opciones.signal) {
+        if (opciones.signal.aborted) {
+          controller.abort();
+        } else {
+          opciones.signal.addEventListener('abort', () => controller.abort());
+        }
+      }
+
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-    
+
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
           body: JSON.stringify(body),
           signal: controller.signal
         });
-    
+
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
-    
+
         const texto = await response.text();
-    
+
         try {
           return JSON.parse(texto);
         } catch (e) {
           console.error('Respuesta no-JSON recibida:', texto);
           return { ok: false, mensaje: 'Error de respuesta del servidor.' };
         }
-    
+
       } catch (error) {
         if (error.name === 'AbortError') {
-          return { ok: false, esAborto: true, mensaje: 'La solicitud tardó demasiado tiempo en responder.' };
+          throw error; // se re-lanza para que el llamador decida (cancelación vs timeout real)
         }
         throw error;
       } finally {
         clearTimeout(timeoutId);
       }
     }
-      
+
+    /* =========================================================
+       CARGAR RESUMEN DEL DÍA + TABLA DE RESERVAS
+    ========================================================= */
     async function cargarHoy() {
       const fecha = document.getElementById('fecha').value;
       const mensajeEl = document.getElementById('mensaje');
       const btn = document.querySelector('.fila-consulta button');
-      const miConsultaId = ++consultaIdActual;
-    
-      consultaEnCurso = true;
+
+      // Cancela cualquier carga anterior en vuelo antes de lanzar esta
+      if (controladorCarga) {
+        controladorCarga.abort();
+      }
+      const miControlador = new AbortController();
+      controladorCarga = miControlador;
+
       mensajeEl.textContent = '';
       mensajeEl.className = 'mensaje';
-    
-      const textoOriginal = btn ? btn.innerText : 'Actualizar';
-    
+
       if (btn) {
         btn.innerText = 'Consultando...';
         btn.disabled = true;
         btn.style.opacity = '0.7';
         btn.style.cursor = 'not-allowed';
       }
-    
-      try {  
-        const resultado = await api({ action: 'resumenHoy', fecha }); 
-        
-        if (miConsultaId !== consultaIdActual) return;
-    
+
+      try {
+        const resultado = await api(
+          { action: 'resumenHoy', fecha },
+          { signal: miControlador.signal }
+        );
+
+        // Si ya hay una carga más nueva en curso, esta respuesta ya no sirve.
+        if (controladorCarga !== miControlador) return;
+
         if (!resultado || !resultado.ok) {
           mensajeEl.textContent = resultado?.mensaje || 'Error al obtener datos';
           mensajeEl.className = 'mensaje error';
           return;
         }
-    
+
         const lista = resultado.reservas || [];
         document.getElementById('capacidad').textContent = Number(resultado.capacidad) || 0;
         document.getElementById('reservado').textContent = Number(resultado.reservado) || 0;
-        document.getElementById('dentro').textContent = Number(resultado.dentro) || 0;       
-        document.getElementById('disponibles').textContent = Number(resultado.disponibles) || 0;        
-        document.getElementById('clases').textContent = (resultado.clases || []).length;        
+        document.getElementById('dentro').textContent = Number(resultado.dentro) || 0;
+        document.getElementById('disponibles').textContent = Number(resultado.disponibles) || 0;
+        document.getElementById('clases').textContent = (resultado.clases || []).length;
         pintarReservas(lista);
-    
-        if (btn) { 
-          btn.innerText = '¡Actualizado!'; 
-          btn.style.backgroundColor = '#dcfce7'; 
-          btn.style.color = '#15803d'; 
+
+        if (btn) {
+          btn.innerText = '¡Actualizado!';
+          btn.style.backgroundColor = '#dcfce7';
+          btn.style.color = '#15803d';
         }
-    
+
       } catch (error) {
-        if (miConsultaId !== consultaIdActual) return;
-    
+        if (error.name === 'AbortError') {
+          // Cancelación intencional (otra carga más nueva la reemplazó): no es un error real
+          return;
+        }
+        if (controladorCarga !== miControlador) return;
+
         console.error('Error cargarHoy:', error);
         mensajeEl.textContent = 'Error al conectar con el servidor';
         mensajeEl.className = 'mensaje error';
-    
+
         if (btn) {
           btn.innerText = 'Error';
           btn.style.backgroundColor = '#fee2e2';
           btn.style.color = '#dc2626';
         }
+
       } finally {
-        if (miConsultaId !== consultaIdActual) return;
-    
-        consultaEnCurso = false;
-    
-        if (btn) {
+        // Reseteo inmediato, ya no depende de comparar IDs tras un setTimeout.
+        if (controladorCarga === miControlador) {
+          controladorCarga = null;
           setTimeout(() => {
-            if (miConsultaId !== consultaIdActual) return;
-            btn.innerText = textoOriginal;
-            btn.disabled = false;
-            btn.style.backgroundColor = '#e0e0e0';
-            btn.style.color = '#333333';
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
+            // Solo resetea si nadie lanzó otra carga en ese medio segundo
+            if (!controladorCarga) resetBotonActualizar();
           }, 1000);
         }
       }
@@ -597,34 +648,41 @@
       });
     }
 
-    // Función unificada para ejecutar acciones de estado
-    // Variable para prevenir ejecuciones simultáneas de acciones
-    let accionEnCurso = false;
-    
+    /* =========================================================
+       ACCIONES DE FILA (checkin / checkout / cancelar / no-show)
+    ========================================================= */
     async function ejecutarAccion(actionName, reservaId, elementoBtn) {
       if (accionEnCurso) return; // Evita clics múltiples o accidentales
-    
+
       const confirmaciones = {
         checkin: '¿Confirmar ingreso?',
         checkout: '¿Registrar salida?',
         cancelarReserva: '¿Cancelar esta reserva?',
         marcarNoShow: '¿Marcar esta reserva como NO SHOW?'
       };
-    
+
       if (!confirm(confirmaciones[actionName] || '¿Confirmar acción?')) return;
-    
+
       accionEnCurso = true;
-    
+
+      // Si había una carga de tabla en curso, la cancelamos: vamos a
+      // recargar la tabla apenas termine esta acción de todos modos,
+      // así evitamos que una respuesta de carga vieja pise el resultado.
+      if (controladorCarga) {
+        controladorCarga.abort();
+        controladorCarga = null;
+      }
+
       // Feedback visual en la interfaz: deshabilitar el botón presionado
       if (elementoBtn) {
         elementoBtn.disabled = true;
         elementoBtn.innerText = 'Procesando...';
         elementoBtn.style.opacity = '0.5';
       }
-    
+
       try {
         const resultado = await api({ action: actionName, reservaId, usuario: 'STAFF' });
-        
+
         if (resultado.ok) {
           // Pequeña pausa de 500ms para asegurar la consistencia de datos en el servidor
           await new Promise(resolve => setTimeout(resolve, 500));
