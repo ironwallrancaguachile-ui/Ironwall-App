@@ -947,43 +947,27 @@ async function realizarReserva() {
       claseId: tipoReserva === 'CLASE' ? claseId : '',
       usuario: 'STAFF'
     };
-
+  
     const res = await api(payload);
-
+  
     if (!res || !res.ok) {
       throw new Error(res?.mensaje || 'Error al procesar la reserva.');
     }
-
-    // El backend ya devuelve la ocupación y disponibilidad tras crear la reserva.
-    if (
-      typeof res.capacidad !== 'undefined' &&
-      typeof res.ocupacion !== 'undefined' &&
-      typeof res.disponibles !== 'undefined'
-    ) {
-      document.getElementById('capacidad').textContent = res.capacidad;
-      document.getElementById('ocupacion').textContent = res.ocupacion;
-      document.getElementById('disponibles').textContent = res.disponibles;
-
-      disponiblesActuales = Number(res.disponibles);
-
-      const resBox = document.getElementById('resultadoConsulta');
-      if (resBox) {
-        resBox.style.display = 'block';
-      }
-
-      cuposConsultados = true;
-    }
-
+  
     if (btn) {
       btn.innerText = '¡Reservado!';
       btn.style.backgroundColor = '#dcfce7';
       btn.style.color = '#15803d';
     }
-
+  
     mostrarMensaje(`Reserva realizada con éxito a nombre de ${clienteId}.`, 'exito');
-
     document.getElementById('clienteId').value = '';
-
+  
+    // Refresco de verdad: consulta de nuevo la disponibilidad real
+    // (según tipoReserva/claseId vigentes), en vez de confiar en lo
+    // que haya devuelto crearReserva.
+    await consultarDisponibilidad();
+  
   } catch (error) {
     console.error('Error al reservar:', error);
     mostrarMensaje('Error al reservar: ' + error.message, 'error');
