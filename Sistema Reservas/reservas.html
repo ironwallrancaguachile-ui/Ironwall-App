@@ -649,6 +649,7 @@ async function consultarDisponibilidad() {
   const fecha = document.getElementById('fecha').value;
   let horaInicio = document.getElementById('horaInicio').value;
   let horaFin = horaFinCalculada;
+  let claseId = '';
 
   if (tipoReserva === 'CLASE') {
     const claseSelect = document.getElementById('claseSelect');
@@ -656,6 +657,10 @@ async function consultarDisponibilidad() {
     if (opt && opt.dataset.inicio && opt.dataset.fin) {
       horaInicio = opt.dataset.inicio;
       horaFin = opt.dataset.fin;
+      claseId = claseSelect.value;
+    } else {
+      mostrarMensaje('Por favor selecciona una clase disponible.', 'error');
+      return;
     }
   }
 
@@ -664,40 +669,52 @@ async function consultarDisponibilidad() {
     return;
   }
 
-  // Cancela cualquier consulta anterior antes de lanzar esta
   if (controladorConsulta) controladorConsulta.abort();
   const miControlador = new AbortController();
   controladorConsulta = miControlador;
 
   const btn = document.querySelector('.btn-consultar');
-  if (btn) {
-    btn.innerText = 'Consultando...';
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-    btn.style.cursor = 'not-allowed';
-  }
+  if (btn) { btn.innerText = 'Consultando...'; btn.disabled = true; btn.style.opacity = '0.7'; btn.style.cursor = 'not-allowed'; }
 
   try {
-    const resultado = await api(
-      { action: 'ocupacion', fecha, horaInicio, horaFin },
-      { signal: miControlador.signal }
-    );
+    const payload = { action: 'ocupacion', fecha, horaInicio, horaFin };
+    if (tipoReserva === 'CLASE') payload.claseId = claseId;
 
-    if (controladorConsulta !== miControlador) return; // fue reemplazada, ignorar
+    const resultado = await api(payload, { signal: miControlador.signal });
 
+    if (controladorConsulta !== miControlador) return;
     if (!resultado.ok) throw new Error(resultado.mensaje || 'Error al obtener disponibilidad');
 
     document.getElementById('capacidad').textContent = resultado.capacidad || 0;
     document.getElementById('ocupacion').textContent = resultado.ocupacion || 0;
     document.getElementById('disponibles').textContent = resultado.disponibles || 0;
-
-    const resBox = document.getElementById('resultadoConsulta');
-    if (resBox) resBox.style.display = 'block';
+    document.getElementById('resultadoConsulta').style.display = 'block';
 
     disponiblesActuales = Number(resultado.disponibles || 0);
     cuposConsultados = true;
+    rangoConsultado = obtenerRangoVigente(); // el "sello" que vimos antes, ahora incluye claseId
     actualizarEstadoBotonReserva();
 
+    mostrarMensaje(
+      resultado.lleno || disponiblesActuales === 0
+        ? 'No hay cupos disponibles para esta clase/horario.'
+        : `¡Hay ${disponiblesActuales} cupos disponibles! Puedes continuar.`,
+      resultado.lleno || disponiblesActuales === 0 ? 'error' : 'exito'
+    );
+  } catch (error) {
+    if (error.name === 'AbortError') return;
+    if (controladorConsulta !== miControlador) return;
+    mostrarMensaje('Error: ' + error.message, 'error');
+    cuposConsultados = false;
+  } finally {
+    if (controladorConsulta === miControlador) {
+      controladorConsulta = null;
+      resetBotonConsultar();
+    }
+  }
+}
+  
+/**
     if (resultado.lleno || disponiblesActuales === 0) {
       mostrarMensaje('No hay cupos disponibles para este horario.', 'error');
     } else {
@@ -722,7 +739,7 @@ async function consultarDisponibilidad() {
       }
     }
   }
-}
+}*/
 
 /* =========================================================
    2. CARGAR CLASES
