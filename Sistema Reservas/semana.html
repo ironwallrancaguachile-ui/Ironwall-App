@@ -215,7 +215,7 @@
       float: right;
     }
 
-    /* --- RESUMEN COMPACTO CORREGIDO --- */
+    /* --- RESUMEN COMPACTO POR TIPO --- */
     .resumen-metrica {
       display: flex;
       flex-direction: column;
@@ -252,6 +252,45 @@
       margin-top: 8px;
       font-size: 12px;
       line-height: 1.4;
+    }
+
+    /* --- BADGES DE TIPO Y ESTADO (dentro de cada reserva) --- */
+    .badges-reserva {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .badge-tipo, .badge-estado-mini {
+      font-weight: 700;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 5px;
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .tipo-entrada {
+      background-color: #eef2ff;
+      color: #4338ca;
+    }
+
+    .tipo-clase {
+      background-color: #fff8e6;
+      color: #b47700;
+    }
+
+    .badge-estado-mini.estado-checkin {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-estado-mini.estado-cancelada,
+    .badge-estado-mini.estado-noshow {
+      background-color: #fee2e2;
+      color: #dc2626;
     }
 
     /* RESPONSIVE */
@@ -306,156 +345,140 @@
     }
 
     document.getElementById('fechaInicio').value = fechaHoy();
-    
-  /* =====================
-      API
-   =====================*/
-  let semanaConsultaId = 0;
-  async function api(body, opciones = {}) {
+
+    /* =====================
+        ESTADO DE CONCURRENCIA
+     =====================*/
+    // Cancelación real: al lanzar una consulta nueva se aborta
+    // de verdad la anterior (no solo se ignora su respuesta).
+    let controladorSemana = null;
+
+    function resetBotonSemana() {
+      const btn = document.querySelector('.btn-secondary');
+      if (btn) {
+        btn.innerText = 'Actualizar';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.backgroundColor = '#e0e0e0';
+        btn.style.color = '#333333';
+        btn.style.cursor = 'pointer';
+      }
+    }
+
+    /* =====================
+        API
+     =====================*/
+    async function api(body, opciones = {}) {
       const timeout = opciones.timeout || 15000;
       const controller = new AbortController();
-      const timeoutId = setTimeout(
-      () => controller.abort(),
-      timeout
-    );
-     try {
-       const response = await fetch(
-        API_URL,
-        {
+
+      if (opciones.signal) {
+        if (opciones.signal.aborted) {
+          controller.abort();
+        } else {
+          opciones.signal.addEventListener('abort', () => controller.abort());
+        }
+      }
+
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      try {
+        const response = await fetch(API_URL, {
           method: 'POST',
           body: JSON.stringify(body),
           signal: controller.signal
-        }
-      );
-  
-      if (!response.ok) {
-        throw new Error(
-          `Error HTTP ${response.status}`
-        );
-      }
-  
-      return await response.json();
-  
-    } catch (error) {
-  
-      if (error.name === 'AbortError') {
-        throw new Error(
-          'La consulta tardó demasiado.'
-        );
-      }
-  
-      throw error;
-  
-    } finally {
-  
-      clearTimeout(timeoutId);
-    }
-  }
-  /* =====================
-      CARGAR SEMANA
-   =====================*/
+        });
 
-  async function cargarSemana() {
-  
-    const miConsultaId = ++semanaConsultaId;
-  
-    const btn =
-      document.querySelector('.btn-secondary');
-  
-    const textoOriginal =
-      btn ? btn.innerText : 'Actualizar';
-  
-    if (btn) {
-  
-      btn.innerText = 'Consultando...';
-      btn.disabled = true;
-      btn.style.opacity = '0.7';
-      btn.style.cursor = 'not-allowed';
-    }
-  
-    const fechaInicio =
-      document.getElementById('fechaInicio').value;
-  
-    if (!fechaInicio) {
-  
-      if (btn) {
-        btn.disabled = false;
-        btn.innerText = textoOriginal;
+        if (!response.ok) {
+          throw new Error(`Error HTTP ${response.status}`);
+        }
+
+        return await response.json();
+
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          throw error;
+        }
+        throw error;
+      } finally {
+        clearTimeout(timeoutId);
       }
-  
-      return;
     }
-  
-    try {
-  
-      const resultado = await api({
-        action: 'resumenSemana',
-        fechaInicio
-      });
-  
-      /*
-       * Si ya se hizo otra consulta,
-       * descartamos esta respuesta.
-       */
-      if (miConsultaId !== semanaConsultaId) {
+
+    /* =====================
+        CARGAR SEMANA
+     =====================*/
+    async function cargarSemana() {
+      const fechaInicio = document.getElementById('fechaInicio').value;
+      const btn = document.querySelector('.btn-secondary');
+
+      if (!fechaInicio) {
         return;
       }
-  
-      if (!resultado.ok) {
-        throw new Error(
-          resultado.mensaje ||
-          'Error al obtener datos'
+
+      // Cancela cualquier consulta anterior en vuelo antes de lanzar esta
+      if (controladorSemana) {
+        controladorSemana.abort();
+      }
+      const miControlador = new AbortController();
+      controladorSemana = miControlador;
+
+      if (btn) {
+        btn.innerText = 'Consultando...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'not-allowed';
+      }
+
+      try {
+        const resultado = await api(
+          { action: 'resumenSemana', fechaInicio },
+          { signal: miControlador.signal }
         );
-      }
-  
-      pintarSemana(resultado.semana);
-  
-      if (btn) {
-  
-        btn.innerText = '¡Actualizado!';
-        btn.style.backgroundColor = '#dcfce7';
-        btn.style.color = '#15803d';
-      }
-  
-    } catch (error) {
-  
-      if (miConsultaId !== semanaConsultaId) {
-        return;
-      }
-  
-      alert(
-        error.message ||
-        'Error de conexión al cargar la semana'
-      );
-  
-    } finally {
-  
-      if (miConsultaId === semanaConsultaId) {
-  
+
+        // Si ya hay una consulta más nueva en curso, esta respuesta ya no sirve.
+        if (controladorSemana !== miControlador) return;
+
+        if (!resultado.ok) {
+          throw new Error(resultado.mensaje || 'Error al obtener datos');
+        }
+
+        pintarSemana(resultado.semana);
+
         if (btn) {
-  
+          btn.innerText = '¡Actualizado!';
+          btn.style.backgroundColor = '#dcfce7';
+          btn.style.color = '#15803d';
+        }
+
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          // Cancelación intencional (otra consulta más nueva la reemplazó): no es un error real
+          return;
+        }
+        if (controladorSemana !== miControlador) return;
+
+        alert(error.message || 'Error de conexión al cargar la semana');
+
+      } finally {
+        // Reseteo inmediato del botón, ya no depende de comparar IDs tras un timeout.
+        if (controladorSemana === miControlador) {
+          controladorSemana = null;
           setTimeout(() => {
-  
-            if (miConsultaId !== semanaConsultaId) {
-              return;
-            }
-  
-            btn.innerText = textoOriginal;
-            btn.disabled = false;
-            btn.style.backgroundColor = '#e0e0e0';
-            btn.style.color = '#333333';
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-  
+            if (!controladorSemana) resetBotonSemana();
           }, 1000);
         }
       }
     }
-  }
-    
-  /* =====================
-      PINTAR SEMANA
-   =====================*/
+
+    /* =====================
+        PINTAR SEMANA
+     =====================*/
+
+    // Estados que cuentan como reserva "activa" para los totales
+    // (igual criterio que usa el backend en calcularOcupacion).
+    const ESTADOS_ACTIVOS = ['RESERVADA', 'CHECKIN', 'CONFIRMADA', 'ASISTIO'];
+
     function pintarSemana(dias) {
       const contenedor = document.getElementById('semana');
       contenedor.innerHTML = '';
@@ -467,27 +490,38 @@
         const fecha = new Date(dia.fecha + 'T12:00:00');
         const nombre = fecha.toLocaleDateString('es-CL', { weekday: 'long' });
 
+        // Reservas activas del día (se excluyen canceladas/no-show de los totales)
+        const reservasActivas = (dia.reservas || []).filter(r =>
+          ESTADOS_ACTIVOS.includes(String(r.Estado || '').trim().toUpperCase())
+        );
+
+        const totalEntradas = reservasActivas
+          .filter(r => String(r.Tipo || '').trim().toUpperCase() === 'ENTRADA')
+          .reduce((total, r) => total + Number(r.Cantidad || 0), 0);
+
+        const totalClasesReservas = reservasActivas
+          .filter(r => String(r.Tipo || '').trim().toUpperCase() === 'CLASE')
+          .reduce((total, r) => total + Number(r.Cantidad || 0), 0);
+
+        const cantidadClasesProgramadas = (dia.clases || []).length;
+
         div.innerHTML = `
           <h3>${capitalizar(nombre)}</h3>
           <small>${dia.fecha}</small>
-          
-          <!-- Resumen compacto -->
+
+          <!-- Resumen compacto por tipo -->
           <div class="resumen-metrica">
             <div class="metrica-item">
-              <span>Capacidad</span>
-              <strong>${dia.capacidad}</strong>
+              <span>Total Entradas</span>
+              <strong>${totalEntradas}</strong>
             </div>
             <div class="metrica-item">
-              <span>Reservados</span>
-              <strong>${dia.reservado}</strong>
+              <span>Total Clases (reservas)</span>
+              <strong>${totalClasesReservas}</strong>
             </div>
             <div class="metrica-item">
-              <span>Disponibles</span>
-              <strong>${dia.disponibles}</strong>
-            </div>
-            <div class="metrica-item">
-              <span>Clases</span>
-              <strong>${dia.clases.length}</strong>
+              <span>Clases Programadas</span>
+              <strong>${cantidadClasesProgramadas}</strong>
             </div>
           </div>
           <hr style="margin-top: 10px;">
@@ -498,11 +532,33 @@
           .forEach(reserva => {
             const bloque = document.createElement('div');
             bloque.className = 'reserva';
+
+            const tipo = String(reserva.Tipo || '').trim().toUpperCase();
+            const esClase = tipo === 'CLASE';
+            const claseTipo = esClase ? 'tipo-clase' : 'tipo-entrada';
+            const etiquetaTipo = esClase ? 'Clase' : 'Entrada';
+
+            const estado = String(reserva.Estado || '').trim().toUpperCase();
+
+            // Solo se muestra el badge de estado cuando aporta información
+            // (el estado por defecto RESERVADA se sobreentiende y no se repite).
+            let badgeEstadoHtml = '';
+            if (estado === 'CHECKIN') {
+              badgeEstadoHtml = `<span class="badge-estado-mini estado-checkin">Check-in</span>`;
+            } else if (estado === 'CANCELADA') {
+              badgeEstadoHtml = `<span class="badge-estado-mini estado-cancelada">Cancelada</span>`;
+            } else if (estado === 'NO_SHOW' || estado === 'NOSHOW' || estado === 'NO SHOW') {
+              badgeEstadoHtml = `<span class="badge-estado-mini estado-noshow">No Show</span>`;
+            }
+
             bloque.innerHTML = `
+              <div class="badges-reserva">
+                <span class="badge-tipo ${claseTipo}">${etiquetaTipo}</span>
+                ${badgeEstadoHtml}
+              </div>
               <strong>${reserva.HoraInicio}</strong> <br>
               ${reserva.ClienteID} <br>
-              ${reserva.Cantidad} personas <br>
-              ${reserva.Estado}
+              ${reserva.Cantidad} personas
             `;
             div.appendChild(bloque);
           });
