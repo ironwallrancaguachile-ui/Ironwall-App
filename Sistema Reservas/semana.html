@@ -293,6 +293,11 @@
       color: #dc2626;
     }
 
+    .badge-estado-mini.estado-completada {
+      background-color: #e0e7ff;
+      color: #3730a3;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 640px) {
       body {
@@ -475,9 +480,11 @@
         PINTAR SEMANA
      =====================*/
 
-    // Estados que cuentan como reserva "activa" para los totales
-    // (igual criterio que usa el backend en calcularOcupacion).
-    const ESTADOS_ACTIVOS = ['RESERVADA', 'CHECKIN', 'CONFIRMADA', 'ASISTIO'];
+    // Solo se excluye del total lo que efectivamente se canceló a tiempo.
+    // COMPLETADA, NO_SHOW, CHECKIN, RESERVADA, etc. siguen contando,
+    // porque igual ocuparon un cupo ese día (sirve para auditar
+    // no-shows y ver el total real de demanda, no solo lo "vigente").
+    const ESTADO_EXCLUIDO_DE_TOTALES = 'CANCELADA';
 
     function pintarSemana(dias) {
       const contenedor = document.getElementById('semana');
@@ -490,16 +497,16 @@
         const fecha = new Date(dia.fecha + 'T12:00:00');
         const nombre = fecha.toLocaleDateString('es-CL', { weekday: 'long' });
 
-        // Reservas activas del día (se excluyen canceladas/no-show de los totales)
-        const reservasActivas = (dia.reservas || []).filter(r =>
-          ESTADOS_ACTIVOS.includes(String(r.Estado || '').trim().toUpperCase())
+        // Reservas que cuentan para los totales del día (todo excepto canceladas)
+        const reservasContables = (dia.reservas || []).filter(r =>
+          String(r.Estado || '').trim().toUpperCase() !== ESTADO_EXCLUIDO_DE_TOTALES
         );
 
-        const totalEntradas = reservasActivas
+        const totalEntradas = reservasContables
           .filter(r => String(r.Tipo || '').trim().toUpperCase() === 'ENTRADA')
           .reduce((total, r) => total + Number(r.Cantidad || 0), 0);
 
-        const totalClasesReservas = reservasActivas
+        const totalClasesReservas = reservasContables
           .filter(r => String(r.Tipo || '').trim().toUpperCase() === 'CLASE')
           .reduce((total, r) => total + Number(r.Cantidad || 0), 0);
 
@@ -512,11 +519,11 @@
           <!-- Resumen compacto por tipo -->
           <div class="resumen-metrica">
             <div class="metrica-item">
-              <span>Total Entradas</span>
+              <span>Entrada</span>
               <strong>${totalEntradas}</strong>
             </div>
             <div class="metrica-item">
-              <span>Total Clases (reservas)</span>
+              <span>Clases</span>
               <strong>${totalClasesReservas}</strong>
             </div>
             <div class="metrica-item">
@@ -545,6 +552,8 @@
             let badgeEstadoHtml = '';
             if (estado === 'CHECKIN') {
               badgeEstadoHtml = `<span class="badge-estado-mini estado-checkin">Check-in</span>`;
+            } else if (estado === 'COMPLETADA') {
+              badgeEstadoHtml = `<span class="badge-estado-mini estado-completada">Completada</span>`;
             } else if (estado === 'CANCELADA') {
               badgeEstadoHtml = `<span class="badge-estado-mini estado-cancelada">Cancelada</span>`;
             } else if (estado === 'NO_SHOW' || estado === 'NOSHOW' || estado === 'NO SHOW') {
