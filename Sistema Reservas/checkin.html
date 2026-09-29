@@ -215,6 +215,80 @@
       color: #dc2626;
     }
 
+    /* --- BÚSQUEDA POR NOMBRE --- */
+    .fila-busqueda {
+      display: grid;
+      grid-template-columns: 150px 1fr auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .lista-resultados {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .resultado-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f8f9fa;
+      border: 1px solid #edf0f2;
+      border-radius: 8px;
+      padding: 10px 14px;
+      flex-wrap: wrap;
+    }
+
+    .resultado-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 13px;
+    }
+
+    .resultado-info strong {
+      font-size: 14px;
+    }
+
+    .resultado-meta {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .badge-tipo-mini, .badge-estado-mini {
+      font-weight: 700;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      display: inline-block;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .tipo-entrada { background: #eef2ff; color: #4338ca; }
+    .tipo-clase { background: #fff8e6; color: #b47700; }
+    .estado-checkin { background: #dcfce7; color: #15803d; }
+    .estado-completada { background: #e0e7ff; color: #3730a3; }
+    .estado-cancelada, .estado-noshow { background: #fee2e2; color: #dc2626; }
+
+    .resultado-accion {
+      width: auto;
+      height: 34px;
+      padding: 0 14px;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .sin-resultados {
+      text-align: center;
+      color: #888;
+      padding: 20px;
+      font-size: 13px;
+    }
+
     /* --- RESPONSIVE --- */
     @media (max-width: 640px) {
       body {
@@ -226,6 +300,10 @@
       }
 
       .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .fila-busqueda {
         grid-template-columns: 1fr;
       }
     }
@@ -243,11 +321,34 @@
     </div>
 
     <h1>Check-in / Check-out</h1>
-    <p class="subtitulo">Ingresa el ID de la reserva para registrar asistencia o salida</p>
+    <p class="subtitulo">Busca por nombre y fecha, o ingresa el ID de la reserva directamente</p>
 
-    <!-- CARD PRINCIPAL DE ACCIONES -->
+    <!-- CARD: BUSCAR POR NOMBRE -->
     <div class="card">
-      <div class="titulo-card">Registro de Acceso</div>
+      <div class="titulo-card">Buscar Reserva</div>
+
+      <div class="fila-busqueda">
+        <div>
+          <label for="fechaBusqueda">Fecha</label>
+          <input id="fechaBusqueda" type="date">
+        </div>
+        <div>
+          <label for="nombreBusqueda">Nombre del cliente</label>
+          <input id="nombreBusqueda" placeholder="Escribe para filtrar..." autocomplete="off">
+        </div>
+        <button class="btn-consultar" id="btnActualizarBusqueda" style="width:auto; padding:0 20px;" onclick="cargarReservasDelDia()">
+          Actualizar
+        </button>
+      </div>
+
+      <div id="listaResultados" class="lista-resultados">
+        <div class="sin-resultados">Cargando reservas del día...</div>
+      </div>
+    </div>
+
+    <!-- CARD: REGISTRO MANUAL POR ID (flujo rápido / kiosco) -->
+    <div class="card">
+      <div class="titulo-card">Registro por ID (rápido)</div>
       
       <div style="margin-bottom: 16px;">
         <label for="reservaId">ID de Reserva</label>
@@ -270,15 +371,52 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
-    // Bloqueo simple: mientras una acción (checkin o checkout) está en
-    // curso sobre un ID, se deshabilitan AMBOS botones, para evitar que
-    // se disparen las dos acciones casi al mismo tiempo sobre la misma
-    // reserva (por ejemplo, doble clic o clic accidental en el otro botón).
+    /* =========================================================
+       ESTADO GENERAL
+    ========================================================= */
+    // Bloqueo simple para el registro manual por ID: mientras una acción
+    // está en curso, se deshabilitan ambos botones de esa tarjeta.
     let accionEnCurso = false;
 
+    // Cancelación real de la consulta de reservas del día (mismo patrón
+    // que reservas.html / hoy.html / semana.html / clases.html).
+    let controladorBusqueda = null;
+
+    // Reservas del día ya cargadas; el filtro por nombre se aplica
+    // en el navegador sobre este arreglo, sin golpear el servidor
+    // en cada tecla que el usuario escribe.
+    let reservasDelDiaCache = [];
+
+    // IDs de reserva con una acción de check-in/check-out en curso
+    // desde la lista de resultados (para deshabilitar solo ese botón).
+    const accionesEnCursoLista = new Set();
+
+    function fechaHoy() {
+      const d = new Date();
+      return [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, '0'),
+        String(d.getDate()).padStart(2, '0')
+      ].join('-');
+    }
+
+    document.getElementById('fechaBusqueda').value = fechaHoy();
+
+    /* =========================================================
+       API
+    ========================================================= */
     async function api(body, opciones = {}) {
       const timeout = opciones.timeout || 15000;
       const controller = new AbortController();
+
+      if (opciones.signal) {
+        if (opciones.signal.aborted) {
+          controller.abort();
+        } else {
+          opciones.signal.addEventListener('abort', () => controller.abort());
+        }
+      }
+
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
       try {
@@ -296,7 +434,7 @@
 
       } catch (error) {
         if (error.name === 'AbortError') {
-          throw new Error('La solicitud tardó demasiado. Intenta nuevamente.');
+          throw error;
         }
         throw error;
       } finally {
@@ -311,17 +449,206 @@
       resDiv.style.display = 'block';
     }
 
+    /* =========================================================
+       BÚSQUEDA POR NOMBRE / FECHA
+    ========================================================= */
+    async function cargarReservasDelDia() {
+      const fecha = document.getElementById('fechaBusqueda').value;
+      const btn = document.getElementById('btnActualizarBusqueda');
+      const lista = document.getElementById('listaResultados');
+
+      if (!fecha) return;
+
+      // Cancela cualquier consulta anterior en vuelo antes de lanzar esta
+      if (controladorBusqueda) {
+        controladorBusqueda.abort();
+      }
+      const miControlador = new AbortController();
+      controladorBusqueda = miControlador;
+
+      const textoOriginal = btn.innerText;
+      btn.innerText = 'Buscando...';
+      btn.disabled = true;
+
+      lista.innerHTML = '<div class="sin-resultados">Cargando reservas del día...</div>';
+
+      try {
+        const resultado = await api(
+          { action: 'listarReservasFecha', fecha },
+          { signal: miControlador.signal }
+        );
+
+        if (controladorBusqueda !== miControlador) return;
+
+        if (!resultado || !resultado.ok) {
+          lista.innerHTML = `<div class="sin-resultados">${resultado?.mensaje || 'Error al obtener las reservas'}</div>`;
+          reservasDelDiaCache = [];
+          return;
+        }
+
+        reservasDelDiaCache = resultado.reservas || [];
+        renderizarResultados();
+
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+        if (controladorBusqueda !== miControlador) return;
+
+        lista.innerHTML = '<div class="sin-resultados">Error de conexión al cargar las reservas.</div>';
+        reservasDelDiaCache = [];
+
+      } finally {
+        if (controladorBusqueda === miControlador) {
+          controladorBusqueda = null;
+          btn.innerText = textoOriginal;
+          btn.disabled = false;
+        }
+      }
+    }
+
+    function renderizarResultados() {
+      const lista = document.getElementById('listaResultados');
+      const filtro = document.getElementById('nombreBusqueda').value.trim().toLowerCase();
+
+      const filtradas = reservasDelDiaCache.filter(r => {
+        if (!filtro) return true;
+        const nombre = String(r.ClienteID || r.NombreCliente || '').toLowerCase();
+        return nombre.includes(filtro);
+      });
+
+      // Orden por hora, igual que en las otras vistas
+      filtradas.sort((a, b) => String(a.HoraInicio || '').localeCompare(String(b.HoraInicio || '')));
+
+      if (filtradas.length === 0) {
+        lista.innerHTML = '<div class="sin-resultados">No hay reservas que coincidan con la búsqueda.</div>';
+        return;
+      }
+
+      lista.innerHTML = '';
+
+      filtradas.forEach(reserva => {
+        const item = document.createElement('div');
+        item.className = 'resultado-item';
+
+        const tipo = String(reserva.Tipo || '').trim().toUpperCase();
+        const esClase = tipo === 'CLASE';
+        const claseTipoBadge = esClase ? 'tipo-clase' : 'tipo-entrada';
+        const etiquetaTipo = esClase ? 'Clase' : 'Entrada';
+
+        const estado = String(reserva.Estado || '').trim().toUpperCase();
+
+        let badgeEstadoHtml = '';
+        if (estado === 'CHECKIN') {
+          badgeEstadoHtml = `<span class="badge-estado-mini estado-checkin">Check-in</span>`;
+        } else if (estado === 'COMPLETADA') {
+          badgeEstadoHtml = `<span class="badge-estado-mini estado-completada">Completada</span>`;
+        } else if (estado === 'CANCELADA') {
+          badgeEstadoHtml = `<span class="badge-estado-mini estado-cancelada">Cancelada</span>`;
+        } else if (estado === 'NO_SHOW' || estado === 'NOSHOW' || estado === 'NO SHOW') {
+          badgeEstadoHtml = `<span class="badge-estado-mini estado-noshow">No Show</span>`;
+        }
+
+        let botonAccionHtml = '';
+        const reservaId = reserva.ReservaID;
+        const bloqueado = accionesEnCursoLista.has(reservaId);
+
+        if (estado === 'RESERVADA' || estado === 'CONFIRMADA') {
+          botonAccionHtml = `
+            <button class="btn-primary resultado-accion" ${bloqueado ? 'disabled' : ''}
+              onclick="hacerCheckinDesdeListaConId('${reservaId}')">
+              ${bloqueado ? 'Procesando...' : 'Check-in'}
+            </button>
+          `;
+        } else if (estado === 'CHECKIN') {
+          botonAccionHtml = `
+            <button class="btn-consultar resultado-accion" ${bloqueado ? 'disabled' : ''}
+              onclick="hacerCheckoutDesdeListaConId('${reservaId}')">
+              ${bloqueado ? 'Procesando...' : 'Salida'}
+            </button>
+          `;
+        }
+
+        item.innerHTML = `
+          <div class="resultado-info">
+            <div>
+              <span class="badge-tipo-mini ${claseTipoBadge}">${etiquetaTipo}</span>
+              ${badgeEstadoHtml}
+            </div>
+            <strong>${reserva.ClienteID || reserva.NombreCliente || '-'}</strong>
+            <span class="resultado-meta">${reserva.HoraInicio || ''} - ${reserva.HoraFin || ''} · ${reserva.Cantidad || 1} persona(s) · ${reservaId}</span>
+          </div>
+          ${botonAccionHtml}
+        `;
+
+        lista.appendChild(item);
+      });
+    }
+
+    // Filtrado instantáneo mientras se escribe, sin nuevas consultas al servidor
+    document.getElementById('nombreBusqueda').addEventListener('input', renderizarResultados);
+
+    // Recargar automáticamente al cambiar la fecha
+    document.getElementById('fechaBusqueda').addEventListener('change', cargarReservasDelDia);
+
+    /* =========================================================
+       ACCIONES DESDE LA LISTA DE RESULTADOS
+    ========================================================= */
+    async function hacerCheckinDesdeListaConId(reservaId) {
+      if (accionesEnCursoLista.has(reservaId)) return;
+      accionesEnCursoLista.add(reservaId);
+      renderizarResultados();
+
+      try {
+        const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
+        if (!resultado.ok) {
+          alert(resultado.mensaje || 'No se pudo realizar el check-in.');
+        } else {
+          // Pequeña pausa para asegurar consistencia, igual que en hoy.html
+          await new Promise(r => setTimeout(r, 500));
+          await cargarReservasDelDia();
+        }
+      } catch (error) {
+        alert('Error de conexión al procesar el check-in.');
+      } finally {
+        accionesEnCursoLista.delete(reservaId);
+        renderizarResultados();
+      }
+    }
+
+    async function hacerCheckoutDesdeListaConId(reservaId) {
+      if (accionesEnCursoLista.has(reservaId)) return;
+      accionesEnCursoLista.add(reservaId);
+      renderizarResultados();
+
+      try {
+        const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
+        if (!resultado.ok) {
+          alert(resultado.mensaje || 'No se pudo realizar el check-out.');
+        } else {
+          await new Promise(r => setTimeout(r, 500));
+          await cargarReservasDelDia();
+        }
+      } catch (error) {
+        alert('Error de conexión al procesar el check-out.');
+      } finally {
+        accionesEnCursoLista.delete(reservaId);
+        renderizarResultados();
+      }
+    }
+
+    /* =========================================================
+       REGISTRO MANUAL POR ID (flujo rápido / kiosco)
+    ========================================================= */
     function obtenerReservaIdNormalizado() {
-      // FIX: el CSS solo cambia cómo se VE el texto, no el valor real.
-      // Hay que normalizar a mayúsculas aquí antes de enviarlo, porque
-      // el backend compara los IDs de forma sensible a mayúsculas.
+      // El CSS solo cambia cómo se VE el texto; hay que normalizar
+      // el valor real a mayúsculas antes de enviarlo, porque el
+      // backend compara los IDs de forma sensible a mayúsculas.
       const input = document.getElementById('reservaId');
       const valor = input.value.trim().toUpperCase();
-      input.value = valor; // refleja también en pantalla lo que se envía
+      input.value = valor;
       return valor;
     }
 
-    function bloquearBotones(bloquear) {
+    function bloquearBotonesManual(bloquear) {
       document.getElementById('btnCheckin').disabled = bloquear;
       document.getElementById('btnCheckout').disabled = bloquear;
     }
@@ -344,7 +671,7 @@
       }
 
       accionEnCurso = true;
-      bloquearBotones(true);
+      bloquearBotonesManual(true);
       btn.innerText = 'Procesando...';
 
       try {
@@ -360,7 +687,7 @@
         mostrarMensaje(error.message || 'Error de conexión con el servidor.', true);
       } finally {
         accionEnCurso = false;
-        bloquearBotones(false);
+        bloquearBotonesManual(false);
         btn.innerText = 'Confirmar ingreso';
       }
     }
@@ -377,7 +704,7 @@
       }
 
       accionEnCurso = true;
-      bloquearBotones(true);
+      bloquearBotonesManual(true);
       btn.innerText = 'Procesando...';
 
       try {
@@ -393,13 +720,12 @@
         mostrarMensaje(error.message || 'Error de conexión con el servidor.', true);
       } finally {
         accionEnCurso = false;
-        bloquearBotones(false);
+        bloquearBotonesManual(false);
         btn.innerText = 'Registrar salida';
       }
     }
 
-    // Enter en el campo dispara Check-in (la acción más común en un
-    // flujo de entrada rápida: escanear/tipear el código y presionar Enter).
+    // Enter en el campo de ID dispara Check-in
     document.getElementById('reservaId').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -407,9 +733,10 @@
       }
     });
 
-    // Foco inicial en el campo para que la página quede lista
-    // para escanear/tipear apenas se abre.
-    document.getElementById('reservaId').focus();
+    /* =========================================================
+       INICIALIZACIÓN
+    ========================================================= */
+    cargarReservasDelDia();
   </script>
 </body>
 
