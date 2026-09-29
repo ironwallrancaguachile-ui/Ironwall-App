@@ -430,33 +430,10 @@
     </p>
 
     <!-- ==================================================
-         INDICADORES
-    ================================================== -->
-      <!-- TARJETA 2: INDICADORES DEL DÍA -->
-    <div class="grid-superior">
-      <div class="card">
-        <div class="titulo-card">Resumen del Día</div>
-        <div class="indicadores">
-          <div class="indicador-item">
-            <span>Total del Día</span>
-            <strong id="indTotal">0</strong>
-          </div>
-          <div class="indicador-item">
-            <span>Activas</span>
-            <strong id="indActivas">0</strong>
-          </div>
-          <div class="indicador-item">
-            <span>Canceladas</span>
-            <strong id="indCanceladas">0</strong>
-          </div>
-        </div>
-      </div>
-     </div>
-    <!-- ==================================================
-         CONSULTAR CLASES
+         1. CONSULTAR CLASES DEL DÍA (primero en la secuencia)
     ================================================== -->
     <div class="card">
-      <div class="titulo-card">  Clases del Día  </div>
+      <div class="titulo-card">1. Clases del Día</div>
       <div class="fila-consulta">
         <div style="flex: 1;">
           <label for="fechaConsulta">  Consultar Fecha  </label>
@@ -499,14 +476,38 @@
         </table>
       </div>
     </div>
+
     <!-- ==================================================
-         CREAR CLASE
+         2. INDICADORES (resultado de la consulta anterior)
+    ================================================== -->
+    <div class="grid-superior">
+      <div class="card">
+        <div class="titulo-card">2. Resumen del Día</div>
+        <div class="indicadores">
+          <div class="indicador-item">
+            <span>Total del Día</span>
+            <strong id="indTotal">0</strong>
+          </div>
+          <div class="indicador-item">
+            <span>Activas</span>
+            <strong id="indActivas">0</strong>
+          </div>
+          <div class="indicador-item">
+            <span>Canceladas</span>
+            <strong id="indCanceladas">0</strong>
+          </div>
+        </div>
+      </div>
+     </div>
+
+    <!-- ==================================================
+         3. CREAR CLASE (al final de la secuencia)
     ================================================== -->
 
     <div class="card">
 
       <div class="titulo-card">
-        Nueva Clase
+        3. Nueva Clase
       </div>
 
       <div class="form-grid">
@@ -626,8 +627,12 @@
 
     const API_URL =
       'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
-    let consultaIdActual = 0;
-    let consultaEnCurso = false;
+
+    // Controlador de concurrencia para la consulta de clases del día.
+    // Al lanzar una consulta nueva se cancela de verdad la anterior
+    // (no solo se ignora su respuesta), igual patrón que en
+    // reservas.html / hoy.html / semana.html.
+    let controladorClases = null;
 
     /* ==================================================
        FECHA LOCAL
@@ -643,13 +648,24 @@
     }
 
 /* ==================================================
-       API (Versión estable)
+       API (cancelable via signal externo)
     ================================================== */
 
-async function api(body) {
+async function api(body, opciones = {}) {
+  const timeout = opciones.timeout || 15000;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => {controller.abort();}, 15000);
-  try {const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body), signal: controller.signal});
+
+  if (opciones.signal) {
+    if (opciones.signal.aborted) {
+      controller.abort();
+    } else {
+      opciones.signal.addEventListener('abort', () => controller.abort());
+    }
+  }
+
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body), signal: controller.signal });
     if (!response.ok) { throw new Error(`HTTP ${response.status}`); }
     const texto = await response.text();
     try { return JSON.parse(texto); } catch (e) { console.error('Respuesta no-JSON recibida:', texto );
@@ -884,7 +900,12 @@ async function api(body) {
           document.getElementById('panelRepeticion').style.display = 'none';
           document.querySelectorAll('.dia-repeticion').forEach(el => el.checked = false);
           calcularHoraFin();
-          cargarClases();
+
+          // Si la clase creada corresponde a la fecha que ya está
+          // siendo consultada arriba, refrescamos esa vista también.
+          if (document.getElementById('fechaConsulta').value === fechas[0]) {
+            cargarClases();
+          }
 
         } else {
           mostrarMensaje(
@@ -912,52 +933,67 @@ async function api(body) {
 
 
     /* ==================================================
+       RESET DEL BOTÓN CONSULTAR (inmediato, sin depender de timeouts)
+    ================================================== */
+    function resetBotonConsultarClases() {
+      const btn = document.getElementById('btnConsultar');
+      if (btn) {
+        btn.innerText = 'Consultar';
+        btn.disabled = false;
+      }
+    }
+
+    /* ==================================================
        CARGAR CLASES
     ================================================== */
     async function cargarClases() {
-    
-      const btn =        document.getElementById('btnConsultar');
-      const fecha =        document.getElementById('fechaConsulta').value;
-      /*
-       * Cada consulta recibe un número único.
-       * Solo la última consulta puede modificar la pantalla.
-       */
-      const miConsultaId =        ++consultaIdActual;
-      consultaEnCurso = true;
-    
+
+      const btn = document.getElementById('btnConsultar');
+      const fecha = document.getElementById('fechaConsulta').value;
+
+      // Cancela cualquier consulta anterior en vuelo antes de lanzar esta
+      if (controladorClases) {
+        controladorClases.abort();
+      }
+      const miControlador = new AbortController();
+      controladorClases = miControlador;
+
       btn.innerText = 'Buscando...';
       btn.disabled = true;
-    
-      try {  const resultado =  await api({   action: 'listarClasesFecha',  fecha   });
-    
-        /*
-         * Si ya existe una consulta más nueva,
-         * ignoramos completamente esta respuesta.
-         */
-        if (miConsultaId !== consultaIdActual) {          return;        }
-         const tbody =   document.getElementById('tabla');
+
+      try {
+        const resultado = await api(
+          { action: 'listarClasesFecha', fecha },
+          { signal: miControlador.signal }
+        );
+
+        // Si ya existe una consulta más nueva, esta respuesta ya no sirve.
+        if (controladorClases !== miControlador) return;
+
+        const tbody = document.getElementById('tabla');
         tbody.innerHTML = '';
+
         if (!resultado || !resultado.ok) {
-          mostrarMensaje(  resultado?.mensaje ||    'Error al obtener las clases',   true  );
+          mostrarMensaje(resultado?.mensaje || 'Error al obtener las clases', true);
           return;
         }
-    
-        const clases =  resultado.clases || [];
-    
+
+        const clases = resultado.clases || [];
+
         /*
-         * INDICADORES
+         * INDICADORES (se actualizan justo después de consultar,
+         * reflejando el resultado de la búsqueda de arriba)
          */
         document.getElementById('indTotal').innerText = clases.length;
         document.getElementById('indActivas').innerText = clases.filter(
-            c => c.Estado === 'ACTIVA' ).length;
-        document.getElementById('indCanceladas').innerText =  clases.filter(
-            c => c.Estado === 'CANCELADA' ).length;
-    
+          c => c.Estado === 'ACTIVA').length;
+        document.getElementById('indCanceladas').innerText = clases.filter(
+          c => c.Estado === 'CANCELADA').length;
+
         /*
          * SIN CLASES
          */
         if (clases.length === 0) {
-    
           tbody.innerHTML = `
             <tr>
               <td
@@ -971,66 +1007,64 @@ async function api(body) {
               </td>
             </tr>
           `;
-    
           return;
         }
-    
+
         /*
          * MOSTRAR CLASES
          */
         clases.forEach(clase => {
-    
-          const tr =
-            document.createElement('tr');
-    
+
+          const tr = document.createElement('tr');
+
           const colorEstado =
             clase.Estado === 'ACTIVA'
               ? '#16a34a'
               : '#dc2626';
-    
+
           tr.innerHTML = `
-    
+
             <td>
               <strong>
                 ${clase.Nombre}
               </strong>
             </td>
-    
+
             <td>
               ${clase.HoraInicio}
               -
               ${clase.HoraFin}
             </td>
-    
+
             <td>
               ${clase.Capacidad}
             </td>
-    
+
             <td>
               ${clase.InstructorID || '-'}
             </td>
-    
+
             <td>
-    
+
               <span
                 style="
                   font-weight:600;
                   color:${colorEstado};
                 ">
-    
+
                 ${clase.Estado}
-    
+
               </span>
-    
+
             </td>
-    
+
             <td>
-    
+
               ${
                 clase.Estado === 'ACTIVA'
-    
+
                   ? `
-    
+
                     <button
                       class="btn-danger"
                       onclick="
@@ -1038,53 +1072,40 @@ async function api(body) {
                           '${clase.ClaseID}'
                         )
                       ">
-    
+
                       Cancelar
-    
+
                     </button>
-    
+
                   `
-    
+
                   : '-'
               }
-    
+
             </td>
-    
+
           `;
-    
+
           tbody.appendChild(tr);
-    
+
         });
-    
+
       } catch (error) {
-    
-        /*
-         * Ignorar errores de consultas antiguas.
-         */
-        if (miConsultaId !== consultaIdActual) {
+        if (error.name === 'AbortError') {
+          // Cancelación intencional (otra consulta más nueva la reemplazó): no es un error real
           return;
         }
-    
-        console.error(
-          'Error cargarClases:',
-          error
-        );
-    
-        mostrarMensaje(
-          error.name === 'AbortError'
-            ? 'La consulta tardó demasiado. Intenta nuevamente.'
-            : 'Error de conexión al cargar la lista',
-          true
-        );
-    
+        if (controladorClases !== miControlador) return;
+
+        console.error('Error cargarClases:', error);
+        mostrarMensaje('Error de conexión al cargar la lista', true);
+
       } finally {
-    
-        if (miConsultaId !== consultaIdActual) {
-          return;
+        // Reseteo inmediato, ya no depende de comparar IDs tras un timeout.
+        if (controladorClases === miControlador) {
+          controladorClases = null;
+          resetBotonConsultarClases();
         }
-        consultaEnCurso = false;
-        btn.innerText = 'Consultar';
-        btn.disabled = false;
       }
     }
 
@@ -1101,39 +1122,47 @@ async function api(body) {
     ) {
       return;
     }
-  
+
+    // Si había una consulta de la tabla en curso, la cancelamos:
+    // de todos modos vamos a recargar la tabla apenas termine esto,
+    // así evitamos que una respuesta vieja pise el resultado.
+    if (controladorClases) {
+      controladorClases.abort();
+      controladorClases = null;
+    }
+
     try {
-  
+
       const resultado =
         await api({
           action: 'cancelarClase',
           claseId,
           canceladoPor: 'STAFF'
         });
-  
+
       if (resultado.ok) {
-  
+
         await cargarClases();
-  
+
       } else {
-  
+
         alert(
           resultado.mensaje ||
           'No se pudo cancelar la clase'
         );
-  
+
       }
-  
+
     } catch (e) {
-  
+
       console.error(e);
-  
+
       alert(
         e.name === 'AbortError'
           ? 'La operación tardó demasiado. Intenta nuevamente.'
           : 'Error de conexión al intentar cancelar'
       );
-  
+
     }
   }
 
@@ -1164,25 +1193,30 @@ async function api(body) {
           }
         }
       );
-    
+
       document
         .getElementById('fechaConsulta')
         .addEventListener('change', () => {
-      
+
           /*
-           * Invalidar cualquier consulta anterior.
+           * Cancela de verdad cualquier consulta anterior en vuelo,
+           * en vez de solo incrementar un contador que la promesa
+           * vieja podría no llegar a comparar a tiempo.
            */
-          consultaIdActual++;
-      
-          consultaEnCurso = false;
-      
+          if (controladorClases) {
+            controladorClases.abort();
+            controladorClases = null;
+          }
+
+          resetBotonConsultarClases();
+
           /*
            * Limpiar indicadores.
            */
           document.getElementById('indTotal').innerText = '0';
           document.getElementById('indActivas').innerText = '0';
           document.getElementById('indCanceladas').innerText = '0';
-      
+
           /*
            * Limpiar tabla para evitar mostrar
            * clases de la fecha anterior.
@@ -1200,13 +1234,13 @@ async function api(body) {
               </td>
             </tr>
           `;
-      
+
           const msj =
             document.getElementById('msj');
-      
+
           msj.style.display = 'none';
           msj.innerText = '';
-      
+
         });
 
     /* ==================================================
