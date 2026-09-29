@@ -251,7 +251,7 @@
       
       <div style="margin-bottom: 16px;">
         <label for="reservaId">ID de Reserva</label>
-        <input id="reservaId" placeholder="Ej: RES-XXXXXXXX" style="text-transform: uppercase;">
+        <input id="reservaId" placeholder="Ej: RES-XXXXXXXX" style="text-transform: uppercase;" autocomplete="off">
       </div>
 
       <div class="form-grid">
@@ -270,13 +270,38 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyZ6EtFkvWKNv7Jh13zQ7OdSqjKqx8kv-erst4DZ4ojLboC_cndDnnZzIRyUxNNVrAJ/exec';
 
-    async function api(body) {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(body)
-      });
-      return response.json();
+    // Bloqueo simple: mientras una acción (checkin o checkout) está en
+    // curso sobre un ID, se deshabilitan AMBOS botones, para evitar que
+    // se disparen las dos acciones casi al mismo tiempo sobre la misma
+    // reserva (por ejemplo, doble clic o clic accidental en el otro botón).
+    let accionEnCurso = false;
+
+    async function api(body, opciones = {}) {
+      const timeout = opciones.timeout || 15000;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error HTTP ${response.status}`);
+        }
+
+        return await response.json();
+
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          throw new Error('La solicitud tardó demasiado. Intenta nuevamente.');
+        }
+        throw error;
+      } finally {
+        clearTimeout(timeoutId);
+      }
     }
 
     function mostrarMensaje(texto, esError = false) {
@@ -286,8 +311,31 @@
       resDiv.style.display = 'block';
     }
 
+    function obtenerReservaIdNormalizado() {
+      // FIX: el CSS solo cambia cómo se VE el texto, no el valor real.
+      // Hay que normalizar a mayúsculas aquí antes de enviarlo, porque
+      // el backend compara los IDs de forma sensible a mayúsculas.
+      const input = document.getElementById('reservaId');
+      const valor = input.value.trim().toUpperCase();
+      input.value = valor; // refleja también en pantalla lo que se envía
+      return valor;
+    }
+
+    function bloquearBotones(bloquear) {
+      document.getElementById('btnCheckin').disabled = bloquear;
+      document.getElementById('btnCheckout').disabled = bloquear;
+    }
+
+    function limpiarYEnfocarParaSiguiente() {
+      const input = document.getElementById('reservaId');
+      input.value = '';
+      input.focus();
+    }
+
     async function hacerCheckin() {
-      const reservaId = document.getElementById('reservaId').value.trim();
+      if (accionEnCurso) return;
+
+      const reservaId = obtenerReservaIdNormalizado();
       const btn = document.getElementById('btnCheckin');
 
       if (!reservaId) {
@@ -295,26 +343,32 @@
         return;
       }
 
-      btn.disabled = true;
+      accionEnCurso = true;
+      bloquearBotones(true);
       btn.innerText = 'Procesando...';
 
       try {
         const resultado = await api({ action: 'checkin', reservaId, usuario: 'STAFF' });
-        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
+
+        if (resultado.ok) {
           mostrarMensaje(resultado.mensaje || 'Check-in realizado correctamente.', false);
+          limpiarYEnfocarParaSiguiente();
         } else {
           mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-in.', true);
         }
       } catch (error) {
-        mostrarMensaje('Error de conexión con el servidor.', true);
+        mostrarMensaje(error.message || 'Error de conexión con el servidor.', true);
       } finally {
-        btn.disabled = false;
+        accionEnCurso = false;
+        bloquearBotones(false);
         btn.innerText = 'Confirmar ingreso';
       }
     }
 
     async function hacerCheckout() {
-      const reservaId = document.getElementById('reservaId').value.trim();
+      if (accionEnCurso) return;
+
+      const reservaId = obtenerReservaIdNormalizado();
       const btn = document.getElementById('btnCheckout');
 
       if (!reservaId) {
@@ -322,23 +376,40 @@
         return;
       }
 
-      btn.disabled = true;
+      accionEnCurso = true;
+      bloquearBotones(true);
       btn.innerText = 'Procesando...';
 
       try {
         const resultado = await api({ action: 'checkout', reservaId, usuario: 'STAFF' });
-        if (resultado.ok || resultado.mensaje?.toLowerCase().includes('éxito')) {
+
+        if (resultado.ok) {
           mostrarMensaje(resultado.mensaje || 'Check-out realizado correctamente.', false);
+          limpiarYEnfocarParaSiguiente();
         } else {
           mostrarMensaje(resultado.mensaje || 'No se pudo realizar el check-out.', true);
         }
       } catch (error) {
-        mostrarMensaje('Error de conexión con el servidor.', true);
+        mostrarMensaje(error.message || 'Error de conexión con el servidor.', true);
       } finally {
-        btn.disabled = false;
+        accionEnCurso = false;
+        bloquearBotones(false);
         btn.innerText = 'Registrar salida';
       }
     }
+
+    // Enter en el campo dispara Check-in (la acción más común en un
+    // flujo de entrada rápida: escanear/tipear el código y presionar Enter).
+    document.getElementById('reservaId').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        hacerCheckin();
+      }
+    });
+
+    // Foco inicial en el campo para que la página quede lista
+    // para escanear/tipear apenas se abre.
+    document.getElementById('reservaId').focus();
   </script>
 </body>
 
