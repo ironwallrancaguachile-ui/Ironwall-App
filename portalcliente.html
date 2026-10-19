@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Enlace para que el sistema reconozca la PWA y oculte la URL al instalarse -->
+<link rel="manifest" href="manifest.json">
+
 <title>Portal Cliente | Ironwall</title>
 
 <style>
@@ -59,6 +62,7 @@ h1 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
+  margin-bottom: 20px;
 }
 
 .card {
@@ -107,6 +111,29 @@ h1 {
   margin-top: 2px;
 }
 
+/* BOTÓN DE PANTALLA COMPLETA OPCIONAL */
+.btn-fullscreen {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: background 0.2s;
+}
+
+.btn-fullscreen:hover {
+  background: #333;
+}
+
 /* LAPTOP Y SMARTPHONE HORIZONTAL (Landscape) */
 @media (min-width: 600px), (max-height: 500px) and (orientation: landscape) {
   body {
@@ -114,7 +141,6 @@ h1 {
     padding: 15px 20px;
   }
 
-  /* Junta Logo + (Título y Subtítulo) en una fila horizontal */
   .encabezadoCliente {
     display: flex;
     flex-direction: row;
@@ -144,7 +170,6 @@ h1 {
     font-size: 14px;
   }
 
-  /* 3 Tarjetas alineadas horizontalmente */
   .grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
@@ -211,6 +236,25 @@ h1 {
     </a>
 
   </div>
+
+  <!-- Botón interactivo para maximizar pantalla si abren desde navegador web -->
+  <button class="btn-fullscreen" onclick="toggleFullScreen()">
+    <span>📱</span> Activar Pantalla Completa
+  </button>
+
+  <script>
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log("Error al intentar pantalla completa: ", err.message);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+  </script>
 
 </body>
 </html>
