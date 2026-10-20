@@ -11,11 +11,6 @@
       "src": "img/logo_ranc.png",
       "sizes": "192x192",
       "type": "image/png"
-    },
-    {
-      "src": "img/logosn_ran.png",
-      "sizes": "512x512",
-      "type": "image/png"
     }
   ]
 }
