@@ -8,8 +8,13 @@
   "description": "Tu espacio para registrarte y consultar tus pases en Ironwall.",
   "icons": [
     {
-      "src": "img/logo.png",
+      "src": "img/logo_ran.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/logo_ran.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
