@@ -62,7 +62,6 @@ h1 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
-  margin-bottom: 20px;
 }
 
 .card {
@@ -109,29 +108,6 @@ h1 {
   color: #666;
   line-height: 1.3;
   margin-top: 2px;
-}
-
-/* BOTÓN DE PANTALLA COMPLETA */
-.btn-fullscreen {
-  width: 100%;
-  background: #111;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: background 0.2s;
-}
-
-.btn-fullscreen:hover {
-  background: #333;
 }
 
 /* LAPTOP Y SMARTPHONE HORIZONTAL (Landscape) */
@@ -236,25 +212,6 @@ h1 {
     </a>
 
   </div>
-
-  <!-- Botón interactivo para maximizar pantalla al hacer clic -->
-  <button class="btn-fullscreen" onclick="toggleFullScreen()">
-    <span>📱</span> Activar Pantalla Completa
-  </button>
-
-  <script>
-    function toggleFullScreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.log("Error al intentar pantalla completa: ", err.message);
-        });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      }
-    }
-  </script>
 
 </body>
 </html>
