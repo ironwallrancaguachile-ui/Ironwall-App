@@ -1,0 +1,109 @@
+<div class="portal-container" style="max-width: 500px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+  <h2>Gestión de Mis Datos - Ironwall</h2>
+  <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Ingresa tu código personal para ver, actualizar o solicitar la baja de tus datos personales.</p>
+
+  <!-- Paso 1: Ingreso de Código -->
+  <div id="step-login">
+    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Código Personal (IDCliente)</label>
+    <input type="text" id="input-codigo" placeholder="Ej: CLI12345" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+    <button onclick="buscarMisDatos()" style="background: #212121; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%;">Consultar Mis Datos</button>
+  </div>
+
+  <!-- Paso 2: Edición / Anonimización (Oculto inicialmente) -->
+  <div id="step-edit" style="display: none; margin-top: 20px;">
+    <input type="hidden" id="edit-id">
+    
+    <label style="display: block; margin-bottom: 5px;">Nombre Completo</label>
+    <input type="text" id="edit-nombre" style="width: 100%; padding: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label style="display: block; margin-bottom: 5px;">Correo Electrónico</label>
+    <input type="email" id="edit-email" style="width: 100%; padding: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label style="display: block; margin-bottom: 5px;">Teléfono</label>
+    <input type="text" id="edit-telefono" style="width: 100%; padding: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px;">
+
+    <label style="display: block; margin-bottom: 5px;">Fecha de Nacimiento</label>
+    <input type="date" id="edit-nacimiento" style="width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+
+    <button onclick="guardarCambios()" style="background: #007bff; color: #fff; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 10px;">Guardar Cambios</button>
+    <button onclick="solicitarAnonimizacion()" style="background: #dc3545; color: #fff; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%;">Eliminar / Anonimizar Mis Datos</button>
+  </div>
+
+  <div id="portal-msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></div>
+</div>
+
+<script>
+  function buscarMisDatos() {
+    var codigo = document.getElementById('input-codigo').value.trim();
+    var msg = document.getElementById('portal-msg');
+    if (!codigo) {
+      msg.style.color = 'red';
+      msg.textContent = 'Por favor ingresa tu código personal.';
+      return;
+    }
+
+    msg.style.color = '#333';
+    msg.textContent = 'Buscando...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.exito) {
+          document.getElementById('edit-id').value = res.cliente.idCliente;
+          document.getElementById('edit-nombre').value = res.cliente.nombreCompleto;
+          document.getElementById('edit-email').value = res.cliente.email;
+          document.getElementById('edit-telefono').value = res.cliente.telefono;
+          document.getElementById('edit-nacimiento').value = res.cliente.fechaNacimiento;
+
+          document.getElementById('step-login').style.display = 'none';
+          document.getElementById('step-edit').style.display = 'block';
+          msg.textContent = '';
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = res.error;
+        }
+      })
+      .portalBuscarCliente(codigo);
+  }
+
+  function guardarCambios() {
+    var datos = {
+      idCliente: document.getElementById('edit-id').value,
+      nombreCompleto: document.getElementById('edit-nombre').value,
+      email: document.getElementById('edit-email').value,
+      telefono: document.getElementById('edit-telefono').value,
+      fechaNacimiento: document.getElementById('edit-nacimiento').value
+    };
+
+    var msg = document.getElementById('portal-msg');
+    google.script.run
+      .withSuccessHandler(function(res) {
+        msg.style.color = res.exito ? 'green' : 'red';
+        msg.textContent = res.mensaje || res.error;
+      })
+      .portalActualizarCliente(datos);
+  }
+
+  function solicitarAnonimizacion() {
+    if (!confirm('¿Estás seguro de que deseas eliminar tus datos? Esta acción es irreversible y anonimizará tu cuenta en nuestro sistema por motivos de seguridad y normativas.')) {
+      return;
+    }
+
+    var idCliente = document.getElementById('edit-id').value;
+    var msg = document.getElementById('portal-msg');
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.exito) {
+          msg.style.color = 'green';
+          msg.textContent = res.mensaje;
+          setTimeout(function() {
+            location.reload();
+          }, 3000);
+        } else {
+          msg.style.color = 'red';
+          msg.textContent = res.error;
+        }
+      })
+      .portalAnonimizarCliente(idCliente);
+  }
+</script>
