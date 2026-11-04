@@ -1,143 +1,787 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Gestión de mis datos - Ironwall</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;padding:20px;background:#f4f4f4;color:#222;font-family:Arial,sans-serif}
-.portal-container{max-width:500px;margin:30px auto;padding:24px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.09)}
-h2{margin:0 0 10px;font-size:23px}.intro{color:#666;font-size:14px;line-height:1.5;margin-bottom:22px}
-label{display:block;margin:12px 0 5px;font-weight:bold;font-size:14px}
-input{width:100%;padding:11px;border:1px solid #ccc;border-radius:5px;font-size:15px}
-button{width:100%;border:0;border-radius:5px;padding:12px;color:white;font-size:15px;cursor:pointer;margin-top:14px}
-button:disabled{opacity:.55;cursor:wait}.btn-dark{background:#212121}.btn-blue{background:#0878d1}.btn-red{background:#c62828}.btn-light{background:#666}
-.step{display:none;margin-top:18px}#portal-msg{margin-top:16px;font-size:14px;line-height:1.45;text-align:center}
-.notice{background:#fff8e1;border-left:4px solid #e0a800;padding:10px 12px;font-size:13px;line-height:1.45;margin-top:15px}
-.small{font-size:12px;color:#777;line-height:1.4}
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  padding:20px;
+  background:#f4f4f4;
+  color:#222;
+  font-family:Arial,sans-serif;
+}
+
+.portal-container{
+  max-width:500px;
+  margin:30px auto;
+  padding:24px;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,.09);
+}
+
+h2{
+  margin:0 0 10px;
+  font-size:23px;
+}
+
+.intro{
+  color:#666;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:22px;
+}
+
+label{
+  display:block;
+  margin:12px 0 5px;
+  font-weight:bold;
+  font-size:14px;
+}
+
+input{
+  width:100%;
+  padding:11px;
+  border:1px solid #ccc;
+  border-radius:5px;
+  font-size:15px;
+}
+
+button{
+  width:100%;
+  border:0;
+  border-radius:5px;
+  padding:12px;
+  color:white;
+  font-size:15px;
+  cursor:pointer;
+  margin-top:14px;
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:wait;
+}
+
+.btn-dark{background:#212121}
+.btn-blue{background:#0878d1}
+.btn-red{background:#c62828}
+.btn-light{background:#666}
+
+.step{
+  display:none;
+  margin-top:18px;
+}
+
+#portal-msg{
+  margin-top:16px;
+  font-size:14px;
+  line-height:1.45;
+  text-align:center;
+  overflow-wrap:anywhere;
+}
+
+.notice{
+  background:#fff8e1;
+  border-left:4px solid #e0a800;
+  padding:10px 12px;
+  font-size:13px;
+  line-height:1.45;
+  margin-top:15px;
+}
+
+.small{
+  font-size:12px;
+  color:#777;
+  line-height:1.4;
+}
 </style>
 </head>
+
 <body>
+
 <div class="portal-container">
+
   <h2>Gestión de mis datos - Ironwall</h2>
-  <p class="intro">Consulta y actualiza tus datos personales o solicita su anonimización. Para proteger tu información, enviaremos un código temporal al correo registrado en tu cuenta.</p>
+
+  <p class="intro">
+    Consulta y actualiza tus datos personales o solicita su anonimización.
+    Para proteger tu información, enviaremos un código temporal al correo
+    registrado en tu cuenta.
+  </p>
+
+  <!-- PASO 1 -->
 
   <div id="step-login">
-    <label for="input-codigo">Código personal (IDCliente)</label>
-    <input type="text" id="input-codigo" autocomplete="off" placeholder="Ej.: CLI12345">
-    <button id="btn-solicitar" class="btn-dark" onclick="solicitarCodigo()">Enviar código de verificación</button>
+
+    <label for="input-codigo">
+      Código personal (IDCliente)
+    </label>
+
+    <input
+      type="text"
+      id="input-codigo"
+      autocomplete="off"
+      placeholder="Ej.: CLI12345"
+    >
+
+    <button
+      id="btn-solicitar"
+      class="btn-dark"
+      type="button"
+      onclick="solicitarCodigo()"
+    >
+      Enviar código de verificación
+    </button>
+
   </div>
+
+
+  <!-- PASO 2 -->
 
   <div id="step-verificacion" class="step">
-    <label for="input-otp">Código de verificación</label>
-    <input type="text" id="input-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="Código de 6 dígitos">
-    <p class="small">El código vence en 5 minutos. Revisa también la carpeta de spam.</p>
-    <button id="btn-verificar" class="btn-blue" onclick="verificarCodigo()">Verificar identidad</button>
-    <button class="btn-light" onclick="volverInicio()">Volver</button>
+
+    <label for="input-otp">
+      Código de verificación
+    </label>
+
+    <input
+      type="text"
+      id="input-otp"
+      inputmode="numeric"
+      maxlength="6"
+      autocomplete="one-time-code"
+      placeholder="Código de 6 dígitos"
+    >
+
+    <p class="small">
+      El código vence en 5 minutos.
+      Revisa también la carpeta de spam.
+    </p>
+
+    <button
+      id="btn-verificar"
+      class="btn-blue"
+      type="button"
+      onclick="verificarCodigo()"
+    >
+      Verificar identidad
+    </button>
+
+    <button
+      class="btn-light"
+      type="button"
+      onclick="volverInicio()"
+    >
+      Volver
+    </button>
+
   </div>
+
+
+  <!-- PASO 3 -->
 
   <div id="step-edit" class="step">
-    <label for="edit-nombre">Nombre completo</label><input type="text" id="edit-nombre" maxlength="120" autocomplete="name">
-    <label for="edit-email">Correo electrónico</label><input type="email" id="edit-email" autocomplete="email">
-    <label for="edit-telefono">Teléfono</label><input type="tel" id="edit-telefono" maxlength="30" autocomplete="tel">
-    <label for="edit-nacimiento">Fecha de nacimiento</label><input type="date" id="edit-nacimiento" autocomplete="bday">
-    <button id="btn-guardar" class="btn-blue" onclick="guardarCambios()">Guardar cambios</button>
-    <button id="btn-anonimizar" class="btn-red" onclick="solicitarAnonimizacion()">Solicitar anonimización de mis datos</button>
-    <div class="notice">Al confirmar, se reemplazarán o vaciarán los datos personales disponibles en el registro principal de clientes. Se conservará el identificador técnico para mantener referencias internas. La información que exista en otros registros o sistemas debe revisarse por separado.</div>
-    <button class="btn-light" onclick="cerrarPortal()">Cerrar sesión</button>
+
+    <label for="edit-nombre">
+      Nombre completo
+    </label>
+
+    <input
+      type="text"
+      id="edit-nombre"
+      maxlength="120"
+      autocomplete="name"
+    >
+
+    <label for="edit-email">
+      Correo electrónico
+    </label>
+
+    <input
+      type="email"
+      id="edit-email"
+      autocomplete="email"
+    >
+
+    <label for="edit-telefono">
+      Teléfono
+    </label>
+
+    <input
+      type="tel"
+      id="edit-telefono"
+      maxlength="30"
+      autocomplete="tel"
+    >
+
+    <label for="edit-nacimiento">
+      Fecha de nacimiento
+    </label>
+
+    <input
+      type="date"
+      id="edit-nacimiento"
+      autocomplete="bday"
+    >
+
+    <button
+      id="btn-guardar"
+      class="btn-blue"
+      type="button"
+      onclick="guardarCambios()"
+    >
+      Guardar cambios
+    </button>
+
+    <button
+      id="btn-anonimizar"
+      class="btn-red"
+      type="button"
+      onclick="solicitarAnonimizacion()"
+    >
+      Solicitar anonimización de mis datos
+    </button>
+
+    <div class="notice">
+      Al confirmar, se reemplazarán o vaciarán los datos personales
+      disponibles en el registro principal de clientes. Se conservará
+      el identificador técnico para mantener referencias internas.
+      La información que exista en otros registros o sistemas debe
+      revisarse por separado.
+    </div>
+
+    <button
+      class="btn-light"
+      type="button"
+      onclick="cerrarPortal()"
+    >
+      Cerrar sesión
+    </button>
+
   </div>
-  <div id="portal-msg" role="status" aria-live="polite"></div>
+
+
+  <div
+    id="portal-msg"
+    role="status"
+    aria-live="polite"
+  ></div>
+
 </div>
 
+
 <script>
+
 let clienteId = '';
 let tokenSesion = '';
 
+
+/* MENSAJES */
+
 function mensaje(texto,tipo){
-  const el=document.getElementById('portal-msg');
-  el.style.color=tipo==='error'?'#c62828':tipo==='ok'?'#218838':'#333';
-  el.textContent=texto||'';
+
+  const el = document.getElementById('portal-msg');
+
+  el.style.color =
+    tipo === 'error' ? '#c62828' :
+    tipo === 'ok' ? '#218838' :
+    '#333';
+
+  el.textContent = texto || '';
 }
+
+
+/* BOTONES */
+
 function boton(id,bloqueado,texto){
-  const b=document.getElementById(id);b.disabled=bloqueado;if(texto)b.textContent=texto;
+
+  const b = document.getElementById(id);
+
+  b.disabled = bloqueado;
+
+  if(texto){
+    b.textContent = texto;
+  }
 }
+
+
+/* CAMBIAR PASO */
+
 function paso(id){
-  ['step-login','step-verificacion','step-edit'].forEach(p=>document.getElementById(p).style.display=p===id?'block':'none');
+
+  [
+    'step-login',
+    'step-verificacion',
+    'step-edit'
+  ].forEach(p => {
+
+    document.getElementById(p).style.display =
+      p === id ? 'block' : 'none';
+
+  });
 }
+
+
+/* ERROR DE CONEXIÓN */
+
+function errorConexion(err){
+
+  return err && err.message
+    ? err.message
+    : 'Error inesperado. Intenta nuevamente.';
+}
+
+
+/* =====================================================
+   SOLICITAR CÓDIGO
+   ===================================================== */
+
 function solicitarCodigo(){
-  clienteId=document.getElementById('input-codigo').value.trim();
-  if(!clienteId){mensaje('Ingresa tu código personal.','error');return;}
-  boton('btn-solicitar',true,'Enviando...');mensaje('Procesando solicitud...');
-  google.script.run.withSuccessHandler(res=>{
-    boton('btn-solicitar',false,'Enviar código de verificación');
-    if(!res||!res.exito){mensaje(res&&res.mensaje?res.mensaje:'No fue posible procesar la solicitud.','error');return;}
-    paso('step-verificacion');mensaje(res.mensaje,'ok');
-  }).withFailureHandler(err=>{
-    boton('btn-solicitar',false,'Enviar código de verificación');
-    mensaje('Error de conexión: '+(err&&err.message?err.message:'intenta nuevamente.'),'error');
-  }).portalSolicitarCodigo(clienteId);
+
+  clienteId = document
+    .getElementById('input-codigo')
+    .value
+    .trim();
+
+  if(!clienteId){
+
+    mensaje(
+      'Ingresa tu código personal.',
+      'error'
+    );
+
+    return;
+  }
+
+  boton(
+    'btn-solicitar',
+    true,
+    'Enviando...'
+  );
+
+  mensaje('Procesando solicitud...');
+
+  google.script.run
+
+    .withSuccessHandler(res => {
+
+      boton(
+        'btn-solicitar',
+        false,
+        'Enviar código de verificación'
+      );
+
+      if(!res || !res.exito){
+
+        mensaje(
+          res && res.mensaje
+            ? res.mensaje
+            : 'No fue posible procesar la solicitud.',
+          'error'
+        );
+
+        return;
+      }
+
+      paso('step-verificacion');
+
+      mensaje(
+        res.mensaje,
+        'ok'
+      );
+
+    })
+
+    .withFailureHandler(err => {
+
+      boton(
+        'btn-solicitar',
+        false,
+        'Enviar código de verificación'
+      );
+
+      mensaje(
+        'Error de conexión: ' + errorConexion(err),
+        'error'
+      );
+
+    })
+
+    .portalSolicitarCodigo(clienteId);
 }
+
+
+/* =====================================================
+   VERIFICAR CÓDIGO
+   ===================================================== */
+
 function verificarCodigo(){
-  const codigo=document.getElementById('input-otp').value.trim();
-  if(!/^\d{6}$/.test(codigo)){mensaje('Ingresa el código de 6 dígitos recibido por correo.','error');return;}
-  boton('btn-verificar',true,'Verificando...');
-  google.script.run.withSuccessHandler(res=>{
-    boton('btn-verificar',false,'Verificar identidad');
-    if(!res||!res.exito){mensaje(res&&res.error?res.error:'No fue posible verificar el código.','error');return;}
-    tokenSesion=res.token;cargarDatos();
-  }).withFailureHandler(err=>{
-    boton('btn-verificar',false,'Verificar identidad');
-    mensaje('Error de conexión: '+(err&&err.message?err.message:'intenta nuevamente.'),'error');
-  }).portalVerificarCodigo(clienteId,codigo);
+
+  const codigo = document
+    .getElementById('input-otp')
+    .value
+    .trim();
+
+  if(!/^\d{6}$/.test(codigo)){
+
+    mensaje(
+      'Ingresa el código de 6 dígitos recibido por correo.',
+      'error'
+    );
+
+    return;
+  }
+
+  boton(
+    'btn-verificar',
+    true,
+    'Verificando...'
+  );
+
+  google.script.run
+
+    .withSuccessHandler(res => {
+
+      boton(
+        'btn-verificar',
+        false,
+        'Verificar identidad'
+      );
+
+      if(!res || !res.exito){
+
+        mensaje(
+          res && res.error
+            ? res.error
+            : 'No fue posible verificar el código.',
+          'error'
+        );
+
+        return;
+      }
+
+      tokenSesion = res.token;
+
+      cargarDatos();
+
+    })
+
+    .withFailureHandler(err => {
+
+      boton(
+        'btn-verificar',
+        false,
+        'Verificar identidad'
+      );
+
+      mensaje(
+        'Error de conexión: ' + errorConexion(err),
+        'error'
+      );
+
+    })
+
+    .portalVerificarCodigo(
+      clienteId,
+      codigo
+    );
 }
+
+
+/* =====================================================
+   CARGAR DATOS
+   ===================================================== */
+
 function cargarDatos(){
+
   mensaje('Cargando tus datos...');
-  google.script.run.withSuccessHandler(res=>{
-    if(!res||!res.exito){mensaje(res&&res.error?res.error:'No fue posible cargar tus datos.','error');return;}
-    document.getElementById('edit-nombre').value=res.cliente.nombreCompleto||'';
-    document.getElementById('edit-email').value=res.cliente.email||'';
-    document.getElementById('edit-telefono').value=res.cliente.telefono||'';
-    document.getElementById('edit-nacimiento').value=res.cliente.fechaNacimiento||'';
-    paso('step-edit');mensaje('Identidad verificada. Puedes revisar y actualizar tus datos.','ok');
-  }).withFailureHandler(err=>mensaje('Error de conexión: '+(err&&err.message?err.message:'intenta nuevamente.'),'error'))
-    .portalBuscarCliente(clienteId,tokenSesion);
+
+  google.script.run
+
+    .withSuccessHandler(res => {
+
+      if(!res || !res.exito){
+
+        mensaje(
+          res && res.error
+            ? res.error
+            : 'No fue posible cargar tus datos.',
+          'error'
+        );
+
+        return;
+      }
+
+      document.getElementById('edit-nombre').value =
+        res.cliente.nombreCompleto || '';
+
+      document.getElementById('edit-email').value =
+        res.cliente.email || '';
+
+      document.getElementById('edit-telefono').value =
+        res.cliente.telefono || '';
+
+      document.getElementById('edit-nacimiento').value =
+        res.cliente.fechaNacimiento || '';
+
+      paso('step-edit');
+
+      mensaje(
+        'Identidad verificada. Puedes revisar y actualizar tus datos.',
+        'ok'
+      );
+
+    })
+
+    .withFailureHandler(err => {
+
+      mensaje(
+        'Error de conexión: ' + errorConexion(err),
+        'error'
+      );
+
+    })
+
+    .portalBuscarCliente(
+      clienteId,
+      tokenSesion
+    );
 }
+
+
+/* =====================================================
+   GUARDAR CAMBIOS
+   ===================================================== */
+
 function guardarCambios(){
-  const datos={
-    idCliente:clienteId,
-    nombreCompleto:document.getElementById('edit-nombre').value.trim(),
-    email:document.getElementById('edit-email').value.trim(),
-    telefono:document.getElementById('edit-telefono').value.trim(),
-    fechaNacimiento:document.getElementById('edit-nacimiento').value
+
+  const datos = {
+
+    idCliente: clienteId,
+
+    nombreCompleto: document
+      .getElementById('edit-nombre')
+      .value
+      .trim(),
+
+    email: document
+      .getElementById('edit-email')
+      .value
+      .trim(),
+
+    telefono: document
+      .getElementById('edit-telefono')
+      .value
+      .trim(),
+
+    fechaNacimiento: document
+      .getElementById('edit-nacimiento')
+      .value
+
   };
-  boton('btn-guardar',true,'Guardando...');
-  google.script.run.withSuccessHandler(res=>{
-    boton('btn-guardar',false,'Guardar cambios');
-    if(res&&res.exito)mensaje(res.mensaje,'ok');else mensaje(res&&res.error?res.error:'No fue posible guardar.','error');
-  }).withFailureHandler(err=>{
-    boton('btn-guardar',false,'Guardar cambios');
-    mensaje('Error de conexión: '+(err&&err.message?err.message:'intenta nuevamente.'),'error');
-  }).portalActualizarCliente(datos,tokenSesion);
+
+  boton(
+    'btn-guardar',
+    true,
+    'Guardando...'
+  );
+
+  google.script.run
+
+    .withSuccessHandler(res => {
+
+      boton(
+        'btn-guardar',
+        false,
+        'Guardar cambios'
+      );
+
+      if(res && res.exito){
+
+        mensaje(
+          res.mensaje,
+          'ok'
+        );
+
+      }else{
+
+        mensaje(
+          res && res.error
+            ? res.error
+            : 'No fue posible guardar.',
+          'error'
+        );
+
+      }
+
+    })
+
+    .withFailureHandler(err => {
+
+      boton(
+        'btn-guardar',
+        false,
+        'Guardar cambios'
+      );
+
+      mensaje(
+        'Error de conexión: ' + errorConexion(err),
+        'error'
+      );
+
+    })
+
+    .portalActualizarCliente(
+      datos,
+      tokenSesion
+    );
 }
+
+
+/* =====================================================
+   ANONIMIZAR
+   ===================================================== */
+
 function solicitarAnonimizacion(){
-  if(!confirm('¿Confirmas que deseas anonimizar tus datos personales? Se modificarán los datos disponibles en el registro principal. Esta acción no se puede revertir desde el portal.'))return;
-  if(prompt('Para confirmar, escribe ANONIMIZAR:')!=='ANONIMIZAR'){mensaje('No se realizó ningún cambio.');return;}
-  boton('btn-anonimizar',true,'Procesando...');
-  google.script.run.withSuccessHandler(res=>{
-    boton('btn-anonimizar',false,'Solicitar anonimización de mis datos');
-    if(res&&res.exito){mensaje(res.mensaje,'ok');tokenSesion='';setTimeout(()=>location.reload(),6000);}
-    else mensaje(res&&res.error?res.error:'No fue posible procesar la solicitud.','error');
-  }).withFailureHandler(err=>{
-    boton('btn-anonimizar',false,'Solicitar anonimización de mis datos');
-    mensaje('Error de conexión: '+(err&&err.message?err.message:'intenta nuevamente.'),'error');
-  }).portalAnonimizarCliente(clienteId,tokenSesion);
+
+  if(!confirm(
+    '¿Confirmas que deseas anonimizar tus datos personales? ' +
+    'Esta acción no se puede revertir desde el portal.'
+  )){
+    return;
+  }
+
+  if(prompt(
+    'Para confirmar, escribe ANONIMIZAR:'
+  ) !== 'ANONIMIZAR'){
+
+    mensaje('No se realizó ningún cambio.');
+
+    return;
+  }
+
+  boton(
+    'btn-anonimizar',
+    true,
+    'Procesando...'
+  );
+
+  google.script.run
+
+    .withSuccessHandler(res => {
+
+      boton(
+        'btn-anonimizar',
+        false,
+        'Solicitar anonimización de mis datos'
+      );
+
+      if(res && res.exito){
+
+        mensaje(
+          res.mensaje,
+          'ok'
+        );
+
+        tokenSesion = '';
+
+        window.setTimeout(
+          () => window.location.reload(),
+          6000
+        );
+
+      }else{
+
+        mensaje(
+          res && res.error
+            ? res.error
+            : 'No fue posible procesar la solicitud.',
+          'error'
+        );
+
+      }
+
+    })
+
+    .withFailureHandler(err => {
+
+      boton(
+        'btn-anonimizar',
+        false,
+        'Solicitar anonimización de mis datos'
+      );
+
+      mensaje(
+        'Error de conexión: ' + errorConexion(err),
+        'error'
+      );
+
+    })
+
+    .portalAnonimizarCliente(
+      clienteId,
+      tokenSesion
+    );
 }
-function volverInicio(){clienteId='';tokenSesion='';document.getElementById('input-otp').value='';paso('step-login');mensaje('');}
+
+
+/* =====================================================
+   VOLVER AL INICIO
+   ===================================================== */
+
+function volverInicio(){
+
+  clienteId = '';
+  tokenSesion = '';
+
+  document.getElementById('input-otp').value = '';
+
+  paso('step-login');
+
+  mensaje('');
+}
+
+
+/* =====================================================
+   CERRAR SESIÓN
+   ===================================================== */
+
 function cerrarPortal(){
-  clienteId='';tokenSesion='';
-  ['input-codigo','input-otp','edit-nombre','edit-email','edit-telefono','edit-nacimiento'].forEach(id=>document.getElementById(id).value='');
-  paso('step-login');mensaje('Sesión cerrada.','ok');
+
+  clienteId = '';
+  tokenSesion = '';
+
+  [
+    'input-codigo',
+    'input-otp',
+    'edit-nombre',
+    'edit-email',
+    'edit-telefono',
+    'edit-nacimiento'
+
+  ].forEach(id => {
+
+    document.getElementById(id).value = '';
+
+  });
+
+  paso('step-login');
+
+  mensaje(
+    'Sesión cerrada.',
+    'ok'
+  );
 }
+
 </script>
+
 </body>
 </html>
