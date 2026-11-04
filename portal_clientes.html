@@ -344,34 +344,46 @@ function errorConexion(err){
    SOLICITAR CÓDIGO
    ===================================================== */
 
-function solicitarCodigo(){
+function solicitarCodigo() {
 
   clienteId = document
     .getElementById('input-codigo')
     .value
     .trim();
 
-  if(!clienteId){
+  if (!clienteId) {
+    mensaje('Ingresa tu código personal.', 'error');
+    return;
+  }
+
+  boton('btn-solicitar', true, 'Enviando...');
+  mensaje('Comprobando conexión con IronApp...');
+
+  // PRIMERA COMPROBACIÓN: existe google.script.run
+  if (
+    typeof google === 'undefined' ||
+    !google.script ||
+    !google.script.run
+  ) {
+    boton(
+      'btn-solicitar',
+      false,
+      'Enviar código de verificación'
+    );
 
     mensaje(
-      'Ingresa tu código personal.',
+      'Error: el portal no tiene conexión con Google Apps Script.',
       'error'
     );
 
     return;
   }
 
-  boton(
-    'btn-solicitar',
-    true,
-    'Enviando...'
-  );
-
-  mensaje('Procesando solicitud...');
+  mensaje('Conexión disponible. Solicitando código...');
 
   google.script.run
 
-    .withSuccessHandler(res => {
+    .withSuccessHandler(function(res) {
 
       boton(
         'btn-solicitar',
@@ -379,28 +391,22 @@ function solicitarCodigo(){
         'Enviar código de verificación'
       );
 
-      if(!res || !res.exito){
-
+      if (!res || !res.exito) {
         mensaje(
           res && res.mensaje
             ? res.mensaje
             : 'No fue posible procesar la solicitud.',
           'error'
         );
-
         return;
       }
 
       paso('step-verificacion');
-
-      mensaje(
-        res.mensaje,
-        'ok'
-      );
+      mensaje(res.mensaje, 'ok');
 
     })
 
-    .withFailureHandler(err => {
+    .withFailureHandler(function(err) {
 
       boton(
         'btn-solicitar',
@@ -409,7 +415,8 @@ function solicitarCodigo(){
       );
 
       mensaje(
-        'Error de conexión: ' + errorConexion(err),
+        'Error de conexión: ' +
+        (err && err.message ? err.message : 'Error desconocido'),
         'error'
       );
 
@@ -417,8 +424,6 @@ function solicitarCodigo(){
 
     .portalSolicitarCodigo(clienteId);
 }
-
-
 /* =====================================================
    VERIFICAR CÓDIGO
    ===================================================== */
