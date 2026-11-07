@@ -278,7 +278,8 @@
       const timeoutId = setTimeout(function () { controlador.abort(); }, 15000);
       
       // Aseguramos que se envíe la fecha seleccionada en cada petición si el script lo soporta
-      payload.fecha = fechaSeleccionada;
+      const datosEnvio = payload || {};
+      datosEnvio.fecha = fechaSeleccionada;
 
       return fetch(url, {
         method: 'POST',
