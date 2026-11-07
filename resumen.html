@@ -19,6 +19,15 @@
   h1 { font-size: 22px; margin-bottom: 4px; margin-top: 14px; }
   p.sub { color: #666; margin-top: 0; margin-bottom: 14px; font-size: 14px; }
 
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
   .btnHome {
     display: inline-flex;
     align-items: center;
@@ -26,9 +35,9 @@
     background: #ffffff;
     color: #222;
     text-decoration: none;
-    padding: 10px 18px;
+    padding: 8px 14px;
     border-radius: 12px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     box-shadow: 0 3px 12px rgba(0,0,0,.12);
     transition: .2s;
@@ -36,6 +45,29 @@
   .btnHome:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 18px rgba(0,0,0,.15);
+  }
+
+  .selector-fecha {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .selector-fecha input[type="date"] {
+    padding: 8px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .selector-fecha button {
+    padding: 8px 12px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
   }
 
   .estado-general {
@@ -129,12 +161,16 @@
 </head>
 <body>
 
-  <a href="portal.html" class="btnHome">
-    🏠 Home
-  </a>
+  <div class="header-actions">
+    <a href="portal.html" class="btnHome">🏠 Home</a>
+    <div class="selector-fecha">
+      <input type="date" id="inputFecha" onchange="cambiarFecha()">
+      <button onclick="irHoy()">Hoy</button>
+    </div>
+  </div>
 
   <h1>Centro de Control del Turno</h1>
-  <p class="sub" id="fechaHoy"></p>
+  <p class="sub" id="fechaTexto"></p>
 
   <div id="cargando">Cargando...</div>
   
@@ -142,12 +178,12 @@
 
     <div id="estadoGeneral" class="estado-general">Revisando...</div>
 
-    <!-- ACTIVIDAD DE HOY -->
+    <!-- ACTIVIDAD DEL DÍA -->
     <div class="seccion">
-      <h2>Actividad de hoy</h2>
+      <h2>Actividad del día</h2>
       <div class="grid-3">
         <div class="kpi">
-          <span class="label">Visitas hoy</span>
+          <span class="label">Visitas</span>
           <span class="valor" id="visitasHoy">-</span>
         </div>
         <div class="kpi">
@@ -155,7 +191,7 @@
           <span class="valor" id="clientesDistintosHoy">-</span>
         </div>
         <div class="kpi">
-          <span class="label">Nuevos hoy</span>
+          <span class="label">Nuevos</span>
           <span class="valor" id="clientesNuevosHoy">-</span>
         </div>
       </div>
@@ -166,11 +202,11 @@
       <h2>Caja (para conciliar con el efectivo físico)</h2>
       <div class="grid-2">
         <div class="kpi">
-          <span class="label">Ingresos hoy</span>
+          <span class="label">Ingresos</span>
           <span class="valor" id="ingresosHoy">-</span>
         </div>
         <div class="kpi">
-          <span class="label">Egresos hoy</span>
+          <span class="label">Egresos</span>
           <span class="valor" id="egresosHoy">-</span>
         </div>
       </div>
@@ -179,7 +215,7 @@
 
     <!-- PENDIENTES QUE REVISAR -->
     <div class="seccion">
-      <h2>Pendientes que revisar antes de cerrar</h2>
+      <h2>Pendientes del día</h2>
       <div class="grid-3">
         <div class="kpi" id="kpiMensajes">
           <span class="label">Msjs campaña</span>
@@ -190,7 +226,7 @@
           <span class="valor" id="stockBajo">-</span>
         </div>
         <div class="kpi" id="kpiIncidentes">
-          <span class="label">Incidentes hoy</span>
+          <span class="label">Incidentes</span>
           <span class="valor" id="incidentesHoy">-</span>
         </div>
       </div>
@@ -224,9 +260,26 @@
     const API_URL_INVENTARIO = 'https://script.google.com/macros/s/AKfycbxZyZAGtj2ifZ9lmhwX__tTVdydaYManjO2_Ff_ScIYtV5vpsFkQHzzKaX7ADcVXOysSw/exec';
     const API_URL_INCIDENTES = 'https://script.google.com/macros/s/AKfycbzFsCtTBbmVm9fbG-subMfxddgWxWQi5rsbadTZHTIWATGQxW-xEtfLO-6QuwBK-XhRWA/exec';
 
+    // Obtener fecha actual en formato YYYY-MM-DD local
+    function obtenerFechaHoyString() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    let fechaSeleccionada = obtenerFechaHoyString();
+
+    document.getElementById('inputFecha').value = fechaSeleccionada;
+
     function llamarApi(url, accion, payload) {
       const controlador = new AbortController();
       const timeoutId = setTimeout(function () { controlador.abort(); }, 15000);
+      
+      // Aseguramos que se envíe la fecha seleccionada en cada petición si el script lo soporta
+      payload.fecha = fechaSeleccionada;
+
       return fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -244,7 +297,7 @@
     }
 
     function formatearPesos(numero) {
-      return '$' + Math.round(numero).toLocaleString('es-CL');
+      return '$' + Math.round(numero || 0).toLocaleString('es-CL');
     }
 
     function marcarKpi(idElemento, cantidad, umbralAlerta) {
@@ -252,8 +305,29 @@
       kpi.className = cantidad >= umbralAlerta ? 'kpi alerta' : 'kpi ok';
     }
 
-    function cargar() {
-      document.getElementById('fechaHoy').textContent = new Date().toLocaleDateString('es-CL', {
+    function cambiarFecha() {
+      const input = document.getElementById('inputFecha').value;
+      if (input) {
+        fechaSeleccionada = input;
+        cargarTodo();
+      }
+    }
+
+    function irHoy() {
+      fechaSeleccionada = obtenerFechaHoyString();
+      document.getElementById('inputFecha').value = fechaSeleccionada;
+      cargarTodo();
+    }
+
+    function cargarTodo() {
+      document.getElementById('cargando').style.display = 'block';
+      document.getElementById('contenido').style.display = 'none';
+      document.getElementById('error').style.display = 'none';
+
+      // Mostrar texto formateado de la fecha seleccionada
+      const partes = fechaSeleccionada.split('-');
+      const dLocal = new Date(partes[0], partes[1] - 1, partes[2]);
+      document.getElementById('fechaTexto').textContent = dLocal.toLocaleDateString('es-CL', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
     
@@ -278,9 +352,9 @@
         let hayAlertas = false;
     
         if (respClientes.ok) {
-          document.getElementById('visitasHoy').textContent = respClientes.data.visitasHoy;
-          document.getElementById('clientesDistintosHoy').textContent = respClientes.data.clientesDistintosHoy;
-          document.getElementById('clientesNuevosHoy').textContent = respClientes.data.clientesNuevosHoy;
+          document.getElementById('visitasHoy').textContent = respClientes.data.visitasHoy ?? 0;
+          document.getElementById('clientesDistintosHoy').textContent = respClientes.data.clientesDistintosHoy ?? 0;
+          document.getElementById('clientesNuevosHoy').textContent = respClientes.data.clientesNuevosHoy ?? 0;
         }
     
         if (respFinanzas.ok) {
@@ -291,7 +365,7 @@
           const desglose = document.getElementById('desgloseMedioPago');
           const claves = Object.keys(porMedioPago);
           if (claves.length === 0) {
-            desglose.innerHTML = '<div>Sin ingresos registrados hoy</div>';
+            desglose.innerHTML = '<div>Sin ingresos registrados en esta fecha</div>';
           } else {
             desglose.innerHTML = claves.map(function (medio) {
               return '<div><span>' + medio + '</span><span>' + formatearPesos(porMedioPago[medio]) + '</span></div>';
@@ -328,10 +402,10 @@
         const estadoDiv = document.getElementById('estadoGeneral');
         if (hayAlertas) {
           estadoDiv.className = 'estado-general alerta';
-          estadoDiv.textContent = '⚠️ Hay pendientes por revisar antes de cerrar';
+          estadoDiv.textContent = '⚠️ Hay pendientes por revisar';
         } else {
           estadoDiv.className = 'estado-general ok';
-          estadoDiv.textContent = '✅ Todo en orden para cerrar el turno';
+          estadoDiv.textContent = '✅ Todo en orden';
         }
     
         document.getElementById('actualizado').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-CL');
@@ -381,7 +455,6 @@
             contenedor.innerHTML = '<p style="font-size:12px;color:#888;margin-bottom:8px;">Sin notas anteriores.</p>';
             return;
           }
-          // Mostramos las últimas 3 notas anteriores
           contenedor.innerHTML = resp.data.slice(0, 3).map(function (n) {
             return '<div class="desglose" style="margin-bottom:6px;"><div><strong>' + n.staff + '</strong><span style="color:#888;">' + new Date(n.fecha).toLocaleString('es-CL', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) + '</span></div>'
               + '<div style="display:block;padding-top:2px;color:#444;">' + n.nota + '</div></div>';
@@ -410,7 +483,7 @@
       fetch(API_URL_CLIENTES, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'agregarNotaTurno', payload: { nota: nota, staff: staff } })
+        body: JSON.stringify({ action: 'agregarNotaTurno', payload: { nota: nota, staff: staff, fecha: fechaSeleccionada } })
       }).then(function (r) { return r.text(); })
         .then(function (texto) {
           const resp = JSON.parse(texto);
@@ -432,7 +505,8 @@
         });
     }
 
-    cargar();
+    // Inicialización general
+    cargarTodo();
     cargarStaffTurno();
     cargarNotasAnteriores();
   </script>
