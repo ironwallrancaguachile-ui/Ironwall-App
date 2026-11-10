@@ -662,6 +662,34 @@ function crearGraficoTopServicios(data, criterio) {
         }
     );
 }
+/******************************************************
+ * Metricas historicas
+ ******************************************************/
+
+async function actualizarMetricasHistoricas() {
+    try {
+        const res = await llamarAPI("obtenerMetricasHistoricas");
+
+        if (!res || !res.ok || !res.data) {
+            console.error("Error al cargar métricas históricas:", res);
+            return;
+        }
+
+        const k = res.data;
+
+        document.getElementById("totalClientesRegistrados").textContent =
+            Number(k.totalClientesRegistrados || 0).toLocaleString("es-CL");
+
+        document.getElementById("visitasTotalesHistorico").textContent =
+            Number(k.visitasTotalesHistorico || 0).toLocaleString("es-CL");
+
+        document.getElementById("visitasMesAnterior").textContent =
+            Number(k.visitasMesAnterior || 0).toLocaleString("es-CL");
+
+    } catch (error) {
+        console.error("Error en métricas históricas:", error);
+    }
+}
 
 /******************************************************
  * Eventos e Inicialización
