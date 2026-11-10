@@ -83,6 +83,7 @@ async function cargarDashboard() {
     
     await actualizarRankingProductos();
     await actualizarGraficoTopServicios();
+    await actualizarMetricasHistoricas();
     
     const elUltima = document.getElementById("ultimaActualizacion");
     if (elUltima) elUltima.innerHTML = new Date().toLocaleTimeString("es-CL");
