@@ -93,25 +93,26 @@
                 <h3>Valor Inventario</h3>
                 <div class="valor azul" id="valorInventario">$0</div>
             </div>
+            
             <!-- HISTÓRICO Y MES ANTERIOR -->
-            <div class="seccion">
-              <h2>Métricas Históricas y Mensuales</h2>
-              <div class="grid-3">
-                <div class="kpi">
-                  <span class="label">Total clientes</span>
-                  <span class="valor" id="totalClientesRegistrados">-</span>
+                <div class="card" style="grid-column: 1 / -1;">
+                  <h3>Métricas Históricas y Mensuales</h3>
+                  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px;">
+                    <div>
+                      <span style="font-size: 11px; color: #666; display: block;">Total clientes</span>
+                      <span class="valor" id="totalClientesRegistrados" style="font-size: 18px; font-weight: 700;">-</span>
+                    </div>
+                    <div>
+                      <span style="font-size: 11px; color: #666; display: block;">Visitas totales</span>
+                      <span class="valor" id="visitasTotalesHistorico" style="font-size: 18px; font-weight: 700;">-</span>
+                    </div>
+                    <div>
+                      <span style="font-size: 11px; color: #666; display: block;">Visitas mes ant.</span>
+                      <span class="valor" id="visitasMesAnterior" style="font-size: 18px; font-weight: 700;">-</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="kpi">
-                  <span class="label">Visitas totales</span>
-                  <span class="valor" id="visitasTotalesHistorico">-</span>
-                </div>
-                <div class="kpi">
-                  <span class="label">Visitas mes ant.</span>
-                  <span class="valor" id="visitasMesAnterior">-</span>
-                </div>
-              </div>
-            </div>
-        </section>
+                    </section>
 
         <!-- SECCIÓN GRÁFICOS -->
 
