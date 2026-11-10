@@ -1,3 +1,4 @@
+
 /******************************************************
  * IRONWALL ERP
  * Dashboard JavaScript
@@ -37,7 +38,13 @@ async function llamarAPI(action, payload = {}) {
     });
 
     const texto = await respuesta.text();
-    return JSON.parse(texto);
+
+    try {
+        return JSON.parse(texto);
+    } catch (error) {
+        console.error("Respuesta no válida de la API:", texto);
+        throw new Error("El servidor no devolvió una respuesta JSON válida.");
+    }
 }
 
 /******************************************************
@@ -65,30 +72,41 @@ function actualizarFecha() {
 
 async function cargarDashboard() {
     actualizarFecha();
-    
+
     const selectorGlobal = document.getElementById("filtroGlobalPeriodo");
     const periodoGlobal = selectorGlobal ? selectorGlobal.value : "90";
 
-    const res = await llamarAPI("obtenerDashboard", { periodoFrecuencia: periodoGlobal });
+    try {
+        const res = await llamarAPI("obtenerDashboard", {
+            periodoFrecuencia: periodoGlobal
+        });
 
-    if (!res.ok) {
-        alert(res.error);
-        return;
+        if (!res || !res.ok) {
+            alert(res && res.error ? res.error : "No se pudo cargar el dashboard.");
+            return;
+        }
+
+        const d = res.data;
+
+        actualizarKPIs(d.kpis);
+        actualizarTablas(d);
+        actualizarGraficos(d);
+
+        await actualizarMetricasHistoricas();
+        await actualizarRankingProductos();
+        await actualizarGraficoTopServicios();
+
+        const elUltima = document.getElementById("ultimaActualizacion");
+        if (elUltima) {
+            elUltima.innerHTML = new Date().toLocaleTimeString("es-CL");
+        }
+
+    } catch (error) {
+        console.error("Error cargando dashboard:", error);
+        alert("No se pudo cargar el dashboard: " + error.message);
     }
-    
-    const d = res.data;
-    actualizarKPIs(d.kpis);
-    actualizarTablas(d);
-    actualizarGraficos(d);
-    
-    await actualizarMetricasHistoricas();
-    await actualizarRankingProductos();
-    await actualizarGraficoTopServicios();
-    
-    
-    const elUltima = document.getElementById("ultimaActualizacion");
-    if (elUltima) elUltima.innerHTML = new Date().toLocaleTimeString("es-CL");
 }
+
 /******************************************************
  * MÉTRICAS HISTÓRICAS
  ******************************************************/
@@ -136,34 +154,37 @@ async function actualizarMetricasHistoricas() {
         if (elMesAnterior) elMesAnterior.textContent = "Error";
     }
 }
+
 /******************************************************
  * Actualizar KPIs
  ******************************************************/
 
 function actualizarKPIs(k) {
     if (!k) return;
-    document.getElementById("ventasMes").innerHTML = pesos(k.ingresosMes);
-    document.getElementById("clientesMes").innerHTML = k.clientesMes || 0;
-    document.getElementById("ticketPromedio").innerHTML = pesos(k.ticketPromedio);
-    document.getElementById("bajoStock").innerHTML = k.bajoStock || 0;
-    document.getElementById("incidentes").innerHTML = k.incidentes || 0;
-    document.getElementById("valorInventario").innerHTML = pesos(k.valorInventario);
 
-    // --- ESTAS LÍNEAS FALTABAN EN TU DASHBOARD.JS ---
-    const elTotalClientes = document.getElementById("totalClientesRegistrados");
-    if (elTotalClientes) elTotalClientes.innerHTML = (k.totalClientesRegistrados || 0).toLocaleString("es-CL");
+    const elVentas = document.getElementById("ventasMes");
+    const elClientesMes = document.getElementById("clientesMes");
+    const elTicket = document.getElementById("ticketPromedio");
+    const elStock = document.getElementById("bajoStock");
+    const elIncidentes = document.getElementById("incidentes");
+    const elInventario = document.getElementById("valorInventario");
 
-    const elVisitasTotales = document.getElementById("visitasTotalesHistorico");
-    if (elVisitasTotales) elVisitasTotales.innerHTML = (k.visitasTotalesHistorico || 0).toLocaleString("es-CL");
-
-    const elVisitasMesAnt = document.getElementById("visitasMesAnterior");
-    if (elVisitasMesAnt) elVisitasMesAnt.innerHTML = (k.visitasMesAnterior || 0).toLocaleString("es-CL");
-    // ------------------------------------------------
+    if (elVentas) elVentas.innerHTML = pesos(k.ingresosMes);
+    if (elClientesMes) elClientesMes.innerHTML = k.clientesMes || 0;
+    if (elTicket) elTicket.innerHTML = pesos(k.ticketPromedio);
+    if (elStock) elStock.innerHTML = k.bajoStock || 0;
+    if (elIncidentes) elIncidentes.innerHTML = k.incidentes || 0;
+    if (elInventario) elInventario.innerHTML = pesos(k.valorInventario);
 
     const selector = document.getElementById("filtroGlobalPeriodo");
+
     if (selector) {
         const textoPeriodo = selector.options[selector.selectedIndex].text;
-        document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
+        const elPeriodo = document.getElementById("periodoRecurrentes");
+
+        if (elPeriodo) {
+            elPeriodo.innerHTML = "2+ visitas · " + textoPeriodo;
+        }
     }
 }
 
@@ -174,7 +195,9 @@ function actualizarKPIs(k) {
 function actualizarTablaStock(lista = []) {
     const tbody = document.querySelector("#tablaStock tbody");
     if (!tbody) return;
+
     tbody.innerHTML = "";
+
     lista.forEach(function (p) {
         tbody.innerHTML += `
         <tr>
@@ -190,7 +213,9 @@ function actualizarTablaStock(lista = []) {
 function actualizarTablaIncidentes(lista = []) {
     const tbody = document.querySelector("#tablaIncidentes tbody");
     if (!tbody) return;
+
     tbody.innerHTML = "";
+
     lista.forEach(function (i) {
         tbody.innerHTML += `
         <tr>
@@ -223,7 +248,7 @@ function actualizarGraficos(data) {
 function crearGraficoVentas(data) {
     if (!data) return;
     if (chartVentas) chartVentas.destroy();
-    
+
     chartVentas = new Chart(
         document.getElementById("graficoVentas"),
         {
@@ -250,22 +275,20 @@ function crearGraficoVentas(data) {
                 scales: {
                     x: {
                         ticks: {
-                            font: {
-                                size: 10
-                            }
+                            font: { size: 10 }
                         }
                     },
                     y: {
                         ticks: {
-                            callback: function(value) { return new Intl.NumberFormat('es-CL', { style: 'currency',
-                                          currency: 'CLP',
-                                          notation: 'compact',
-                                          compactDisplay: 'short'
-                                        }).format(value);
-                                      },
-                            font: {
-                                size: 10
-                            }
+                            callback: function(value) {
+                                return new Intl.NumberFormat('es-CL', {
+                                    style: 'currency',
+                                    currency: 'CLP',
+                                    notation: 'compact',
+                                    compactDisplay: 'short'
+                                }).format(value);
+                            },
+                            font: { size: 10 }
                         }
                     }
                 }
@@ -277,7 +300,7 @@ function crearGraficoVentas(data) {
 function crearGraficoClientes(data) {
     if (!data) return;
     if (chartClientes) chartClientes.destroy();
-    
+
     chartClientes = new Chart(
         document.getElementById("graficoClientes"),
         {
@@ -303,18 +326,10 @@ function crearGraficoClientes(data) {
                 },
                 scales: {
                     x: {
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        }
+                        ticks: { font: { size: 10 } }
                     },
                     y: {
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        }
+                        ticks: { font: { size: 10 } }
                     }
                 }
             }
@@ -365,25 +380,19 @@ function crearGraficoFinanzas(data) {
                 },
                 scales: {
                     x: {
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        }
+                        ticks: { font: { size: 10 } }
                     },
                     y: {
                         ticks: {
                             callback: function(value) {
                                 return new Intl.NumberFormat('es-CL', {
-                                  style: 'currency',
-                                  currency: 'CLP',
-                                  notation: 'compact',
-                                  compactDisplay: 'short'
+                                    style: 'currency',
+                                    currency: 'CLP',
+                                    notation: 'compact',
+                                    compactDisplay: 'short'
                                 }).format(value);
-                              },      
-                            font:{
-                                size: 10
-                            }
+                            },
+                            font: { size: 10 }
                         }
                     }
                 }
@@ -424,9 +433,11 @@ function crearGraficoPago(data) {
                     datalabels: {
                         color: "#FFFFFF",
                         font: { weight: "bold", size: 11 },
-                        formatter: function (value, ctx) {
-                            let total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            let porcentaje = ((value / total) * 100).toFixed(1);
+                        formatter: function(value, ctx) {
+                            const total = ctx.chart.data.datasets[0].data.reduce(
+                                (a, b) => a + b, 0
+                            );
+                            const porcentaje = total ? ((value / total) * 100).toFixed(1) : 0;
                             return porcentaje + "%";
                         }
                     }
@@ -439,7 +450,7 @@ function crearGraficoPago(data) {
 function crearGraficoFrecuencia(data) {
     if (!data) return;
     if (chartFrecuencia) chartFrecuencia.destroy();
-    
+
     const valores = data.datasets[0].data;
 
     const unVisita = Number(valores[0]) || 0;
@@ -450,17 +461,24 @@ function crearGraficoFrecuencia(data) {
     const totalClientes = unVisita + dosTres + cuatroCinco + seisMas;
     const recurrentes = dosTres + cuatroCinco + seisMas;
 
-    let porcentaje = 0;
-    if (totalClientes > 0) {
-        porcentaje = (recurrentes / totalClientes) * 100;
+    const porcentaje = totalClientes > 0
+        ? (recurrentes / totalClientes) * 100
+        : 0;
+
+    const elRecurrentes = document.getElementById("clientesRecurrentes");
+    if (elRecurrentes) {
+        elRecurrentes.innerHTML = porcentaje.toFixed(1) + "%";
     }
 
-    document.getElementById("clientesRecurrentes").innerHTML = porcentaje.toFixed(1) + "%";
-
     const selector = document.getElementById("filtroGlobalPeriodo");
+
     if (selector) {
         const textoPeriodo = selector.options[selector.selectedIndex].text;
-        document.getElementById("periodoRecurrentes").innerHTML = "2+ visitas · " + textoPeriodo;
+        const elPeriodo = document.getElementById("periodoRecurrentes");
+
+        if (elPeriodo) {
+            elPeriodo.innerHTML = "2+ visitas · " + textoPeriodo;
+        }
     }
 
     chartFrecuencia = new Chart(
@@ -490,14 +508,19 @@ function crearGraficoFrecuencia(data) {
                         align: "end",
                         color: "#E65100",
                         font: { weight: "bold", size: 11 },
-                        formatter: function (value) {
+                        formatter: function(value) {
                             return value.toLocaleString("es-CL");
                         }
                     }
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
+                    y: {
+                        ticks: {
+                            font: { size: 10 },
+                            autoSkip: false
+                        }
+                    }
                 }
             }
         }
@@ -512,8 +535,15 @@ async function actualizarGraficoFrecuencia() {
     const el = document.getElementById("filtroGlobalPeriodo");
     const periodo = el ? el.value : "90";
 
-    const res = await llamarAPI("obtenerFrecuenciaClientes", { periodo: periodo });
-    if (!res.ok) { alert(res.error); return; }
+    const res = await llamarAPI("obtenerFrecuenciaClientes", {
+        periodo: periodo
+    });
+
+    if (!res.ok) {
+        alert(res.error);
+        return;
+    }
+
     crearGraficoFrecuencia(res.data);
 }
 
@@ -521,9 +551,14 @@ async function actualizarRankingProductos() {
     const el = document.getElementById("filtroGlobalPeriodo");
     const periodo = el ? el.value : "90";
 
-    const res = await llamarAPI("obtenerRankingProductos", { periodo: periodo });
+    const res = await llamarAPI("obtenerRankingProductos", {
+        periodo: periodo
+    });
 
-    if (!res.ok) { alert(res.error); return; }
+    if (!res.ok) {
+        alert(res.error);
+        return;
+    }
 
     crearGraficoTopUnidades(res.data.unidades);
     crearGraficoTopVentas(res.data.ventas);
@@ -536,14 +571,17 @@ async function actualizarGraficoTopServicios() {
     const criterio = elCriterio ? elCriterio.value : "ingresos";
     const periodo = elPeriodo ? elPeriodo.value : "90";
 
-    const res = await llamarAPI("obtenerTopServicios", { 
-        criterio: criterio, 
-        periodo: periodo 
+    const res = await llamarAPI("obtenerTopServicios", {
+        criterio: criterio,
+        periodo: periodo
     });
 
-    if (!res || !res.ok) { 
-        console.error("Error al obtener Top Servicios:", res ? res.error : "Sin respuesta"); 
-        return; 
+    if (!res || !res.ok) {
+        console.error(
+            "Error al obtener Top Servicios:",
+            res ? res.error : "Sin respuesta"
+        );
+        return;
     }
 
     crearGraficoTopServicios(res.data, criterio);
@@ -584,14 +622,19 @@ function crearGraficoTopUnidades(data) {
                         align: "end",
                         color: "#333333",
                         font: { weight: "bold", size: 11 },
-                        formatter: function (value) {
+                        formatter: function(value) {
                             return value.toLocaleString("es-CL");
                         }
                     }
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
+                    y: {
+                        ticks: {
+                            font: { size: 10 },
+                            autoSkip: false
+                        }
+                    }
                 }
             }
         }
@@ -629,19 +672,24 @@ function crearGraficoTopVentas(data) {
                         align: "end",
                         color: "#2E7D32",
                         font: { weight: "bold", size: 11 },
-                        formatter: function (value) {
-                                return new Intl.NumberFormat('es-CL', {
-                                    style: 'currency',
-                                    currency: 'CLP',
-                                    notation: 'compact',
-                                    compactDisplay: 'short'
-                                }).format(value);
-                            }
+                        formatter: function(value) {
+                            return new Intl.NumberFormat('es-CL', {
+                                style: 'currency',
+                                currency: 'CLP',
+                                notation: 'compact',
+                                compactDisplay: 'short'
+                            }).format(value);
+                        }
                     }
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
+                    y: {
+                        ticks: {
+                            font: { size: 10 },
+                            autoSkip: false
+                        }
+                    }
                 }
             }
         }
@@ -650,17 +698,15 @@ function crearGraficoTopVentas(data) {
 
 function crearGraficoTopServicios(data, criterio) {
     if (!data) return;
-
-    if (chartTopServicios) {
-        chartTopServicios.destroy();
-    }
+    if (chartTopServicios) chartTopServicios.destroy();
 
     const esIngresos = (criterio === "ingresos");
     const colorVioleta = "#6A1B9A";
 
     const labels = data.labels || [];
     const datasetData = data.datasets?.[0]?.data || [];
-    const datasetLabel = data.datasets?.[0]?.label || (esIngresos ? "Ingresos ($)" : "Pases vendidos");
+    const datasetLabel = data.datasets?.[0]?.label ||
+        (esIngresos ? "Ingresos ($)" : "Pases vendidos");
 
     chartTopServicios = new Chart(
         document.getElementById("graficoTopServicios"),
@@ -689,14 +735,14 @@ function crearGraficoTopServicios(data, criterio) {
                         align: "end",
                         color: colorVioleta,
                         font: { weight: "bold", size: 11 },
-                        formatter: function (value) {
-                            if(esIngresos) {
-                            return new Intl.NumberFormat('es-CL', {
-                                style: 'currency',
-                                currency: 'CLP',
-                                notation: 'compact',
-                                compactDisplay: 'short'
-                            }).format(value);
+                        formatter: function(value) {
+                            if (esIngresos) {
+                                return new Intl.NumberFormat('es-CL', {
+                                    style: 'currency',
+                                    currency: 'CLP',
+                                    notation: 'compact',
+                                    compactDisplay: 'short'
+                                }).format(value);
                             }
                             return value;
                         }
@@ -704,50 +750,16 @@ function crearGraficoTopServicios(data, criterio) {
                 },
                 scales: {
                     x: { display: false },
-                    y: { ticks: { font: { size: 10 }, autoSkip: false } }
+                    y: {
+                        ticks: {
+                            font: { size: 10 },
+                            autoSkip: false
+                        }
+                    }
                 }
             }
         }
     );
-}
-/******************************************************
- * Metricas historicas
- ******************************************************/
-
-async function actualizarMetricasHistoricas() {
-    try {
-        const res = await llamarAPI("obtenerMetricasHistoricas");
-if (!res) {
-    console.error("La API no devolvió ninguna respuesta.");
-    return;
-}
-
-console.log("Respuesta completa:", res);
-console.log("Estado OK:", res.ok);
-console.log("Datos recibidos:", res.data);
-console.log("Error del servidor:", res.error);
-
-if (!res.ok || !res.data) {
-    console.error("No se pudieron cargar las métricas históricas.");
-    return;
-}
-        
-
-
-        const k = res.data;
-
-        document.getElementById("totalClientesRegistrados").textContent =
-            Number(k.totalClientesRegistrados || 0).toLocaleString("es-CL");
-
-        document.getElementById("visitasTotalesHistorico").textContent =
-            Number(k.visitasTotalesHistorico || 0).toLocaleString("es-CL");
-
-        document.getElementById("visitasMesAnterior").textContent =
-            Number(k.visitasMesAnterior || 0).toLocaleString("es-CL");
-
-    } catch (error) {
-        console.error("Error en métricas históricas:", error);
-    }
 }
 
 /******************************************************
@@ -755,16 +767,17 @@ if (!res.ok || !res.data) {
  ******************************************************/
 
 const btnActualizar = document.getElementById("btnActualizar");
+
 if (btnActualizar) {
     btnActualizar.addEventListener("click", cargarDashboard);
 }
 
-window.onload = function () {
+window.onload = function() {
     const filtroGlobal = document.getElementById("filtroGlobalPeriodo");
     const filtroServicios = document.getElementById("filtroTopServicios");
 
     if (filtroGlobal) {
-        filtroGlobal.addEventListener("change", function () {
+        filtroGlobal.addEventListener("change", function() {
             actualizarGraficoFrecuencia();
             actualizarRankingProductos();
             actualizarGraficoTopServicios();
@@ -772,7 +785,10 @@ window.onload = function () {
     }
 
     if (filtroServicios) {
-        filtroServicios.addEventListener("change", actualizarGraficoTopServicios);
+        filtroServicios.addEventListener(
+            "change",
+            actualizarGraficoTopServicios
+        );
     }
 
     cargarDashboard();
