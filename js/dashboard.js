@@ -101,6 +101,16 @@ function actualizarKPIs(k) {
     document.getElementById("incidentes").innerHTML = k.incidentes || 0;
     document.getElementById("valorInventario").innerHTML = pesos(k.valorInventario);
 
+    // Nuevas métricas añadidas a las tarjetas
+    const elTotalClientes = document.getElementById("totalClientesRegistrados");
+    if (elTotalClientes) elTotalClientes.innerHTML = (k.totalClientesRegistrados || 0).toLocaleString("es-CL");
+
+    const elVisitasTotales = document.getElementById("visitasTotalesHistorico");
+    if (elVisitasTotales) elVisitasTotales.innerHTML = (k.visitasTotalesHistorico || 0).toLocaleString("es-CL");
+
+    const elVisitasMesAnt = document.getElementById("visitasMesAnterior");
+    if (elVisitasMesAnt) elVisitasMesAnt.innerHTML = (k.visitasMesAnterior || 0).toLocaleString("es-CL");
+
     const selector = document.getElementById("filtroGlobalPeriodo");
     if (selector) {
         const textoPeriodo = selector.options[selector.selectedIndex].text;
@@ -641,9 +651,6 @@ function crearGraficoTopServicios(data, criterio) {
                             }
                             return value;
                         }
-                        /*formatter: function (value) {
-                            return esIngresos ? pesos(value) : Number(value).toLocaleString("es-CL");
-                        }*/
                     }
                 },
                 scales: {
