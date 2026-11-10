@@ -101,7 +101,7 @@ function actualizarKPIs(k) {
     document.getElementById("incidentes").innerHTML = k.incidentes || 0;
     document.getElementById("valorInventario").innerHTML = pesos(k.valorInventario);
 
-    // Nuevas métricas añadidas a las tarjetas
+    // --- ESTAS LÍNEAS FALTABAN EN TU DASHBOARD.JS ---
     const elTotalClientes = document.getElementById("totalClientesRegistrados");
     if (elTotalClientes) elTotalClientes.innerHTML = (k.totalClientesRegistrados || 0).toLocaleString("es-CL");
 
@@ -110,6 +110,7 @@ function actualizarKPIs(k) {
 
     const elVisitasMesAnt = document.getElementById("visitasMesAnterior");
     if (elVisitasMesAnt) elVisitasMesAnt.innerHTML = (k.visitasMesAnterior || 0).toLocaleString("es-CL");
+    // ------------------------------------------------
 
     const selector = document.getElementById("filtroGlobalPeriodo");
     if (selector) {
