@@ -88,7 +88,53 @@ async function cargarDashboard() {
     const elUltima = document.getElementById("ultimaActualizacion");
     if (elUltima) elUltima.innerHTML = new Date().toLocaleTimeString("es-CL");
 }
+/******************************************************
+ * MÉTRICAS HISTÓRICAS
+ ******************************************************/
 
+async function actualizarMetricasHistoricas() {
+    const elClientes = document.getElementById("totalClientesRegistrados");
+    const elVisitas = document.getElementById("visitasTotalesHistorico");
+    const elMesAnterior = document.getElementById("visitasMesAnterior");
+
+    try {
+        const respuesta = await llamarAPI("obtenerMetricasHistoricas");
+
+        console.log("Respuesta métricas históricas:", respuesta);
+
+        if (!respuesta || respuesta.ok !== true || !respuesta.data) {
+            throw new Error(
+                respuesta && respuesta.error
+                    ? respuesta.error
+                    : "El servidor no entregó las métricas históricas."
+            );
+        }
+
+        const datos = respuesta.data;
+
+        if (elClientes) {
+            elClientes.textContent =
+                Number(datos.totalClientesRegistrados || 0).toLocaleString("es-CL");
+        }
+
+        if (elVisitas) {
+            elVisitas.textContent =
+                Number(datos.visitasTotalesHistorico || 0).toLocaleString("es-CL");
+        }
+
+        if (elMesAnterior) {
+            elMesAnterior.textContent =
+                Number(datos.visitasMesAnterior || 0).toLocaleString("es-CL");
+        }
+
+    } catch (error) {
+        console.error("Error cargando métricas históricas:", error);
+
+        if (elClientes) elClientes.textContent = "Error";
+        if (elVisitas) elVisitas.textContent = "Error";
+        if (elMesAnterior) elMesAnterior.textContent = "Error";
+    }
+}
 /******************************************************
  * Actualizar KPIs
  ******************************************************/
