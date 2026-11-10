@@ -94,25 +94,36 @@
                 <div class="valor azul" id="valorInventario">$0</div>
             </div>
             
-            <!-- HISTÓRICO Y MES ANTERIOR -->
-                <div class="card" style="grid-column: 1 / -1;">
-                  <h3>Métricas Históricas y Mensuales</h3>
-                  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px;">
-                    <div>
-                      <span style="font-size: 11px; color: #666; display: block;">Total clientes</span>
-                      <span class="valor" id="totalClientesRegistrados" style="font-size: 18px; font-weight: 700;">-</span>
+            <!-- MÉTRICAS HISTÓRICAS -->
+            <div class="historicos">
+                <div class="historico-card">
+                    <div class="historico-icono">👥</div>
+                    <div class="historico-info">
+                        <h3>Total de clientes</h3>
+                        <div class="historico-valor" id="totalClientesRegistrados">-</div>
+                        <small>Clientes registrados históricamente</small>
                     </div>
-                    <div>
-                      <span style="font-size: 11px; color: #666; display: block;">Visitas totales</span>
-                      <span class="valor" id="visitasTotalesHistorico" style="font-size: 18px; font-weight: 700;">-</span>
-                    </div>
-                    <div>
-                      <span style="font-size: 11px; color: #666; display: block;">Visitas mes ant.</span>
-                      <span class="valor" id="visitasMesAnterior" style="font-size: 18px; font-weight: 700;">-</span>
-                    </div>
-                  </div>
                 </div>
-                    </section>
+            
+                <div class="historico-card">
+                    <div class="historico-icono">🧗</div>
+                    <div class="historico-info">
+                        <h3>Visitas totales</h3>
+                        <div class="historico-valor" id="visitasTotalesHistorico">-</div>
+                        <small>Total de visitas acumuladas</small>
+                    </div>
+                </div>
+            
+                <div class="historico-card">
+                    <div class="historico-icono">📅</div>
+                    <div class="historico-info">
+                        <h3>Visitas mes anterior</h3>
+                        <div class="historico-valor" id="visitasMesAnterior">-</div>
+                        <small>Visitas del mes calendario anterior</small>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- SECCIÓN GRÁFICOS -->
 
