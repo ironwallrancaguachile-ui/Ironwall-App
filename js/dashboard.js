@@ -717,11 +717,22 @@ function crearGraficoTopServicios(data, criterio) {
 async function actualizarMetricasHistoricas() {
     try {
         const res = await llamarAPI("obtenerMetricasHistoricas");
+if (!res) {
+    console.error("La API no devolvió ninguna respuesta.");
+    return;
+}
 
-        if (!res || !res.ok || !res.data) {
-            console.error("Error al cargar métricas históricas:", res);
-            return;
-        }
+console.log("Respuesta completa:", res);
+console.log("Estado OK:", res.ok);
+console.log("Datos recibidos:", res.data);
+console.log("Error del servidor:", res.error);
+
+if (!res.ok || !res.data) {
+    console.error("No se pudieron cargar las métricas históricas.");
+    return;
+}
+        
+
 
         const k = res.data;
 
