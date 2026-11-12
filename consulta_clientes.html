@@ -5,127 +5,155 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gestión de mis datos - Ironwall</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #f4f4f4;
-      color: #222;
-      font-family: Arial, sans-serif;
-    }
+body {
+  font-family: -apple-system, Arial, sans-serif;
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+  background: #fafafa;
+  color: #222;
+}
 
-    .portal-container {
-      max-width: 500px;
-      margin: 30px auto;
-      padding: 24px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, .09);
-    }
+.portal-container {
+  width: 100%;
+  margin: 10px auto;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
 
-    h2 {
-      margin: 0 0 10px;
-      font-size: 23px;
-    }
+h2 {
+  font-size: 20px;
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: #222;
+}
 
-    .intro {
-      color: #666;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 22px;
-    }
+.intro {
+  color: #666;
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.4;
+}
 
-    label {
-      display: block;
-      margin: 12px 0 5px;
-      font-weight: bold;
-      font-size: 14px;
-    }
+label {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
 
-    input {
-      width: 100%;
-      padding: 11px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 15px;
-    }
+input {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  color: #222;
+}
 
-    button {
-      width: 100%;
-      border: 0;
-      border-radius: 5px;
-      padding: 12px;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-      margin-top: 14px;
-    }
+input:focus {
+  outline: none;
+  border-color: #777;
+}
 
-    button:disabled {
-      opacity: .55;
-      cursor: wait;
-    }
+button {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+}
 
-  .btn-dark { background: #212121; }
+button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
 
-  .btn-blue { background: #0878d1; }
+.btn-dark {
+  background: #1a1a1a;
+}
 
-  .btn-red { background: #c62828; }
+.btn-blue {
+  background: #0878d1;
+}
 
-  .btn-light { background: #666; }
+.btn-red {
+  background: #c62828;
+}
 
-    .step {
-      display: none;
-      margin-top: 18px;
-    }
+.btn-light {
+  background: #666;
+}
 
-    #portal-msg {
-      margin-top: 16px;
-      font-size: 14px;
-      line-height: 1.45;
-      text-align: center;
-    }
+.step {
+  display: none;
+  margin-top: 14px;
+}
 
-    .notice {
-      background: #fff8e1;
-      border-left: 4px solid #e0a800;
-      padding: 10px 12px;
-      font-size: 13px;
-      line-height: 1.45;
-      margin-top: 15px;
-    }
+#portal-msg {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
 
-    .small {
-      font-size: 12px;
-      color: #777;
-      line-height: 1.4;
-    }
+.notice {
+  background: #fff8e1;
+  border-left: 4px solid #e0a800;
+  padding: 10px 12px;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #444;
+}
 
-    /* BOTÓN HOME */
-    .btnHome {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #ffffff;
-      color: #222;
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, .08);
-      transition: all .2s ease;
-    }
+.small {
+  font-size: 12px;
+  color: #777;
+  line-height: 1.4;
+  margin: 8px 0;
+}
 
-    .btnHome:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, .12);
-    }
-  </style>
+/* BOTÓN VOLVER */
+.btnHome {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 10px 16px;
+  background: #ffffff;
+  color: #222;
+  text-decoration: none;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: .2s;
+}
+
+.btnHome:hover {
+  background: #f5f5f5;
+}
+</style>  
 </head>
 
 <body>
