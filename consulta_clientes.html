@@ -1,613 +1,605 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gestión de mis datos - Ironwall</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestión de mis datos - Ironwall</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #f4f4f4;
-            color: #222;
-            font-family: Arial, sans-serif;
-        }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f4f4f4;
+      color: #222;
+      font-family: Arial, sans-serif;
+    }
 
-        .portal-container {
-            max-width: 500px;
-            margin: 30px auto;
-            padding: 24px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, .09);
-        }
+    .portal-container {
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .09);
+    }
 
-        h2 {
-            margin: 0 0 10px;
-            font-size: 23px;
-        }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 23px;
+    }
 
-        .intro {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 22px;
-        }
+    .intro {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
 
-        label {
-            display: block;
-            margin: 12px 0 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
+    label {
+      display: block;
+      margin: 12px 0 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
 
-        input {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 15px;
-        }
+    input {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
 
-        button {
-            width: 100%;
-            border: 0;
-            border-radius: 5px;
-            padding: 12px;
-            color: white;
-            font-size: 15px;
-            cursor: pointer;
-            margin-top: 14px;
-        }
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 5px;
+      padding: 12px;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 14px;
+    }
 
-        button:disabled {
-            opacity: .55;
-            cursor: wait;
-        }
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
 
-        .btn-dark {
-            background: #212121;
-        }
+  .btn-dark { background: #212121; }
 
-        .btn-blue {
-            background: #0878d1;
-        }
+  .btn-blue { background: #0878d1; }
 
-        .btn-red {
-            background: #c62828;
-        }
+  .btn-red { background: #c62828; }
 
-        .btn-light {
-            background: #666;
-        }
+  .btn-light { background: #666; }
 
-        .step {
-            display: none;
-            margin-top: 18px;
-        }
+    .step {
+      display: none;
+      margin-top: 18px;
+    }
 
-        #portal-msg {
-            margin-top: 16px;
-            font-size: 14px;
-            line-height: 1.45;
-            text-align: center;
-        }
+    #portal-msg {
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+    }
 
-        .notice {
-            background: #fff8e1;
-            border-left: 4px solid #e0a800;
-            padding: 10px 12px;
-            font-size: 13px;
-            line-height: 1.45;
-            margin-top: 15px;
-        }
+    .notice {
+      background: #fff8e1;
+      border-left: 4px solid #e0a800;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      margin-top: 15px;
+    }
 
-        .small {
-            font-size: 12px;
-            color: #777;
-            line-height: 1.4;
-        }
+    .small {
+      font-size: 12px;
+      color: #777;
+      line-height: 1.4;
+    }
 
-        /* BOTÓN HOME */
-        .btnHome {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #ffffff;
-            color: #222;
-            text-decoration: none;
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, .08);
-            transition: all .2s ease;
-        }
+    /* BOTÓN HOME */
+    .btnHome {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+      color: #222;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, .08);
+      transition: all .2s ease;
+    }
 
-        .btnHome:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, .12);
-        }
-    </style>
+    .btnHome:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .12);
+    }
+  </style>
 </head>
 
 <body>
 
-    <div class="portal-container">
+  <div class="portal-container">
 
-        <a href="portalcliente.html" class="btnHome">⬅️ Volver</a>
+    <a href="portalcliente.html" class="btnHome">⬅️ Volver</a>
 
-        <h2>Gestión de mis datos - Ironwall</h2>
+    <h2>Gestión de mis datos - Ironwall</h2>
 
-        <p class="intro">
-            Consulta y actualiza tus datos personales o solicita su anonimización.
-            Para proteger tu información, enviaremos un código temporal al correo
-            registrado en tu cuenta.
-        </p>
+    <p class="intro">
+      Consulta y actualiza tus datos personales o solicita su anonimización.
+      Para proteger tu información, enviaremos un código temporal al correo
+      registrado en tu cuenta.
+    </p>
 
-        <!-- PASO 1: INGRESO DE CÓDIGO PERSONAL -->
-        <div id="step-login">
+    <!-- PASO 1: INGRESO DE CÓDIGO PERSONAL -->
+    <div id="step-login">
 
-            <label for="input-codigo">Código personal (IDCliente)</label>
+      <label for="input-codigo">Código personal (IDCliente)</label>
 
-            <input
-                type="text"
-                id="input-codigo"
-                autocomplete="off"
-                placeholder="Ej.: CLI12345"
-            >
+      <input
+        type="text"
+        id="input-codigo"
+        autocomplete="off"
+        placeholder="Ej.: CLI12345"
+      >
 
-            <button
-                id="btn-solicitar"
-                class="btn-dark"
-                onclick="solicitarCodigo()"
-            >
-                Enviar código de verificación
-            </button>
-
-        </div>
-
-        <!-- PASO 2: VERIFICACIÓN DE IDENTIDAD -->
-        <div id="step-verificacion" class="step">
-
-            <label for="input-otp">Código de verificación</label>
-
-            <input
-                type="text"
-                id="input-otp"
-                inputmode="numeric"
-                maxlength="6"
-                autocomplete="one-time-code"
-                placeholder="Código de 6 dígitos"
-            >
-
-            <p class="small">
-                El código vence en 5 minutos. Revisa también la carpeta de spam.
-            </p>
-
-            <button
-                id="btn-verificar"
-                class="btn-blue"
-                onclick="verificarCodigo()"
-            >
-                Verificar identidad
-            </button>
-
-            <button
-                class="btn-light"
-                onclick="volverInicio()"
-            >
-                Volver
-            </button>
-
-        </div>
-
-        <!-- PASO 3: EDICIÓN DE DATOS -->
-        <div id="step-edit" class="step">
-
-            <label for="edit-nombre">Nombre completo</label>
-            <input
-                type="text"
-                id="edit-nombre"
-                maxlength="120"
-                autocomplete="name"
-            >
-
-            <label for="edit-email">Correo electrónico</label>
-            <input
-                type="email"
-                id="edit-email"
-                autocomplete="email"
-            >
-
-            <label for="edit-telefono">Teléfono</label>
-            <input
-                type="tel"
-                id="edit-telefono"
-                maxlength="30"
-                autocomplete="tel"
-            >
-
-            <label for="edit-nacimiento">Fecha de nacimiento</label>
-            <input
-                type="date"
-                id="edit-nacimiento"
-                autocomplete="bday"
-            >
-
-            <button
-                id="btn-guardar"
-                class="btn-blue"
-                onclick="guardarCambios()"
-            >
-                Guardar cambios
-            </button>
-
-            <button
-                id="btn-anonimizar"
-                class="btn-red"
-                onclick="solicitarAnonimizacion()"
-            >
-                Solicitar anonimización de mis datos
-            </button>
-
-            <div class="notice">
-                Al confirmar, se reemplazarán o vaciarán los datos personales
-                disponibles en el registro principal de clientes. Se conservará
-                el identificador técnico para mantener referencias internas.
-                La información que exista en otros registros o sistemas debe
-                revisarse por separado.
-            </div>
-
-            <button
-                class="btn-light"
-                onclick="cerrarPortal()"
-            >
-                Cerrar sesión
-            </button>
-
-        </div>
-
-        <div
-            id="portal-msg"
-            role="status"
-            aria-live="polite"
-        ></div>
+      <button
+        id="btn-solicitar"
+        class="btn-dark"
+        onclick="solicitarCodigo()"
+      >
+        Enviar código de verificación
+      </button>
 
     </div>
 
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+    <!-- PASO 2: VERIFICACIÓN DE IDENTIDAD -->
+    <div id="step-verificacion" class="step">
 
-        let clienteId = '';
-        let tokenSesion = '';
+      <label for="input-otp">Código de verificación</label>
 
-        // MENSAJES
-        function mensaje(texto, tipo) {
-            const el = document.getElementById('portal-msg');
+      <input
+        type="text"
+        id="input-otp"
+        inputmode="numeric"
+        maxlength="6"
+        autocomplete="one-time-code"
+        placeholder="Código de 6 dígitos"
+      >
 
-            el.style.color =
-                tipo === 'error' ? '#c62828' :
-                tipo === 'ok' ? '#218838' :
-                '#333';
+      <p class="small">
+        El código vence en 5 minutos. Revisa también la carpeta de spam.
+      </p>
 
-            el.textContent = texto || '';
+      <button
+        id="btn-verificar"
+        class="btn-blue"
+        onclick="verificarCodigo()"
+      >
+        Verificar identidad
+      </button>
+
+      <button
+        class="btn-light"
+        onclick="volverInicio()"
+      >
+        Volver
+      </button>
+
+    </div>
+
+    <!-- PASO 3: EDICIÓN DE DATOS -->
+    <div id="step-edit" class="step">
+
+      <label for="edit-nombre">Nombre completo</label>
+      <input
+        type="text"
+        id="edit-nombre"
+        maxlength="120"
+        autocomplete="name"
+      >
+
+      <label for="edit-email">Correo electrónico</label>
+      <input
+        type="email"
+        id="edit-email"
+        autocomplete="email"
+      >
+
+      <label for="edit-telefono">Teléfono</label>
+      <input
+        type="tel"
+        id="edit-telefono"
+        maxlength="30"
+        autocomplete="tel"
+      >
+
+      <label for="edit-nacimiento">Fecha de nacimiento</label>
+      <input
+        type="date"
+        id="edit-nacimiento"
+        autocomplete="bday"
+      >
+
+      <button
+        id="btn-guardar"
+        class="btn-blue"
+        onclick="guardarCambios()"
+      >
+        Guardar cambios
+      </button>
+
+      <button
+        id="btn-anonimizar"
+        class="btn-red"
+        onclick="solicitarAnonimizacion()"
+      >
+        Solicitar anonimización de mis datos
+      </button>
+
+      <div class="notice">
+        Al confirmar, se reemplazarán o vaciarán los datos personales
+        disponibles en el registro principal de clientes. Se conservará
+        el identificador técnico para mantener referencias internas.
+        La información que exista en otros registros o sistemas debe
+        revisarse por separado.
+      </div>
+
+      <button
+        class="btn-light"
+        onclick="cerrarPortal()"
+      >
+        Cerrar sesión
+      </button>
+
+    </div>
+
+    <div
+      id="portal-msg"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7SvOi2JmjpRtLACJNVvzFtWKKeo9wUitjriZjW-JgNqPeFVliydyVy3NuNT6yiOcRbQ/exec';
+
+    let clienteId = '';
+    let tokenSesion = '';
+
+    // MENSAJES
+    function mensaje(texto, tipo) {
+      const el = document.getElementById('portal-msg');
+
+      el.style.color =
+        tipo === 'error' ? '#c62828' :
+        tipo === 'ok' ? '#218838' :
+        '#333';
+
+      el.textContent = texto || '';
+    }
+
+    // CONTROL DE BOTONES
+    function boton(id, bloqueado, texto) {
+      const b = document.getElementById(id);
+
+      b.disabled = bloqueado;
+
+      if (texto) {
+        b.textContent = texto;
+      }
+    }
+
+    // NAVEGACIÓN ENTRE PASOS
+    function paso(id) {
+      ['step-login', 'step-verificacion', 'step-edit'].forEach(p => {
+        document.getElementById(p).style.display =
+          p === id ? 'block' : 'none';
+      });
+    }
+
+    // CONEXIÓN CON LA API
+    // Misma conexión HTTP que utiliza el formulario de registro de IronApp.
+    // No se reintentan automáticamente las operaciones para evitar duplicados.
+    function llamarApi(accion, payload) {
+      return fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action: accion,
+          payload: payload || {}
+        })
+      })
+      .then(respuesta => respuesta.text())
+      .then(texto => {
+        let respuesta;
+
+        try {
+          respuesta = JSON.parse(texto);
+        } catch (e) {
+          throw new Error(
+            'El servidor devolvió una respuesta no válida. Intenta nuevamente.'
+          );
         }
 
-        // CONTROL DE BOTONES
-        function boton(id, bloqueado, texto) {
-            const b = document.getElementById(id);
-
-            b.disabled = bloqueado;
-
-            if (texto) {
-                b.textContent = texto;
-            }
+        if (!respuesta || respuesta.ok !== true) {
+          throw new Error(
+            respuesta && respuesta.error
+              ? respuesta.error
+              : 'No fue posible procesar la solicitud.'
+          );
         }
 
-        // NAVEGACIÓN ENTRE PASOS
-        function paso(id) {
-            ['step-login', 'step-verificacion', 'step-edit'].forEach(p => {
-                document.getElementById(p).style.display =
-                    p === id ? 'block' : 'none';
-            });
+        return respuesta.data;
+      });
+    }
+
+    // MANEJO DE ERRORES
+    function manejarError(err) {
+      const texto = err && err.message
+        ? err.message
+        : 'No fue posible conectar con el servidor.';
+
+      // Los errores de red/CORS suelen llegar como "Failed to fetch".
+      if (
+        texto === 'Failed to fetch' ||
+        texto.indexOf('NetworkError') !== -1
+      ) {
+        return 'No fue posible conectar con IronApp. Revisa tu conexión e intenta nuevamente.';
+      }
+
+      return texto;
+    }
+
+    // SOLICITAR CÓDIGO DE VERIFICACIÓN
+    function solicitarCodigo() {
+      clienteId = document.getElementById('input-codigo').value.trim();
+
+      if (!clienteId) {
+        mensaje('Ingresa tu código personal.', 'error');
+        return;
+      }
+
+      boton('btn-solicitar', true, 'Enviando...');
+      mensaje('Procesando solicitud...');
+
+      llamarApi('portalSolicitarCodigo', {
+        idCliente: clienteId
+      })
+      .then(res => {
+        boton('btn-solicitar', false, 'Enviar código de verificación');
+
+        if (!res || !res.exito) {
+          mensaje(
+            res && res.mensaje
+              ? res.mensaje
+              : 'No fue posible procesar la solicitud.',
+            'error'
+          );
+          return;
         }
 
-        // CONEXIÓN CON LA API
-        // Misma conexión HTTP que utiliza el formulario de registro de IronApp.
-        // No se reintentan automáticamente las operaciones para evitar duplicados.
-        function llamarApi(accion, payload) {
-            return fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8'
-                },
-                body: JSON.stringify({
-                    action: accion,
-                    payload: payload || {}
-                })
-            })
-            .then(respuesta => respuesta.text())
-            .then(texto => {
-                let respuesta;
+        paso('step-verificacion');
+        mensaje(res.mensaje, 'ok');
+      })
+      .catch(err => {
+        boton('btn-solicitar', false, 'Enviar código de verificación');
+        mensaje(manejarError(err), 'error');
+      });
+    }
 
-                try {
-                    respuesta = JSON.parse(texto);
-                } catch (e) {
-                    throw new Error(
-                        'El servidor devolvió una respuesta no válida. Intenta nuevamente.'
-                    );
-                }
+    // VERIFICAR IDENTIDAD
+    function verificarCodigo() {
+      const codigo = document.getElementById('input-otp').value.trim();
 
-                if (!respuesta || respuesta.ok !== true) {
-                    throw new Error(
-                        respuesta && respuesta.error
-                            ? respuesta.error
-                            : 'No fue posible procesar la solicitud.'
-                    );
-                }
+      if (!/^\d{6}$/.test(codigo)) {
+        mensaje('Ingresa el código de 6 dígitos recibido por correo.', 'error');
+        return;
+      }
 
-                return respuesta.data;
-            });
+      boton('btn-verificar', true, 'Verificando...');
+      mensaje('Verificando identidad...');
+
+      llamarApi('portalVerificarCodigo', {
+        idCliente: clienteId,
+        codigo: codigo
+      })
+      .then(res => {
+        boton('btn-verificar', false, 'Verificar identidad');
+
+        if (!res || !res.exito) {
+          mensaje(
+            res && res.error
+              ? res.error
+              : 'No fue posible verificar el código.',
+            'error'
+          );
+          return;
         }
 
-        // MANEJO DE ERRORES
-        function manejarError(err) {
-            const texto = err && err.message
-                ? err.message
-                : 'No fue posible conectar con el servidor.';
+        tokenSesion = res.token;
+        cargarDatos();
+      })
+      .catch(err => {
+        boton('btn-verificar', false, 'Verificar identidad');
+        mensaje(manejarError(err), 'error');
+      });
+    }
 
-            // Los errores de red/CORS suelen llegar como "Failed to fetch".
-            if (
-                texto === 'Failed to fetch' ||
-                texto.indexOf('NetworkError') !== -1
-            ) {
-                return 'No fue posible conectar con IronApp. Revisa tu conexión e intenta nuevamente.';
-            }
+    // CARGAR DATOS DEL CLIENTE
+    function cargarDatos() {
+      mensaje('Cargando tus datos...');
 
-            return texto;
+      llamarApi('portalBuscarCliente', {
+        idCliente: clienteId,
+        token: tokenSesion
+      })
+      .then(res => {
+        if (!res || !res.exito) {
+          mensaje(
+            res && res.error
+              ? res.error
+              : 'No fue posible cargar tus datos.',
+            'error'
+          );
+          return;
         }
 
-        // SOLICITAR CÓDIGO DE VERIFICACIÓN
-        function solicitarCodigo() {
-            clienteId = document.getElementById('input-codigo').value.trim();
+        document.getElementById('edit-nombre').value =
+          res.cliente.nombreCompleto || '';
 
-            if (!clienteId) {
-                mensaje('Ingresa tu código personal.', 'error');
-                return;
-            }
+        document.getElementById('edit-email').value =
+          res.cliente.email || '';
 
-            boton('btn-solicitar', true, 'Enviando...');
-            mensaje('Procesando solicitud...');
+        document.getElementById('edit-telefono').value =
+          res.cliente.telefono || '';
 
-            llamarApi('portalSolicitarCodigo', {
-                idCliente: clienteId
-            })
-            .then(res => {
-                boton('btn-solicitar', false, 'Enviar código de verificación');
+        document.getElementById('edit-nacimiento').value =
+          res.cliente.fechaNacimiento || '';
 
-                if (!res || !res.exito) {
-                    mensaje(
-                        res && res.mensaje
-                            ? res.mensaje
-                            : 'No fue posible procesar la solicitud.',
-                        'error'
-                    );
-                    return;
-                }
+        paso('step-edit');
 
-                paso('step-verificacion');
-                mensaje(res.mensaje, 'ok');
-            })
-            .catch(err => {
-                boton('btn-solicitar', false, 'Enviar código de verificación');
-                mensaje(manejarError(err), 'error');
-            });
+        mensaje(
+          'Identidad verificada. Puedes revisar y actualizar tus datos.',
+          'ok'
+        );
+      })
+      .catch(err => mensaje(manejarError(err), 'error'));
+    }
+
+    // GUARDAR CAMBIOS
+    function guardarCambios() {
+      const datos = {
+        idCliente: clienteId,
+        nombreCompleto: document.getElementById('edit-nombre').value.trim(),
+        email: document.getElementById('edit-email').value.trim(),
+        telefono: document.getElementById('edit-telefono').value.trim(),
+        fechaNacimiento: document.getElementById('edit-nacimiento').value
+      };
+
+      boton('btn-guardar', true, 'Guardando...');
+
+      llamarApi('portalActualizarCliente', {
+        datos: datos,
+        token: tokenSesion
+      })
+      .then(res => {
+        boton('btn-guardar', false, 'Guardar cambios');
+
+        if (res && res.exito) {
+          mensaje(res.mensaje, 'ok');
+        } else {
+          mensaje(
+            res && res.error
+              ? res.error
+              : 'No fue posible guardar.',
+            'error'
+          );
         }
+      })
+      .catch(err => {
+        boton('btn-guardar', false, 'Guardar cambios');
+        mensaje(manejarError(err), 'error');
+      });
+    }
 
-        // VERIFICAR IDENTIDAD
-        function verificarCodigo() {
-            const codigo = document.getElementById('input-otp').value.trim();
+    // SOLICITAR ANONIMIZACIÓN
+    function solicitarAnonimizacion() {
+      if (!confirm(
+        '¿Confirmas que deseas anonimizar tus datos personales? Se modificarán los datos disponibles en el registro principal. Esta acción no se puede revertir desde el portal.'
+      )) {
+        return;
+      }
 
-            if (!/^\d{6}$/.test(codigo)) {
-                mensaje('Ingresa el código de 6 dígitos recibido por correo.', 'error');
-                return;
-            }
+      if (prompt('Para confirmar, escribe ANONIMIZAR:') !== 'ANONIMIZAR') {
+        mensaje('No se realizó ningún cambio.');
+        return;
+      }
 
-            boton('btn-verificar', true, 'Verificando...');
-            mensaje('Verificando identidad...');
+      boton('btn-anonimizar', true, 'Procesando...');
 
-            llamarApi('portalVerificarCodigo', {
-                idCliente: clienteId,
-                codigo: codigo
-            })
-            .then(res => {
-                boton('btn-verificar', false, 'Verificar identidad');
+      llamarApi('portalAnonimizarCliente', {
+        idCliente: clienteId,
+        token: tokenSesion
+      })
+      .then(res => {
+        boton(
+          'btn-anonimizar',
+          false,
+          'Solicitar anonimización de mis datos'
+        );
 
-                if (!res || !res.exito) {
-                    mensaje(
-                        res && res.error
-                            ? res.error
-                            : 'No fue posible verificar el código.',
-                        'error'
-                    );
-                    return;
-                }
+        if (res && res.exito) {
+          mensaje(res.mensaje, 'ok');
+          tokenSesion = '';
 
-                tokenSesion = res.token;
-                cargarDatos();
-            })
-            .catch(err => {
-                boton('btn-verificar', false, 'Verificar identidad');
-                mensaje(manejarError(err), 'error');
-            });
+          setTimeout(() => location.reload(), 6000);
+        } else {
+          mensaje(
+            res && res.error
+              ? res.error
+              : 'No fue posible procesar la solicitud.',
+            'error'
+          );
         }
+      })
+      .catch(err => {
+        boton(
+          'btn-anonimizar',
+          false,
+          'Solicitar anonimización de mis datos'
+        );
 
-        // CARGAR DATOS DEL CLIENTE
-        function cargarDatos() {
-            mensaje('Cargando tus datos...');
+        mensaje(manejarError(err), 'error');
+      });
+    }
 
-            llamarApi('portalBuscarCliente', {
-                idCliente: clienteId,
-                token: tokenSesion
-            })
-            .then(res => {
-                if (!res || !res.exito) {
-                    mensaje(
-                        res && res.error
-                            ? res.error
-                            : 'No fue posible cargar tus datos.',
-                        'error'
-                    );
-                    return;
-                }
+    // VOLVER AL INICIO
+    function volverInicio() {
+      clienteId = '';
+      tokenSesion = '';
 
-                document.getElementById('edit-nombre').value =
-                    res.cliente.nombreCompleto || '';
+      document.getElementById('input-otp').value = '';
 
-                document.getElementById('edit-email').value =
-                    res.cliente.email || '';
+      paso('step-login');
+      mensaje('');
+    }
 
-                document.getElementById('edit-telefono').value =
-                    res.cliente.telefono || '';
+    // CERRAR SESIÓN
+    function cerrarPortal() {
+      clienteId = '';
+      tokenSesion = '';
 
-                document.getElementById('edit-nacimiento').value =
-                    res.cliente.fechaNacimiento || '';
+      [
+        'input-codigo',
+        'input-otp',
+        'edit-nombre',
+        'edit-email',
+        'edit-telefono',
+        'edit-nacimiento'
+      ].forEach(id => {
+        document.getElementById(id).value = '';
+      });
 
-                paso('step-edit');
+      paso('step-login');
+      mensaje('Sesión cerrada.', 'ok');
+    }
 
-                mensaje(
-                    'Identidad verificada. Puedes revisar y actualizar tus datos.',
-                    'ok'
-                );
-            })
-            .catch(err => mensaje(manejarError(err), 'error'));
-        }
-
-        // GUARDAR CAMBIOS
-        function guardarCambios() {
-            const datos = {
-                idCliente: clienteId,
-                nombreCompleto: document.getElementById('edit-nombre').value.trim(),
-                email: document.getElementById('edit-email').value.trim(),
-                telefono: document.getElementById('edit-telefono').value.trim(),
-                fechaNacimiento: document.getElementById('edit-nacimiento').value
-            };
-
-            boton('btn-guardar', true, 'Guardando...');
-
-            llamarApi('portalActualizarCliente', {
-                datos: datos,
-                token: tokenSesion
-            })
-            .then(res => {
-                boton('btn-guardar', false, 'Guardar cambios');
-
-                if (res && res.exito) {
-                    mensaje(res.mensaje, 'ok');
-                } else {
-                    mensaje(
-                        res && res.error
-                            ? res.error
-                            : 'No fue posible guardar.',
-                        'error'
-                    );
-                }
-            })
-            .catch(err => {
-                boton('btn-guardar', false, 'Guardar cambios');
-                mensaje(manejarError(err), 'error');
-            });
-        }
-
-        // SOLICITAR ANONIMIZACIÓN
-        function solicitarAnonimizacion() {
-            if (!confirm(
-                '¿Confirmas que deseas anonimizar tus datos personales? Se modificarán los datos disponibles en el registro principal. Esta acción no se puede revertir desde el portal.'
-            )) {
-                return;
-            }
-
-            if (prompt('Para confirmar, escribe ANONIMIZAR:') !== 'ANONIMIZAR') {
-                mensaje('No se realizó ningún cambio.');
-                return;
-            }
-
-            boton('btn-anonimizar', true, 'Procesando...');
-
-            llamarApi('portalAnonimizarCliente', {
-                idCliente: clienteId,
-                token: tokenSesion
-            })
-            .then(res => {
-                boton(
-                    'btn-anonimizar',
-                    false,
-                    'Solicitar anonimización de mis datos'
-                );
-
-                if (res && res.exito) {
-                    mensaje(res.mensaje, 'ok');
-                    tokenSesion = '';
-
-                    setTimeout(() => location.reload(), 6000);
-                } else {
-                    mensaje(
-                        res && res.error
-                            ? res.error
-                            : 'No fue posible procesar la solicitud.',
-                        'error'
-                    );
-                }
-            })
-            .catch(err => {
-                boton(
-                    'btn-anonimizar',
-                    false,
-                    'Solicitar anonimización de mis datos'
-                );
-
-                mensaje(manejarError(err), 'error');
-            });
-        }
-
-        // VOLVER AL INICIO
-        function volverInicio() {
-            clienteId = '';
-            tokenSesion = '';
-
-            document.getElementById('input-otp').value = '';
-
-            paso('step-login');
-            mensaje('');
-        }
-
-        // CERRAR SESIÓN
-        function cerrarPortal() {
-            clienteId = '';
-            tokenSesion = '';
-
-            [
-                'input-codigo',
-                'input-otp',
-                'edit-nombre',
-                'edit-email',
-                'edit-telefono',
-                'edit-nacimiento'
-            ].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-
-            paso('step-login');
-            mensaje('Sesión cerrada.', 'ok');
-        }
-
-    </script>
+  </script>
 
 </body>
 </html>
