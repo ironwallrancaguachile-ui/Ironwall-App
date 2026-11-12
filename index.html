@@ -435,7 +435,37 @@
     }
 
     function cerrarPagina() {
-        window.close(); setTimeout(function() { if (!window.closed) { alert('Para salir, puedes cerrar esta pestaña del navegador.'); } }, 300);
+        document.body.innerHTML = `
+            <div style="
+                min-height: 85vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                padding: 25px;
+                font-family: Arial, sans-serif;
+            ">
+                <h1 style="font-size: 28px;">IRONWALL</h1>
+                <h2>¡Gracias por visitarnos!</h2>
+                <p style="color:#666; line-height:1.6;">
+                    Tu proceso ha finalizado.<br>
+                    Ya puedes continuar con el equipo de recepción.
+                </p>
+                <button onclick="location.reload()" style="
+                    width:auto;
+                    padding:12px 22px;
+                    background:#222;
+                    color:white;
+                    border:0;
+                    border-radius:8px;
+                    font-size:15px;
+                    cursor:pointer;
+                ">
+                    Nuevo registro
+                </button>
+            </div>
+        `;
     }
     
     cargarReglamento();
