@@ -15,24 +15,30 @@
       background: #fafafa;
       color: #222;
     }
-    .btnHome {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #ffffff;
-      color: #222;
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      box-shadow: 0 3px 12px rgba(0,0,0,.12);
-      transition: .2s;
-      margin-bottom: 20px;
+    .btnCerrar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #222;
+        color: #fff;
+        border: none;
+        text-decoration: none;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        width: auto;
+        margin: 0 0 20px;
+        box-shadow: 0 3px 12px rgba(0,0,0,.12);
+        transition: .2s;
     }
-    .btnHome:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(0,0,0,.15);
+    
+    .btnCerrar:hover {
+        background: #444;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(0,0,0,.15);
     }
     h1 { font-size: 22px; margin-bottom: 4px; margin-top: 1px; }
     p.sub { color: #666; margin-top: 0; margin-bottom: 24px; font-size: 14px; }
@@ -133,8 +139,8 @@
 </head>
 <body>
 
-  <a href="portalcliente.html" class="btnHome">⬅️ Volver</a>
-
+  <button type="button" class="btnCerrar" onclick="cerrarPagina()"> ✕ Cerrar página </button>
+  
   <div id="formulario">
     <h1>Regístrate en Ironwall</h1>
     <p class="sub">Completa tus datos y recibe tu código de acceso personal.</p>
@@ -428,6 +434,10 @@
       new QRCode(document.getElementById('qrcode'), { text: idCliente, width: 200, height: 200 });
     }
 
+    function cerrarPagina() {
+        window.close(); setTimeout(function() { if (!window.closed) { alert('Para salir, puedes cerrar esta pestaña del navegador.'); } }, 300);
+    }
+    
     cargarReglamento();
   </script>
 </body>
