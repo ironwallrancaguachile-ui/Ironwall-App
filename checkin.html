@@ -433,15 +433,80 @@
       })
       .catch(mostrarError);
   }
-
+ 
+  function calcularEdad(fechaNacimiento) {
+    if (!fechaNacimiento) return 'No registrada';
+  
+    let nacimiento;
+  
+    // Evita errores de zona horaria en fechas ISO.
+    if (/^\d{4}-\d{2}-\d{2}/.test(String(fechaNacimiento))) {
+      const partes = String(fechaNacimiento).substring(0, 10).split('-');
+      nacimiento = new Date(
+        Number(partes[0]),
+        Number(partes[1]) - 1,
+        Number(partes[2])
+      );
+    } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(fechaNacimiento))) {
+      const partes = fechaNacimiento.split('/');
+      nacimiento = new Date(
+        Number(partes[2]),
+        Number(partes[1]) - 1,
+        Number(partes[0])
+      );
+    } else {
+      nacimiento = new Date(fechaNacimiento);
+    }
+  
+    if (isNaN(nacimiento.getTime())) return 'No registrada';
+  
+    const hoy = new Date();
+  
+    if (nacimiento > hoy) return 'Fecha inválida';
+  
+    let años = hoy.getFullYear() - nacimiento.getFullYear();
+    let meses = hoy.getMonth() - nacimiento.getMonth();
+  
+    if (hoy.getDate() < nacimiento.getDate()) {
+      meses--;
+    }
+  
+    if (meses < 0) {
+      años--;
+      meses += 12;
+    }
+  
+    return años + ' años y ' + meses + ' meses';
+  }
+ 
   function renderPases(cliente, pases, checkinsHoy, staff) {
     let html = '';
 
     /* ===== COLUMNA IZQUIERDA ===== */
-    html += '<div class="card">'
-      + '<h3>Cliente</h3>'
-      + '<div style="font-size:14px; font-weight:700;">' + cliente.nombre + ' ' + cliente.apellido + '</div>'
-      + '<p style="font-size:11px; color:#888; margin-bottom:8px;">ID: ' + cliente.idCliente + '</p>';
+    //html += '<div class="card">'
+     // + '<h3>Cliente</h3>'
+   //   + '<div style="font-size:14px; font-weight:700;">' + cliente.nombre + ' ' + cliente.apellido + '</div>'
+    //  + '<p style="font-size:11px; color:#888; margin-bottom:8px;">ID: ' + cliente.idCliente + '</p>';
+  const fechaNacimiento =
+    cliente.fechaNacimiento ||
+    cliente.fecha_nacimiento ||
+    cliente.FechaNacimiento ||
+    cliente.nacimiento ||
+    '';
+  
+  const edadCliente = calcularEdad(fechaNacimiento);
+  
+  html += '<div class="card">'
+    + '<h3>Cliente</h3>'
+    + '<div style="font-size:14px; font-weight:700;">'
+    + cliente.nombre + ' ' + cliente.apellido
+    + '</div>'
+    + '<p style="font-size:11px; color:#888; margin-bottom:4px;">'
+    + 'ID: ' + cliente.idCliente
+    + '</p>'
+    + '<p style="font-size:12px; margin-top:4px;">'
+    + 'Edad: <strong>' + edadCliente + '</strong>'
+    + '</p>';
 
     html += '<label style="margin-top:6px;">Pases Activos</label>';
     if (!pases || pases.length === 0) {
