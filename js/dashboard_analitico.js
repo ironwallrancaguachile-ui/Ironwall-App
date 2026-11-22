@@ -8,13 +8,21 @@ if (typeof ChartDataLabels !== "undefined") {
     Chart.register(ChartDataLabels);
 }
 
-const API_ANALITICO = (window.CONFIG && CONFIG.API && (CONFIG.API.ANALITICO || CONFIG.API.DASHBOARD)) || "";
-
 const DIAS_SEMANA = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 const MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
 const graficosAnaliticos = {};
 
+function obtenerAPIAnalitico() {
+    return (
+        window.CONFIG &&
+        window.CONFIG.API &&
+        (
+            window.CONFIG.API.ANALITICO ||
+            window.CONFIG.API.DASHBOARD
+        )
+    ) || "";
+}
 /******************************************************
  * Llamada al Apps Script (mismo patrón que dashboard.js)
  ******************************************************/
