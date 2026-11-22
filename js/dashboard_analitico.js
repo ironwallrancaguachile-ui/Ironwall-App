@@ -28,6 +28,8 @@ function obtenerAPIAnalitico() {
  ******************************************************/
 
 async function llamarAPIAnalitico(action, payload = {}) {
+    const API_ANALITICO = obtenerAPIAnalitico();
+
     if (!API_ANALITICO) {
         throw new Error("No se encontró la URL del endpoint en CONFIG.API.DASHBOARD.");
     }
