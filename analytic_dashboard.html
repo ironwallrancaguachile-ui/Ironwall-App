@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRONWALL | Dashboard analítico</title>
+    <link rel="icon" href="img/logo.png">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <script src="js/config.js"></script>
+    <style>
+        .barra-nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 10px 20px 0;
+        }
+
+        .btnLink {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            color: #222;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, .12);
+            transition: .2s;
+        }
+
+        .btnLink:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .15);
+        }
+
+        /* Los gráficos de este dashboard son más grandes que los del general */
+        .graficos-analitico {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 15px;
+        }
+
+        .graficos-analitico .ancho {
+            grid-column: 1 / -1;
+        }
+
+        .graficos-analitico .grafico-canvas-wrap {
+            height: 250px;
+        }
+
+        .graficos-analitico .grafico-canvas-wrap.alto {
+            height: 290px;
+        }
+
+        /* dashboard.css limita todos los canvas a 140px; aquí se libera */
+        .graficos-analitico .grafico canvas {
+            max-height: none !important;
+        }
+
+        .nota-grafico {
+            font-size: 11px;
+            color: #777;
+            margin: -2px 0 8px;
+            line-height: 1.35;
+        }
+
+        .lectura {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #5d4a00;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .filtro-grupo input[type="date"] {
+            color: #555;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            font-size: 13px;
+            padding: 5px 8px;
+            border-radius: 6px;
+        }
+
+        #cargando {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        /* Mapa de calor día x hora */
+        .heat-wrap {
+            overflow-x: auto;
+        }
+
+        table.heat {
+            border-collapse: separate;
+            border-spacing: 3px;
+            width: 100%;
+            font-size: 11px;
+        }
+
+        table.heat th {
+            background: none;
+            border: none;
+            padding: 2px 0;
+            color: #666;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        table.heat th.dia {
+            text-align: left;
+            padding-right: 8px;
+            white-space: nowrap;
+        }
+
+        table.heat td {
+            min-width: 34px;
+            padding: 9px 2px;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #notaPie {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.5;
+            margin: 6px 0 20px;
+        }
+
+        @media (max-width: 900px) {
+            .graficos-analitico {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="barra-nav">
+        <a href="portal.html" class="btnLink">🏠 Home</a>
+        <a href="dashboard.html" class="btnLink">📊 Dashboard general</a>
+    </nav>
+
+    <header class="topbar" style="margin-top:10px;">
+        <div>
+            <h1>Dashboard analítico</h1>
+            <span id="rangoTexto"></span>
+        </div>
+        <div class="acciones">
+            <button id="btnActualizar">Actualizar</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="panel-filtros">
+            <div class="filtro-grupo">
+                <label for="filtroRango">📅 Período:</label>
+                <select id="filtroRango">
+                    <option value="mes_actual">Este mes</option>
+                    <option value="mes_anterior">Mes anterior</option>
+                    <option value="60" selected>Últimos 2 meses</option>
+                    <option value="90">Últimos 3 meses (trimestre)</option>
+                    <option value="180">Últimos 6 meses</option>
+                    <option value="personalizado">Personalizado…</option>
+                </select>
+            </div>
+            <div class="filtro-grupo" id="grupoPersonalizado" style="display:none;">
+                <label for="fechaDesde">Desde</label>
+                <input type="date" id="fechaDesde">
+                <label for="fechaHasta">Hasta</label>
+                <input type="date" id="fechaHasta">
+            </div>
+        </div>
+
+        <div id="error" class="error" style="display:none;"></div>
+        <div id="cargando">Cargando…</div>
+        <div id="lectura" class="lectura">Cargando lectura rápida…</div>
+
+        <section class="graficos-analitico">
+
+            <div class="grafico ancho">
+                <h2>💰 Ingresos y egresos por día</h2>
+                <p class="nota-grafico">Barras: lo que entró y salió cada día. Línea: promedio móvil de 7 días de los ingresos, para ver la tendencia sin el ruido diario.</p>
+                <div class="grafico-canvas-wrap alto"><canvas id="gIngresos"></canvas></div>
+            </div>
+
+            <div class="grafico ancho">
+                <h2>🧗 Visitas por día</h2>
+                <p class="nota-grafico">Check-ins reales de cada día, con su promedio móvil de 7 días.</p>
+                <div class="grafico-canvas-wrap"><canvas id="gVisitas"></canvas></div>
+            </div>
+
+            <div class="grafico">
+                <h2>📆 Visitas promedio por día de la semana</h2>
+                <p class="nota-grafico">Los dos días más bajos van en naranja: son los que más conviene activar con eventos, competencias y contenido.</p>
+                <div class="grafico-canvas-wrap"><canvas id="gDiaVisitas"></canvas></div>
+            </div>
+
+            <div class="grafico">
+                <h2>💵 Ingreso promedio por día de la semana</h2>
+                <p class="nota-grafico">Un día puede tener pocas visitas pero buen ingreso (o al revés). Mira los dos juntos.</p>
+                <div class="grafico-canvas-wrap"><canvas id="gDiaIngresos"></canvas></div>
+            </div>
+
+            <div class="grafico ancho">
+                <h2>🔥 ¿Cuándo viene la gente? Promedio de visitas por día y hora</h2>
+                <p class="nota-grafico">Cuanto más oscuro, más gente. Los espacios claros son las franjas donde conviene programar actividades o publicar historias.</p>
+                <div class="heat-wrap" id="heatmap"></div>
+            </div>
+
+            <div class="grafico">
+                <h2>🆕 Primeras visitas vs clientes que vuelven</h2>
+                <p class="nota-grafico">Por semana. Muestra si los eventos y publicaciones están trayendo gente nueva o solo mueven a los de siempre.</p>
+                <div class="grafico-canvas-wrap"><canvas id="gSemanal"></canvas></div>
+            </div>
+
+            <div class="grafico">
+                <h2>🛒 Ingresos por categoría</h2>
+                <p class="nota-grafico">De dónde viene la plata en el período elegido.</p>
+                <div class="grafico-canvas-wrap"><canvas id="gCategorias"></canvas></div>
+            </div>
+
+            <div class="grafico">
+                <h2>🌦️ Estacionalidad: visitas por mes</h2>
+                <p class="nota-grafico">Año contra año, incluyendo el historial migrado. Sirve para anticipar los meses flojos y planear con tiempo.</p>
+                <div class="grafico-canvas-wrap"><canvas id="gEstacionalidad"></canvas></div>
+            </div>
+
+            <div class="grafico">
+                <h2>⏳ Clientes según días desde su última visita</h2>
+                <p class="nota-grafico">Estado actual, no depende del período. Es la base para campañas de reactivación.</p>
+                <div class="grafico-canvas-wrap"><canvas id="gRiesgo"></canvas></div>
+            </div>
+
+        </section>
+
+        <p id="notaPie"></p>
+    </main>
+
+    <script src="js/dashboard_analitico.js"></script>
+</body>
+
+</html>
