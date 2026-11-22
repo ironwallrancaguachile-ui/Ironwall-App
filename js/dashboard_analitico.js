@@ -463,35 +463,76 @@ function renderSemanal(semanal) {
     });
 }
 
+
 function renderCategorias(categorias) {
     const colores = [
         "#1565C0", "#2E7D32", "#F57C00", "#6A1B9A",
         "#00838F", "#D32F2F", "#FBC02D", "#546E7A", "#6D4C41"
     ];
 
+    const valores = (categorias.data || []).map(v => Number(v) || 0);
+    const total = valores.reduce((suma, valor) => suma + valor, 0);
+
     montarGrafico("gCategorias", {
         type: "doughnut",
         data: {
-            labels: categorias.labels,
+            labels: categorias.labels || [],
             datasets: [{
-                data: categorias.data,
-                backgroundColor: categorias.labels.map((_, i) => colores[i % colores.length])
+                data: valores,
+                backgroundColor: (categorias.labels || []).map(
+                    (_, i) => colores[i % colores.length]
+                ),
+                borderWidth: 2,
+                borderColor: "#ffffff"
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                datalabels: { display: false },
+                legend: {
+                    position: "bottom"
+                },
+                datalabels: {
+                    display: (ctx) => {
+                        const valor = Number(ctx.dataset.data[ctx.dataIndex]) || 0;
+                        const porcentaje = total > 0 ? (valor / total) * 100 : 0;
+                        return porcentaje >= 4;
+                    },
+                    color: "#ffffff",
+                    font: {
+                        weight: "bold",
+                        size: 12
+                    },
+                    textAlign: "center",
+                    formatter: (valor) => {
+                        const porcentaje = total > 0
+                            ? (valor / total) * 100
+                            : 0;
+
+                        return [
+                            porcentaje.toFixed(1) + "%",
+                            pesos(valor)
+                        ];
+                    }
+                },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => `${ctx.label}: ${pesos(ctx.parsed)}`
+                        label: (ctx) => {
+                            const valor = Number(ctx.parsed) || 0;
+                            const porcentaje = total > 0
+                                ? (valor / total) * 100
+                                : 0;
+
+                            return `${ctx.label}: ${pesos(valor)} (${porcentaje.toFixed(1)}%)`;
+                        }
                     }
                 }
             }
         }
     });
 }
+
 
 function renderEstacionalidad(estacionalidad) {
     const aniosMap = (estacionalidad && estacionalidad.anios) || {};
